@@ -1721,8 +1721,7 @@ public class BoardEditor extends JComponent
                 String msg = Messages.getString("BoardEditor.validBoard.report");
                 JOptionPane.showMessageDialog(this, msg, title, JOptionPane.INFORMATION_MESSAGE);
             }
-        } else if (ae.getSource().equals(butDelTerrain)
-                   && (!lisTerrain.isSelectionEmpty())) {
+        } else if (ae.getSource().equals(butDelTerrain) && (!lisTerrain.isSelectionEmpty())) {
             ITerrain toRemove = Terrains.getTerrainFactory().createTerrain(
                     lisTerrain.getSelectedValue().getTerrain());
             curHex.removeTerrain(toRemove.getType());
@@ -1730,13 +1729,11 @@ public class BoardEditor extends JComponent
             repaintWorkingHex();
         } else if (ae.getSource().equals(butAddTerrain)) {
             addSetTerrain();
-        } else if (ae.getSource().equals(butElevUp)
-                   && (curHex.getLevel() < 9)) {
+        } else if (ae.getSource().equals(butElevUp) && (curHex.getLevel() < 50)) {
             curHex.setLevel(curHex.getLevel() + 1);
             texElev.incValue();
             repaintWorkingHex();
-        } else if (ae.getSource().equals(butElevDown)
-                   && (curHex.getLevel() > -5)) {
+        } else if (ae.getSource().equals(butElevDown) && (curHex.getLevel() > -50)) {
             curHex.setLevel(curHex.getLevel() - 1);
             texElev.decValue();
             repaintWorkingHex();
