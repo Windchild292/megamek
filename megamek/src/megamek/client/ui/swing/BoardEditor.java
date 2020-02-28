@@ -102,6 +102,8 @@ import megamek.common.ITerrain;
 import megamek.common.ITerrainFactory;
 import megamek.common.MapSettings;
 import megamek.common.Terrains;
+import megamek.common.logging.DefaultMmLogger;
+import megamek.common.logging.MMLogger;
 import megamek.common.util.BoardUtilities;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.MegaMekFile;
@@ -117,18 +119,22 @@ import megamek.common.util.MegaMekFile;
 
 public class BoardEditor extends JComponent implements ItemListener, ListSelectionListener,
         ActionListener, DocumentListener, IMapSettingsObserver {
+    //region Variable Declarations
     private static final long serialVersionUID = 4689863639249616192L;
 
-    //region action commands
+    //region Action Commands
     private static final String FILE_BOARD_EDITOR_EXPAND = "fileBoardExpand";
     private static final String FILE_BOARD_EDITOR_VALIDATE = "fileBoardValidate";
-    //endregion action commands
+    //endregion Action Commands
 
-    JFrame frame = new JFrame();
-    JScrollPane scrollPane;
+    //region Static Variables
+    private static MMLogger logger = DefaultMmLogger.getInstance();
+    //endregion Static Variables
+
+    private JFrame frame = new JFrame();
     private Game game = new Game();
-    IBoard board = game.getBoard();
-    BoardView1 bv;
+    private IBoard board = game.getBoard();
+    private BoardView1 bv;
     public static final int [] allDirections = {0, 1, 2, 3, 4, 5};
     boolean isDragging = false;
     private Component bvc;
@@ -139,8 +145,8 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
     private ITerrainFactory TF = Terrains.getTerrainFactory();
     private JDialog minimapW;
     private MiniMap minimap;
-    MegaMekController controller;
-    IHex curHex = new Hex();
+    private MegaMekController controller;
+    private IHex curHex = new Hex();
     private File currentFileImage;
     private File currentFile;
     // buttons and labels and such:
@@ -155,8 +161,8 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
     private JToggleButton buttonBrush1, buttonBrush2, buttonBrush3;
     private JToggleButton buttonUpDn, buttonOOC;
     // the brush size: 1 = 1 hex, 2 = radius 1, 3 = radius 2  
-    int brushSize = 1;
-    int hexLevelToDraw = -1000;
+    private int brushSize = 1;
+    private int hexLevelToDraw = -1000;
     private Font fontElev = new Font("SansSerif", Font.BOLD, 20);
     private Font fontComboTerr = new Font("SansSerif", Font.BOLD, 12);
     private EditorTextField texElev;
@@ -177,7 +183,6 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
     private JButton butAddTerrain;
     private MapSettings mapSettings = MapSettings.getInstance();
     private Coords lastClicked;
-    // Undo / Redo
     private JButton buttonUndo;
     private JButton buttonRedo;
     private Stack<Set<IHex>> undoStack = new Stack<>();
@@ -186,7 +191,7 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
     private Set<Coords> currentUndoCoords;
     
     /**
-     * Special purpose indicator, keeps terrain list 
+     * Special purpose indicator, keeps terrain list
      * from de-selecting when clicking it
      */
     private boolean terrListBlocker = false;
@@ -214,6 +219,7 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
      * used for disabling hot keys when various dialogs are displayed.
      */
     private boolean ignoreHotKeys = false;
+    //endregion Variable Declarations
 
     /**
      * Creates and lays out a new Board Editor frame.
@@ -349,7 +355,7 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
      * Sets up the frame that will display the editor.
      */
     private void setupFrame() {
-        scrollPane = new JScrollPane(this, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+        JScrollPane scrollPane = new JScrollPane(this, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         frame.setTitle(Messages.getString("BoardEditor.title"));
