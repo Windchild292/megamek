@@ -23,9 +23,6 @@ import megamek.common.Entity;
  * @see BoardViewListener
  */
 public class BoardViewEvent extends java.util.EventObject {
-    /**
-     * 
-     */
     private static final long serialVersionUID = -4823618884833399318L;
     public static final int BOARD_HEX_CLICKED = 0;
     public static final int BOARD_HEX_DOUBLECLICKED = 1;
@@ -41,6 +38,12 @@ public class BoardViewEvent extends java.util.EventObject {
     public static final int FINISHED_MOVING_UNITS = 8;
     public static final int SELECT_UNIT = 9;
     public static final int BOARD_HEX_POPUP = 10;
+
+
+    public static final int SHIFT_MASK = 1;
+    public static final int CTRL_MASK = 2;
+    public static final int ALT_MASK = 8;
+    public static final int BUTTON1_MASK = 16;
 
     private Coords c;
     private Entity entity;

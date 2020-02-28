@@ -1,6 +1,6 @@
 /*
- * MegaMek - Copyright (C) 2000-2003 Ben Mazur (bmazur@sev.org)
- *
+ *  MegaMek - Copyright (C) 2000-2003 Ben Mazur (bmazur@sev.org)
+ *  Copyright (c) 2020 - The MegaMek Team
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the Free
  *  Software Foundation; either version 2 of the License, or (at your option)
@@ -115,130 +115,8 @@ import megamek.common.util.MegaMekFile;
 // TODO: board load time???
 // TODO: sluggish hex drawing?
 
-public class BoardEditor extends JComponent
-        implements ItemListener, ListSelectionListener, ActionListener, DocumentListener, IMapSettingsObserver {
-    
-    /**
-     * Class to make terrains in JComboBoxes easier.  This enables keeping the terrain type int separate from the name
-     * that gets displayed and also provides a way to get tooltips.
-     * 
-     * @author arlith
-     */
-    private static class TerrainHelper implements Comparable<TerrainHelper> {
-        private int terrainType;
-
-        TerrainHelper (int terrain) {
-            terrainType = terrain;
-        }
-
-        public int getTerrainType() {
-            return terrainType;
-        }
-
-        public String toString() {
-            return Terrains.getEditorName(terrainType);
-        }
-
-        public String getTerrainTooltip() {
-            return Terrains.getEditorTooltip(terrainType);
-        }
-
-        @Override
-        public int compareTo(TerrainHelper o) {
-            return toString().compareTo(o.toString());
-        }
-        
-        @Override
-        public boolean equals(Object other) {
-            if (other instanceof Integer) {
-                return getTerrainType() == (Integer) other;
-            }
-            if (!(other instanceof TerrainHelper)) {
-                return false;
-            }
-            return getTerrainType() == ((TerrainHelper)other).getTerrainType();
-        }
-    }
-
-    /**
-     * Class to make it easier to display a <code>Terrain</code> in a JList or JComboBox.
-     *
-     * @author arlith
-     */
-    private static class TerrainTypeHelper implements Comparable<TerrainTypeHelper> {
-
-        ITerrain terrain;
-
-        TerrainTypeHelper(ITerrain terrain) {
-            this.terrain = terrain;
-        }
-
-        public ITerrain getTerrain() {
-            return terrain;
-        }
-
-        @Override
-        public String toString() {
-            String baseString = Terrains.getDisplayName(terrain.getType(), terrain.getLevel());
-            if (baseString == null) {
-                baseString = Terrains.getEditorName(terrain.getType());
-                baseString += " " + terrain.getLevel();
-            }
-            if (terrain.hasExitsSpecified()) {
-                baseString += " (Exits: " + terrain.getExits() + ")";
-            }
-            return baseString; 
-        }
-
-        public String getTooltip() {
-            return terrain.toString();
-        }
-
-        @Override
-        public int compareTo(TerrainTypeHelper o) {
-            return toString().compareTo(o.toString());
-        }
-    }
-    
-    /**
-     *  ListCellRenderer for rendering tooltips for each item in a list or combobox.  Code from SourceForge:
-     *  https://stackoverflow.com/questions/480261/java-swing-mouseover-text-on-jcombobox-items 
-     */
-    private static class ComboboxToolTipRenderer extends DefaultListCellRenderer {
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 7428395938750335593L;
-
-        TerrainHelper[] terrains;
-        
-        List<TerrainTypeHelper> terrainTypes;
-
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-                boolean cellHasFocus) {
-
-            JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected,
-                    cellHasFocus);
-
-            if (-1 < index && null != value && null != terrains) {
-                list.setToolTipText(terrains[index].getTerrainTooltip());
-            }
-            if (-1 < index && null != value && null != terrainTypes) {
-                list.setToolTipText(terrainTypes.get(index).getTooltip());
-            }
-            return comp;
-        }
-
-        public void setTerrains(TerrainHelper[] terrains) {
-            this.terrains = terrains;
-        }
-        
-        public void setTerrainTypes(List<TerrainTypeHelper> terrainTypes) {
-            this.terrainTypes = terrainTypes;
-        }
-    }
- 
+public class BoardEditor extends JComponent implements ItemListener, ListSelectionListener,
+        ActionListener, DocumentListener, IMapSettingsObserver {
     private static final long serialVersionUID = 4689863639249616192L;
 
     //region action commands
@@ -251,20 +129,20 @@ public class BoardEditor extends JComponent
     private Game game = new Game();
     IBoard board = game.getBoard();
     BoardView1 bv;
-    public static final int [] allDirections = {0,1,2,3,4,5};
+    public static final int [] allDirections = {0, 1, 2, 3, 4, 5};
     boolean isDragging = false;
     private Component bvc;
     private CommonMenuBar menuBar = new CommonMenuBar();
     private CommonAboutDialog about;
     private CommonHelpDialog help;
-    private CommonSettingsDialog setdlg;
+    private CommonSettingsDialog settingsDialog;
     private ITerrainFactory TF = Terrains.getTerrainFactory();
     private JDialog minimapW;
     private MiniMap minimap;
     MegaMekController controller;
     IHex curHex = new Hex();
-    private File curfileImage;
-    private File curfile;
+    private File currentFileImage;
+    private File currentFile;
     // buttons and labels and such:
     private HexCanvas canHex;
     // Easy terrain access buttons
@@ -278,14 +156,14 @@ public class BoardEditor extends JComponent
     private JToggleButton buttonUpDn, buttonOOC;
     // the brush size: 1 = 1 hex, 2 = radius 1, 3 = radius 2  
     int brushSize = 1;
-    int hexLeveltoDraw = -1000;
-    private Font fontElev = new Font("SansSerif", Font.BOLD, 20); //$NON-NLS-1$
-    private Font fontComboTerr = new Font("SansSerif", Font.BOLD, 12); //$NON-NLS-1$
+    int hexLevelToDraw = -1000;
+    private Font fontElev = new Font("SansSerif", Font.BOLD, 20);
+    private Font fontComboTerr = new Font("SansSerif", Font.BOLD, 12);
     private EditorTextField texElev;
     private JButton butElevUp;
     private JButton butElevDown;
     private JList<TerrainTypeHelper> lisTerrain;
-    private ComboboxToolTipRenderer lisTerrainRenderer;
+    private ComboBoxToolTipRenderer lisTerrainRenderer;
     private JButton butDelTerrain;
     private JComboBox<TerrainHelper> choTerrainType;
     private EditorTextField texTerrainLevel;
@@ -297,22 +175,15 @@ public class BoardEditor extends JComponent
     private JComboBox<String> choTheme;
     private JButton butTerrDown, butTerrUp;
     private JButton butAddTerrain;
-    private JButton butBoardNew;
-    private JButton butBoardOpen;
-    private JButton butBoardSave;
-    private JButton butBoardSaveAs;
-    private JButton butBoardSaveAsImage;
-    private JButton butMiniMap;
-    private JButton butBoardValidate;
     private MapSettings mapSettings = MapSettings.getInstance();
-    private JButton butExpandMap;
     private Coords lastClicked;
     // Undo / Redo
-    JButton buttonUndo, buttonRedo;
-    private Stack<HashSet<IHex>> undoStack = new Stack<>();
-    private Stack<HashSet<IHex>> redoStack = new Stack<>();
-    private HashSet<IHex> currentUndoSet;
-    private HashSet<Coords> currentUndoCoords;
+    private JButton buttonUndo;
+    private JButton buttonRedo;
+    private Stack<Set<IHex>> undoStack = new Stack<>();
+    private Stack<Set<IHex>> redoStack = new Stack<>();
+    private Set<IHex> currentUndoSet;
+    private Set<Coords> currentUndoCoords;
     
     /**
      * Special purpose indicator, keeps terrain list 
@@ -332,8 +203,9 @@ public class BoardEditor extends JComponent
     private MouseAdapter clickToHide = new MouseAdapter() {
         @Override
         public void mouseReleased(MouseEvent e) {
-            if (e.getSource() instanceof JLabel)
+            if (e.getSource() instanceof JLabel) {
                 ((JLabel) e.getSource()).setVisible(false);
+            }
         }
     };
 
@@ -353,12 +225,9 @@ public class BoardEditor extends JComponent
             bvc = bv.getComponent(true);
             bv.setDisplayInvalidHexInfo(true);
         } catch (IOException e) {
-            JOptionPane
-                    .showMessageDialog(
-                            frame,
-                            Messages.getString("BoardEditor.CouldntInitialize") + e,
-                            Messages.getString("BoardEditor.FatalError"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-            //$NON-NLS-2$
+            JOptionPane.showMessageDialog(frame,
+                    Messages.getString("BoardEditor.CouldntInitialize") + e,
+                    Messages.getString("BoardEditor.FatalError"), JOptionPane.ERROR_MESSAGE);
             frame.dispose();
         }
 
@@ -396,36 +265,37 @@ public class BoardEditor extends JComponent
                 }
                 lastClicked = c;
                 bv.cursor(c);
-                boolean isALT = (b.getModifiers() & InputEvent.ALT_MASK) != 0;
-                boolean isSHIFT = (b.getModifiers() & InputEvent.SHIFT_MASK) != 0;
-                boolean isCTRL = (b.getModifiers() & InputEvent.CTRL_MASK) != 0;
-                boolean isLMB = (b.getModifiers() & InputEvent.BUTTON1_MASK) != 0;
+                boolean isALT = (b.getModifiers() & BoardViewEvent.ALT_MASK) != 0;
+                boolean isSHIFT = (b.getModifiers() & BoardViewEvent.SHIFT_MASK) != 0;
+                boolean isCTRL = (b.getModifiers() & BoardViewEvent.CTRL_MASK) != 0;
+                boolean isLMB = (b.getModifiers() & BoardViewEvent.BUTTON1_MASK) != 0;
 
                 // Raise/Lower Terrain is selected
                 if (buttonUpDn.isSelected()) {
-                    
                     // Mouse Button released
                     if (b.getType() == BoardViewEvent.BOARD_HEX_CLICKED) {
-                        hexLeveltoDraw = -1000;
+                        hexLevelToDraw = -1000;
                         isDragging = false;
                     }
 
                     // Mouse Button clicked or dragged
                     if ((b.getType() == BoardViewEvent.BOARD_HEX_DRAGGED) && isLMB) {
                         if (!isDragging) {
-                            hexLeveltoDraw = board.getHex(c).getLevel();
-                            if (isSHIFT) hexLeveltoDraw++;
-                            else if (isALT) hexLeveltoDraw--;
+                            hexLevelToDraw = board.getHex(c).getLevel();
+                            if (isSHIFT) {
+                                hexLevelToDraw++;
+                            } else if (isALT) {
+                                hexLevelToDraw--;
+                            }
                             isDragging = true;
                         }
                     }
 
                     // CORRECTION, click outside the board then drag inside???
-                    if (hexLeveltoDraw != -1000) {
-                        LinkedList<Coords> allBrushHexes = getBrushCoords(c) ;
+                    if (hexLevelToDraw != -1000) {
+                        List<Coords> allBrushHexes = getBrushCoords(c);
                         for (Coords h: allBrushHexes) {
-                            if (!buttonOOC.isSelected() || board.getHex(h).isClearHex())
-                            {
+                            if (!buttonOOC.isSelected() || board.getHex(h).isClearHex()) {
                                 saveToUndo(h);
                                 relevelHex(h);
                             }   
@@ -437,11 +307,11 @@ public class BoardEditor extends JComponent
                     if (isALT) { // ALT-Click
                         setCurrentHex(board.getHex(b.getCoords()));
                     } else {
-                        LinkedList<Coords> allBrushHexes = getBrushCoords(c);
+                        List<Coords> allBrushHexes = getBrushCoords(c);
                         for (Coords h: allBrushHexes) {
                             // test if texture overwriting is active
-                            if ((!buttonOOC.isSelected() || board.getHex(h).isClearHex()) && curHex.isValid(null))
-                            {
+                            if ((!buttonOOC.isSelected() || board.getHex(h).isClearHex())
+                                    && curHex.isValid(null)) {
                                 saveToUndo(h);
                                 if (isCTRL) { // CTRL-Click
                                     paintHex(h);
@@ -462,8 +332,8 @@ public class BoardEditor extends JComponent
         setupFrame();
         frame.setVisible(true);
         if (GUIPreferences.getInstance().getNagForMapEdReadme()) {
-            String title = Messages.getString("BoardEditor.readme.title"); //$NON-NLS-1$
-            String body = Messages.getString("BoardEditor.readme.message"); //$NON-NLS-1$
+            String title = Messages.getString("BoardEditor.readme.title");
+            String body = Messages.getString("BoardEditor.readme.message");
             ConfirmDialog confirm = new ConfirmDialog(frame, title, body, true);
             confirm.setVisible(true);
             if (!confirm.getShowAgain()) {
@@ -482,7 +352,7 @@ public class BoardEditor extends JComponent
         scrollPane = new JScrollPane(this, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        frame.setTitle(Messages.getString("BoardEditor.title")); //$NON-NLS-1$
+        frame.setTitle(Messages.getString("BoardEditor.title"));
         frame.getContentPane().setLayout(new BorderLayout());
 
         frame.getContentPane().add(bvc, BorderLayout.CENTER);
@@ -517,11 +387,11 @@ public class BoardEditor extends JComponent
     /**
      * Sets up JButtons
      */
-    private JButton prepareButton(String iconName, String buttonName, ArrayList<JButton> bList) {
+    private JButton prepareButton(String iconName, String buttonName, List<JButton> bList) {
         JButton button = new JButton(buttonName);
         button.addActionListener(this);
         // Get the normal icon
-        File file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+".png").getFile(); //$NON-NLS-1$ //$NON-NLS-2$
+        File file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+".png").getFile();
         Image imageButton = ImageUtil.loadImageFromFile(file.getAbsolutePath());
         if (imageButton != null) {
             button.setIcon(new ImageIcon(imageButton));
@@ -530,14 +400,14 @@ public class BoardEditor extends JComponent
         }
 
         // Get the hover icon
-        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_H.png").getFile(); //$NON-NLS-1$ //$NON-NLS-2$
+        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_H.png").getFile();
         imageButton = ImageUtil.loadImageFromFile(file.getAbsolutePath());
         if (imageButton != null) {
             button.setRolloverIcon(new ImageIcon(imageButton));
         }
         
         // Get the disabled icon, if any
-        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_G.png").getFile(); //$NON-NLS-1$ //$NON-NLS-2$
+        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_G.png").getFile();
         imageButton = ImageUtil.loadImageFromFile(file.getAbsolutePath());
         if (imageButton != null) {
             button.setDisabledIcon(new ImageIcon(imageButton));
@@ -545,22 +415,24 @@ public class BoardEditor extends JComponent
 
         String tt = Messages.getString("BoardEditor."+iconName+"TT");
         if (tt.length() != 0) {
-            button.setToolTipText(tt); //$NON-NLS-1$ //$NON-NLS-2$
+            button.setToolTipText(tt);
         }
         button.setMargin(new Insets(0,0,0,0));
-        if (bList != null) bList.add(button);
+        if (bList != null) {
+            bList.add(button);
+        }
         return button;
     }
     
     /**
      * Sets up JToggleButtons
      */
-    private JToggleButton addTerrainTButton(String iconName, String buttonName, ArrayList<JToggleButton> bList) {
+    private JToggleButton addTerrainTButton(String iconName, String buttonName, List<JToggleButton> bList) {
         JToggleButton button = new JToggleButton(buttonName);
         button.addActionListener(this);
         
         // Get the normal icon
-        File file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+".png").getFile(); //$NON-NLS-1$ //$NON-NLS-2$
+        File file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+".png").getFile();
         Image imageButton = ImageUtil.loadImageFromFile(file.getAbsolutePath());
         if (imageButton != null) {
             button.setIcon(new ImageIcon(imageButton));
@@ -569,19 +441,23 @@ public class BoardEditor extends JComponent
         }
         
         // Get the hover icon
-        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_H.png").getFile(); //$NON-NLS-1$ //$NON-NLS-2$
+        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_H.png").getFile();
         imageButton = ImageUtil.loadImageFromFile(file.getAbsolutePath());
-        if (imageButton != null)
+        if (imageButton != null) {
             button.setRolloverIcon(new ImageIcon(imageButton));
+        }
         
         // Get the selected icon
-        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_S.png").getFile(); //$NON-NLS-1$ //$NON-NLS-2$
+        file = new MegaMekFile(Configuration.widgetsDir(), "/MapEditor/"+iconName+"_S.png").getFile();
         imageButton = ImageUtil.loadImageFromFile(file.getAbsolutePath());
-        if (imageButton != null)
+        if (imageButton != null) {
             button.setSelectedIcon(new ImageIcon(imageButton));
-        
-        button.setToolTipText(Messages.getString("BoardEditor."+iconName+"TT")); //$NON-NLS-1$ //$NON-NLS-2$
-        if (bList != null) bList.add(button);
+        }
+            
+        button.setToolTipText(Messages.getString("BoardEditor." + iconName + "TT"));
+        if (bList != null) {
+            bList.add(button);
+        }
         return button;
     }
 
@@ -591,44 +467,44 @@ public class BoardEditor extends JComponent
      */
     private void setupEditorPanel() {
         // Help Texts
-        JLabel genHelpText1 = new JLabel(Messages.getString("BoardEditor.helpText"),SwingConstants.LEFT); //$NON-NLS-1$
-        JLabel terrainButtonHelp = new JLabel(Messages.getString("BoardEditor.helpText2"),SwingConstants.LEFT); //$NON-NLS-1$
+        JLabel genHelpText1 = new JLabel(Messages.getString("BoardEditor.helpText"), SwingConstants.LEFT);
+        JLabel terrainButtonHelp = new JLabel(Messages.getString("BoardEditor.helpText2"), SwingConstants.LEFT);
         genHelpText1.addMouseListener(clickToHide);
         terrainButtonHelp.addMouseListener(clickToHide);
 
         // Buttons to ease setting common terrain types
-        ArrayList<JButton> terrainButtons = new ArrayList<>();
-        buttonLW = prepareButton("ButtonLW", "Woods", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonLJ = prepareButton("ButtonLJ", "Jungle", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonWa = prepareButton("ButtonWa", "Water", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonSw = prepareButton("ButtonSw", "Swamp", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonRo = prepareButton("ButtonRo", "Rough", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonMd = prepareButton("ButtonMd", "Mud", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonPv = prepareButton("ButtonPv", "Pavement", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonBu = prepareButton("ButtonBu", "Buildings", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonRd = prepareButton("ButtonRd", "Roads", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonBr = prepareButton("ButtonBr", "Bridges", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonFT = prepareButton("ButtonFT", "Fuel Tanks", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonSn = prepareButton("ButtonSn", "Snow", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonIc = prepareButton("ButtonIc", "Ice", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonTu = prepareButton("ButtonTu", "Tundra", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonMg = prepareButton("ButtonMg", "Magma", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonCl = prepareButton("ButtonCl", "Clear", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
+        List<JButton> terrainButtons = new ArrayList<>();
+        buttonLW = prepareButton("ButtonLW", "Woods", terrainButtons);
+        buttonLJ = prepareButton("ButtonLJ", "Jungle", terrainButtons);
+        buttonWa = prepareButton("ButtonWa", "Water", terrainButtons);
+        buttonSw = prepareButton("ButtonSw", "Swamp", terrainButtons);
+        buttonRo = prepareButton("ButtonRo", "Rough", terrainButtons);
+        buttonMd = prepareButton("ButtonMd", "Mud", terrainButtons);
+        buttonPv = prepareButton("ButtonPv", "Pavement", terrainButtons);
+        buttonBu = prepareButton("ButtonBu", "Buildings", terrainButtons);
+        buttonRd = prepareButton("ButtonRd", "Roads", terrainButtons);
+        buttonBr = prepareButton("ButtonBr", "Bridges", terrainButtons);
+        buttonFT = prepareButton("ButtonFT", "Fuel Tanks", terrainButtons);
+        buttonSn = prepareButton("ButtonSn", "Snow", terrainButtons);
+        buttonIc = prepareButton("ButtonIc", "Ice", terrainButtons);
+        buttonTu = prepareButton("ButtonTu", "Tundra", terrainButtons);
+        buttonMg = prepareButton("ButtonMg", "Magma", terrainButtons);
+        buttonCl = prepareButton("ButtonCl", "Clear", terrainButtons);
 
-        ArrayList<JToggleButton> brushButtons = new ArrayList<>();
-        buttonBrush1 = addTerrainTButton("ButtonHex1", "Brush1", brushButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonBrush2 = addTerrainTButton("ButtonHex7", "Brush2", brushButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonBrush3 = addTerrainTButton("ButtonHex19", "Brush3", brushButtons); //$NON-NLS-1$ //$NON-NLS-2$
+        List<JToggleButton> brushButtons = new ArrayList<>();
+        buttonBrush1 = addTerrainTButton("ButtonHex1", "Brush1", brushButtons);
+        buttonBrush2 = addTerrainTButton("ButtonHex7", "Brush2", brushButtons);
+        buttonBrush3 = addTerrainTButton("ButtonHex19", "Brush3", brushButtons);
         ButtonGroup brushGroup = new ButtonGroup();
         brushGroup.add(buttonBrush1);
         brushGroup.add(buttonBrush2);
         brushGroup.add(buttonBrush3);
-        buttonOOC = addTerrainTButton("ButtonOOC", "OOC", brushButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonUpDn = addTerrainTButton("ButtonUpDn", "UpDown", brushButtons); //$NON-NLS-1$ //$NON-NLS-2$
+        buttonOOC = addTerrainTButton("ButtonOOC", "OOC", brushButtons);
+        buttonUpDn = addTerrainTButton("ButtonUpDn", "UpDown", brushButtons);
 
-        ArrayList<JButton> undoButtons = new ArrayList<>();
-        buttonUndo = prepareButton("ButtonUndo", "Undo", undoButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonRedo = prepareButton("ButtonRedo", "Redo", undoButtons); //$NON-NLS-1$ //$NON-NLS-2$
+        List<JButton> undoButtons = new ArrayList<>();
+        buttonUndo = prepareButton("ButtonUndo", "Undo", undoButtons);
+        buttonRedo = prepareButton("ButtonRedo", "Redo", undoButtons);
         buttonUndo.setEnabled(false);
         buttonRedo.setEnabled(false);
 
@@ -788,14 +664,14 @@ public class BoardEditor extends JComponent
         addManyButtons(undoButtonPanel, buttonUndo, buttonRedo);
 
         // Hex Elevation Control
-        texElev = new EditorTextField("0", 3); //$NON-NLS-1$
+        texElev = new EditorTextField("0", 3);
         texElev.addActionListener(this);
         texElev.getDocument().addDocumentListener(this);
-        butElevUp = prepareButton("ButtonHexUP", "Raise Hex Elevation", null); //$NON-NLS-1$ //$NON-NLS-2$
-        butElevDown = prepareButton("ButtonHexDN", "Lower Hex Elevation", null); //$NON-NLS-1$ //$NON-NLS-2$
+        butElevUp = prepareButton("ButtonHexUP", "Raise Hex Elevation", null);
+        butElevDown = prepareButton("ButtonHexDN", "Lower Hex Elevation", null);
 
         // Terrain List
-        lisTerrainRenderer = new ComboboxToolTipRenderer();
+        lisTerrainRenderer = new ComboBoxToolTipRenderer();
         lisTerrain = new JList<>(new DefaultListModel<>());
         lisTerrain.addListSelectionListener(this);
         lisTerrain.setCellRenderer(lisTerrainRenderer);
@@ -818,38 +694,38 @@ public class BoardEditor extends JComponent
             terrains[i - 1] = new TerrainHelper(i);
         }
         Arrays.sort(terrains);
-        texTerrainLevel = new EditorTextField("0", 2, 0); //$NON-NLS-1$
+        texTerrainLevel = new EditorTextField("0", 2, 0);
         texTerrainLevel.addActionListener(this);
         texTerrainLevel.getDocument().addDocumentListener(this);
         choTerrainType = new JComboBox<>(terrains);
-        ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
+        ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
         renderer.setTerrains(terrains);
         choTerrainType.setRenderer(renderer);
         // Selecting a terrain type in the Dropdown should deselect
         // all in the terrain overview list except when selected from there
         choTerrainType.addActionListener(e -> { if (!terrListBlocker) lisTerrain.clearSelection(); });
         choTerrainType.setFont(fontComboTerr);
-        butAddTerrain = new JButton(Messages.getString("BoardEditor.butAddTerrain")); //$NON-NLS-1$
-        butTerrUp = prepareButton("ButtonTLUP", "Increase Terrain Level", null); //$NON-NLS-1$ //$NON-NLS-2$
-        butTerrDown = prepareButton("ButtonTLDN", "Decrease Terrain Level", null); //$NON-NLS-1$ //$NON-NLS-2$
+        butAddTerrain = new JButton(Messages.getString("BoardEditor.butAddTerrain"));
+        butTerrUp = prepareButton("ButtonTLUP", "Increase Terrain Level", null);
+        butTerrDown = prepareButton("ButtonTLDN", "Decrease Terrain Level", null);
 
         // Minimap Toggle
-        butMiniMap = new JButton(Messages.getString("BoardEditor.butMiniMap")); //$NON-NLS-1$
+        JButton butMiniMap = new JButton(Messages.getString("BoardEditor.butMiniMap"));
         butMiniMap.setActionCommand(ClientGUI.VIEW_MINI_MAP);
 
         // Exits
-        cheTerrExitSpecified = new JCheckBox(Messages.getString("BoardEditor.cheTerrExitSpecified")); //$NON-NLS-1$
+        cheTerrExitSpecified = new JCheckBox(Messages.getString("BoardEditor.cheTerrExitSpecified"));
         cheTerrExitSpecified.addActionListener(e -> {
             noTextFieldUpdate = true;
             updateWhenSelected();
             noTextFieldUpdate = false;
         });
-        butTerrExits = prepareButton("ButtonExitA", Messages.getString("BoardEditor.butTerrExits"), null); //$NON-NLS-1$ //$NON-NLS-2$
-        texTerrExits = new EditorTextField("0", 2, 0); //$NON-NLS-1$
+        butTerrExits = prepareButton("ButtonExitA", Messages.getString("BoardEditor.butTerrExits"), null);
+        texTerrExits = new EditorTextField("0", 2, 0);
         texTerrExits.addActionListener(this);
         texTerrExits.getDocument().addDocumentListener(this);
-        butExitUp = prepareButton("ButtonEXUP", "Increase Exit / Gfx", null); //$NON-NLS-1$ //$NON-NLS-2$
-        butExitDown = prepareButton("ButtonEXDN", "Decrease Exit / Gfx", null); //$NON-NLS-1$ //$NON-NLS-2$
+        butExitUp = prepareButton("ButtonEXUP", "Increase Exit / Gfx", null);
+        butExitDown = prepareButton("ButtonEXDN", "Decrease Exit / Gfx", null);
 
         // Arrows and text fields for type and exits
         JPanel panUP = new JPanel(new GridLayout(1,0,4,4));
@@ -866,13 +742,13 @@ public class BoardEditor extends JComponent
         panDN.add(Box.createHorizontalStrut(5));
 
         // Auto Exits to Pavement
-        cheRoadsAutoExit = new JCheckBox(Messages.getString("BoardEditor.cheRoadsAutoExit")); //$NON-NLS-1$
+        cheRoadsAutoExit = new JCheckBox(Messages.getString("BoardEditor.cheRoadsAutoExit"));
         cheRoadsAutoExit.addItemListener(this);
         cheRoadsAutoExit.setSelected(true);
 
         // Theme
         JPanel panTheme = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 4));
-        JLabel labTheme = new JLabel(Messages.getString("BoardEditor.labTheme"), SwingConstants.LEFT); //$NON-NLS-1$
+        JLabel labTheme = new JLabel(Messages.getString("BoardEditor.labTheme"), SwingConstants.LEFT);
         choTheme = new JComboBox<>();
         TilesetManager tileMan = bv.getTilesetManager();
         Set<String> themes = tileMan.getThemes();
@@ -883,7 +759,8 @@ public class BoardEditor extends JComponent
 
         // The hex settings panel (elevation, theme)
         JPanel panelHexSettings = new JPanel();
-        panelHexSettings.setBorder(new TitledBorder(new LineBorder(Color.BLUE, 1), "Hex Settings")); //$NON-NLS-1$
+        panelHexSettings.setBorder(new TitledBorder(new LineBorder(Color.BLUE, 1),
+                "Hex Settings"));
         panelHexSettings.add(butElevUp);
         panelHexSettings.add(texElev);
         panelHexSettings.add(butElevDown);
@@ -891,7 +768,8 @@ public class BoardEditor extends JComponent
 
         // The terrain settings panel (type, level, exits)
         JPanel panelTerrSettings = new JPanel(new GridLayout(0, 2, 4, 4));
-        panelTerrSettings.setBorder(new TitledBorder(new LineBorder(Color.BLUE, 1), "Terrain Settings")); //$NON-NLS-1$
+        panelTerrSettings.setBorder(new TitledBorder(new LineBorder(Color.BLUE, 1),
+                "Terrain Settings"));
         panelTerrSettings.add(Box.createVerticalStrut(5));
         panelTerrSettings.add(panUP);
 
@@ -903,30 +781,31 @@ public class BoardEditor extends JComponent
 
         // The board settings panel (Auto exit roads to pavement)
         JPanel panelBoardSettings = new JPanel();
-        panelBoardSettings.setBorder(new TitledBorder(new LineBorder(Color.BLUE, 1), "Board Settings")); //$NON-NLS-1$
+        panelBoardSettings.setBorder(new TitledBorder(new LineBorder(Color.BLUE, 1),
+                "Board Settings"));
         panelBoardSettings.add(cheRoadsAutoExit);
 
         // Board Buttons (Save, Load...)
-        JLabel labBoard = new JLabel(Messages.getString("BoardEditor.labBoard"), SwingConstants.LEFT); //$NON-NLS-1$
-        butBoardNew = new JButton(Messages.getString("BoardEditor.butBoardNew")); //$NON-NLS-1$
+        JLabel labBoard = new JLabel(Messages.getString("BoardEditor.labBoard"), SwingConstants.LEFT);
+        JButton butBoardNew = new JButton(Messages.getString("BoardEditor.butBoardNew"));
         butBoardNew.setActionCommand(ClientGUI.FILE_BOARD_NEW);
 
-        butExpandMap = new JButton(Messages.getString("BoardEditor.butExpandMap")); //$NON-NLS-1$
+        JButton butExpandMap = new JButton(Messages.getString("BoardEditor.butExpandMap"));
         butExpandMap.setActionCommand(FILE_BOARD_EDITOR_EXPAND);
 
-        butBoardOpen = new JButton(Messages.getString("BoardEditor.butBoardOpen")); //$NON-NLS-1$
+        JButton butBoardOpen = new JButton(Messages.getString("BoardEditor.butBoardOpen"));
         butBoardOpen.setActionCommand(ClientGUI.FILE_BOARD_OPEN);
 
-        butBoardSave = new JButton(Messages.getString("BoardEditor.butBoardSave")); //$NON-NLS-1$
+        JButton butBoardSave = new JButton(Messages.getString("BoardEditor.butBoardSave"));
         butBoardSave.setActionCommand(ClientGUI.FILE_BOARD_SAVE);
 
-        butBoardSaveAs = new JButton(Messages.getString("BoardEditor.butBoardSaveAs")); //$NON-NLS-1$
+        JButton butBoardSaveAs = new JButton(Messages.getString("BoardEditor.butBoardSaveAs"));
         butBoardSaveAs.setActionCommand(ClientGUI.FILE_BOARD_SAVE_AS);
 
-        butBoardSaveAsImage = new JButton(Messages.getString("BoardEditor.butBoardSaveAsImage")); //$NON-NLS-1$
+        JButton butBoardSaveAsImage = new JButton(Messages.getString("BoardEditor.butBoardSaveAsImage"));
         butBoardSaveAsImage.setActionCommand(ClientGUI.FILE_BOARD_SAVE_AS_IMAGE);
 
-        butBoardValidate = new JButton(Messages.getString("BoardEditor.butBoardValidate")); //$NON-NLS-1$
+        JButton butBoardValidate = new JButton(Messages.getString("BoardEditor.butBoardValidate"));
         butBoardValidate.setActionCommand(FILE_BOARD_EDITOR_VALIDATE);
 
         addManyActionListeners(butBoardValidate, butBoardSaveAsImage, butBoardSaveAs, butBoardSave);
@@ -937,8 +816,8 @@ public class BoardEditor extends JComponent
         panButtons.add(labBoard);
         panButtons.add(new JLabel("")); // Spacer Label
         panButtons.add(new JLabel("")); // Spacer Label
-        addManyButtons(panButtons, butBoardNew, butBoardSave, butBoardOpen,
-                butExpandMap, butBoardSaveAs, butBoardSaveAsImage);
+        addManyButtons(panButtons, butBoardNew, butBoardSave, butBoardOpen, butExpandMap,
+                butBoardSaveAs, butBoardSaveAsImage);
         panButtons.add(Box.createHorizontalStrut(5));
         panButtons.add(butBoardValidate);
 
@@ -965,9 +844,9 @@ public class BoardEditor extends JComponent
         add(terrainButtonHelp, cfullLine);
         add(terrainButtonPanel, cfullLine);
         add(brushButtonPanel, cfullLine);
-        add(new JLabel(""), cYFiller); //$NON-NLS-1$
+        add(new JLabel(""), cYFiller);
         add(undoButtonPanel, cfullLine);
-        add(new JLabel(""), cYFiller); //$NON-NLS-1$
+        add(new JLabel(""), cYFiller);
 
         // Terrain and Hex Control
         add(panelBoardSettings, cfullLine);
@@ -978,26 +857,21 @@ public class BoardEditor extends JComponent
         add(panlisHex, cfullLine);
 
         // Minimap Toggle
-        add(new JLabel(""), cYFiller); //$NON-NLS-1$
+        add(new JLabel(""), cYFiller);
         add(butMiniMap, cfullLine);
 
         // Board buttons
         add(panButtons, cfullLine);
 
-        minimapW = new JDialog(frame, Messages
-                .getString("BoardEditor.minimapW"), false); //$NON-NLS-1$
+        minimapW = new JDialog(frame, Messages.getString("BoardEditor.minimapW"), false);
         minimapW.setLocation(GUIPreferences.getInstance().getMinimapPosX(),
                              GUIPreferences.getInstance().getMinimapPosY());
         try {
             minimap = new MiniMap(minimapW, game, bv);
         } catch (IOException e) {
-            JOptionPane
-                    .showMessageDialog(
-                            frame,
-                            Messages
-                                    .getString("BoardEditor.CouldNotInitialiseMinimap") + e,
-                            Messages.getString("BoardEditor.FatalError"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-            //$NON-NLS-2$
+            JOptionPane.showMessageDialog(frame,
+                    Messages.getString("BoardEditor.CouldNotInitialiseMinimap") + e,
+                    Messages.getString("BoardEditor.FatalError"), JOptionPane.ERROR_MESSAGE);
             frame.dispose();
         }
         minimapW.add(minimap);
@@ -1008,14 +882,15 @@ public class BoardEditor extends JComponent
      * Returns coords that the active brush will paint on;
      * returns only coords that are valid, i.e. on the board
      */
-    private LinkedList<Coords> getBrushCoords(Coords center) {
-        LinkedList<Coords> coords = new LinkedList<>();
+    private List<Coords> getBrushCoords(Coords center) {
+        List<Coords> coords = new LinkedList<>();
         // The center hex itself is always part of the brush
         coords.add(center);
         // Add surrounding hexes for the big brush
         if (brushSize > 1) {
-            for (int dir: allDirections) 
+            for (int dir: allDirections) {
                 coords.add(center.translated(dir));
+            }
         } 
         // Add the surrounding hexes, radius 2 for the very big brush
         if (brushSize > 2) {
@@ -1026,7 +901,7 @@ public class BoardEditor extends JComponent
             }
         } 
         // Remove coords that are not on the board
-        LinkedList<Coords> finalCoords = new LinkedList<>();
+        List<Coords> finalCoords = new LinkedList<>();
         for (Coords c: coords) if (board.contains(c)) finalCoords.add(c);
         return finalCoords;
     }
@@ -1042,12 +917,12 @@ public class BoardEditor extends JComponent
     }
     
     // Helper to shorten the code
-    private void addManyButtons(JPanel panel, ArrayList<JButton> buttonList) {
+    private void addManyButtons(JPanel panel, List<JButton> buttonList) {
         for (JButton button: buttonList) panel.add(button);
     }
     
     // Helper to shorten the code
-    private void addManyTButtons(JPanel panel, ArrayList<JToggleButton> buttonList) {
+    private void addManyTButtons(JPanel panel, List<JToggleButton> buttonList) {
         for (JToggleButton button: buttonList) panel.add(button);
     }
     
@@ -1085,7 +960,7 @@ public class BoardEditor extends JComponent
      */
     private void relevelHex(Coords c) {
         IHex newHex = board.getHex(c).duplicate(); 
-        newHex.setLevel(hexLeveltoDraw);
+        newHex.setLevel(hexLevelToDraw);
         board.resetStoredElevation();
         board.setHex(c, newHex);
         
@@ -1210,13 +1085,12 @@ public class BoardEditor extends JComponent
      */
     private void addSetTerrain() {
         ITerrain toAdd = enteredTerrain();
-        if (((toAdd.getType() == Terrains.BLDG_ELEV) 
-                || (toAdd.getType() == Terrains.BRIDGE_ELEV))
+        if (((toAdd.getType() == Terrains.BLDG_ELEV) || (toAdd.getType() == Terrains.BRIDGE_ELEV))
                 && toAdd.getLevel() < 0) {
             texTerrainLevel.setNumber(0);
             JOptionPane.showMessageDialog(frame,
-                    Messages.getString("BoardEditor.BridgeBuildingElevError"), //$NON-NLS-1$
-                    Messages.getString("BoardEditor.invalidTerrainTitle"), //$NON-NLS-1$ 
+                    Messages.getString("BoardEditor.BridgeBuildingElevError"),
+                    Messages.getString("BoardEditor.invalidTerrainTitle"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -1340,8 +1214,8 @@ public class BoardEditor extends JComponent
         rmd.setVisible(true);
         board = BoardUtilities.generateRandom(mapSettings);
         game.setBoard(board);
-        curfile = null;
-        frame.setTitle(Messages.getString("BoardEditor.title")); //$NON-NLS-1$
+        currentFile = null;
+        frame.setTitle(Messages.getString("BoardEditor.title"));
         menuBar.setBoard(true);
         bvc.doLayout();
     }
@@ -1359,8 +1233,8 @@ public class BoardEditor extends JComponent
         board = implantOldBoard(game, west, north, east, south);
 
         game.setBoard(board);
-        curfile = null;
-        frame.setTitle(Messages.getString("BoardEditor.title")); //$NON-NLS-1$
+        currentFile = null;
+        frame.setTitle(Messages.getString("BoardEditor.title"));
         menuBar.setBoard(true);
         bvc.doLayout();
     }
@@ -1404,7 +1278,7 @@ public class BoardEditor extends JComponent
         fc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File dir) {
-                return (dir.getName().endsWith(".board") || dir.isDirectory()); //$NON-NLS-1$
+                return (dir.getName().endsWith(".board") || dir.isDirectory());
             }
 
             @Override
@@ -1417,7 +1291,7 @@ public class BoardEditor extends JComponent
             // I want a file, y'know!
             return;
         }
-        curfile = fc.getSelectedFile();
+        currentFile = fc.getSelectedFile();
         // load!
         try (InputStream is = new FileInputStream(fc.getSelectedFile())) {            
             // tell the board to load!
@@ -1438,10 +1312,10 @@ public class BoardEditor extends JComponent
             menuBar.setBoard(true);
             bvc.doLayout();
         } catch (IOException ex) {
-            System.err.println("error opening file to save!"); //$NON-NLS-1$
+            System.err.println("error opening file to save!");
             System.err.println(ex);
         }
-        frame.setTitle(Messages.getString("BoardEditor.title0") + curfile); //$NON-NLS-1$
+        frame.setTitle(Messages.getString("BoardEditor.title0") + currentFile);
         cheRoadsAutoExit.setSelected(board.getRoadsAutoExit());
         mapSettings.setBoardSize(board.getWidth(), board.getHeight());
         refreshTerrainList();
@@ -1452,17 +1326,17 @@ public class BoardEditor extends JComponent
      * "save as"; otherwise, saves the board to the specified file.
      */
     private void boardSave() {
-        if (curfile == null) {
+        if (currentFile == null) {
             boardSaveAs();
             return;
         }
         // save!
         try {
-            OutputStream os = new FileOutputStream(curfile);
+            OutputStream os = new FileOutputStream(currentFile);
             board.save(os);// tell the board to save!
             os.close(); // okay, done!
         } catch (IOException ex) {
-            System.err.println("error opening file to save!"); //$NON-NLS-1$
+            System.err.println("error opening file to save!");
             System.err.println(ex);
         }
     }
@@ -1471,12 +1345,12 @@ public class BoardEditor extends JComponent
      * Saves the board in PNG image format.
      */
     private void boardSaveImage(boolean ignoreUnits) {
-        if (curfileImage == null) {
+        if (currentFileImage == null) {
             boardSaveAsImage(ignoreUnits);
             return;
         }
-        JDialog waitD = new JDialog(frame, Messages.getString("BoardEditor.waitDialog.title")); //$NON-NLS-1$
-        waitD.add(new JLabel(Messages.getString("BoardEditor.waitDialog.message"))); //$NON-NLS-1$
+        JDialog waitD = new JDialog(frame, Messages.getString("BoardEditor.waitDialog.title"));
+        waitD.add(new JLabel(Messages.getString("BoardEditor.waitDialog.message")));
         waitD.setSize(250, 130);
         // move to middle of screen
         waitD.setLocation(
@@ -1487,7 +1361,7 @@ public class BoardEditor extends JComponent
         waitD.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         // save!
         try {
-            ImageIO.write(bv.getEntireBoardImage(ignoreUnits), "png", curfileImage);
+            ImageIO.write(bv.getEntireBoardImage(ignoreUnits), "png", currentFileImage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1506,7 +1380,7 @@ public class BoardEditor extends JComponent
         fc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File dir) {
-                return (dir.getName().endsWith(".board") || dir.isDirectory()); //$NON-NLS-1$
+                return (dir.getName().endsWith(".board") || dir.isDirectory());
             }
 
             @Override
@@ -1518,18 +1392,18 @@ public class BoardEditor extends JComponent
         if ((returnVal != JFileChooser.APPROVE_OPTION) || (fc.getSelectedFile() == null)) {
             return; // I want a file, y'know!
         }
-        curfile = fc.getSelectedFile();
+        currentFile = fc.getSelectedFile();
 
         // make sure the file ends in board
-        if (!curfile.getName().toLowerCase().endsWith(".board")) { //$NON-NLS-1$
+        if (!currentFile.getName().toLowerCase().endsWith(".board")) {
             try {
-                curfile = new File(curfile.getCanonicalPath() + ".board"); //$NON-NLS-1$
+                currentFile = new File(currentFile.getCanonicalPath() + ".board");
             } catch (IOException ie) {
                 // failure!
                 return;
             }
         }
-        frame.setTitle(Messages.getString("BoardEditor.title0") + curfile); //$NON-NLS-1$
+        frame.setTitle(Messages.getString("BoardEditor.title0") + currentFile);
         boardSave();
     }
 
@@ -1544,7 +1418,7 @@ public class BoardEditor extends JComponent
         fc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File dir) {
-                return (dir.getName().endsWith(".png") || dir.isDirectory()); //$NON-NLS-1$
+                return (dir.getName().endsWith(".png") || dir.isDirectory());
             }
 
             @Override
@@ -1553,23 +1427,22 @@ public class BoardEditor extends JComponent
             }
         });
         int returnVal = fc.showSaveDialog(frame);
-        if ((returnVal != JFileChooser.APPROVE_OPTION)
-            || (fc.getSelectedFile() == null)) {
+        if ((returnVal != JFileChooser.APPROVE_OPTION) || (fc.getSelectedFile() == null)) {
             // I want a file, y'know!
             return;
         }
-        curfileImage = fc.getSelectedFile();
+        currentFileImage = fc.getSelectedFile();
 
         // make sure the file ends in png
-        if (!curfileImage.getName().toLowerCase().endsWith(".png")) { //$NON-NLS-1$
+        if (!currentFileImage.getName().toLowerCase().endsWith(".png")) {
             try {
-                curfileImage = new File(curfileImage.getCanonicalPath() + ".png"); //$NON-NLS-1$
+                currentFileImage = new File(currentFileImage.getCanonicalPath() + ".png");
             } catch (IOException ie) {
                 // failure!
                 return;
             }
         }
-        frame.setTitle(Messages.getString("BoardEditor.title0") + curfileImage); //$NON-NLS-1$
+        frame.setTitle(Messages.getString("BoardEditor.title0") + currentFileImage);
         boardSaveImage(ignoreUnits);
     }
 
@@ -1647,7 +1520,7 @@ public class BoardEditor extends JComponent
     private void showHelp() {
         // Do we need to create the "help" dialog?
         if (help == null) {
-            File helpFile = new File("docs\\Boards Stuff", "Map Editor-readme.txt"); //$NON-NLS-1$
+            File helpFile = new File("docs\\Boards Stuff", "Map Editor-readme.txt");
             help = new CommonHelpDialog(frame, helpFile);
         }
 
@@ -1660,12 +1533,12 @@ public class BoardEditor extends JComponent
      */
     private void showSettings() {
         // Do we need to create the "settings" dialog?
-        if (setdlg == null) {
-            setdlg = new CommonSettingsDialog(frame);
+        if (settingsDialog == null) {
+            settingsDialog = new CommonSettingsDialog(frame);
         }
 
         // Show the settings dialog.
-        setdlg.setVisible(true);
+        settingsDialog.setVisible(true);
     }
 
     private void showBoardValidationReport(StringBuffer errBuff) {
@@ -1729,11 +1602,11 @@ public class BoardEditor extends JComponent
             repaintWorkingHex();
         } else if (ae.getSource().equals(butAddTerrain)) {
             addSetTerrain();
-        } else if (ae.getSource().equals(butElevUp) && (curHex.getLevel() < 50)) {
+        } else if (ae.getSource().equals(butElevUp) && (curHex.getLevel() < 9)) {
             curHex.setLevel(curHex.getLevel() + 1);
             texElev.incValue();
             repaintWorkingHex();
-        } else if (ae.getSource().equals(butElevDown) && (curHex.getLevel() > -50)) {
+        } else if (ae.getSource().equals(butElevDown) && (curHex.getLevel() > -5)) {
             curHex.setLevel(curHex.getLevel() - 1);
             texElev.decValue();
             repaintWorkingHex();
@@ -1792,57 +1665,81 @@ public class BoardEditor extends JComponent
             curHex.setTheme((String)choTheme.getSelectedItem());
             repaintWorkingHex();
         } else if (ae.getSource().equals(buttonLW)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();  
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.WOODS, 1);
         } else if (ae.getSource().equals(buttonMg)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.MAGMA, 1);
         } else if (ae.getSource().equals(buttonLJ)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.JUNGLE, 1);
         } else if (ae.getSource().equals(buttonWa)) {
             buttonUpDn.setSelected(false);
-            if ((ae.getModifiers() & InputEvent.CTRL_MASK) != 0) {
-                if (curHex.containsTerrain(Terrains.RAPIDS, 1))
+            if ((ae.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
+                if (curHex.containsTerrain(Terrains.RAPIDS, 1)) {
                     addSetTerrainEasy(Terrains.RAPIDS, 2);
-                else
+                } else {
                     addSetTerrainEasy(Terrains.RAPIDS, 1);
+                }
                 if (!curHex.containsTerrain(Terrains.WATER) ||
-                        curHex.getTerrain(Terrains.WATER).getLevel() == 0)
+                        curHex.getTerrain(Terrains.WATER).getLevel() == 0) {
                     addSetTerrainEasy(Terrains.WATER, 1);
+                }
             } else {
-                if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+                if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                    curHex.removeAllTerrains();
+                }
                 addSetTerrainEasy(Terrains.WATER, 1);
             }
         } else if (ae.getSource().equals(buttonSw)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.SWAMP, 1);
         } else if (ae.getSource().equals(buttonRo)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.ROUGH, 1);
         } else if (ae.getSource().equals(buttonPv)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.PAVEMENT, 1);
         } else if (ae.getSource().equals(buttonMd)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.MUD, 1);
         } else if (ae.getSource().equals(buttonTu)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.TUNDRA, 1);
         } else if (ae.getSource().equals(buttonIc)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.ICE, 1);
         } else if (ae.getSource().equals(buttonSn)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.SNOW, 1);
         } else if (ae.getSource().equals(buttonCl)) {
@@ -1861,22 +1758,30 @@ public class BoardEditor extends JComponent
             lastClicked = null;
         } else if (ae.getSource().equals(buttonBu)) { 
             buttonUpDn.setSelected(false);
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
-            if ((ae.getModifiers() & InputEvent.ALT_MASK) != 0) {
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
+            if ((ae.getModifiers() & ActionEvent.ALT_MASK) != 0) {
                 setBasicBuilding(true);
             } else {
                 setBasicBuilding(false);
             }
         } else if (ae.getSource().equals(buttonBr)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0){
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             setBasicBridge();
         } else if (ae.getSource().equals(buttonFT)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             setBasicFuelTank();
         } else if (ae.getSource().equals(buttonRd)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & ActionEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.ROAD, 1);
         } else if (ae.getSource().equals(buttonUpDn)) {
@@ -1888,8 +1793,8 @@ public class BoardEditor extends JComponent
             if (undoStack.isEmpty()) { 
                 buttonUndo.setEnabled(false); 
             } else {
-                HashSet<IHex> recentHexes = undoStack.pop();
-                HashSet<IHex> redoHexes = new HashSet<>(); 
+                Set<IHex> recentHexes = undoStack.pop();
+                Set<IHex> redoHexes = new HashSet<>(); 
                 for (IHex hex: recentHexes) {
                     // Retrieve the board hex for Redo
                     IHex rHex = board.getHex(hex.getCoords()).duplicate();
@@ -1899,7 +1804,9 @@ public class BoardEditor extends JComponent
                     board.setHex(hex.getCoords(), hex);
                 }
                 redoStack.push(redoHexes);
-                if (undoStack.isEmpty()) buttonUndo.setEnabled(false);
+                if (undoStack.isEmpty()) {
+                    buttonUndo.setEnabled(false);
+                }
                 buttonRedo.setEnabled(true);
                 currentUndoSet = null; // should be anyway
             }
@@ -1909,8 +1816,8 @@ public class BoardEditor extends JComponent
             if (redoStack.isEmpty()) { 
                 buttonRedo.setEnabled(false); 
             } else {
-                HashSet<IHex> recentHexes = redoStack.pop();
-                HashSet<IHex> undoHexes = new HashSet<>(); 
+                Set<IHex> recentHexes = redoStack.pop();
+                Set<IHex> undoHexes = new HashSet<>(); 
                 for (IHex hex: recentHexes) {
                     IHex rHex = board.getHex(hex.getCoords()).duplicate();
                     rHex.setCoords(hex.getCoords());
@@ -1918,7 +1825,9 @@ public class BoardEditor extends JComponent
                     board.setHex(hex.getCoords(), hex);
                 }
                 undoStack.push(undoHexes);
-                if (redoStack.isEmpty()) buttonRedo.setEnabled(false);
+                if (redoStack.isEmpty()) {
+                    buttonRedo.setEnabled(false);
+                }
                 buttonUndo.setEnabled(true);
                 currentUndoSet = null; // should be anyway
             }
@@ -1930,18 +1839,37 @@ public class BoardEditor extends JComponent
             return;
         }
         if (event.getSource().equals(lisTerrain)) {
-            if (!noTextFieldUpdate)
+            if (!noTextFieldUpdate) {
                 refreshTerrainFromList();
+            }
         }
     }
 
     /**
+     * @return the frame this is displayed in
+     */
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    /**
+     *
+     * @return  true if a dialog is visible on top of the <code>ClientGUI</code>.
+     *          For example, the <code>MegaMekController</code> should ignore hotkeys
+     *          if there is a dialog, like the <code>CommonSettingsDialog</code>, open.
+     */
+    public boolean shouldIgnoreHotKeys() {
+        return ignoreHotKeys || (about != null && about.isVisible())
+                || (help != null && help.isVisible())
+                || (settingsDialog != null && settingsDialog.isVisible()) || texElev.hasFocus()
+                || texTerrainLevel.hasFocus() || texTerrExits.hasFocus();
+    }
+
+    //region Private Classes
+    /**
      * Displays the currently selected hex picture, in component form
      */
     private class HexCanvas extends JPanel {
-        /**
-         *
-         */
         private static final long serialVersionUID = 3201928357525361191L;
 
         HexCanvas() {
@@ -1958,18 +1886,17 @@ public class BoardEditor extends JComponent
                 if (tm.supersFor(curHex) != null) {
                     for (final Object newVar : tm.supersFor(curHex)) {
                         g.drawImage((Image) newVar, 0, 0, this);
-                        g.drawString(
-                                Messages.getString("BoardEditor.SUPER"), 0, 10); //$NON-NLS-1$
+                        g.drawString(Messages.getString("BoardEditor.SUPER"), 0, 10);
                     }
                 }
-                g.setFont(new Font("SansSerif", Font.PLAIN, 9)); //$NON-NLS-1$
-                g.drawString(Messages.getString("BoardEditor.LEVEL") + curHex.getLevel(), 24, 70); //$NON-NLS-1$
+                g.setFont(new Font("SansSerif", Font.PLAIN, 9));
+                g.drawString(Messages.getString("BoardEditor.LEVEL") + curHex.getLevel(), 24, 70);
                 StringBuffer errBuf = new StringBuffer();
                 if (!curHex.isValid(errBuf)) {
-                    g.setFont(new Font("SansSerif", Font.BOLD, 14)); //$NON-NLS-1$
+                    g.setFont(new Font("SansSerif", Font.BOLD, 14));
                     Point hexCenter = new Point(BoardView1.HEX_W / 2, BoardView1.HEX_H / 2);
-                    bv.drawCenteredText((Graphics2D) g, Messages.getString("BoardEditor.INVALID"), hexCenter, Color.RED,
-                            false);
+                    bv.drawCenteredText((Graphics2D) g, Messages.getString("BoardEditor.INVALID"),
+                            hexCenter, Color.RED, false);
                     String tooltip = Messages.getString("BoardEditor.invalidHex") + errBuf;
                     tooltip = tooltip.replace("\n", "<br>");
                     setToolTipText(tooltip);
@@ -1992,27 +1919,6 @@ public class BoardEditor extends JComponent
             return new Dimension(80,80);
         }
     }
-
-    /**
-     * @return the frame this is displayed in
-     */
-    public JFrame getFrame() {
-        return frame;
-    }
-
-    /**
-     * Returns true if a dialog is visible on top of the <code>ClientGUI</code>.
-     * For example, the <code>MegaMekController</code> should ignore hotkeys
-     * if there is a dialog, like the <code>CommonSettingsDialog</code>, open.
-     *
-     * @return
-     */
-    public boolean shouldIgnoreHotKeys() {
-        return ignoreHotKeys || (about != null && about.isVisible())
-                || (help != null && help.isVisible())
-                || (setdlg != null && setdlg.isVisible()) || texElev.hasFocus()
-                || texTerrainLevel.hasFocus() || texTerrExits.hasFocus();
-    }
     
     /**
      * Specialized field for the BoardEditor that supports 
@@ -2022,9 +1928,6 @@ public class BoardEditor extends JComponent
      */
     private class EditorTextField extends JTextField {
 
-        /**
-         * 
-         */
         private static final long serialVersionUID = 4706926692515844105L;
 
         private int minValue = Integer.MIN_VALUE;
@@ -2048,13 +1951,11 @@ public class BoardEditor extends JComponent
                 }
             });
 
-            addMouseWheelListener(new MouseWheelListener() {
-                @Override
-                public void mouseWheelMoved(MouseWheelEvent e) {
-                    if (e.getWheelRotation() < 0)
-                        incValue();
-                    else 
-                        decValue();
+            addMouseWheelListener(e -> {
+                if (e.getWheelRotation() < 0) {
+                    incValue();
+                } else {
+                    decValue();
                 }
             });
             setMargin(new Insets(1,1,1,1));
@@ -2125,4 +2026,123 @@ public class BoardEditor extends JComponent
             }
         }
     }
+
+    /**
+     * Class to make terrains in JComboBoxes easier.  This enables keeping the terrain type int separate from the name
+     * that gets displayed and also provides a way to get tooltips.
+     *
+     * @author arlith
+     */
+    private static class TerrainHelper implements Comparable<TerrainHelper> {
+        private int terrainType;
+
+        TerrainHelper (int terrain) {
+            terrainType = terrain;
+        }
+
+        public int getTerrainType() {
+            return terrainType;
+        }
+
+        public String toString() {
+            return Terrains.getEditorName(terrainType);
+        }
+
+        public String getTerrainTooltip() {
+            return Terrains.getEditorTooltip(terrainType);
+        }
+
+        @Override
+        public int compareTo(TerrainHelper o) {
+            return toString().compareTo(o.toString());
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other instanceof Integer) {
+                return getTerrainType() == (Integer) other;
+            }
+            if (!(other instanceof TerrainHelper)) {
+                return false;
+            }
+            return getTerrainType() == ((TerrainHelper) other).getTerrainType();
+        }
+    }
+
+    /**
+     * Class to make it easier to display a <code>Terrain</code> in a JList or JComboBox.
+     *
+     * @author arlith
+     */
+    private static class TerrainTypeHelper implements Comparable<TerrainTypeHelper> {
+
+        ITerrain terrain;
+
+        TerrainTypeHelper(ITerrain terrain) {
+            this.terrain = terrain;
+        }
+
+        public ITerrain getTerrain() {
+            return terrain;
+        }
+
+        @Override
+        public String toString() {
+            String baseString = Terrains.getDisplayName(terrain.getType(), terrain.getLevel());
+            if (baseString == null) {
+                baseString = Terrains.getEditorName(terrain.getType());
+                baseString += " " + terrain.getLevel();
+            }
+            if (terrain.hasExitsSpecified()) {
+                baseString += " (Exits: " + terrain.getExits() + ")";
+            }
+            return baseString;
+        }
+
+        public String getTooltip() {
+            return terrain.toString();
+        }
+
+        @Override
+        public int compareTo(TerrainTypeHelper o) {
+            return toString().compareTo(o.toString());
+        }
+    }
+
+    /**
+     *  ListCellRenderer for rendering tooltips for each item in a list or ComboBox.  Code from SourceForge:
+     *  https://stackoverflow.com/questions/480261/java-swing-mouseover-text-on-jcombobox-items
+     */
+    private static class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
+        private static final long serialVersionUID = 7428395938750335593L;
+
+        TerrainHelper[] terrains;
+
+        List<TerrainTypeHelper> terrainTypes;
+
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                      boolean isSelected, boolean cellHasFocus) {
+
+            JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index,
+                    isSelected, cellHasFocus);
+
+            if ((index > -1) && (value != null) && (terrains != null)) {
+                list.setToolTipText(terrains[index].getTerrainTooltip());
+            }
+            if ((index > -1) && (value != null) && (terrainTypes != null)) {
+                list.setToolTipText(terrainTypes.get(index).getTooltip());
+            }
+            return comp;
+        }
+
+        public void setTerrains(TerrainHelper[] terrains) {
+            this.terrains = terrains;
+        }
+
+        public void setTerrainTypes(List<TerrainTypeHelper> terrainTypes) {
+            this.terrainTypes = terrainTypes;
+        }
+    }
+    //endregion Private Classes
 }
