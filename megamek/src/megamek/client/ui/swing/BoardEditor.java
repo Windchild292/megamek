@@ -515,29 +515,41 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
 
         MouseWheelListener wheelListener = e -> {
             int terrain = Integer.MIN_VALUE;
-            if (e.getSource() == buttonRo) terrain = Terrains.ROUGH;
-            else if (e.getSource() == buttonSw) terrain = Terrains.SWAMP;
-            else if (e.getSource() == buttonWa) terrain = Terrains.WATER;
-            else if (e.getSource() == buttonLW) terrain = Terrains.WOODS;
-            else if (e.getSource() == buttonLJ) terrain = Terrains.JUNGLE;
-            else if (e.getSource() == buttonMd) terrain = Terrains.MUD;
-            else if (e.getSource() == buttonPv) terrain = Terrains.PAVEMENT;
-            else if (e.getSource() == buttonIc) terrain = Terrains.ICE;
-            else if (e.getSource() == buttonSn) terrain = Terrains.SNOW;
-            else if (e.getSource() == buttonTu) terrain = Terrains.TUNDRA;
-            else if (e.getSource() == buttonMg) terrain = Terrains.MAGMA;
+            if (e.getSource() == buttonRo) {
+                terrain = Terrains.ROUGH;
+            } else if (e.getSource() == buttonSw) {
+                terrain = Terrains.SWAMP;
+            } else if (e.getSource() == buttonWa) {
+                terrain = Terrains.WATER;
+            } else if (e.getSource() == buttonLW) {
+                terrain = Terrains.WOODS;
+            } else if (e.getSource() == buttonLJ) {
+                terrain = Terrains.JUNGLE;
+            } else if (e.getSource() == buttonMd) {
+                terrain = Terrains.MUD;
+            } else if (e.getSource() == buttonPv) {
+                terrain = Terrains.PAVEMENT;
+            } else if (e.getSource() == buttonIc) {
+                terrain = Terrains.ICE;
+            } else if (e.getSource() == buttonSn) {
+                terrain = Terrains.SNOW;
+            } else if (e.getSource() == buttonTu) {
+                terrain = Terrains.TUNDRA;
+            } else if (e.getSource() == buttonMg) {
+                terrain = Terrains.MAGMA;
+            }
 
             if (terrain >= 0) {
                 IHex saveHex = curHex.duplicate();
                 // change the terrain level by wheel direction if present,
                 // or set to 1 if not present
                 if (curHex.containsTerrain(terrain)) {
-                    addSetTerrainEasy(terrain,
-                            curHex.getTerrain(terrain).getLevel() +
+                    addSetTerrainEasy(terrain, curHex.getTerrain(terrain).getLevel() +
                             ((e.getWheelRotation() < 0) ? 1 : -1));
                 } else {
-                    if (!e.isShiftDown())
+                    if (!e.isShiftDown()) {
                         curHex.removeAllTerrains();
+                    }
                     addSetTerrainEasy(terrain, 1);
                 }
                 // Reset the terrain to the former state
@@ -575,8 +587,7 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
                 terrainType = Terrains.BLDG_CF;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(10, oldLevel + wheelDir*10);
-            }
-            else if (e.isControlDown()) {
+            } else if (e.isControlDown()) {
                 terrainType = Terrains.BUILDING;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 if ((oldLevel == 1) && (wheelDir == -1)) {
@@ -586,8 +597,7 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
                 } else {
                     newLevel = oldLevel + wheelDir;
                 }
-            }
-            else {
+            } else {
                 terrainType = Terrains.BLDG_ELEV;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(1, oldLevel + wheelDir);
@@ -613,13 +623,11 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
                 terrainType = Terrains.BRIDGE_CF;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(10, oldLevel + wheelDir*10);
-            }
-            else if (e.isControlDown()) {
+            } else if (e.isControlDown()) {
                 terrainType = Terrains.BRIDGE;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(1, oldLevel + wheelDir);
-            }
-            else {
+            } else {
                 terrainType = Terrains.BRIDGE_ELEV;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(0, oldLevel + wheelDir);
@@ -641,13 +649,11 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
                 terrainType = Terrains.FUEL_TANK_CF;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(10, oldLevel + wheelDir*10);
-            }
-            else if (e.isControlDown()) {
+            } else if (e.isControlDown()) {
                 terrainType = Terrains.FUEL_TANK_MAGN;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(10, oldLevel + wheelDir*10);
-            }
-            else {
+            } else {
                 terrainType = Terrains.FUEL_TANK_ELEV;
                 int oldLevel = curHex.getTerrain(terrainType).getLevel();
                 newLevel = Math.max(1, oldLevel + wheelDir);
