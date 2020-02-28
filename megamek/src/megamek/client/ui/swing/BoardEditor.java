@@ -232,7 +232,7 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
             bv.setDisplayInvalidHexInfo(true);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame,
-                    Messages.getString("BoardEditor.CouldntInitialize") + e,
+                    Messages.getString("BoardEditor.CouldNotInitialize") + e,
                     Messages.getString("BoardEditor.FatalError"), JOptionPane.ERROR_MESSAGE);
             frame.dispose();
         }
@@ -244,8 +244,7 @@ public class BoardEditor extends JComponent implements ItemListener, ListSelecti
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     // Act only if the user actually drew something
-                    if ((currentUndoSet != null) &&
-                            !currentUndoSet.isEmpty()) {
+                    if ((currentUndoSet != null) && !currentUndoSet.isEmpty()) {
                         // Since this draw action is finished, push the
                         // drawn hexes onto the Undo Stack and get ready
                         // for a new draw action
