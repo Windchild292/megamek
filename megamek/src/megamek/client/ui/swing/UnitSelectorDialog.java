@@ -65,6 +65,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import megamek.client.Client;
+import megamek.client.RandomGenderGenerator;
+import megamek.client.RandomNameGenerator;
 import megamek.client.ui.Messages;
 import megamek.common.Entity;
 import megamek.common.EntityWeightClass;
@@ -769,9 +771,9 @@ public class UnitSelectorDialog extends JDialog implements Runnable,
                 }
             }
             if (cs.generateNames()) {
-                boolean isFemale = client.getRandomNameGenerator().isFemale();
-                e.getCrew().setGender(isFemale, i);
-                e.getCrew().setName(client.getRandomNameGenerator().generate(isFemale), i);
+                int gender = RandomGenderGenerator.generate();
+                e.getCrew().setGender(gender, i);
+                e.getCrew().setName(RandomNameGenerator.getInstance().generate(gender), i);
             }
         }
         e.getCrew().sortRandomSkills();

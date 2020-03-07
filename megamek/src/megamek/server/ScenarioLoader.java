@@ -35,6 +35,7 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import megamek.client.RandomGenderGenerator;
 import megamek.client.RandomNameGenerator;
 import megamek.client.ui.swing.util.ImageFileFactory;
 import megamek.common.AmmoType;
@@ -569,7 +570,7 @@ public class ScenarioLoader {
             } else {
                 e.setCrew(new Crew(e.getCrew().getCrewType(), parts[1], 1,
                         Integer.parseInt(parts[2]), Integer.parseInt(parts[3]),
-                        RandomNameGenerator.getInstance().generateGender(), null));
+                        RandomGenderGenerator.generate(), null));
                 i = 4; // direction will be part 4, as the scenario does not contain gender
             }
 

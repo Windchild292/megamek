@@ -30,6 +30,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import megamek.client.RandomGenderGenerator;
+import megamek.client.RandomNameGenerator;
 import megamek.client.ui.GBC;
 import megamek.client.ui.Messages;
 import megamek.common.Crew;
@@ -111,9 +113,8 @@ public class CustomPilotView extends JPanel {
 
         button = new JButton(Messages.getString("CustomMechDialog.RandomName")); //$NON-NLS-1$
         button.addActionListener(e -> {
-            boolean isFemale = parent.clientgui.getClient().getRandomNameGenerator().isFemale();
-            this.gender = Crew.getGenderAsInt(isFemale);
-            fldName.setText(parent.clientgui.getClient().getRandomNameGenerator().generate(isFemale));
+            gender = RandomGenderGenerator.generate();
+            fldName.setText(RandomNameGenerator.getInstance().generate(gender));
         });
         add(button, GBC.eop());
 

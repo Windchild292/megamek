@@ -84,6 +84,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import megamek.client.Client;
+import megamek.client.RandomGenderGenerator;
 import megamek.client.RandomNameGenerator;
 import megamek.client.bot.BotClient;
 import megamek.client.bot.ui.swing.BotGUI;
@@ -3648,9 +3649,9 @@ public class ChatLounge extends AbstractPhaseDisplay
                 }
                 for (Entity e : entities) {
                     for (int i = 0; i < e.getCrew().getSlotCount(); i++) {
-                        boolean isFemale = c.getRandomNameGenerator().isFemale();
-                        e.getCrew().setGender(isFemale, i);
-                        e.getCrew().setName(c.getRandomNameGenerator().generate(isFemale), i);
+                        int gender = RandomGenderGenerator.generate();
+                        e.getCrew().setGender(gender, i);
+                        e.getCrew().setName(RandomNameGenerator.getInstance().generate(gender), i);
                     }
                     c.sendUpdateEntity(e);
                 }

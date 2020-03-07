@@ -1701,10 +1701,6 @@ public class Client implements IClientCommandHandler {
         return rsg;
     }
 
-    public RandomNameGenerator getRandomNameGenerator() {
-        return RandomNameGenerator.getInstance();
-    }
-
     public Set<BoardDimensions> getAvailableMapSizes() {
         return availableSizes;
     }

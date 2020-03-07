@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.Vector;
 
+import megamek.client.RandomGenderGenerator;
 import megamek.client.RandomNameGenerator;
 import megamek.common.options.IOption;
 import megamek.common.options.IOptionGroup;
@@ -259,7 +260,7 @@ public class Crew implements Serializable {
     public Crew(CrewType crewType, String name, int size, int gunneryL, int gunneryM, int gunneryB,
                 int piloting, Map<Integer, Map<String, String>> extraData) {
         this(crewType, name, size, gunneryL, gunneryM, gunneryB, piloting,
-                getGenderAsInt(RandomNameGenerator.getInstance().isFemale()), extraData);
+                RandomGenderGenerator.generate(), extraData);
     }
 
     /**
@@ -381,15 +382,6 @@ public class Crew implements Serializable {
         } else {
             return G_RANDOMIZE;
         }
-    }
-
-    /**
-     * @param isFemale whether a person is female or male
-     * @return the int value of the gender
-     */
-    @Deprecated // March 7th, 2020, this is a temporary method to ensure an easy transition
-    public static int getGenderAsInt(boolean isFemale) {
-        return isFemale ? G_FEMALE : G_MALE;
     }
 
     /**
@@ -554,10 +546,6 @@ public class Crew implements Serializable {
 
     public void setGender(int gender, int pos) {
         this.gender[pos] = gender;
-    }
-
-    public void setGender(boolean isFemale, int pos) {
-        this.gender[pos] = getGenderAsInt(isFemale);
     }
 
     /**

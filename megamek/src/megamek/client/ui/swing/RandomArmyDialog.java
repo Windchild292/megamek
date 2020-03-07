@@ -57,6 +57,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import megamek.client.Client;
+import megamek.client.RandomGenderGenerator;
+import megamek.client.RandomNameGenerator;
 import megamek.client.RandomUnitGenerator;
 import megamek.client.ratgenerator.FactionRecord;
 import megamek.client.ratgenerator.FormationType;
@@ -988,9 +990,9 @@ WindowListener, TreeSelectionListener {
             }
             e.getCrew().sortRandomSkills();
             if (cs.generateNames()) {
-                boolean isFemale = m_client.getRandomNameGenerator().isFemale();
-                e.getCrew().setGender(isFemale, i);
-                e.getCrew().setName(m_client.getRandomNameGenerator().generate(isFemale), i);
+                int gender = RandomGenderGenerator.generate();
+                e.getCrew().setGender(gender, i);
+                e.getCrew().setName(RandomNameGenerator.getInstance().generate(gender), i);
             }
         }
     }
