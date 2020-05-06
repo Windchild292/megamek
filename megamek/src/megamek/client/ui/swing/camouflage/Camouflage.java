@@ -149,6 +149,8 @@ public class Camouflage implements Serializable {
 
         if (split.length == 2) {
             return new Camouflage(split[0], split[1]);
+        } else if ((split.length == 0) && text.equals(SEPARATOR)) {
+            return new Camouflage(null, null);
         } else {
             logger.error(Camouflage.class, "parseFromString",
                     "Cannot parse Camouflage from a string of length " + split.length);
