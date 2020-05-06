@@ -264,6 +264,10 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
         setVisible(false);
     }
 
+    public boolean isSelected() {
+        return select;
+    }
+
     public Camouflage getCamouflage() {
         return camouflage;
     }
@@ -290,9 +294,9 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
             // Translate the "root camo" category name.
             Iterator<String> camoNames;
             if (Camouflage.ROOT_CAMO.equals(category)) {
-                camoNames = camos.getItemNames(Camouflage.ROOT_CAMO_CATEGORY);
+                camoNames = Camouflage.getCamouflageDirectory().getItemNames(Camouflage.ROOT_CAMO_CATEGORY);
             } else {
-                camoNames = camos.getItemNames(category);
+                camoNames = Camouflage.getCamouflageDirectory().getItemNames(category);
             }
 
             // Get the camo names for this category.
@@ -305,6 +309,32 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
         }
         scrCamo.repaint();
     }
+
+    @Override
+    public void valueChanged(TreeSelectionEvent ev) {
+        if (ev.getSource().equals(treeCategories)) {
+            TreePath[] paths = treeCategories.getSelectionPaths();
+            // If nothing is selected, there's nothing to populate the table with.
+            if (paths == null) {
+                return;
+            }
+            for (TreePath path : paths) {
+                Object[] values = path.getPath();
+                StringBuilder category = new StringBuilder();
+                for (int i = 1; i < values.length; i++) {
+                    if (values[i] != null) {
+                        String name = (String) ((DefaultMutableTreeNode) values[i]).getUserObject();
+                        category.append(name);
+                        if (!name.equals(Camouflage.NO_CAMO) && !name.equals(Camouflage.ROOT_CAMO)) {
+                            category.append("/");
+                        }
+                    }
+                }
+                fillTable(category.toString());
+            }
+        }
+    }
+
 
     public void setPlayer(IPlayer p) {
         player = p;
@@ -340,7 +370,7 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
                 break;
             }
         }
-        
+
         if (rowIndex >= tableCamo.getRowCount()) {
             System.out.println("Attempting to set invalid camo index " + rowIndex + " for player " + p.getName() + ". Using default instead.");
         } else {
@@ -381,34 +411,5 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
         }
         int viewRowIndex = (modelRowIndex != -1) ? tableCamo.convertRowIndexToView(modelRowIndex) : 0;
         tableCamo.setRowSelectionInterval(viewRowIndex, viewRowIndex);
-    }
-
-    public boolean isSelected() {
-        return select;
-    }
-
-    @Override
-    public void valueChanged(TreeSelectionEvent ev) {
-        if (ev.getSource().equals(treeCategories)) {
-            TreePath[] paths = treeCategories.getSelectionPaths();
-            // If nothing is selected, there's nothing to populate the table with.
-            if (null == paths) {
-                return;
-            }
-            for (TreePath path : paths) {
-                Object[] values = path.getPath();
-                StringBuilder category = new StringBuilder();
-                for (int i = 1; i < values.length; i++) {
-                    if (values[i] != null) {
-                        String name = (String) ((DefaultMutableTreeNode) values[i]).getUserObject();
-                        category.append(name);
-                        if (!name.equals(Camouflage.NO_CAMO) && !name.equals(Camouflage.ROOT_CAMO)) {
-                            category.append("/");
-                        }
-                    }
-                }
-                fillTable(category.toString());
-            }
-        }
     }
 }
