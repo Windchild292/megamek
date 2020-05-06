@@ -20,23 +20,17 @@
 package megamek.client.ui.swing;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -53,8 +47,6 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.client.ui.swing.camouflage.CamouflageTableModel;
 import megamek.client.ui.swing.camouflage.CamouflageTableMouseAdapter;
-import megamek.client.ui.swing.util.ImageFileFactory;
-import megamek.client.ui.swing.util.PlayerColors;
 import megamek.common.Configuration;
 import megamek.common.Entity;
 import megamek.common.IPlayer;
@@ -81,8 +73,6 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
      */
     public JSplitPane splitPane;
 
-    private JFrame frame;
-    private DirectoryItems camos;
     /**
      * Scroll panes for the camo table and the categories tree view
      */
@@ -110,23 +100,12 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
      */
     public CamoChoiceDialog(JFrame parent, JButton button) {
         // Initialize our superclass and record our parent frame.
-        super(parent, Messages
-                .getString("CamoChoiceDialog.select_camo_pattern"), true); //$NON-NLS-1$
-        frame = parent;
+        super(parent, Messages.getString("CamoChoiceDialog.select_camo_pattern"), true);
+
         sourceButton = button;
 
-        // Parse the camo directory.
-        try {
-            camos = new DirectoryItems(Configuration.camoDir(), "", //$NON-NLS-1$
-                    ImageFileFactory.getInstance());
-        } catch (Exception e) {
-            camos = null;
-        }
+        setCamouflage(new Camouflage());
 
-        camouflage = new Camouflage();
-
-        category = Camouflage.ROOT_CAMO;
-        filename = Camouflage.NO_CAMO;
         colorIndex = -1;
 
         scrCamo = new JScrollPane();
@@ -158,12 +137,13 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(Camouflage.ROOT_CAMO);
         root.add(new DefaultMutableTreeNode(Camouflage.NO_CAMO));
-        if (camos != null) {
-            if (camos.getItemNames("").hasNext()) {
+        DirectoryItems camouflageDirectory = Camouflage.getCamouflageDirectory();
+        if (camouflageDirectory != null) {
+            if (camouflageDirectory.getItemNames(Camouflage.ROOT_CAMO_CATEGORY).hasNext()) {
                 root.add(new DefaultMutableTreeNode(Camouflage.ROOT_CAMO));
             }
 
-            Iterator<String> catNames = camos.getCategoryNames();
+            Iterator<String> catNames = camouflageDirectory.getCategoryNames();
             while (catNames.hasNext()) {
                 String catName = catNames.next();
                 if ((catName != null) && !catName.equals("")) {
@@ -276,8 +256,8 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
             if (colorIndex >= 0) {
                 player.setColorIndex(colorIndex);
             }
-            player.setCamouflage(new Camouflage(category, filename));
-            sourceButton.setIcon(generateIcon(category, filename));
+            player.setCamouflage(getCamouflage());
+            sourceButton.setIcon(getCamouflage().getImageIcon());
         }
 
         select = true;
@@ -288,19 +268,8 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
         return camouflage;
     }
 
-    // Windchild
-    @Deprecated
-    public String getCategory() {
-        return category;
-    }
-
-    @Deprecated
-    public String getFileName() {
-        return filename;
-    }
-
-    public int getColorIndex() {
-        return colorIndex;
+    public void setCamouflage(Camouflage camouflage) {
+        this.camouflage = camouflage;
     }
 
     private void fillTable(String category) {
@@ -342,13 +311,12 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
 
         category = player.getCamoCategory();
         if (category.equals(Camouflage.NO_CAMO) && (null != entity) && (p.getColorIndex() >= 0)) {
-            filename = (String) camoModel.getValueAt(
-                    p.getColorIndex(), 0);
+            filename = (String) camoModel.getValueAt(p.getColorIndex(), 0);
         } else {
             filename = player.getCamoFileName();
         }
         if (sourceButton != null) {
-            sourceButton.setIcon(generateIcon(category, filename));
+            sourceButton.setIcon(getCamouflage().getImageIcon());
         }
         // This cumbersome code takes the category name and transforms it into
         // a TreePath so it can be selected in the dialog
@@ -413,52 +381,6 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
         }
         int viewRowIndex = (modelRowIndex != -1) ? tableCamo.convertRowIndexToView(modelRowIndex) : 0;
         tableCamo.setRowSelectionInterval(viewRowIndex, viewRowIndex);
-    }
-
-    Icon generateIcon(String cat, String item) {
-        String actualCat = cat;
-        // Replace the ROOT_CAMO string with "".
-        if (Camouflage.ROOT_CAMO.equals(actualCat)) {
-            actualCat = "";
-        }
-
-        int colorInd = -1;
-        // no camo, just color
-        if (Camouflage.NO_CAMO.equals(actualCat)) {
-            for (int color = 0; color < IPlayer.colorNames.length; color++) {
-                if (IPlayer.colorNames[color].equals(item)) {
-                    colorInd = color;
-                    break;
-                }
-            }
-            if (colorInd == -1) {
-                colorInd = 0;
-            }
-            BufferedImage tempImage = new BufferedImage(84, 72,
-                    BufferedImage.TYPE_INT_RGB);
-            Graphics2D graphics = tempImage.createGraphics();
-            graphics.setColor(PlayerColors.getColor(colorInd));
-            graphics.fillRect(0, 0, 84, 72);
-            return new ImageIcon(tempImage);
-        }
-
-        // an actual camo
-        try {
-            // We need to copy the image to make it appear.
-            Image image = (Image) camos.getItem(actualCat, item);
-
-            return new ImageIcon(image);
-        } catch (Exception err) {
-            // Print the stack trace and display the message.
-            System.out.println("Tried to load camo that doesn't exist: " + actualCat + item);
-
-            if (this.isVisible()) {
-                JOptionPane.showMessageDialog(frame, err.getMessage(),
-                        Messages.getString("CamoChoiceDialog.error_getting_camo"),
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            return null;
-        }
     }
 
     public boolean isSelected() {

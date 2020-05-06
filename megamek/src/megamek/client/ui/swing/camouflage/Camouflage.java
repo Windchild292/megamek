@@ -44,6 +44,7 @@ public class Camouflage implements Serializable {
     public static final String COLOURED_CAMO = "Coloured Camo";
     private static final String SEPARATOR = ",";
     //endregion Constants
+
     private static DirectoryItems camouflageDirectory;
 
     private String category;
@@ -63,6 +64,10 @@ public class Camouflage implements Serializable {
     //endregion Constructors
 
     //region Getters/Setters
+    public static DirectoryItems getCamouflageDirectory() {
+        return camouflageDirectory;
+    }
+
     public static void setCamouflageDirectory(DirectoryItems loadedCamouflageDirectory) {
         camouflageDirectory = loadedCamouflageDirectory;
     }
