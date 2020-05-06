@@ -42,19 +42,8 @@ public class JCamouflagePanel extends JPanel {
         add(lblImage, gridBagConstraints);
     }
 
-    public void setText(String text) {
-        lblImage.setText(text);
-    }
-
-    public void setText(Camouflage camouflage) {
+    public void setFromCamouflage(Camouflage camouflage) {
         lblImage.setText(camouflage.getFileName());
-    }
-
-    public void setImage(ImageIcon camouflageImage) {
-        lblImage.setIcon(camouflageImage);
-    }
-
-    public void setImage(Camouflage camouflage) {
         lblImage.setIcon(camouflage.getImageIcon());
     }
 }

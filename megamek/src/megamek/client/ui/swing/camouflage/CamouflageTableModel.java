@@ -97,8 +97,7 @@ public class CamouflageTableModel extends AbstractTableModel {
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
             Camouflage camouflage = (Camouflage) getValueAt(row, column);
-            setText(camouflage);
-            setImage(camouflage);
+            setFromCamouflage(camouflage);
 
             if (isSelected) {
                 setBackground(UIManager.getColor("Table.selectionBackground"));
