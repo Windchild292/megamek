@@ -64,6 +64,7 @@ import megamek.client.bot.BotClient;
 import megamek.client.bot.princess.Princess;
 import megamek.client.bot.ui.swing.BotGUI;
 import megamek.client.ui.Messages;
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.client.ui.swing.util.ImageFileFactory;
 import megamek.client.ui.swing.util.MenuScroller;
 import megamek.client.ui.swing.util.PlayerColors;
@@ -87,6 +88,7 @@ import megamek.common.util.MegaMekFile;
 
 public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, ItemListener,
         ListSelectionListener, MouseListener, IMapSettingsObserver {
+    //region Variable Declarations
     private static final long serialVersionUID = 1454736776730903786L;
 
     private JButton butOptions;
@@ -175,6 +177,11 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
     };
 
     CamoChoiceDialog camoDialog;
+
+    //region Action Commands
+    private static final String INDIVIDUAL_CAMOUFLAGE = "INDIVIDUAL_CAMO";
+    //endregion Action Commands
+    //endregion Variable Declarations
 
     /**
      * Creates a new chat lounge for the clientgui.getClient().
@@ -456,15 +463,13 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         butCamo = new JButton();
         butCamo.setPreferredSize(new Dimension(84, 72));
         butCamo.setActionCommand("camo"); //$NON-NLS-1$
-        butCamo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                camoDialog.setPlayer(getPlayerSelected().getLocalPlayer());
-                camoDialog.setEntity(null);
-                camoDialog.setVisible(true);
-                getPlayerSelected().sendPlayerInfo();
-            }
+        butCamo.addActionListener(e -> {
+            camoDialog.setPlayer(getPlayerSelected().getLocalPlayer());
+            camoDialog.setEntity(null);
+            camoDialog.setVisible(true);
+            getPlayerSelected().sendPlayerInfo();
         });
+        Camouflage.createCamouflageDirectory();
         camoDialog = new CamoChoiceDialog(clientgui.getFrame(), butCamo);
         refreshCamos();
 
@@ -2259,7 +2264,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         // When we customize a single entity's C3 network setting,
         // **ALL** members of the network may get changed.
         Entity c3master = entity.getC3Master();
-        ArrayList<Entity> c3members = new ArrayList<Entity>();
+        ArrayList<Entity> c3members = new ArrayList<>();
         Iterator<Entity> playerUnits = c.getGame().getPlayerEntities(c.getLocalPlayer(), false).iterator();
         while (playerUnits.hasNext()) {
             Entity unit = playerUnits.next();
@@ -2331,36 +2336,33 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
     }
 
     public void mechCamo(Vector<Entity> entities) {
-        if (entities.size() < 0) {
-            return;
-        }
         Entity entity = entities.get(0);
-        boolean editable;
-        editable = clientgui.getBots().get(entity.getOwner().getName()) != null;
-        Client c;
-        if (editable) {
-            c = clientgui.getBots().get(entity.getOwner().getName());
+        Client client;
+
+        if (clientgui.getBots().get(entity.getOwner().getName()) == null) {
+            if (entity.getOwnerId() == clientgui.getClient().getLocalPlayer().getId()) {
+                client = clientgui.getClient();
+            } else {
+                return;
+            }
         } else {
-            editable |= entity.getOwnerId() == clientgui.getClient().getLocalPlayer().getId();
-            c = clientgui.getClient();
+            client = clientgui.getBots().get(entity.getOwner().getName());
         }
 
-        // display dialog
         CamoChoiceDialog mcd = new CamoChoiceDialog(clientgui.getFrame(), null);
-        mcd.setPlayer(c.getLocalPlayer());
+        mcd.setPlayer(client.getLocalPlayer());
         mcd.setEntity(entity);
         mcd.setVisible(true);
-        if (editable && mcd.isSelect()) {
+        if (mcd.isSelected()) {
+            Camouflage camouflage = mcd.getCamouflage();
             // send changes
             for (Entity ent : entities) {
-                if (mcd.category.equals(IPlayer.NO_CAMO)) {
-                    ent.setCamoCategory(null);
-                    ent.setCamoFileName(null);
+                if (mcd.getCamouflage().getCategory().equals(Camouflage.COLOURED_CAMO)) {
+                    ent.setCamouflage(new Camouflage(null, null));
                 } else {
-                    ent.setCamoCategory(mcd.category);
-                    ent.setCamoFileName(mcd.filename);
+                    ent.setCamouflage(camouflage);
                 }
-                c.sendUpdateEntity(ent);
+                client.sendUpdateEntity(ent);
             }
         }
     }
@@ -3561,7 +3563,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
     }
 
     public class MekTableMouseAdapter extends MouseInputAdapter implements ActionListener {
-
         @Override
         public void actionPerformed(ActionEvent action) {
             StringTokenizer st = new StringTokenizer(action.getActionCommand(), "|");
@@ -3569,9 +3570,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
             int[] rows = tableEntities.getSelectedRows();
             int row = tableEntities.getSelectedRow();
             Entity entity = mekModel.getEntityAt(row);
-            Vector<Entity> entities = new Vector<Entity>();
-            for (int i = 0; i < rows.length; i++) {
-                entities.add(mekModel.getEntityAt(rows[i]));
+            Vector<Entity> entities = new Vector<>();
+            for (int value : rows) {
+                entities.add(mekModel.getEntityAt(value));
             }
             if (null == entity) {
                 return;
@@ -3582,7 +3583,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                 mechBVDisplay(entity);
             } else if (command.equalsIgnoreCase("DAMAGE")) {
                 mechEdit(entity);
-            } else if (command.equalsIgnoreCase("INDI_CAMO")) {
+            } else if (command.equalsIgnoreCase(INDIVIDUAL_CAMOUFLAGE)) {
                 mechCamo(entities);
             } else if (command.equalsIgnoreCase("CONFIGURE")) {
                 customizeMech(entity);
@@ -4060,7 +4061,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
 
 
                 menuItem = new JMenuItem("Set individual camo");
-                menuItem.setActionCommand("INDI_CAMO");
+                menuItem.setActionCommand(INDIVIDUAL_CAMOUFLAGE);
                 menuItem.addActionListener(this);
                 menuItem.setEnabled(isOwner || isBot);
                 menuItem.setMnemonic(KeyEvent.VK_I);

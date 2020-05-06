@@ -13,13 +13,6 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
-/*
- * TilesetManager.java
- *
- * Created on April 15, 2002, 11:41 PM
- */
-
 package megamek.client.ui.swing;
 
 import java.awt.Color;
@@ -47,6 +40,7 @@ import java.util.Set;
 import megamek.client.ui.ITilesetManager;
 import megamek.client.ui.swing.MechTileset.MechEntry;
 import megamek.client.ui.swing.boardview.BoardView1;
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.client.ui.swing.util.ImageCache;
 import megamek.client.ui.swing.util.ImageFileFactory;
 import megamek.client.ui.swing.util.PlayerColors;
@@ -104,8 +98,8 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     private MechTileset mechTileset = new MechTileset(Configuration.unitImagesDir());
     private MechTileset wreckTileset = new MechTileset(
             new MegaMekFile(Configuration.unitImagesDir(), DIR_NAME_WRECKS).getFile());
-    private ArrayList<EntityImage> mechImageList = new ArrayList<EntityImage>();
-    private HashMap<ArrayList<Integer>, EntityImage> mechImages = new HashMap<ArrayList<Integer>, EntityImage>();
+    private ArrayList<EntityImage> mechImageList = new ArrayList<>();
+    private HashMap<ArrayList<Integer>, EntityImage> mechImages = new HashMap<>();
 
     // hex images
     private HexTileset hexTileset = new HexTileset();
@@ -536,7 +530,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
 
         // Return a null if the player has selected no camo file.
         if ((null == player.getCamoCategory())
-                || IPlayer.NO_CAMO.equals(player.getCamoCategory())) {
+                || Camouflage.NO_CAMO.equals(player.getCamoCategory())) {
             return null;
         }
 
@@ -546,7 +540,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
 
             // Translate the root camo directory name.
             String category = player.getCamoCategory();
-            if (IPlayer.ROOT_CAMO.equals(category)) {
+            if (Camouflage.ROOT_CAMO.equals(category)) {
                 category = ""; //$NON-NLS-1$
             }
             camo = (Image) camos.getItem(category, player.getCamoFileName());
@@ -568,7 +562,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     public Image getEntityCamo(Entity entity) {
         // Return a null if the player has selected no camo file.
         if ((null == entity.getCamoCategory())
-                || IPlayer.NO_CAMO.equals(entity.getCamoCategory())) {
+                || Camouflage.NO_CAMO.equals(entity.getCamoCategory())) {
             return null;
         }
 
@@ -577,7 +571,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         try {
             // Translate the root camo directory name.
             String category = entity.getCamoCategory();
-            if (IPlayer.ROOT_CAMO.equals(category)) {
+            if (Camouflage.ROOT_CAMO.equals(category)) {
                 category = ""; //$NON-NLS-1$
             }
             camo = (Image) camos.getItem(category, entity.getCamoFileName());
@@ -597,7 +591,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         IPlayer player = entity.getOwner();
         int tint = PlayerColors.getColorRGB(player.getColorIndex());
 
-        Image camo = null;
+        Image camo;
         if (getEntityCamo(entity) != null) {
             camo = getEntityCamo(entity);
         } else {
@@ -606,8 +600,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         EntityImage entityImage = null;
 
         // check if we have a duplicate image already loaded
-        for (Iterator<EntityImage> j = mechImageList.iterator(); j.hasNext();) {
-            EntityImage onList = j.next();
+        for (EntityImage onList : mechImageList) {
             if ((onList.getBase() != null) && onList.getBase().equals(base)
                     && (onList.tint == tint) && (onList.getCamo() != null)
                     && onList.getCamo().equals(camo)) {
@@ -627,7 +620,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         }
 
         // relate this id to this image set
-        ArrayList<Integer> temp = new ArrayList<Integer>();
+        ArrayList<Integer> temp = new ArrayList<>();
         temp.add(entity.getId());
         temp.add(secondaryPos);
         mechImages.put(temp, entityImage);
@@ -649,7 +642,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     /**
      * A class to handle the image permutations for an entity
      */
-    private class EntityImage {
+    private static class EntityImage {
         private Image base;
         private Image wreck;
         private Image icon;

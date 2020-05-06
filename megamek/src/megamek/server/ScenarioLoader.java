@@ -13,7 +13,6 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-
 package megamek.server;
 
 import java.io.BufferedReader;
@@ -26,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.IllegalFormatException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import megamek.client.RandomNameGenerator;
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.client.ui.swing.util.ImageFileFactory;
 import megamek.common.AmmoType;
 import megamek.common.BattleArmor;
@@ -522,7 +521,7 @@ public class ScenarioLoader {
                         }
                         break;
                     case PARAM_CAMO:
-                        parseCamo(e, p.getString(key));
+                        e.setCamouflage(Camouflage.parseFromString(p.getString(key)));
                         break;
                     case PARAM_ALTITUDE:
                         int altitude = Math.min(Integer.parseInt(p.getString(key)), 10);
@@ -634,111 +633,12 @@ public class ScenarioLoader {
     private void parseAutoEject(Entity entity, String eject) {
         if (entity instanceof Mech) {
             Mech mech = (Mech) entity;
-            mech.setAutoEject(Boolean.valueOf(eject).booleanValue());
+            mech.setAutoEject(Boolean.parseBoolean(eject));
         }
     }
 
     private void parseCommander(Entity entity, String commander) {
-        entity.setCommander(Boolean.valueOf(commander).booleanValue());
-    }
-
-    private String getValidCamoGroup(String camoGroup) {
-        // Translate base categories for userfriendliness.
-        if(camoGroup.equals("No Camo") || camoGroup.equals("None")) { //$NON-NLS-1$ //$NON-NLS-2$
-            camoGroup = IPlayer.NO_CAMO;
-        } else if (camoGroup.equals("General")) { //$NON-NLS-1$
-            camoGroup = IPlayer.ROOT_CAMO;
-        } else {
-            // If CamoGroup does not have a trailing slash, add one, since all
-            // subdirectories require it
-            if (camoGroup.charAt(camoGroup.length() - 1) != '/') {
-                camoGroup += "/"; //$NON-NLS-1$
-            }
-        }
-        
-        boolean validGroup = false;
-
-        if(camoGroup.equals(IPlayer.NO_CAMO) || camoGroup.equals(IPlayer.ROOT_CAMO)) {
-            validGroup = true;
-        } else {
-            Iterator<String> catNames = camos.getCategoryNames();
-            while (catNames.hasNext()) {
-                String s = catNames.next();
-                if (s.equals(camoGroup)) {
-                    validGroup = true;
-                }
-            }
-        }
-
-        return validGroup ? camoGroup : null;
-    }
-    
-    private String getValidCamoName(String camoGroup, String camoName) {
-        boolean validName = false;
-
-        // Validate CamoName
-        if(camoGroup.equals(IPlayer.NO_CAMO)) {
-            for(String color : IPlayer.colorNames) {
-                if(camoName.equals(color)) {
-                    validName = true;
-                }
-            }
-        } else {
-            Iterator<String> camoNames;
-            if(camoGroup.equals(IPlayer.ROOT_CAMO)) {
-                camoNames = camos.getItemNames(""); //$NON-NLS-1$
-            } else {
-                camoNames = camos.getItemNames(camoGroup);
-            }
-            while (camoNames.hasNext()) {
-                String s = camoNames.next();
-                if (s.equals(camoName)) {
-                    validName = true;
-                }
-            }
-        }
-        
-        return validName ? camoName : null;
-    }
-    
-    /*
-     * Camo Parser/Validator for Individual Entity Camo
-     */
-    private void parseCamo(Entity entity, String camoString) throws ScenarioLoaderException {
-        String[] camoData = camoString.split(SEPARATOR_COMMA, -1);
-        String camoGroup = getValidCamoGroup(camoData[0]);
-        if(null == camoGroup) {
-            throw new ScenarioLoaderException("invalidIndividualCamoGroup", //$NON-NLS-1$
-                camoData[0], entity.getDisplayName());
-        }
-        String camoName = getValidCamoName(camoGroup, camoData[1]);
-        if(null == camoName) {
-            throw new ScenarioLoaderException("invalidIndividualCamoName", //$NON-NLS-1$
-                camoData[1], camoGroup, entity.getDisplayName());
-        }
-
-        entity.setCamoCategory(camoGroup);
-        entity.setCamoFileName(camoName);
-    }
-
-    /*
-     * Camo Parser/Validator for Faction Camo
-     */
-    private void parseCamo(IPlayer player, String camoString) throws ScenarioLoaderException {
-        String[] camoData = camoString.split(SEPARATOR_COMMA, -1);
-        String camoGroup = getValidCamoGroup(camoData[0]);
-        if(null == camoGroup) {
-            throw new ScenarioLoaderException("invalidFactionCamoGroup", //$NON-NLS-1$
-                camoData[0], player.getName());
-        }
-        String camoName = getValidCamoName(camoGroup, camoData[1]);
-        if(null == camoName) {
-            throw new ScenarioLoaderException("invalidFactionCamoName", //$NON-NLS-1$
-                camoData[1], camoGroup, player.getName());
-        }
-
-        player.setCamoCategory(camoGroup);
-        player.setCamoFileName(camoName);
+        entity.setCommander(Boolean.parseBoolean(commander));
     }
 
     private int findIndex(String[] sa, String s) {
@@ -756,7 +656,7 @@ public class ScenarioLoader {
     
     private Collection<Player> createPlayers(StringMultiMap p) throws ScenarioLoaderException {
         String sFactions = p.getString(PARAM_FACTIONS);
-        if((null == sFactions) || sFactions.isEmpty()) {
+        if ((null == sFactions) || sFactions.isEmpty()) {
             throw new ScenarioLoaderException("missingFactions"); //$NON-NLS-1$
         }
         String[] factions = sFactions.split(SEPARATOR_COMMA, -1);
@@ -764,7 +664,7 @@ public class ScenarioLoader {
         
         int playerId = 0;
         int teamId = 0;
-        for(String faction : factions) {
+        for (String faction : factions) {
             Player player = new Player(playerId, faction);
             result.add(player);
             ++ playerId;
@@ -773,15 +673,15 @@ public class ScenarioLoader {
             player.setGhost(true);
             
             String loc = p.getString(getFactionParam(faction, PARAM_LOCATION));
-            if(null == loc) {
+            if (null == loc) {
                 loc = "Any"; //$NON-NLS-1$
             }
             int dir = Math.max(findIndex(IStartingPositions.START_LOCATION_NAMES, loc), 0);
             player.setStartingPos(dir);
             
             String camo = p.getString(getFactionParam(faction, PARAM_CAMO));
-            if((null != camo) && !camo.isEmpty()) {
-                parseCamo(player, camo);
+            if ((null != camo) && !camo.isEmpty()) {
+                player.setCamouflage(Camouflage.parseFromString(camo));
             }
             
             String team = p.getString(getFactionParam(faction, PARAM_TEAM));

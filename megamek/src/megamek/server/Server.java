@@ -61,6 +61,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import megamek.MegaMek;
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.client.ui.swing.util.PlayerColors;
 import megamek.common.*;
 import megamek.common.Building.BasementType;
@@ -1056,7 +1057,7 @@ public class Server implements Runnable {
             colorInd = 0;
         }
         newPlayer.setColorIndex(colorInd);
-        newPlayer.setCamoCategory(IPlayer.NO_CAMO);
+        newPlayer.setCamoCategory(Camouflage.NO_CAMO);
         newPlayer.setCamoFileName(IPlayer.colorNames[colorInd]);
         newPlayer.setTeam(Math.min(team, 5));
         game.addPlayer(connId, newPlayer);

@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import megamek.client.ui.Messages;
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.common.IPlayer;
 import megamek.common.Player;
 
@@ -79,14 +80,11 @@ public class ScenarioDialog extends JDialog implements ActionListener {
             final JButton curButton = m_camoButtons[x];
             curButton.setText(Messages.getString("MegaMek.NoCamoBtn")); //$NON-NLS-1$
             curButton.setPreferredSize(new Dimension(84, 72));
+            Camouflage.createCamouflageDirectory();
             final CamoChoiceDialog dialog = new CamoChoiceDialog(frame,
                     curButton);
             dialog.setPlayer(curPlayer);
-            curButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    dialog.setVisible(true);
-                }
-            });
+            curButton.addActionListener(e -> dialog.setVisible(true));
         }
         getContentPane().setLayout(new BorderLayout());
         JPanel choicePanel = new JPanel();

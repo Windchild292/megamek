@@ -791,15 +791,11 @@ public class EntityListFile {
                 output.write("\" c3UUID=\"");
                 output.write(entity.getC3UUIDAsString());
             }
-            if (null != entity.getCamoCategory()) {
-                output.write("\" camoCategory=\"");
-                output.write(entity.getCamoCategory());
-            }
-            if (null != entity.getCamoFileName()) {
-                output.write("\" camoFileName=\"");
-                output.write(entity.getCamoFileName());
-            }
-            if(entity instanceof MechWarrior && !((MechWarrior)entity).getPickedUpByExternalIdAsString().equals("-1")) {
+
+            output.write("\" camouflage=\"");
+            output.write(entity.getCamouflage().writeToFile());
+
+            if (entity instanceof MechWarrior && !((MechWarrior) entity).getPickedUpByExternalIdAsString().equals("-1")) {
                 output.write("\" pickUpId=\"");
                 output.write(((MechWarrior)entity).getPickedUpByExternalIdAsString());
             }

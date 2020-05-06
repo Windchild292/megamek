@@ -11,13 +11,13 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-
 package megamek.common;
 
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.common.event.GamePlayerChangeEvent;
 import megamek.common.options.OptionsConstants;
 
@@ -25,14 +25,11 @@ import megamek.common.options.OptionsConstants;
  * Represents a player in the game.
  */
 public final class Player extends TurnOrdered implements IPlayer {
-    /**
-     *
-     */
     private static final long serialVersionUID = 6828849559007455760L;
 
     private transient IGame game;
 
-    private String name = "unnamed";
+    private String name;
     private int id;
 
     private int team = TEAM_NONE;
@@ -46,7 +43,7 @@ public final class Player extends TurnOrdered implements IPlayer {
 
     private int colorIndex = 0;
 
-    // these are game-specific, and maybe should be seperate from the player
+    // these are game-specific, and maybe should be separate from the player
     // object
     private int startingPos = Board.START_ANY;
 
@@ -58,7 +55,7 @@ public final class Player extends TurnOrdered implements IPlayer {
     private int num_mf_inferno = 0;
 
     // hexes that are automatically hit by artillery
-    private Vector<Coords> artyAutoHitHexes = new Vector<Coords>();
+    private Vector<Coords> artyAutoHitHexes = new Vector<>();
 
     private int initialBV;
 
@@ -68,11 +65,11 @@ public final class Player extends TurnOrdered implements IPlayer {
     private int constantInitBonus = 0;
     private int streakCompensationBonus = 0;
 
-    private String camoCategory = IPlayer.NO_CAMO;
-
+    private Camouflage camouflage;
+    private String camoCategory = Camouflage.NO_CAMO;
     private String camoFileName = null;
 
-    private Vector<Minefield> visibleMinefields = new Vector<Minefield>();
+    private Vector<Minefield> visibleMinefields = new Vector<>();
 
     private boolean admitsDefeat = false;
     
@@ -175,21 +172,35 @@ public final class Player extends TurnOrdered implements IPlayer {
     }
 
     @Override
+    public Camouflage getCamouflage() {
+        return camouflage;
+    }
+
+    @Override
+    public void setCamouflage(Camouflage camouflage) {
+        this.camouflage = camouflage;
+    }
+
+    @Override
+    @Deprecated
     public void setCamoCategory(String name) {
         camoCategory = name;
     }
 
     @Override
+    @Deprecated
     public String getCamoCategory() {
         return camoCategory;
     }
 
     @Override
+    @Deprecated
     public void setCamoFileName(String name) {
         camoFileName = name;
     }
 
     @Override
+    @Deprecated
     public String getCamoFileName() {
         return camoFileName;
     }
@@ -561,9 +572,8 @@ public final class Player extends TurnOrdered implements IPlayer {
      */
     @Override
     public Vector<Integer> getAirborneVTOL() {
-
         //a vector of unit ids
-        Vector<Integer> units = new Vector<Integer>();
+        Vector<Integer> units = new Vector<>();
         for (Entity entity : game.getEntitiesVector()) {
             if (entity.getOwner().equals(this)) {
                 if (((entity instanceof VTOL)

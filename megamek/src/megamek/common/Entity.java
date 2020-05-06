@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import megamek.client.ui.swing.GUIPreferences;
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.common.Building.BasementType;
 import megamek.common.IGame.Phase;
 import megamek.common.MovePath.MoveStepType;
@@ -188,8 +189,7 @@ public abstract class Entity extends TurnOrdered implements Transporter,
 
     protected int id = Entity.NONE;
 
-    protected String camoCategory = IPlayer.NO_CAMO;
-    protected String camoFileName = null;
+    protected Camouflage camouflage = new Camouflage();
 
     /**
      * ID settable by external sources (such as mm.net)
@@ -467,29 +467,29 @@ public abstract class Entity extends TurnOrdered implements Transporter,
      * A list of every weapon mount, including bay mounts and weapon group
      * mounts
      */
-    protected ArrayList<Mounted> totalWeaponList = new ArrayList<Mounted>();
+    protected ArrayList<Mounted> totalWeaponList = new ArrayList<>();
 
     /**
      * A list of all mounted ammo.
      */
-    protected ArrayList<Mounted> ammoList = new ArrayList<Mounted>();
+    protected ArrayList<Mounted> ammoList = new ArrayList<>();
 
     /**
      * A list of all mounted bombs.
      */
-    protected ArrayList<Mounted> bombList = new ArrayList<Mounted>();
+    protected ArrayList<Mounted> bombList = new ArrayList<>();
 
     /**
      * A list of all remaining equipment.
      */
-    protected ArrayList<Mounted> miscList = new ArrayList<Mounted>();
+    protected ArrayList<Mounted> miscList = new ArrayList<>();
 
-    protected ArrayList<INarcPod> pendingINarcPods = new ArrayList<INarcPod>();
-    protected ArrayList<INarcPod> iNarcPods = new ArrayList<INarcPod>();
-    protected ArrayList<NarcPod> pendingNarcPods = new ArrayList<NarcPod>();
-    protected ArrayList<NarcPod> narcPods = new ArrayList<NarcPod>();
+    protected ArrayList<INarcPod> pendingINarcPods = new ArrayList<>();
+    protected ArrayList<INarcPod> iNarcPods = new ArrayList<>();
+    protected ArrayList<NarcPod> pendingNarcPods = new ArrayList<>();
+    protected ArrayList<NarcPod> narcPods = new ArrayList<>();
 
-    protected ArrayList<String> failedEquipmentList = new ArrayList<String>();
+    protected ArrayList<String> failedEquipmentList = new ArrayList<>();
 
     // which teams have NARCd us? a long allows for 64 teams.
     protected long m_lNarcedBy = 0;
@@ -6533,7 +6533,7 @@ public abstract class Entity extends TurnOrdered implements Transporter,
      */
     public void assignAMS(Vector<WeaponHandler> vAttacks) {
 
-        HashSet<WeaponAttackAction> targets = new HashSet<WeaponAttackAction>();
+        HashSet<WeaponAttackAction> targets = new HashSet<>();
         for (Mounted ams : getActiveAMS()) {
             // Ignore APDS, it gets assigned elsewhere
             if (ams.isAPDS()) {
@@ -6541,7 +6541,7 @@ public abstract class Entity extends TurnOrdered implements Transporter,
             }
 
             // make a new vector of only incoming attacks in arc
-            Vector<WeaponAttackAction> vAttacksInArc = new Vector<WeaponAttackAction>(
+            Vector<WeaponAttackAction> vAttacksInArc = new Vector<>(
                     vAttacks.size());
             for (WeaponHandler wr : vAttacks) {
                 if (wr instanceof CapitalMissileBearingsOnlyHandler) {
@@ -14428,18 +14428,30 @@ public abstract class Entity extends TurnOrdered implements Transporter,
     }
 
     // Deal with per entity camo
+    public Camouflage getCamouflage() {
+        return camouflage;
+    }
+
+    public void setCamouflage(Camouflage camouflage) {
+        this.camouflage = camouflage;
+    }
+
+    @Deprecated
     public void setCamoCategory(String name) {
         camoCategory = name;
     }
 
+    @Deprecated
     public String getCamoCategory() {
         return camoCategory;
     }
 
+    @Deprecated
     public void setCamoFileName(String name) {
         camoFileName = name;
     }
 
+    @Deprecated
     public String getCamoFileName() {
         return camoFileName;
     }
