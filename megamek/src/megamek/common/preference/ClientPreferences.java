@@ -20,12 +20,11 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Locale;
 
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.common.MovePath;
 import megamek.common.util.LocaleParser;
 
-class ClientPreferences extends PreferenceStoreProxy implements
-        IClientPreferences {
-
+class ClientPreferences extends PreferenceStoreProxy implements IClientPreferences {
     ClientPreferences(IPreferenceStore store) {
         this.store = store;
         store.setDefault(LAST_CONNECT_ADDR, "localhost");
@@ -41,7 +40,6 @@ class ClientPreferences extends PreferenceStoreProxy implements
         store.setDefault(METASERVER_NAME, "https://api.megamek.org/servers/announce");
         store.setDefault(GAMELOG_KEEP, true);
         store.setDefault(GAMELOG_FILENAME, "gamelog.html");
-        // store.setDefault(GAMELOG_MAX_SIZE, 1);
         store.setDefault(STAMP_FORMAT, "_yyyy-MM-dd_HH-mm-ss");
         store.setDefault(UNIT_START_CHAR, 'A');
         store.setDefault(GUI_NAME, "swing");
@@ -84,6 +82,10 @@ class ClientPreferences extends PreferenceStoreProxy implements
 
     public int getLastConnectPort() {
         return store.getInt(LAST_CONNECT_PORT);
+    }
+
+    public Camouflage getLastPlayerCamouflage() {
+        return Camouflage.parseFromString(store.getString(LAST_PLAYER_CAMOUFLAGE));
     }
 
     public String getLastPlayerName() {
@@ -200,14 +202,11 @@ class ClientPreferences extends PreferenceStoreProxy implements
         store.setValue(LAST_CONNECT_PORT, port);
     }
 
-    public void setLastPlayerCamoName(String camoFileName) {
-        if (camoFileName != null) {
-            store.setValue(LAST_PLAYER_CAMO_NAME, camoFileName);
+    @Override
+    public void setLastPlayerCamouflage(Camouflage camouflage) {
+        if (!camouflage.isNull()) {
+            store.setValue(LAST_PLAYER_CAMOUFLAGE, camouflage.toString());
         }
-    }
-
-    public void setLastPlayerCategory(String camoCategory) {
-        store.setValue(LAST_PLAYER_CATEGORY, camoCategory);
     }
 
     public void setLastPlayerColor(int colorIndex) {

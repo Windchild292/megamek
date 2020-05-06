@@ -794,7 +794,7 @@ public class EntityListFile {
 
             if (!entity.getCamouflage().isNull()) {
                 output.write("\" camouflage=\"");
-                output.write(entity.getCamouflage().writeToFile());
+                output.write(entity.getCamouflage().toString());
             }
 
             if (entity instanceof MechWarrior && !((MechWarrior) entity).getPickedUpByExternalIdAsString().equals("-1")) {

@@ -11,7 +11,6 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-
 package megamek.common.preference;
 
 import megamek.client.ui.swing.camouflage.Camouflage;
@@ -23,42 +22,39 @@ import java.util.Locale;
  * Interface for common client settings store
  */
 public interface IClientPreferences extends IPreferenceStore {
-
-    public static final String LAST_CONNECT_ADDR = "LastConnectAddr";
-    public static final String LAST_CONNECT_PORT = "LastConnectPort";
-    public static final String LAST_PLAYER_CAMO_NAME = "LastPlayerCamoName";
-    public static final String LAST_PLAYER_CATEGORY = "LastPlayerCategory";
-    public static final String LAST_PLAYER_COLOR = "LastPlayerColor";
-    public static final String LAST_PLAYER_NAME = "LastPlayerName";
-    public static final String LAST_SERVER_PASS = "LastServerPass";
-    public static final String LAST_SERVER_PORT = "LastServerPort";
-    public static final String LOCALE = "Locale";
-    public static final String MAP_TILESET = "MapTileset";
-    public static final String MAX_PATHFINDER_TIME = "MaxPathfinderTime";
-    public static final String DATA_DIRECTORY = "DataDirectory";
-    public static final String LOG_DIRECTORY = "LogDirectory";
-    public static final String MECH_DIRECTORY = "MechDirectory";
-    public static final String MEK_HIT_LOC_LOG = "MekHitLocLog";
-    public static final String MEMORY_DUMP_ON = "MemoryDumpOn";
-    public static final String DEBUG_OUTPUT_ON = "DebugOutputOn";
-    public static final String GAMELOG_KEEP = "KeepGameLog";
-    public static final String GAMELOG_FILENAME = "GameLogFilename";
-    // public static final String GAMELOG_MAX_SIZE = "GameLogMaxSize";
-    public static final String STAMP_FILENAMES = "StampFilenames";
-    public static final String STAMP_FORMAT = "StampFormat";
-    public static final String SHOW_UNIT_ID = "ShowUnitId";
-    public static final String UNIT_START_CHAR = "UnitStartChar";
-    public static final String DEFAULT_AUTOEJECT_DISABLED = "DefaultAutoejectDisabled";
-    public static final String USE_AVERAGE_SKILLS = "UseAverageSkills";
-    public static final String GENERATE_NAMES = "GenerateNames";
-    public static final String METASERVER_NAME = "MetaServerName";
-    public static final String GOAL_PLAYERS = "GoalPlayers";
-    public static final String GUI_NAME = "GUIName";
-    public static final String PRINT_ENTITY_CHANGE = "PrintEntityChange";
-    public static final String BOARD_WIDTH = "BoardWidth";
-    public static final String BOARD_HEIGHT = "BoardHeight";
-    public static final String MAP_WIDTH = "MapWidth";
-    public static final String MAP_HEIGHT = "MapHeight";
+    String LAST_CONNECT_ADDR = "LastConnectAddr";
+    String LAST_CONNECT_PORT = "LastConnectPort";
+    String LAST_PLAYER_CAMOUFLAGE = "LastPlayerCamouflage";
+    String LAST_PLAYER_COLOR = "LastPlayerColor";
+    String LAST_PLAYER_NAME = "LastPlayerName";
+    String LAST_SERVER_PASS = "LastServerPass";
+    String LAST_SERVER_PORT = "LastServerPort";
+    String LOCALE = "Locale";
+    String MAP_TILESET = "MapTileset";
+    String MAX_PATHFINDER_TIME = "MaxPathfinderTime";
+    String DATA_DIRECTORY = "DataDirectory";
+    String LOG_DIRECTORY = "LogDirectory";
+    String MECH_DIRECTORY = "MechDirectory";
+    String MEK_HIT_LOC_LOG = "MekHitLocLog";
+    String MEMORY_DUMP_ON = "MemoryDumpOn";
+    String DEBUG_OUTPUT_ON = "DebugOutputOn";
+    String GAMELOG_KEEP = "KeepGameLog";
+    String GAMELOG_FILENAME = "GameLogFilename";
+    String STAMP_FILENAMES = "StampFilenames";
+    String STAMP_FORMAT = "StampFormat";
+    String SHOW_UNIT_ID = "ShowUnitId";
+    String UNIT_START_CHAR = "UnitStartChar";
+    String DEFAULT_AUTOEJECT_DISABLED = "DefaultAutoejectDisabled";
+    String USE_AVERAGE_SKILLS = "UseAverageSkills";
+    String GENERATE_NAMES = "GenerateNames";
+    String METASERVER_NAME = "MetaServerName";
+    String GOAL_PLAYERS = "GoalPlayers";
+    String GUI_NAME = "GUIName";
+    String PRINT_ENTITY_CHANGE = "PrintEntityChange";
+    String BOARD_WIDTH = "BoardWidth";
+    String BOARD_HEIGHT = "BoardHeight";
+    String MAP_WIDTH = "MapWidth";
+    String MAP_HEIGHT = "MapHeight";
 
     boolean getPrintEntityChange();
 
@@ -71,6 +67,8 @@ public interface IClientPreferences extends IPreferenceStore {
     String getLastConnectAddr();
 
     int getLastConnectPort();
+
+    Camouflage getLastPlayerCamouflage();
 
     String getLastPlayerName();
 
@@ -103,8 +101,6 @@ public interface IClientPreferences extends IPreferenceStore {
     void setGoalPlayers(int n);
 
     String getGameLogFilename();
-
-    // int getGameLogMaxSize();
 
     boolean stampFilenames();
 
@@ -149,8 +145,6 @@ public interface IClientPreferences extends IPreferenceStore {
     void setMaxPathfinderTime(int i);
 
     void setGameLogFilename(String text);
-
-    // void setGameLogMaxSize(int i);
 
     void setStampFilenames(boolean state);
 

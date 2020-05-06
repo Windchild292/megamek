@@ -132,18 +132,6 @@ public class Camouflage implements Serializable {
         return (getCategory() == null) && (getFileName() == null);
     }
 
-    public String writeToFile() {
-        String category = getCategory();
-        if (category == null) {
-            category = "";
-        }
-        String fileName = getFileName();
-        if (fileName == null) {
-            fileName = "";
-        }
-        return category + SEPARATOR + fileName;
-    }
-
     public static Camouflage parseFromString(String text) {
         String[] split = text.split(SEPARATOR);
 
@@ -158,4 +146,18 @@ public class Camouflage implements Serializable {
         }
     }
     //endregion File IO
+
+
+    @Override
+    public String toString() {
+        String category = getCategory();
+        if (category == null) {
+            category = "";
+        }
+        String fileName = getFileName();
+        if (fileName == null) {
+            fileName = "";
+        }
+        return category + SEPARATOR + fileName;
+    }
 }
