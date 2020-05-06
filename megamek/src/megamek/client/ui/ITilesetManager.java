@@ -14,7 +14,6 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-
 package megamek.client.ui;
 
 import java.awt.Component;
@@ -22,24 +21,16 @@ import java.awt.Image;
 import java.util.Set;
 
 import megamek.common.Entity;
-import megamek.common.IPlayer;
 
 /**
- *
  * @author jwalt
  */
 public interface ITilesetManager {
+    Image iconFor(Entity e);
 
-    public Image getPlayerCamo(IPlayer player);
-
-    public Image getEntityCamo(Entity entity);
-
-    public Image iconFor(Entity e);
-
-    public Image loadPreviewImage(Entity entity, Image camo, int tint, Component bp);
+    Image loadPreviewImage(Entity entity, Image camo, int tint, Component bp);
     
-    public Set<String> getThemes();
+    Set<String> getThemes();
 
-    public void reset();
-
+    void reset();
 }

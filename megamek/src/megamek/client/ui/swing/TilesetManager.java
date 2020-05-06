@@ -33,14 +33,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import megamek.client.ui.ITilesetManager;
 import megamek.client.ui.swing.MechTileset.MechEntry;
 import megamek.client.ui.swing.boardview.BoardView1;
-import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.client.ui.swing.util.ImageCache;
 import megamek.client.ui.swing.util.ImageFileFactory;
 import megamek.client.ui.swing.util.PlayerColors;
@@ -519,69 +517,6 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     }
 
     /**
-     * Get the camo pattern for the given player.
-     *
-     * @param player - the <code>Player</code> whose camo pattern is needed.
-     * @return The <code>Image</code> of the player's camo pattern. This value
-     *         will be <code>null</code> if the player has selected no camo
-     *         pattern or if there was an error loading it.
-     */
-    public Image getPlayerCamo(IPlayer player) {
-
-        // Return a null if the player has selected no camo file.
-        if ((null == player.getCamoCategory())
-                || Camouflage.NO_CAMO.equals(player.getCamoCategory())) {
-            return null;
-        }
-
-        // Try to get the player's camo file.
-        Image camo = null;
-        try {
-
-            // Translate the root camo directory name.
-            String category = player.getCamoCategory();
-            if (Camouflage.ROOT_CAMO.equals(category)) {
-                category = ""; //$NON-NLS-1$
-            }
-            camo = (Image) camos.getItem(category, player.getCamoFileName());
-
-        } catch (Exception err) {
-            err.printStackTrace();
-        }
-        return camo;
-    }
-
-    /**
-     * Get the camo pattern for the given player.
-     *
-     * @param entity - the <code>Entity</code> whose camo pattern is needed.
-     * @return The <code>Image</code> of the player's camo pattern. This value
-     *         will be <code>null</code> if the player has selected no camo
-     *         pattern or if there was an error loading it.
-     */
-    public Image getEntityCamo(Entity entity) {
-        // Return a null if the player has selected no camo file.
-        if ((null == entity.getCamoCategory())
-                || Camouflage.NO_CAMO.equals(entity.getCamoCategory())) {
-            return null;
-        }
-
-        // Try to get the player's camo file.
-        Image camo = null;
-        try {
-            // Translate the root camo directory name.
-            String category = entity.getCamoCategory();
-            if (Camouflage.ROOT_CAMO.equals(category)) {
-                category = ""; //$NON-NLS-1$
-            }
-            camo = (Image) camos.getItem(category, entity.getCamoFileName());
-        } catch (Exception err) {
-            err.printStackTrace();
-        }
-        return camo;
-    }
-
-    /**
      * Load a single entity image
      */
     public synchronized void loadImage(Entity entity, int secondaryPos) {
@@ -591,11 +526,9 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         IPlayer player = entity.getOwner();
         int tint = PlayerColors.getColorRGB(player.getColorIndex());
 
-        Image camo;
-        if (getEntityCamo(entity) != null) {
-            camo = getEntityCamo(entity);
-        } else {
-            camo = getPlayerCamo(player);
+        Image camo = entity.getCamouflage().getImage();
+        if (camo == null) {
+            camo = player.getCamouflage().getImage();
         }
         EntityImage entityImage = null;
 

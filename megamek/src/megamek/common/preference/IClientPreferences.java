@@ -14,6 +14,8 @@
 
 package megamek.common.preference;
 
+import megamek.client.ui.swing.camouflage.Camouflage;
+
 import java.io.PrintWriter;
 import java.util.Locale;
 
@@ -130,9 +132,7 @@ public interface IClientPreferences extends IPreferenceStore {
 
     void setLastConnectPort(int port);
 
-    void setLastPlayerCamoName(String camoFileName);
-
-    void setLastPlayerCategory(String camoCategory);
+    void setLastPlayerCamouflage(Camouflage camouflage);
 
     void setLastPlayerColor(int colorIndex);
 

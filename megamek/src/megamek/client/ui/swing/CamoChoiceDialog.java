@@ -276,8 +276,7 @@ public class CamoChoiceDialog extends JDialog implements TreeSelectionListener {
             if (colorIndex >= 0) {
                 player.setColorIndex(colorIndex);
             }
-            player.setCamoCategory(category);
-            player.setCamoFileName(filename);
+            player.setCamouflage(new Camouflage(category, filename));
             sourceButton.setIcon(generateIcon(category, filename));
         }
 

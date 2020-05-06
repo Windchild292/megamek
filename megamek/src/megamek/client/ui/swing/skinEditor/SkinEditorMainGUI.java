@@ -35,7 +35,6 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.*;
 
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -68,13 +67,11 @@ import megamek.client.ui.swing.TargetingPhaseDisplay;
 import megamek.client.ui.swing.UnitLoadingDialog;
 import megamek.client.ui.swing.boardview.BoardView1;
 import megamek.client.ui.swing.unitDisplay.UnitDisplay;
-import megamek.client.ui.swing.util.PlayerColors;
 import megamek.common.Configuration;
 import megamek.common.Coords;
 import megamek.common.Entity;
 import megamek.common.Game;
 import megamek.common.IGame;
-import megamek.common.IPlayer;
 import megamek.common.MechFileParser;
 import megamek.common.MechSummary;
 import megamek.common.MechSummaryCache;
@@ -82,12 +79,9 @@ import megamek.common.loaders.EntityLoadingException;
 import megamek.common.util.Distractable;
 import megamek.common.util.MegaMekFile;
 
-public class SkinEditorMainGUI extends JPanel implements WindowListener,
-        BoardViewListener, ActionListener, ComponentListener {
-
-    /**
-     * 
-     */
+public class SkinEditorMainGUI extends JPanel implements WindowListener, BoardViewListener,
+        ActionListener, ComponentListener {
+    //region Variable Declarations
     private static final long serialVersionUID = 5625499617779156289L;
 
     private static final String FILENAME_ICON_16X16 = "megamek-icon-16x16.png"; //$NON-NLS-1$
@@ -120,7 +114,7 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
     /**
      * Map each phase to the name of the card for the main display area.
      */
-    private HashMap<String, String> mainNames = new HashMap<String, String>();
+    private HashMap<String, String> mainNames = new HashMap<>();
 
     /**
      * The <code>JPanel</code> containing the main display area.
@@ -135,7 +129,7 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
     /**
      * Map each phase to the name of the card for the secondary area.
      */
-    private HashMap<String, String> secondaryNames = new HashMap<String, String>();
+    private HashMap<String, String> secondaryNames = new HashMap<>();
 
     /**
      * The <code>JPanel</code> containing the secondary display area.
@@ -152,7 +146,8 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
     /**
      * Map phase component names to phase component objects.
      */
-    HashMap<String, JComponent> phaseComponents = new HashMap<String, JComponent>();
+    HashMap<String, JComponent> phaseComponents = new HashMap<>();
+    //endregion Variable Declarations
 
     public SkinEditorMainGUI() {
         super(new BorderLayout());
@@ -219,7 +214,7 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
         frame.setMinimumSize(new Dimension(640, 480));
         frame.setBackground(SystemColor.menu);
         frame.setForeground(SystemColor.menuText);
-        List<Image> iconList = new ArrayList<Image>();
+        List<Image> iconList = new ArrayList<>();
         iconList.add(frame.getToolkit().getImage(
                 new MegaMekFile(Configuration.miscImagesDir(), FILENAME_ICON_16X16)
                         .toString()));
@@ -868,19 +863,6 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
     public JFrame getFrame() {
         return frame;
     }
-   
-    public void loadPreviewImage(JLabel bp, Entity entity, IPlayer player) {
-        Image camo = null;
-        if (entity.getCamoFileName() != null) {
-            camo = bv.getTilesetManager().getEntityCamo(entity);
-        } else {
-            camo = bv.getTilesetManager().getPlayerCamo(player);
-        }
-        int tint = PlayerColors.getColorRGB(player.getColorIndex());
-        bp.setIcon(new ImageIcon(bv.getTilesetManager().loadPreviewImage(
-                entity, camo, tint, bp)));
-    }
-
    
     public void hexMoused(BoardViewEvent b) {
         if (b.getType() == BoardViewEvent.BOARD_HEX_POPUP) {

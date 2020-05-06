@@ -771,7 +771,7 @@ public class Client implements IClientCommandHandler {
      * Sends a "player done" message to the server.
      */
     public synchronized void sendDone(boolean done) {
-        send(new Packet(Packet.COMMAND_PLAYER_READY, Boolean.valueOf(done)));
+        send(new Packet(Packet.COMMAND_PLAYER_READY, done));
         flushConn();
     }
 
@@ -788,8 +788,7 @@ public class Client implements IClientCommandHandler {
     public void sendPlayerInfo() {
         IPlayer player = game.getPlayer(localPlayerNumber);
         PreferenceManager.getClientPreferences().setLastPlayerColor(player.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCategory(player.getCamoCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(player.getCamoFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCamouflage(player.getCamouflage());
         send(new Packet(Packet.COMMAND_PLAYER_UPDATE, player));
     }
 
@@ -801,7 +800,7 @@ public class Client implements IClientCommandHandler {
     }
 
     public void sendEntityWeaponOrderUpdate(Entity entity) {
-        Object data[];
+        Object[] data;
         if (entity.getWeaponSortOrder() == Entity.WeaponSortOrder.CUSTOM) {
             data = new Object[3];
             data[2] = entity.getCustomWeaponOrder();
@@ -924,7 +923,7 @@ public class Client implements IClientCommandHandler {
     }
 
     public void sendExplodeBuilding(DemolitionCharge charge) {
-        Object data[] = new Object[1];
+        Object[] data = new Object[1];
         data[0] = charge;
         send(new Packet(Packet.COMMAND_BLDG_EXPLODE, data));
     }
@@ -942,8 +941,7 @@ public class Client implements IClientCommandHandler {
         }
 
         PreferenceManager.getClientPreferences().setLastPlayerColor(newPlayer.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCategory(newPlayer.getCamoCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamoFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCamouflage(newPlayer.getCamouflage());
     }
 
     /**
