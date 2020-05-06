@@ -66,8 +66,6 @@ public final class Player extends TurnOrdered implements IPlayer {
     private int streakCompensationBonus = 0;
 
     private Camouflage camouflage;
-    private String camoCategory = Camouflage.NO_CAMO;
-    private String camoFileName = null;
 
     private Vector<Minefield> visibleMinefields = new Vector<>();
 

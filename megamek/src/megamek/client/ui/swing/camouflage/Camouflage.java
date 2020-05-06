@@ -56,8 +56,9 @@ public class Camouflage implements Serializable {
     }
 
     public Camouflage(String category, String fileName) {
-        this.category = category;
-        this.fileName = fileName;
+        // Must be a null, and not an empty string, if it isn't being used - Dylan 2014-04-04
+        this.category = ("".equals(category)) ? null : category;
+        this.fileName = ("".equals(fileName)) ? null : fileName;
     }
     //endregion Constructors
 
@@ -127,8 +128,20 @@ public class Camouflage implements Serializable {
     }
 
     //region File IO
+    public boolean isNull() {
+        return (getCategory() == null) && (getFileName() == null);
+    }
+
     public String writeToFile() {
-        return getCategory() + SEPARATOR + getFileName();
+        String category = getCategory();
+        if (category == null) {
+            category = "";
+        }
+        String fileName = getFileName();
+        if (fileName == null) {
+            fileName = "";
+        }
+        return category + SEPARATOR + fileName;
     }
 
     public static Camouflage parseFromString(String text) {

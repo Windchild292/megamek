@@ -696,11 +696,8 @@ public class MULParser {
         }
 
         // Camo
-        // Must be a null, and not an empty string, if it isn't being used. - Dylan 2014-04-04
-        entity.setCamouflage(new Camouflage(
-                entityTag.getAttribute(CAMO_CATEGORY).equals("") ? null : entityTag.getAttribute(CAMO_CATEGORY),
-                entityTag.getAttribute(CAMO_FILENAME).equals("") ? null : entityTag.getAttribute(CAMO_FILENAME)
-        ));
+        entity.setCamouflage(new Camouflage(entityTag.getAttribute(CAMO_CATEGORY),
+                entityTag.getAttribute(CAMO_FILENAME)));
 
         // external id
         String extId = entityTag.getAttribute(EXT_ID);

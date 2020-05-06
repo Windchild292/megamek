@@ -792,8 +792,10 @@ public class EntityListFile {
                 output.write(entity.getC3UUIDAsString());
             }
 
-            output.write("\" camouflage=\"");
-            output.write(entity.getCamouflage().writeToFile());
+            if (!entity.getCamouflage().isNull()) {
+                output.write("\" camouflage=\"");
+                output.write(entity.getCamouflage().writeToFile());
+            }
 
             if (entity instanceof MechWarrior && !((MechWarrior) entity).getPickedUpByExternalIdAsString().equals("-1")) {
                 output.write("\" pickUpId=\"");
