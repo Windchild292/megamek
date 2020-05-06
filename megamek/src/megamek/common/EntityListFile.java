@@ -793,7 +793,7 @@ public class EntityListFile {
             }
 
             if (!entity.getCamouflage().isNull()) {
-                output.write("\" camouflage=\"");
+                output.write("\" " + MULParser.CAMOUFLAGE + "=\"");
                 output.write(entity.getCamouflage().toString());
             }
 

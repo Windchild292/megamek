@@ -12,7 +12,6 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common;
 
 import java.io.InputStream;
@@ -103,6 +102,7 @@ public class MULParser {
      */
     private static final String CHASSIS = "chassis";
     private static final String MODEL = "model";
+    public static final String CAMOUFLAGE = "camouflage";
     private static final String CAMO_CATEGORY = "camoCategory";
     private static final String CAMO_FILENAME = "camoFileName";
 
@@ -695,9 +695,13 @@ public class MULParser {
             }
         }
 
-        // Camo
-        entity.setCamouflage(new Camouflage(entityTag.getAttribute(CAMO_CATEGORY),
-                entityTag.getAttribute(CAMO_FILENAME)));
+        // Camouflage
+        if (entityTag.hasAttribute(CAMOUFLAGE)) {
+            entity.setCamouflage(Camouflage.parseFromString(entityTag.getAttribute(CAMOUFLAGE)));
+        } else if (entityTag.hasAttribute(CAMO_CATEGORY) || entityTag.hasAttribute(CAMO_FILENAME)) {
+            entity.setCamouflage(new Camouflage(entityTag.getAttribute(CAMO_CATEGORY),
+                    entityTag.getAttribute(CAMO_FILENAME)));
+        }
 
         // external id
         String extId = entityTag.getAttribute(EXT_ID);
