@@ -13,7 +13,6 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-
 package megamek.client;
 
 import java.io.BufferedOutputStream;
@@ -124,7 +123,7 @@ public class Client implements IClientCommandHandler {
     private IConnection connection;
 
     // the hash table of client commands
-    private Hashtable<String, ClientCommand> commandsHash = new Hashtable<String, ClientCommand>();
+    private Hashtable<String, ClientCommand> commandsHash = new Hashtable<>();
 
     // some info about us and the server
     private boolean connected = false;
@@ -143,25 +142,24 @@ public class Client implements IClientCommandHandler {
     // random generatorsI
     private RandomSkillsGenerator rsg;
     // And close client events!
-    private Vector<CloseClientListener> closeClientListeners = new Vector<CloseClientListener>();
+    private Vector<CloseClientListener> closeClientListeners = new Vector<>();
 
     // we might want to keep a game log...
     private GameLog log;
 
-    private Set<BoardDimensions> availableSizes = new TreeSet<BoardDimensions>();
+    private Set<BoardDimensions> availableSizes = new TreeSet<>();
 
     private Vector<Coords> artilleryAutoHitHexes = null;
 
     private boolean disconnectFlag = false;
 
-    private Hashtable<String, Integer> duplicateNameHash = new Hashtable<String, Integer>();
+    private Hashtable<String, Integer> duplicateNameHash = new Hashtable<>();
 
-    public Map<String, Client> bots = new TreeMap<String, Client>(StringUtil.stringComparator());
+    public Map<String, Client> bots = new TreeMap<>(StringUtil.stringComparator());
 
     ConnectionHandler packetUpdate;
 
     private class ConnectionHandler implements Runnable {
-
         boolean shouldStop = false;
 
         public void signalStop() {
@@ -195,11 +193,7 @@ public class Client implements IClientCommandHandler {
             // Instead, if we will have the event dispatch thread handle it,
             // by using SwingUtilities.invokeLater
             // Not running this on the AWT EDT can lead to dead-lock
-            Runnable handlePacketEvent = new Runnable() {
-                public void run() {
-                    Client.this.disconnected();
-                }
-            };
+            Runnable handlePacketEvent = Client.this::disconnected;
             SwingUtilities.invokeLater(handlePacketEvent);
         }
 
@@ -213,14 +207,9 @@ public class Client implements IClientCommandHandler {
             // Client.handlePacket should play well with the AWT event queue,
             // but nothing appears to really be designed to be thread safe, so
             // this is a reasonable hack for now
-            Runnable handlePacketEvent = new Runnable() {
-                public void run() {
-                    handlePacket(e.getPacket());
-                }
-            };
+            Runnable handlePacketEvent = () -> handlePacket(e.getPacket());
             SwingUtilities.invokeLater(handlePacketEvent);
         }
-
     };
 
     /**
@@ -787,8 +776,6 @@ public class Client implements IClientCommandHandler {
      */
     public void sendPlayerInfo() {
         IPlayer player = game.getPlayer(localPlayerNumber);
-        PreferenceManager.getClientPreferences().setLastPlayerColor(player.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCamouflage(player.getCamouflage());
         send(new Packet(Packet.COMMAND_PLAYER_UPDATE, player));
     }
 
@@ -939,9 +926,6 @@ public class Client implements IClientCommandHandler {
         } else {
             game.setPlayer(pindex, newPlayer);
         }
-
-        PreferenceManager.getClientPreferences().setLastPlayerColor(newPlayer.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCamouflage(newPlayer.getCamouflage());
     }
 
     /**

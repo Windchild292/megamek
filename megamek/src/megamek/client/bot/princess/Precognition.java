@@ -70,7 +70,6 @@ import megamek.common.event.GameVictoryEvent;
 import megamek.common.logging.LogLevel;
 import megamek.common.net.Packet;
 import megamek.common.options.GameOptions;
-import megamek.common.preference.PreferenceManager;
 import megamek.server.SmokeCloud;
 
 /**
@@ -155,13 +154,11 @@ public class Precognition implements Runnable {
         try {
         switch (c.getCommand()) {
             case Packet.COMMAND_PLAYER_UPDATE:
+            case Packet.COMMAND_PLAYER_ADD:
                 receivePlayerInfo(c);
                 break;
             case Packet.COMMAND_PLAYER_READY:
                 getPlayer(c.getIntValue(0)).setDone(c.getBooleanValue(1));
-                break;
-            case Packet.COMMAND_PLAYER_ADD:
-                receivePlayerInfo(c);
                 break;
             case Packet.COMMAND_PLAYER_REMOVE:
                 getGame().removePlayer(c.getIntValue(0));
@@ -536,7 +533,7 @@ public class Precognition implements Runnable {
                             "Received entity change event for "
                                     + changeEvent.getEntity().getDisplayName()
                                     + " (ID " + entity.getId() + ")");
-                    Integer entityId = changeEvent.getEntity().getId();
+                    int entityId = changeEvent.getEntity().getId();
                     dirtifyUnit(entityId);
 
                 } else if (event instanceof GamePhaseChangeEvent) {
@@ -750,9 +747,6 @@ public class Precognition implements Runnable {
         } else {
             getGame().setPlayer(pindex, newPlayer);
         }
-
-        PreferenceManager.getClientPreferences().setLastPlayerColor(newPlayer.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCamouflage(newPlayer.getCamouflage());
     }
 
     /**

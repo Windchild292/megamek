@@ -11,7 +11,6 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-
 package megamek.common.preference;
 
 import java.io.BufferedWriter;
@@ -20,7 +19,6 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Locale;
 
-import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.common.MovePath;
 import megamek.common.util.LocaleParser;
 
@@ -82,10 +80,6 @@ class ClientPreferences extends PreferenceStoreProxy implements IClientPreferenc
 
     public int getLastConnectPort() {
         return store.getInt(LAST_CONNECT_PORT);
-    }
-
-    public Camouflage getLastPlayerCamouflage() {
-        return Camouflage.parseFromString(store.getString(LAST_PLAYER_CAMOUFLAGE));
     }
 
     public String getLastPlayerName() {
@@ -202,17 +196,6 @@ class ClientPreferences extends PreferenceStoreProxy implements IClientPreferenc
         store.setValue(LAST_CONNECT_PORT, port);
     }
 
-    @Override
-    public void setLastPlayerCamouflage(Camouflage camouflage) {
-        if (!camouflage.isNull()) {
-            store.setValue(LAST_PLAYER_CAMOUFLAGE, camouflage.toString());
-        }
-    }
-
-    public void setLastPlayerColor(int colorIndex) {
-        store.setValue(LAST_PLAYER_COLOR, colorIndex);
-    }
-
     public void setLastPlayerName(String name) {
         store.setValue(LAST_PLAYER_NAME, name);
     }
@@ -291,13 +274,13 @@ class ClientPreferences extends PreferenceStoreProxy implements IClientPreferenc
         if (locale == null) {
             return "";
         }
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if (locale.getLanguage().length() != 0) {
             result.append(locale.getLanguage());
             if (locale.getCountry().length() != 0) {
-                result.append("_" + locale.getCountry());
+                result.append("_").append(locale.getCountry());
                 if (locale.getVariant().length() != 0) {
-                    result.append("_" + locale.getVariant());
+                    result.append("_").append(locale.getVariant());
                 }
             }
         }

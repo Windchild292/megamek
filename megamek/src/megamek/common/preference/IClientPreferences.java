@@ -13,8 +13,6 @@
  */
 package megamek.common.preference;
 
-import megamek.client.ui.swing.camouflage.Camouflage;
-
 import java.io.PrintWriter;
 import java.util.Locale;
 
@@ -24,8 +22,6 @@ import java.util.Locale;
 public interface IClientPreferences extends IPreferenceStore {
     String LAST_CONNECT_ADDR = "LastConnectAddr";
     String LAST_CONNECT_PORT = "LastConnectPort";
-    String LAST_PLAYER_CAMOUFLAGE = "LastPlayerCamouflage";
-    String LAST_PLAYER_COLOR = "LastPlayerColor";
     String LAST_PLAYER_NAME = "LastPlayerName";
     String LAST_SERVER_PASS = "LastServerPass";
     String LAST_SERVER_PORT = "LastServerPort";
@@ -67,8 +63,6 @@ public interface IClientPreferences extends IPreferenceStore {
     String getLastConnectAddr();
 
     int getLastConnectPort();
-
-    Camouflage getLastPlayerCamouflage();
 
     String getLastPlayerName();
 
@@ -127,10 +121,6 @@ public interface IClientPreferences extends IPreferenceStore {
     void setLastConnectAddr(String serverAddr);
 
     void setLastConnectPort(int port);
-
-    void setLastPlayerCamouflage(Camouflage camouflage);
-
-    void setLastPlayerColor(int colorIndex);
 
     void setLastPlayerName(String name);
 
