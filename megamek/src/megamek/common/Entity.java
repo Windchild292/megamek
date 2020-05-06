@@ -14420,9 +14420,7 @@ public abstract class Entity extends TurnOrdered implements Transporter,
             if (transport == null) {
                 transport = game.getOutOfGameEntity(getTransportId());
             }
-            if (transport.isDestroyed()) {
-                return true;
-            }
+            return transport.isDestroyed();
         }
         return false;
     }
@@ -14434,26 +14432,6 @@ public abstract class Entity extends TurnOrdered implements Transporter,
 
     public void setCamouflage(Camouflage camouflage) {
         this.camouflage = camouflage;
-    }
-
-    @Deprecated
-    public void setCamoCategory(String name) {
-        camoCategory = name;
-    }
-
-    @Deprecated
-    public String getCamoCategory() {
-        return camoCategory;
-    }
-
-    @Deprecated
-    public void setCamoFileName(String name) {
-        camoFileName = name;
-    }
-
-    @Deprecated
-    public String getCamoFileName() {
-        return camoFileName;
     }
 
     public boolean getSelfDestructing() {

@@ -42,6 +42,7 @@ public class Camouflage implements Serializable {
     public static final String ROOT_CAMO = "-- General --"; // The save category for camouflage in the root directory
     public static final String ROOT_CAMO_CATEGORY = ""; // The processing category for camouflage in the root directory
     public static final String COLOURED_CAMO = "Coloured Camo";
+    private static final String SEPARATOR = ",";
     //endregion Constants
     private static DirectoryItems camouflageDirectory;
 
@@ -127,11 +128,11 @@ public class Camouflage implements Serializable {
 
     //region File IO
     public String writeToFile() {
-        return getCategory() + "/" + getFileName();
+        return getCategory() + SEPARATOR + getFileName();
     }
 
     public static Camouflage parseFromString(String text) {
-        String[] split = text.split(",");
+        String[] split = text.split(SEPARATOR);
 
         if (split.length == 2) {
             return new Camouflage(split[0], split[1]);

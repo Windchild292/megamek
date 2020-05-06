@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 
+import megamek.client.ui.swing.camouflage.Camouflage;
 import megamek.common.logging.DefaultMmLogger;
 import megamek.common.logging.MMLogger;
 import org.w3c.dom.Document;
@@ -696,8 +697,10 @@ public class MULParser {
 
         // Camo
         // Must be a null, and not an empty string, if it isn't being used. - Dylan 2014-04-04
-        entity.setCamoCategory(entityTag.getAttribute(CAMO_CATEGORY).equals("") ? null : entityTag.getAttribute(CAMO_CATEGORY));
-        entity.setCamoFileName(entityTag.getAttribute(CAMO_FILENAME).equals("") ? null : entityTag.getAttribute(CAMO_FILENAME));
+        entity.setCamouflage(new Camouflage(
+                entityTag.getAttribute(CAMO_CATEGORY).equals("") ? null : entityTag.getAttribute(CAMO_CATEGORY),
+                entityTag.getAttribute(CAMO_FILENAME).equals("") ? null : entityTag.getAttribute(CAMO_FILENAME)
+        ));
 
         // external id
         String extId = entityTag.getAttribute(EXT_ID);

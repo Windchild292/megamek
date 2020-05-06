@@ -181,30 +181,6 @@ public final class Player extends TurnOrdered implements IPlayer {
         this.camouflage = camouflage;
     }
 
-    @Override
-    @Deprecated
-    public void setCamoCategory(String name) {
-        camoCategory = name;
-    }
-
-    @Override
-    @Deprecated
-    public String getCamoCategory() {
-        return camoCategory;
-    }
-
-    @Override
-    @Deprecated
-    public void setCamoFileName(String name) {
-        camoFileName = name;
-    }
-
-    @Override
-    @Deprecated
-    public String getCamoFileName() {
-        return camoFileName;
-    }
-
     public Player(int id, String name) {
         this.name = name;
         this.id = id;

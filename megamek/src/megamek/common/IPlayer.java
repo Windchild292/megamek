@@ -76,18 +76,6 @@ public interface IPlayer extends ITurnOrdered {
 
     void setCamouflage(Camouflage camouflage);
 
-    @Deprecated
-    void setCamoCategory(String name);
-
-    @Deprecated
-    String getCamoCategory();
-
-    @Deprecated
-    void setCamoFileName(String name);
-
-    @Deprecated
-    String getCamoFileName();
-
     void setGame(IGame game);
 
     String getName();
