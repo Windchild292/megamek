@@ -120,7 +120,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
     /* Player Configuration Panel */
     private JPanel panPlayerInfo;
     private JComboBox<String> choTeam;
-    private JButton butCamo;
     private JButton butAddBot;
     private JButton butRemoveBot;
     private JButton butChangeStart;
@@ -202,6 +201,8 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         } catch (Exception e) {
             portraits = null;
         }
+
+        Camouflage.createCamouflageDirectory();
 
         clientgui.getClient().getGame().addGameListener(this);
         clientgui.getBoardView().addBoardViewListener(this);
@@ -460,7 +461,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         setupTeams();
         choTeam.addItemListener(this);
 
-        butCamo = new JButton();
+        JButton butCamo = new JButton();
         butCamo.setPreferredSize(new Dimension(84, 72));
         butCamo.setActionCommand("camo"); //$NON-NLS-1$
         butCamo.addActionListener(e -> {
@@ -469,7 +470,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
             camoDialog.setVisible(true);
             getPlayerSelected().sendPlayerInfo();
         });
-        Camouflage.createCamouflageDirectory();
         camoDialog = new CamoChoiceDialog(clientgui.getFrame(), butCamo);
         refreshCamos();
 

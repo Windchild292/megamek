@@ -68,13 +68,9 @@ public class Camouflage implements Serializable {
         return camouflageDirectory;
     }
 
-    public static void setCamouflageDirectory(DirectoryItems loadedCamouflageDirectory) {
-        camouflageDirectory = loadedCamouflageDirectory;
-    }
-
     public static void createCamouflageDirectory() {
         try {
-            camouflageDirectory = new DirectoryItems(Configuration.camoDir(), "", //$NON-NLS-1$
+            camouflageDirectory = new DirectoryItems(Configuration.camoDir(), "",
                     ImageFileFactory.getInstance());
         } catch (Exception e) {
             camouflageDirectory = null;
@@ -151,7 +147,6 @@ public class Camouflage implements Serializable {
         }
     }
     //endregion File IO
-
 
     @Override
     public String toString() {

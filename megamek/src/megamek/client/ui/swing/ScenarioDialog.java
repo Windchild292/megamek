@@ -38,7 +38,6 @@ import megamek.common.Player;
  * Allow a user to set types and colors for scenario players
  */
 public class ScenarioDialog extends JDialog implements ActionListener {
-
     private static final long serialVersionUID = -5682593522064612790L;
     private static final int T_ME = 0;
     public static final int T_BOT = 2;
@@ -47,7 +46,6 @@ public class ScenarioDialog extends JDialog implements ActionListener {
     private JLabel[] m_labels;
     @SuppressWarnings("rawtypes")
     private JComboBox[] m_typeChoices;
-    private JButton[] m_camoButtons;
     private JFrame m_frame;
 
     public boolean bSet;
@@ -61,7 +59,7 @@ public class ScenarioDialog extends JDialog implements ActionListener {
         m_players = pa;
         m_labels = new JLabel[pa.length];
         m_typeChoices = new JComboBox[pa.length];
-        m_camoButtons = new JButton[pa.length];
+        JButton[] m_camoButtons = new JButton[pa.length];
         playerTypes = new int[pa.length];
         for (int x = 0; x < pa.length; x++) {
             final IPlayer curPlayer = m_players[x];
@@ -80,7 +78,6 @@ public class ScenarioDialog extends JDialog implements ActionListener {
             final JButton curButton = m_camoButtons[x];
             curButton.setText(Messages.getString("MegaMek.NoCamoBtn")); //$NON-NLS-1$
             curButton.setPreferredSize(new Dimension(84, 72));
-            Camouflage.createCamouflageDirectory();
             final CamoChoiceDialog dialog = new CamoChoiceDialog(frame,
                     curButton);
             dialog.setPlayer(curPlayer);
