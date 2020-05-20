@@ -26,7 +26,8 @@ import java.util.zip.ZipFile;
  * First, please note that the term "ZIP file" will be taken to mean "ZIP or JAR file",
  * because a JAR file is just a ZIP file with a manifest, from this point onwards.
  * This class represents a collection of item files present within a ZIP file,
- * categorized according to their directories. This collection includes nested ZIP files.
+ * categorized according to their directories. This collection does not currently handle
+ * nested ZIP files, although that is the end goal.
  *
  * @author James Damour (original)
  * @author Justin "Windchild" Bowen
