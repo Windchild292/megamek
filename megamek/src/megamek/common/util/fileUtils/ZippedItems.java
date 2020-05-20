@@ -12,7 +12,12 @@
  *  for more details.
  */
 
-package megamek.common.util;
+package megamek.common.util.fileUtils;
+
+import megamek.common.util.Categorized;
+import megamek.common.util.ItemFile;
+import megamek.common.util.ItemFileFactory;
+import megamek.common.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;

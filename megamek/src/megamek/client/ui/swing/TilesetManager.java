@@ -64,7 +64,7 @@ import megamek.common.preference.IClientPreferences;
 import megamek.common.preference.IPreferenceChangeListener;
 import megamek.common.preference.PreferenceChangeEvent;
 import megamek.common.preference.PreferenceManager;
-import megamek.common.util.DirectoryItems;
+import megamek.common.util.fileUtils.DirectoryItems;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
 
