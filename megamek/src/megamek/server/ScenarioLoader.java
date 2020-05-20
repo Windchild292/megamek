@@ -74,7 +74,7 @@ import megamek.common.options.IOption;
 import megamek.common.options.OptionsConstants;
 import megamek.common.util.BoardUtilities;
 import megamek.common.util.DirectoryItems;
-import megamek.common.util.MegaMekFile;
+import megamek.common.util.fileUtils.MegaMekFile;
 
 public class ScenarioLoader {
     private static final String COMMENT_MARK = "#"; //$NON-NLS-1$

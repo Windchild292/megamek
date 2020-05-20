@@ -20,15 +20,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import megamek.MegaMek;
 import megamek.common.Compute;
 import megamek.common.Configuration;
 import megamek.common.Crew;
 import megamek.common.logging.DefaultMmLogger;
 import megamek.common.logging.MMLogger;
-import megamek.common.util.MegaMekFile;
+import megamek.common.util.fileUtils.MegaMekFile;
 import megamek.common.util.WeightedMap;
 
 /**
