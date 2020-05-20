@@ -22,18 +22,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 import megamek.MegaMek;
 import megamek.client.Client;
 import megamek.common.options.OptionsConstants;
 import megamek.common.options.PilotOptions;
+import megamek.common.util.StringUtil;
 
 /**
  * This class provides static methods to save a list of <code>Entity</code>s to,
@@ -952,6 +947,10 @@ public class EntityListFile {
                         output.write(CommonConstants.NL);
                         output.write(indentStr(indentLvl + 2) + "<doors>" + nextbay.getCurrentDoors() + "</doors>");
                         output.write(CommonConstants.NL);
+                        for (Entity e : nextbay.getLoadedUnits()) {
+                            output.write(indentStr(indentLvl + 2) + "<loaded>" + e.getId() + "</loaded>");
+                            output.write(CommonConstants.NL);
+                        }
                 		output.write(indentStr(indentLvl+1) + "</transportBay>");
                         output.write(CommonConstants.NL);
                 	}
@@ -1067,6 +1066,91 @@ public class EntityListFile {
                 output.write(indentStr(indentLvl+1) + "</NC3set>");
                 output.write(CommonConstants.NL);
             }
+            
+            //Record if this entity is transported by another
+            if (entity.getTransportId() != Entity.NONE) {
+                output.write(indentStr(indentLvl+1) + "<Conveyance id=\"" + entity.getTransportId());
+                output.write("\"/>");
+                output.write(CommonConstants.NL);
+            }
+            //Record this unit's id number
+            if (entity.getId() != Entity.NONE) {
+                output.write(indentStr(indentLvl+1) + "<Game id=\"" + entity.getId());
+                output.write("\"/>");
+                output.write(CommonConstants.NL);
+            }
+            
+            //Write the escape craft data, if needed
+            if (entity instanceof Aero) {
+                Aero aero = (Aero) entity;
+                if (!aero.getEscapeCraft().isEmpty()) {
+                    for (String id : aero.getEscapeCraft()) {
+                        output.write(indentStr(indentLvl+1) + "<EscapeCraft id=\"" + id);
+                        output.write("\"/>");
+                        output.write(CommonConstants.NL);
+                    }
+                }
+            }
+            if (entity instanceof SmallCraft) {
+                SmallCraft craft = (SmallCraft) entity;
+                if (!craft.getNOtherCrew().isEmpty()) {
+                    output.write(indentStr(indentLvl+1) + "<EscapedCrew>");
+                    output.write(CommonConstants.NL);
+                    for (String id : craft.getNOtherCrew().keySet()) {
+                        output.write(indentStr(indentLvl+2) + "<ship id=\"" + id + "\"" + " number=\"" + craft.getNOtherCrew().get(id));
+                        output.write("\"/>");
+                        output.write(CommonConstants.NL);
+                    }
+                    output.write(indentStr(indentLvl+1) + "</EscapedCrew>");
+                    output.write(CommonConstants.NL);
+                }
+                if (!craft.getPassengers().isEmpty()) {
+                    output.write(indentStr(indentLvl+1) + "<EscapedPassengers>");
+                    output.write(CommonConstants.NL);
+                    for (String id : craft.getPassengers().keySet()) {
+                        output.write(indentStr(indentLvl+2) + "<ship id=\"" + id + "\"" + " number=\"" + craft.getPassengers().get(id));
+                        output.write("\"/>");
+                        output.write(CommonConstants.NL);
+                    }
+                    output.write(indentStr(indentLvl+1) + "</EscapedPassengers>");
+                    output.write(CommonConstants.NL);
+                }
+                if (craft instanceof EscapePods) {                   
+                    //Original number of pods, used to set the strength of a group of pods
+                    output.write(indentStr(indentLvl+1) + "<ONumberOfPods number=\"" + craft.get0SI());
+                    output.write("\"/>");
+                    output.write(CommonConstants.NL);
+                }
+                
+            } else if (entity instanceof EjectedCrew) {
+                EjectedCrew eCrew = (EjectedCrew) entity;
+                if (!eCrew.getNOtherCrew().isEmpty()) {
+                    output.write(indentStr(indentLvl+1) + "<EscapedCrew>");
+                    output.write(CommonConstants.NL);
+                    for (String id : eCrew.getNOtherCrew().keySet()) {
+                        output.write(indentStr(indentLvl+2) + "<ship id=\"" + id + "\"" + " number=\"" + eCrew.getNOtherCrew().get(id));
+                        output.write("\"/>");
+                        output.write(CommonConstants.NL);
+                    }
+                    output.write(indentStr(indentLvl+1) + "</EscapedCrew>");
+                    output.write(CommonConstants.NL);
+                }
+                if (!eCrew.getPassengers().isEmpty()) {
+                    output.write(indentStr(indentLvl+1) + "<EscapedPassengers>");
+                    output.write(CommonConstants.NL);
+                    for (String id : eCrew.getPassengers().keySet()) {
+                        output.write(indentStr(indentLvl+2) + "<ship id=\"" + id + "\"" + " number=\"" + eCrew.getPassengers().get(id));
+                        output.write("\"/>");
+                        output.write(CommonConstants.NL);
+                    }
+                    output.write(indentStr(indentLvl+1) + "</EscapedPassengers>");
+                    output.write(CommonConstants.NL);
+                }
+                //Original number of men
+                output.write(indentStr(indentLvl+1) + "<ONumberOfMen number=\"" + eCrew.getOInternal(Infantry.LOC_INFANTRY));
+                output.write("\"/>");
+                output.write(CommonConstants.NL);
+            }
 
             // Finish writing this entity to the file.
             output.write(indentStr(indentLvl) + "</entity>");
@@ -1090,8 +1174,10 @@ public class EntityListFile {
         output.write("\" name=\"" + crew.getName(pos).replaceAll("\"", "&quot;"));
         output.write("\" nick=\"");
         output.write(crew.getNickname(pos).replaceAll("\"", "&quot;"));
+        output.write("\" gender=\"" + crew.getGender(pos));
         output.write("\" gunnery=\"");
         output.write(String.valueOf(crew.getGunnery(pos)));
+
         if ((null != entity.getGame())
                 && entity.getGame().getOptions()
                         .booleanOption(OptionsConstants.RPG_RPG_GUNNERY)) {
@@ -1137,6 +1223,11 @@ public class EntityListFile {
         if (!crew.getExternalIdAsString(pos).equals("-1")) {
             output.write("\" externalId=\"");
             output.write(crew.getExternalIdAsString(pos));
+        }
+
+        String extraData = crew.writeExtraDataToXMLLine(pos);
+        if (!StringUtil.isNullOrEmpty(extraData)) {
+            output.write(extraData);
         }
     }
     

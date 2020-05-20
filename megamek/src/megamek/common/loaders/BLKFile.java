@@ -15,11 +15,7 @@
 
 package megamek.common.loaders;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import megamek.common.*;
@@ -63,6 +59,70 @@ public class BLKFile {
         return rear ? 3 : 0;
     }
 
+    public int defaultAeroVGLFacing(int location, boolean rearFacing) {
+        switch (location) {
+            case Aero.LOC_LWING:
+                return rearFacing ? 4 : 5;
+            case Aero.LOC_RWING:
+                return rearFacing ? 2 : 1;
+            case Aero.LOC_AFT:
+                return 4;
+            case Aero.LOC_NOSE:
+            default:
+                return 0;
+        }
+    }
+
+    /** Legacy support for Drone Carrier Control System capacity using additional equipment */
+    int legacyDCCSCapacity = 0;
+    /** Legacy support for MASH capacity using additional equipment */
+    int mashOperatingTheaters = 0;
+
+    /**
+     * Legacy support for variable sized equipment that expands capacity by using an
+     * additional MiscType.
+     *
+     * @param lookup The lookup name
+     */
+    boolean checkLegacyExtraEquipment(String lookup) {
+        switch (lookup) {
+            case "MASH Operation Theater":
+                mashOperatingTheaters++;
+                return true;
+            case "ISDroneExtra":
+            case "CLDroneExtra":
+                legacyDCCSCapacity++;
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Legacy support for variable equipment that had a separate EquipmentType entry for each possible
+     * size
+     *
+     * @param eqName The equipment lookup name
+     * @return       The size of the equipment
+     */
+    static double getLegacyVariableSize(String eqName) {
+        if (eqName.startsWith("Cargo")
+                || eqName.startsWith("Liquid Cargo")
+                || eqName.startsWith("Communications Equipment")) {
+            return Double.parseDouble(eqName.substring(eqName.indexOf("(") + 1,
+                    eqName.indexOf(" ton")));
+        }
+        if (eqName.startsWith("Mission Equipment Storage")) {
+            return Double.parseDouble(eqName.substring(eqName.indexOf("(") + 1,
+                    eqName.indexOf(" kg")));
+        }
+        if (eqName.startsWith("Ladder")) {
+            return Double.parseDouble(eqName.substring(eqName.indexOf("(") + 1,
+                    eqName.indexOf("m)")));
+        }
+        return 1.0;
+    }
+
     protected void loadEquipment(Entity t, String sName, int nLoc)
             throws EntityLoadingException {
         String[] saEquip = dataFile.getDataAsString(sName + " Equipment");
@@ -81,18 +141,27 @@ public class BLKFile {
         if (saEquip[0] != null) {
             for (String s : saEquip) {
                 String equipName = s.trim();
+                boolean isOmniMounted = false;
                 boolean isTurreted = false;
                 boolean isPintleTurreted = false;
-                if (equipName.toUpperCase().endsWith("(ST)")) {
-                    isTurreted = true;
-                    equipName = equipName.substring(0, equipName.length() - 4).trim();
+                double size = 0.0;
+                int sizeIndex = equipName.toUpperCase().indexOf(":SIZE:");
+                if (sizeIndex > 0) {
+                    size = Double.parseDouble(equipName.substring(sizeIndex + 6));
+                    equipName = equipName.substring(0, sizeIndex);
+                }
+                if (equipName.toUpperCase().endsWith(":OMNI")) {
+                    isOmniMounted = true;
+                    equipName = equipName.substring(0, equipName.length() - 5).trim();
                 }
                 if (equipName.toUpperCase().endsWith("(PT)")) {
                     isPintleTurreted = true;
                     equipName = equipName.substring(0, equipName.length() - 4).trim();
                 }
-                boolean isOmniMounted = equipName.toUpperCase().endsWith(":OMNI");
-                equipName = equipName.replace(":OMNI", "");
+                if (equipName.toUpperCase().endsWith("(ST)")) {
+                    isTurreted = true;
+                    equipName = equipName.substring(0, equipName.length() - 4).trim();
+                }
 
                 int facing = -1;
                 if (equipName.toUpperCase().endsWith("(FL)")) {
@@ -121,6 +190,9 @@ public class BLKFile {
                     // try w/ prefix
                     etype = EquipmentType.get(prefix + equipName);
                 }
+                if ((etype == null) && checkLegacyExtraEquipment(equipName)) {
+                    continue;
+                }
 
                 if (etype != null) {
                     try {
@@ -136,11 +208,35 @@ public class BLKFile {
                                 mount.setFacing(facing);
                             }
                         }
+                        if (etype.isVariableSize()) {
+                            if (size == 0.0) {
+                                size = getLegacyVariableSize(equipName);
+                            }
+                            mount.setSize(size);
+                        }
                     } catch (LocationFullException ex) {
                         throw new EntityLoadingException(ex.getMessage());
                     }
                 } else if (!equipName.equals("")) {
                     t.addFailedEquipment(equipName);
+                }
+            }
+        }
+        if (mashOperatingTheaters > 0) {
+            for (Mounted m : t.getMisc()) {
+                if (m.getType().hasFlag(MiscType.F_MASH)) {
+                    // includes one as part of the core component
+                    m.setSize(m.getSize() + mashOperatingTheaters);
+                    break;
+                }
+            }
+        }
+        if (legacyDCCSCapacity > 0) {
+            for (Mounted m : t.getMisc()) {
+                if (m.getType().hasFlag(MiscType.F_DRONE_CARRIER_CONTROL)) {
+                    // core system does not include drone capacity
+                    m.setSize(legacyDCCSCapacity);
+                    break;
                 }
             }
         }
@@ -950,6 +1046,8 @@ public class BLKFile {
             name += ":Shots" + m.getBaseShotsLeft() + "#";
         } else if (m.getEntity() instanceof Protomech && (m.getType() instanceof AmmoType)) {
             name += " (" + m.getBaseShotsLeft() + ")";
+        } else if (m.getType().isVariableSize()) {
+            name += ":SIZE:" + m.getSize();
         }
         return name;
     }

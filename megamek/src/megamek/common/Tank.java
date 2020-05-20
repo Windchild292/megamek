@@ -291,8 +291,8 @@ public class Tank extends Entity {
         
         //If the unit is towing trailers, adjust its walkMP, TW p205
         if (!getAllTowedUnits().isEmpty()) {
-            double tractorWeight = getWeight();
-            double trailerWeight = 0;
+            double trainWeight = getWeight();
+            int lowestSuspensionFactor = getSuspensionFactor();
             //Add up the trailers
             for (int id : getAllTowedUnits()) {
                 Entity tr = game.getEntity(id);
@@ -300,13 +300,15 @@ public class Tank extends Entity {
                     //this isn't supposed to happen, but it can in rare cases when tr is destroyed
                     continue;
                 }
-                trailerWeight += tr.getWeight();
+                if (tr instanceof Tank) {
+                    Tank trailer = (Tank) tr;
+                    if (trailer.getSuspensionFactor() < lowestSuspensionFactor) {
+                        lowestSuspensionFactor = trailer.getSuspensionFactor();
+                    }
+                }
+                trainWeight += tr.getWeight();
             }
-            if (trailerWeight <= (tractorWeight / 4)) {
-                j = Math.max((j - 3), (j / 2));
-            } else {
-                j = (j / 2);
-            }
+            j = (int) ((getEngine().getRating() + lowestSuspensionFactor) / trainWeight);
         }
 
         return j;
@@ -1403,7 +1405,7 @@ public class Tank extends Entity {
                 MiscType mtype = (MiscType) etype;
                 double bv = mtype.getBV(this, mounted.getLocation());
                 bvText.append(startColumn);
-                bvText.append(etype.getName());
+                bvText.append(mounted.getName());
                 bvText.append(endColumn);
                 bvText.append(startColumn);
                 bvText.append(bv);
@@ -1473,19 +1475,22 @@ public class Tank extends Entity {
                 typeModifier = 0.6;
         }
 
-        if (!isSupportVehicle()
-                && (hasWorkingMisc(MiscType.F_LIMITED_AMPHIBIOUS)
-                        || hasWorkingMisc(MiscType.F_DUNE_BUGGY)
-                        || hasWorkingMisc(MiscType.F_FLOTATION_HULL)
-                        || hasWorkingMisc(MiscType.F_ENVIRONMENTAL_SEALING)
-                        || hasWorkingMisc(MiscType.F_ARMORED_MOTIVE_SYSTEM))) {
-            typeModifier += .1;
-        } else if (hasWorkingMisc(MiscType.F_FULLY_AMPHIBIOUS)
-                && !isSupportVehicle()) {
-            typeModifier += .2;
+        if (!isSupportVehicle()) {
+            for (Mounted m : getMisc()) {
+                if (m.getType().hasFlag(MiscType.F_FULLY_AMPHIBIOUS)) {
+                    typeModifier += 0.2;
+                } else if (m.getType().hasFlag(MiscType.F_LIMITED_AMPHIBIOUS)
+                        || m.getType().hasFlag(MiscType.F_DUNE_BUGGY)
+                        || m.getType().hasFlag(MiscType.F_FLOTATION_HULL)
+                        || m.getType().hasFlag(MiscType.F_ENVIRONMENTAL_SEALING)
+                        || m.getType().hasFlag(MiscType.F_ARMORED_MOTIVE_SYSTEM)) {
+                    typeModifier += 0.1;
+                }
+            }
         }
+        typeModifier = Math.round(typeModifier * 10.0) / 10.0;
         bvText.append(startColumn);
-        bvText.append("x Body Type Modier");
+        bvText.append("x Body Type Modifier");
         bvText.append(endColumn);
         bvText.append(startColumn);
         bvText.append("x ");
@@ -1519,6 +1524,8 @@ public class Tank extends Entity {
         }
         double tmmFactor = 1 + (Math.max(tmmRan, tmmJumped) / 10);
         dbv *= tmmFactor;
+        // Deal with floating point errors
+        dbv = Math.round(dbv * 100000.0) / 100000.0;
 
         bvText.append(startColumn);
         bvText.append("x ");
@@ -1911,7 +1918,7 @@ public class Tank extends Entity {
                 bv = 7;
             }
             oEquipmentBV += bv;
-            bvText.append(mtype.getName());
+            bvText.append(mounted.getName());
             bvText.append(endColumn);
             bvText.append(startColumn);
             bvText.append(bv);
@@ -3576,8 +3583,9 @@ public class Tank extends Entity {
                 }
             }
             if ((mount.getType() instanceof MiscType)
-                    && mount.getType().hasFlag(MiscType.F_JUMP_JET)) {
-                // Only one slot for all jump jets, added later.
+                    && (mount.getType().hasFlag(MiscType.F_JUMP_JET)
+                        || mount.getType().hasFlag(MiscType.F_FUEL))) {
+                // Only one slot each for all jump jets or fuel tanks, added later.
                 continue;
             }
             if (!((mount.getType() instanceof AmmoType) || Arrays.asList(
@@ -3588,6 +3596,10 @@ public class Tank extends Entity {
         }
         // JJs take just 1 slot
         if (this.getJumpMP(false) > 0) {
+            usedSlots++;
+        }
+        // So do fuel tanks
+        if (hasWorkingMisc(MiscType.F_FUEL)) {
             usedSlots++;
         }
         // different engines take different amounts of slots
@@ -3948,9 +3960,8 @@ public class Tank extends Entity {
                 specialAbilities.merge(BattleForceSPA.MDS, 1, Integer::sum);
             } else if (m.getType().hasFlag(MiscType.F_MINESWEEPER)) {
                 specialAbilities.put(BattleForceSPA.MSW, null);
-            } else if (m.getType().hasFlag(MiscType.F_MASH)
-                    || m.getType().hasFlag(MiscType.F_MASH_EXTRA)) { 
-                specialAbilities.merge(BattleForceSPA.MASH, 1, Integer::sum);
+            } else if (m.getType().hasFlag(MiscType.F_MASH)) {
+                specialAbilities.merge(BattleForceSPA.MASH, (int) m.getSize(), Integer::sum);
             } else if (m.getType().hasFlag(MiscType.F_MOBILE_FIELD_BASE)) {
                 specialAbilities.put(BattleForceSPA.MFB, null);
             } else if (m.getType().hasFlag(MiscType.F_COMMAND_CONSOLE)) {
@@ -4201,7 +4212,14 @@ public class Tank extends Entity {
         }
         double fuelUnit = fuelTonnagePer100km();
         if (fuelUnit > 0) {
-            return (int) (getFuelTonnage() / fuelUnit * 100);
+            int range = (int) (getFuelTonnage() / fuelUnit * 100);
+            int fuelTanks = countWorkingMisc(MiscType.F_FUEL);
+            if (getEngine().getEngineType() == Engine.COMBUSTION_ENGINE) {
+                range += fuelTanks * 600;
+            } else if (getEngine().getEngineType() == Engine.FUEL_CELL) {
+                range += fuelTanks * 450;
+            }
+            return range;
         }
         return Integer.MAX_VALUE;
     }

@@ -13,8 +13,12 @@
  */
 package megamek.common.logging;
 
+import megamek.common.annotations.Nullable;
 import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since: 9/7/13 9:33 AM
  */
 public class DefaultMmLogger implements MMLogger {
-
     private static final MMLogger instance = new DefaultMmLogger();
 
     private static final String METHOD_BEGIN = "Begin ";
@@ -59,12 +62,8 @@ public class DefaultMmLogger implements MMLogger {
     }
 
     @Override
-    public <T extends Throwable> T log(final String className,
-                                       final String methodName,
-                                       final LogLevel logLevel,
-                                       final String message,
-                                       final T throwable) {
-
+    public <T extends Throwable> T log(final String className, final String methodName,
+                                       final LogLevel logLevel, String message, final T throwable) {
         // Make sure logging has been initialized.
         if (!initialized.get()) {
             if (!Logger.getRootLogger().getAllAppenders().hasMoreElements()) {
@@ -81,8 +80,9 @@ public class DefaultMmLogger implements MMLogger {
         }
 
         // Track the methods logged.
-        LoggingProperties.getInstance().putProperty("method",
-                                                    methodName);
+        LoggingProperties.getInstance().putProperty("method", methodName);
+
+        message = methodName + " : " + message;
 
         // Write the log entry.
         logger.log(logLevel.getLevel(), message, throwable);
@@ -391,5 +391,24 @@ public class DefaultMmLogger implements MMLogger {
     @Override
     public void removeLoggingProperties() {
         LoggingProperties.getInstance().remove();
+    }
+
+    @Override
+    public void resetLogFile(@Nullable final String logFileName) {
+        if (logFileName == null) {
+            return;
+        }
+        File file = new File(logFileName);
+        if (file.exists()) {
+            try (PrintWriter writer = new PrintWriter(file)) {
+                writer.print("");
+            } catch (FileNotFoundException e) {
+                // This should not happen, but if it does we log it
+                error(getClass(), "resetLogFile", e);
+                error(getClass(), "resetLogFile",
+                        "Error resetting log file. Please submit a bug report at "
+                                + "https://github.com/MegaMek/megamek/issues");
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -28,6 +29,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -78,6 +80,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -108,12 +111,14 @@ import megamek.common.util.MegaMekFile;
 
 // TODO: center map
 // TODO: background on the whole screen
-// TODO: vertical size of editor pane?
 // TODO: restrict terrains to those with images?
 // TODO: Allow drawing of invalid terrain as an override?
 // TODO: Allow adding/changing board background images
 // TODO: board load time???
 // TODO: sluggish hex drawing?
+// TODO: the board validation after a board load seems to be influenced by the former board...
+// TODO: copy/paste hexes
+// TODO: have a button to fix all road/bldg exits
 
 public class BoardEditor extends JComponent
         implements ItemListener, ListSelectionListener, ActionListener, DocumentListener, IMapSettingsObserver {
@@ -240,12 +245,16 @@ public class BoardEditor extends JComponent
     }
  
     private static final long serialVersionUID = 4689863639249616192L;
+    
+    GUIPreferences guip = GUIPreferences.getInstance();
 
     //region action commands
     private static final String FILE_BOARD_EDITOR_EXPAND = "fileBoardExpand";
     private static final String FILE_BOARD_EDITOR_VALIDATE = "fileBoardValidate";
+    private static final String FILE_SOURCEFILE = "fileSource";
     //endregion action commands
 
+    // Components
     JFrame frame = new JFrame();
     JScrollPane scrollPane;
     private Game game = new Game();
@@ -262,11 +271,15 @@ public class BoardEditor extends JComponent
     private JDialog minimapW;
     private MiniMap minimap;
     MegaMekController controller;
-    IHex curHex = new Hex();
+    
+    // The current files
     private File curfileImage;
     private File curfile;
-    // buttons and labels and such:
+
+    // The active hex "brush"
     private HexCanvas canHex;
+    IHex curHex = new Hex();
+    
     // Easy terrain access buttons
     private JButton buttonLW, buttonLJ;
     private JButton buttonWa, buttonSw, buttonRo;
@@ -276,7 +289,7 @@ public class BoardEditor extends JComponent
     private JButton buttonBr, buttonFT;
     private JToggleButton buttonBrush1, buttonBrush2, buttonBrush3;
     private JToggleButton buttonUpDn, buttonOOC;
-    // the brush size: 1 = 1 hex, 2 = radius 1, 3 = radius 2  
+    // The brush size: 1 = 1 hex, 2 = radius 1, 3 = radius 2  
     int brushSize = 1;
     int hexLeveltoDraw = -1000;
     private Font fontElev = new Font("SansSerif", Font.BOLD, 20); //$NON-NLS-1$
@@ -304,15 +317,31 @@ public class BoardEditor extends JComponent
     private JButton butBoardSaveAsImage;
     private JButton butMiniMap;
     private JButton butBoardValidate;
+    private JButton butSourceFile;
     private MapSettings mapSettings = MapSettings.getInstance();
     private JButton butExpandMap;
     private Coords lastClicked;
+    
     // Undo / Redo
     JButton buttonUndo, buttonRedo;
     private Stack<HashSet<IHex>> undoStack = new Stack<>();
     private Stack<HashSet<IHex>> redoStack = new Stack<>();
     private HashSet<IHex> currentUndoSet;
     private HashSet<Coords> currentUndoCoords;
+    
+    // Tracker for board changes; unfortunately this is not equal to 
+    // undoStack == empty because saving the board doesn't empty the 
+    // undo stack but makes the board unchanged.
+    /** Tracks if the board has changes over the last saved version. */
+    private boolean hasChanges = false;
+    /** Tracks if the board can return to the last saved version. */
+    private boolean canReturnToSaved = true;
+    /** The undo stack size at the last save. Used to track saved status of the board. */
+    private int savedUndoStackSize = 0;
+    
+    // Misc
+    private static final int [] defaultBuildingCFs = {0,15,40,90,150};  //TODO: Building also defines such a list
+    private String loadPath = "data" + File.separator + "boards";
     
     /**
      * Special purpose indicator, keeps terrain list 
@@ -380,7 +409,17 @@ public class BoardEditor extends JComponent
                         // Drawing something disables any redo actions
                         redoStack.clear();
                         buttonRedo.setEnabled(false);
+                        // When Undo (without Redo) has been used after saving
+                        // and the user draws on the board, then it can
+                        // no longer know if it's been returned to the saved state
+                        // and it will always be treated as changed.
+                        if (savedUndoStackSize > undoStack.size()) {
+                            canReturnToSaved = false;
+                        }
+                        hasChanges = !canReturnToSaved | (undoStack.size() != savedUndoStackSize);
                     }
+                    // Mark the title when the board has changes
+                    setFrameTitle();
                 }
             }
         });
@@ -414,8 +453,8 @@ public class BoardEditor extends JComponent
                     if ((b.getType() == BoardViewEvent.BOARD_HEX_DRAGGED) && isLMB) {
                         if (!isDragging) {
                             hexLeveltoDraw = board.getHex(c).getLevel();
-                            if (isSHIFT) hexLeveltoDraw++;
-                            else if (isALT) hexLeveltoDraw--;
+                            if (isALT) hexLeveltoDraw--;
+                            else if (isSHIFT) hexLeveltoDraw++;
                             isDragging = true;
                         }
                     }
@@ -479,10 +518,11 @@ public class BoardEditor extends JComponent
      * Sets up the frame that will display the editor.
      */
     private void setupFrame() {
-        scrollPane = new JScrollPane(this, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+        scrollPane = new JScrollPane(this, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(12);
 
-        frame.setTitle(Messages.getString("BoardEditor.title")); //$NON-NLS-1$
+        setFrameTitle();
         frame.getContentPane().setLayout(new BorderLayout());
 
         frame.getContentPane().add(bvc, BorderLayout.CENTER);
@@ -500,16 +540,34 @@ public class BoardEditor extends JComponent
             frame.setSize(800, 600);
         }
 
-        // when frame is closing, just hide it
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                frame.setVisible(false);
+                // When the board has changes, ask the user 
+                if (hasChanges) {
+                    ignoreHotKeys = true;
+                    int savePrompt = JOptionPane.showConfirmDialog(null,
+                            Messages.getString("BoardEditor.exitprompt"), //$NON-NLS-1$
+                            Messages.getString("BoardEditor.exittitle"), //$NON-NLS-1$
+                            JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+                    ignoreHotKeys = false;
+
+                    // When the user cancels or did not actually save the board, don't close 
+                    if (((savePrompt == JOptionPane.YES_OPTION) && !boardSave()) || 
+                            (savePrompt == JOptionPane.CANCEL_OPTION)) {
+                        return;
+                    } 
+                }
+
+                // otherwise: exit the Map Editor
                 minimapW.setVisible(false);
                 if (controller != null) {
                     controller.removeAllActions();
                     controller.boardEditor = null;
                 }
+                frame.dispose();
             }
         });
     }
@@ -605,11 +663,11 @@ public class BoardEditor extends JComponent
         buttonRo = prepareButton("ButtonRo", "Rough", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonMd = prepareButton("ButtonMd", "Mud", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonPv = prepareButton("ButtonPv", "Pavement", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
+        buttonSn = prepareButton("ButtonSn", "Snow", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonBu = prepareButton("ButtonBu", "Buildings", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonRd = prepareButton("ButtonRd", "Roads", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonBr = prepareButton("ButtonBr", "Bridges", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonFT = prepareButton("ButtonFT", "Fuel Tanks", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
-        buttonSn = prepareButton("ButtonSn", "Snow", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonIc = prepareButton("ButtonIc", "Ice", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonTu = prepareButton("ButtonTu", "Tundra", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
         buttonMg = prepareButton("ButtonMg", "Magma", terrainButtons); //$NON-NLS-1$ //$NON-NLS-2$
@@ -682,41 +740,40 @@ public class BoardEditor extends JComponent
         buttonMg.addMouseWheelListener(wheelListener);
 
         // Mouse wheel behaviour for the BUILDINGS button
-        // This always ADDS the building because clearing all terrain except
-        // buildings is too complicated. User can click the X button to clear terrain.
+        // Always ADDS the building. 
         buttonBu.addMouseWheelListener(e -> {
+            // Restore mandatory building parts if some are missing
             setBasicBuilding(false);
             int wheelDir = (e.getWheelRotation() < 0) ? 1 : -1;
-            int terrainType;
-            int newLevel;
 
             if (e.isShiftDown()) {
-                terrainType = Terrains.BLDG_CF;
-                int oldLevel = curHex.getTerrain(terrainType).getLevel();
-                newLevel = Math.max(10, oldLevel + wheelDir*10);
+                int oldLevel = curHex.getTerrain(Terrains.BLDG_CF).getLevel();
+                int newLevel = Math.max(10, oldLevel + wheelDir*5);
+                curHex.addTerrain(TF.createTerrain(Terrains.BLDG_CF, newLevel));
             }
             else if (e.isControlDown()) {
-                terrainType = Terrains.BUILDING;
-                int oldLevel = curHex.getTerrain(terrainType).getLevel();
-                if ((oldLevel == 1) && (wheelDir == -1)) {
-                    newLevel = oldLevel;
-                } else if ((oldLevel == 4) && (wheelDir == 1)) { //TODO : Implement Walls
-                    newLevel = oldLevel;
-                } else {
-                    newLevel = oldLevel + wheelDir;
+                int oldLevel = curHex.getTerrain(Terrains.BUILDING).getLevel();
+                int newLevel = Math.max(1, Math.min(4, oldLevel + wheelDir)); // keep between 1 and 4
+
+                if (newLevel != oldLevel) {
+                    ITerrain curTerr = curHex.getTerrain(Terrains.BUILDING);
+                    curHex.addTerrain(TF.createTerrain(Terrains.BUILDING, 
+                            newLevel, curTerr.hasExitsSpecified(), curTerr.getExits()));
+
+                    // Set the CF to the appropriate standard value *IF* it is the appropriate value now,
+                    // i.e. if the user has not manually set it to something else
+                    int curCF = curHex.getTerrain(Terrains.BLDG_CF).getLevel();
+                    if (curCF == defaultBuildingCFs[oldLevel]) 
+                        curHex.addTerrain(TF.createTerrain(Terrains.BLDG_CF, defaultBuildingCFs[newLevel]));
                 }
+                //TODO : Walls
             }
             else {
-                terrainType = Terrains.BLDG_ELEV;
-                int oldLevel = curHex.getTerrain(terrainType).getLevel();
-                newLevel = Math.max(1, oldLevel + wheelDir);
+                int oldLevel = curHex.getTerrain(Terrains.BLDG_ELEV).getLevel();
+                int newLevel = Math.max(1, oldLevel + wheelDir);
+                curHex.addTerrain(TF.createTerrain(Terrains.BLDG_ELEV, newLevel));
             }
 
-            if (e.isAltDown()) {
-                curHex.addTerrain(TF.createTerrain(terrainType, newLevel, true, 0));
-            } else {
-                curHex.addTerrain(TF.createTerrain(terrainType, newLevel));
-            }
             refreshTerrainList();
             repaintWorkingHex();
         });
@@ -777,7 +834,7 @@ public class BoardEditor extends JComponent
             repaintWorkingHex();
         });
 
-        JPanel terrainButtonPanel = new JPanel(new GridLayout(0, 3, 2, 2));
+        JPanel terrainButtonPanel = new JPanel(new GridLayout(0, 4, 2, 2));
         addManyButtons(terrainButtonPanel, terrainButtons);
 
         JPanel brushButtonPanel = new JPanel(new GridLayout(0, 3, 2, 2));
@@ -791,8 +848,14 @@ public class BoardEditor extends JComponent
         texElev = new EditorTextField("0", 3); //$NON-NLS-1$
         texElev.addActionListener(this);
         texElev.getDocument().addDocumentListener(this);
+
         butElevUp = prepareButton("ButtonHexUP", "Raise Hex Elevation", null); //$NON-NLS-1$ //$NON-NLS-2$
+        butElevUp.setName("butElevUp");
+        butElevUp.setToolTipText(Messages.getString("BoardEditor.butElevUp.toolTipText"));
+
         butElevDown = prepareButton("ButtonHexDN", "Lower Hex Elevation", null); //$NON-NLS-1$ //$NON-NLS-2$
+        butElevDown.setName("butElevDown");
+        butElevDown.setToolTipText(Messages.getString("BoardEditor.butElevDown.toolTipText"));
 
         // Terrain List
         lisTerrainRenderer = new ComboboxToolTipRenderer();
@@ -907,7 +970,6 @@ public class BoardEditor extends JComponent
         panelBoardSettings.add(cheRoadsAutoExit);
 
         // Board Buttons (Save, Load...)
-        JLabel labBoard = new JLabel(Messages.getString("BoardEditor.labBoard"), SwingConstants.LEFT); //$NON-NLS-1$
         butBoardNew = new JButton(Messages.getString("BoardEditor.butBoardNew")); //$NON-NLS-1$
         butBoardNew.setActionCommand(ClientGUI.FILE_BOARD_NEW);
 
@@ -928,19 +990,23 @@ public class BoardEditor extends JComponent
 
         butBoardValidate = new JButton(Messages.getString("BoardEditor.butBoardValidate")); //$NON-NLS-1$
         butBoardValidate.setActionCommand(FILE_BOARD_EDITOR_VALIDATE);
+        
+        butSourceFile = new JButton(Messages.getString("BoardEditor.butSourceFile")); //$NON-NLS-1$
+        butSourceFile.setActionCommand(FILE_SOURCEFILE);
 
         addManyActionListeners(butBoardValidate, butBoardSaveAsImage, butBoardSaveAs, butBoardSave);
         addManyActionListeners(butBoardOpen, butExpandMap, butBoardNew, butMiniMap);
-        addManyActionListeners(butDelTerrain, butAddTerrain);
+        addManyActionListeners(butDelTerrain, butAddTerrain, butSourceFile);
+        
 
         JPanel panButtons = new JPanel(new GridLayout(4, 2, 2, 2));
-        panButtons.add(labBoard);
-        panButtons.add(new JLabel("")); // Spacer Label
-        panButtons.add(new JLabel("")); // Spacer Label
         addManyButtons(panButtons, butBoardNew, butBoardSave, butBoardOpen,
                 butExpandMap, butBoardSaveAs, butBoardSaveAsImage);
-        panButtons.add(Box.createHorizontalStrut(5));
         panButtons.add(butBoardValidate);
+        panButtons.add(butMiniMap);
+        if (Desktop.isDesktopSupported()) {
+            panButtons.add(butSourceFile);
+        }
 
         // ------------------
         // Arrange everything
@@ -976,10 +1042,6 @@ public class BoardEditor extends JComponent
 
         // Terrain List and Preview Hex
         add(panlisHex, cfullLine);
-
-        // Minimap Toggle
-        add(new JLabel(""), cYFiller); //$NON-NLS-1$
-        add(butMiniMap, cfullLine);
 
         // Board buttons
         add(panButtons, cfullLine);
@@ -1282,22 +1344,23 @@ public class BoardEditor extends JComponent
     }
     
     /**
-     * Sets valid basic bridge values as far as they are missing
+     * Sets valid basic Building values as far as they are missing
      */
-    private void setBasicBuilding(boolean singleHex) {
+    private void setBasicBuilding(boolean ALT_Held) {
         if (!curHex.containsTerrain(Terrains.BLDG_CF)) 
-            curHex.addTerrain(TF.createTerrain(Terrains.BLDG_CF, 40, false, 0));
+            curHex.addTerrain(TF.createTerrain(Terrains.BLDG_CF, 15, false, 0));
 
         if (!curHex.containsTerrain(Terrains.BLDG_ELEV)) 
             curHex.addTerrain(TF.createTerrain(Terrains.BLDG_ELEV, 1, false, 0));
 
         if (!curHex.containsTerrain(Terrains.BUILDING))
-        {
-            if (singleHex) {
-                curHex.addTerrain(TF.createTerrain(Terrains.BUILDING, 1, true, 0));
-            } else {
-                curHex.addTerrain(TF.createTerrain(Terrains.BUILDING, 1, false, 0));
-            }
+            curHex.addTerrain(TF.createTerrain(Terrains.BUILDING, 1, ALT_Held, 0));
+
+        // When clicked with ALT and a Building is present, only toggle the exits
+        if (curHex.containsTerrain(Terrains.BUILDING) && ALT_Held) {
+            ITerrain curTerr = curHex.getTerrain(Terrains.BUILDING);
+            curHex.addTerrain(TF.createTerrain(Terrains.BUILDING, 
+                    curTerr.getLevel(), !curTerr.hasExitsSpecified(), curTerr.getExits()));
         }
 
         refreshTerrainList();
@@ -1335,34 +1398,38 @@ public class BoardEditor extends JComponent
             addSetTerrain();
     }
 
-    public void boardNew() {
-        RandomMapDialog rmd = new RandomMapDialog(frame, this, null, mapSettings);
-        rmd.setVisible(true);
-        board = BoardUtilities.generateRandom(mapSettings);
-        game.setBoard(board);
-        curfile = null;
-        frame.setTitle(Messages.getString("BoardEditor.title")); //$NON-NLS-1$
-        menuBar.setBoard(true);
-        bvc.doLayout();
+    public void boardNew(boolean showDialog) {
+        boolean userCancel = false;
+        if (showDialog) {
+            RandomMapDialog rmd = new RandomMapDialog(frame, this, null, mapSettings);
+            userCancel = rmd.activateDialog(bv.getTilesetManager().getThemes());
+        }
+        if (!userCancel) {
+            board = BoardUtilities.generateRandom(mapSettings);
+            game.setBoard(board);
+            curfile = null;
+            choTheme.setSelectedItem(mapSettings.getTheme());
+            setupUiFreshBoard();
+        }
     }
-    
+
     public void boardResize() {
         ResizeMapDialog emd = new ResizeMapDialog(frame, this, null, mapSettings);
-        emd.setVisible(true);
-        board = BoardUtilities.generateRandom(mapSettings);
+        boolean userCancel = emd.activateDialog(bv.getTilesetManager().getThemes());
+        if (!userCancel) {
+            board = BoardUtilities.generateRandom(mapSettings);
 
-        // Implant the old board
-        int west = emd.getExpandWest();
-        int north = emd.getExpandNorth();
-        int east = emd.getExpandEast();
-        int south = emd.getExpandSouth();
-        board = implantOldBoard(game, west, north, east, south);
+            // Implant the old board
+            int west = emd.getExpandWest();
+            int north = emd.getExpandNorth();
+            int east = emd.getExpandEast();
+            int south = emd.getExpandSouth();
+            board = implantOldBoard(game, west, north, east, south);
 
-        game.setBoard(board);
-        curfile = null;
-        frame.setTitle(Messages.getString("BoardEditor.title")); //$NON-NLS-1$
-        menuBar.setBoard(true);
-        bvc.doLayout();
+            game.setBoard(board);
+            curfile = null;
+            setupUiFreshBoard();
+        }
     }
 
     // When we resize a board, implant the old board's hexes where they should be in the new board
@@ -1371,7 +1438,8 @@ public class BoardEditor extends JComponent
         for (int x = 0; x < oldBoard.getWidth(); x++) {
             for (int y = 0; y < oldBoard.getHeight(); y++) {
                 int newX = x+west;
-                int newY = y+north;
+                int odd = x & 1 & west;
+                int newY = y+north + odd;
                 if (oldBoard.contains(x, y) && board.contains(newX, newY)) {
                     IHex oldHex = oldBoard.getHex(x, y);
                     IHex hex = board.getHex(newX, newY);
@@ -1398,8 +1466,8 @@ public class BoardEditor extends JComponent
     }
 
     public void boardLoad() {
-        JFileChooser fc = new JFileChooser("data" + File.separator + "boards");
-        fc.setLocation(frame.getLocation().x + 150, frame.getLocation().y + 100);
+        JFileChooser fc = new JFileChooser(loadPath);
+        setDialogSize(fc);
         fc.setDialogTitle(Messages.getString("BoardEditor.loadBoard"));
         fc.setFileFilter(new FileFilter() {
             @Override
@@ -1412,21 +1480,23 @@ public class BoardEditor extends JComponent
                 return "*.board";
             }
         });
+        ignoreHotKeys = true;
         int returnVal = fc.showOpenDialog(frame);
+        ignoreHotKeys = false;
+        saveDialogSize(fc);
         if ((returnVal != JFileChooser.APPROVE_OPTION) || (fc.getSelectedFile() == null)) {
             // I want a file, y'know!
             return;
         }
         curfile = fc.getSelectedFile();
+        loadPath = curfile.getPath();
         // load!
         try (InputStream is = new FileInputStream(fc.getSelectedFile())) {            
             // tell the board to load!
             StringBuffer errBuff = new StringBuffer();
             board.load(is, errBuff, true);
             if (errBuff.length() > 0) {
-                String msg = Messages.getString("BoardEditor.invalidBoard.message");
-                String title =  Messages.getString("BoardEditor.invalidBoard.title");
-                JOptionPane.showMessageDialog(this, msg, title, JOptionPane.ERROR_MESSAGE);
+                showBoardValidationReport(errBuff);
             }
             // Board generation in a game always calls BoardUtilities.combine
             // This serves no purpose here, but is necessary to create 
@@ -1435,35 +1505,57 @@ public class BoardEditor extends JComponent
             board = BoardUtilities.combine(board.getWidth(), board.getHeight(), 1, 1, 
                     new IBoard[]{board}, Collections.singletonList(false), MapSettings.MEDIUM_GROUND);
             game.setBoard(board);
-            menuBar.setBoard(true);
-            bvc.doLayout();
+            cheRoadsAutoExit.setSelected(board.getRoadsAutoExit());
+            mapSettings.setBoardSize(board.getWidth(), board.getHeight());
+            refreshTerrainList();
+            setupUiFreshBoard();
         } catch (IOException ex) {
-            System.err.println("error opening file to save!"); //$NON-NLS-1$
+            System.err.println("error opening file to load!"); //$NON-NLS-1$
             System.err.println(ex);
         }
-        frame.setTitle(Messages.getString("BoardEditor.title0") + curfile); //$NON-NLS-1$
-        cheRoadsAutoExit.setSelected(board.getRoadsAutoExit());
-        mapSettings.setBoardSize(board.getWidth(), board.getHeight());
-        refreshTerrainList();
+    }
+    
+    /**
+     * Will do board.initializeHex() for all hexes, correcting 
+     * building and road connection issues for those hexes that do not have
+     * the exits check set.
+     */
+    private void correctExits() {
+        for (int x = 0; x < board.getWidth(); x++) {
+            for (int y = 0; y < board.getHeight(); y++) {
+                board.initializeHex(x, y);
+            }
+        }
     }
 
     /**
      * Checks to see if there is already a path and name stored; if not, calls
      * "save as"; otherwise, saves the board to the specified file.
      */
-    private void boardSave() {
+    private boolean boardSave() {
+        // First, correct connection issues and do a validation.
+        correctExits();
+        StringBuffer errBuff = new StringBuffer();
+        board.isValid(errBuff);
+        if (errBuff.length() > 0) {
+            showBoardValidationReport(errBuff);
+        }
         if (curfile == null) {
-            boardSaveAs();
-            return;
+            return boardSaveAs();
         }
         // save!
         try {
             OutputStream os = new FileOutputStream(curfile);
             board.save(os);// tell the board to save!
             os.close(); // okay, done!
+            savedUndoStackSize = undoStack.size();
+            hasChanges = false;
+            setFrameTitle();
+            return true;
         } catch (IOException ex) {
             System.err.println("error opening file to save!"); //$NON-NLS-1$
             System.err.println(ex);
+            return false;
         }
     }
 
@@ -1499,8 +1591,11 @@ public class BoardEditor extends JComponent
      * Opens a file dialog box to select a file to save as; saves the board to
      * the file.
      */
-    private void boardSaveAs() {
+    private boolean boardSaveAs() {
+        // First, correct connection issues
+        correctExits();
         JFileChooser fc = new JFileChooser("data" + File.separator + "boards");
+        setDialogSize(fc);
         fc.setLocation(frame.getLocation().x + 150, frame.getLocation().y + 100);
         fc.setDialogTitle(Messages.getString("BoardEditor.saveBoardAs"));
         fc.setFileFilter(new FileFilter() {
@@ -1515,10 +1610,12 @@ public class BoardEditor extends JComponent
             }
         });
         int returnVal = fc.showSaveDialog(frame);
+        saveDialogSize(fc);
         if ((returnVal != JFileChooser.APPROVE_OPTION) || (fc.getSelectedFile() == null)) {
-            return; // I want a file, y'know!
+            return false; // I want a file, y'know!
         }
         curfile = fc.getSelectedFile();
+        butSourceFile.setEnabled(true);
 
         // make sure the file ends in board
         if (!curfile.getName().toLowerCase().endsWith(".board")) { //$NON-NLS-1$
@@ -1526,11 +1623,10 @@ public class BoardEditor extends JComponent
                 curfile = new File(curfile.getCanonicalPath() + ".board"); //$NON-NLS-1$
             } catch (IOException ie) {
                 // failure!
-                return;
+                return false;
             }
         }
-        frame.setTitle(Messages.getString("BoardEditor.title0") + curfile); //$NON-NLS-1$
-        boardSave();
+        return boardSave();
     }
 
     /**
@@ -1539,6 +1635,7 @@ public class BoardEditor extends JComponent
      */
     private void boardSaveAsImage(boolean ignoreUnits) {
         JFileChooser fc = new JFileChooser(".");
+        setDialogSize(fc);
         fc.setLocation(frame.getLocation().x + 150, frame.getLocation().y + 100);
         fc.setDialogTitle(Messages.getString("BoardEditor.saveAsImage"));
         fc.setFileFilter(new FileFilter() {
@@ -1553,6 +1650,7 @@ public class BoardEditor extends JComponent
             }
         });
         int returnVal = fc.showSaveDialog(frame);
+        saveDialogSize(fc);
         if ((returnVal != JFileChooser.APPROVE_OPTION)
             || (fc.getSelectedFile() == null)) {
             // I want a file, y'know!
@@ -1569,7 +1667,6 @@ public class BoardEditor extends JComponent
                 return;
             }
         }
-        frame.setTitle(Messages.getString("BoardEditor.title0") + curfileImage); //$NON-NLS-1$
         boardSaveImage(ignoreUnits);
     }
 
@@ -1628,9 +1725,7 @@ public class BoardEditor extends JComponent
         changedUpdate(event);
     }
 
-    /**
-     * Called when the user selects the "Help->About" menu item.
-     */
+    /** Called when the user selects the "Help->About" menu item. */
     private void showAbout() {
         // Do we need to create the "about" dialog?
         if (about == null) {
@@ -1641,9 +1736,7 @@ public class BoardEditor extends JComponent
         about.setVisible(true);
     }
 
-    /**
-     * Called when the user selects the "Help->Contents" menu item.
-     */
+    /** Called when the user selects the "Help->Contents" menu item. */
     private void showHelp() {
         // Do we need to create the "help" dialog?
         if (help == null) {
@@ -1655,9 +1748,7 @@ public class BoardEditor extends JComponent
         help.setVisible(true);
     }
 
-    /**
-     * Called when the user selects the "View->Client Settings" menu item.
-     */
+    /** Called when the user selects the "View->Client Settings" menu item. */
     private void showSettings() {
         // Do we need to create the "settings" dialog?
         if (setdlg == null) {
@@ -1667,17 +1758,47 @@ public class BoardEditor extends JComponent
         // Show the settings dialog.
         setdlg.setVisible(true);
     }
+    
+    /** 
+     * Adjusts some UI and internal settings for a freshly 
+     * loaded or freshly generated board.
+     */
+    private void setupUiFreshBoard() {
+        // Reset the Undo stack and the board has no changes
+        savedUndoStackSize = 0;
+        canReturnToSaved = true;
+        resetUndo();
+        hasChanges = false;
+        // When a board was loaded, we have a file, otherwise not
+        butSourceFile.setEnabled(curfile != null);
+        // Adjust the UI
+        menuBar.setBoard(true);
+        bvc.doLayout();
+        setFrameTitle();
+    }
 
+    /**
+     * Shows a board validation report dialog, reporting either
+     * the contents of errBuff or that the board has no errors.
+     */
     private void showBoardValidationReport(StringBuffer errBuff) {
-        String title = Messages.getString("BoardEditor.invalidBoard.title");
-        String msg = Messages.getString("BoardEditor.invalidBoard.report");
-        msg += errBuff;
-        JTextArea textArea = new JTextArea(msg);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        scrollPane.setPreferredSize(new Dimension(getWidth(), getHeight() / 2));
-        JOptionPane.showMessageDialog(this, scrollPane, title, JOptionPane.ERROR_MESSAGE);
+        ignoreHotKeys = true;
+        if ((errBuff != null) && errBuff.length() > 0) {
+            String title = Messages.getString("BoardEditor.invalidBoard.title");
+            String msg = Messages.getString("BoardEditor.invalidBoard.report");
+            msg += errBuff;
+            JTextArea textArea = new JTextArea(msg);
+            JScrollPane scrollPane = new JScrollPane(textArea);
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            scrollPane.setPreferredSize(new Dimension(getWidth(), getHeight() / 2));
+            JOptionPane.showMessageDialog(frame, scrollPane, title, JOptionPane.ERROR_MESSAGE);
+        } else {
+            String title =  Messages.getString("BoardEditor.validBoard.title");
+            String msg = Messages.getString("BoardEditor.validBoard.report");
+            JOptionPane.showMessageDialog(frame, msg, title, JOptionPane.INFORMATION_MESSAGE);
+        }
+        ignoreHotKeys = false;
     }
 
     //
@@ -1686,19 +1807,16 @@ public class BoardEditor extends JComponent
     public void actionPerformed(ActionEvent ae) {
         if (ae.getActionCommand().equals(ClientGUI.FILE_BOARD_NEW)) {
             ignoreHotKeys = true;
-            boardNew();
+            boardNew(true);
             ignoreHotKeys = false;
-            resetUndo();
         } else if (ae.getActionCommand().equals(FILE_BOARD_EDITOR_EXPAND)) {
             ignoreHotKeys = true;
             boardResize();
             ignoreHotKeys = false;
-            resetUndo();
         } else if (ae.getActionCommand().equals(ClientGUI.FILE_BOARD_OPEN)) {
             ignoreHotKeys = true;
             boardLoad();
             ignoreHotKeys = false;
-            resetUndo();
         } else if (ae.getActionCommand().equals(ClientGUI.FILE_BOARD_SAVE)) {
             ignoreHotKeys = true;
             boardSave();
@@ -1711,16 +1829,25 @@ public class BoardEditor extends JComponent
             ignoreHotKeys = true;
             boardSaveAsImage(false);
             ignoreHotKeys = false;
+        } else if (ae.getActionCommand().equals(FILE_SOURCEFILE)) {
+            if (curfile != null) {
+                try {
+                    Desktop.getDesktop().open(curfile);
+                } catch (IOException e) {
+                    ignoreHotKeys = true;
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            Messages.getString("BoardEditor.OpenFileError", curfile.toString())
+                             + e.getMessage());
+                    e.printStackTrace();
+                    ignoreHotKeys = false;
+                }
+            }
         } else if (ae.getActionCommand().equals(FILE_BOARD_EDITOR_VALIDATE)) {
+            correctExits();
             StringBuffer errBuff = new StringBuffer();
             board.isValid(errBuff);
-            if (errBuff.length() > 0) {
-                showBoardValidationReport(errBuff);
-            } else {
-                String title =  Messages.getString("BoardEditor.validBoard.title");
-                String msg = Messages.getString("BoardEditor.validBoard.report");
-                JOptionPane.showMessageDialog(this, msg, title, JOptionPane.INFORMATION_MESSAGE);
-            }
+            showBoardValidationReport(errBuff);
         } else if (ae.getSource().equals(butDelTerrain)
                    && (!lisTerrain.isSelectionEmpty())) {
             ITerrain toRemove = Terrains.getTerrainFactory().createTerrain(
@@ -1730,13 +1857,11 @@ public class BoardEditor extends JComponent
             repaintWorkingHex();
         } else if (ae.getSource().equals(butAddTerrain)) {
             addSetTerrain();
-        } else if (ae.getSource().equals(butElevUp)
-                   && (curHex.getLevel() < 9)) {
+        } else if (ae.getSource().equals(butElevUp) && (curHex.getLevel() < 9)) {
             curHex.setLevel(curHex.getLevel() + 1);
             texElev.incValue();
             repaintWorkingHex();
-        } else if (ae.getSource().equals(butElevDown)
-                   && (curHex.getLevel() > -5)) {
+        } else if (ae.getSource().equals(butElevDown) && (curHex.getLevel() > -5)) {
             curHex.setLevel(curHex.getLevel() - 1);
             texElev.decValue();
             repaintWorkingHex();
@@ -1795,17 +1920,26 @@ public class BoardEditor extends JComponent
             curHex.setTheme((String)choTheme.getSelectedItem());
             repaintWorkingHex();
         } else if (ae.getSource().equals(buttonLW)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();  
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }  
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.WOODS, 1);
+            
         } else if (ae.getSource().equals(buttonMg)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.MAGMA, 1);
+            
         } else if (ae.getSource().equals(buttonLJ)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.JUNGLE, 1);
+            
         } else if (ae.getSource().equals(buttonWa)) {
             buttonUpDn.setSelected(false);
             if ((ae.getModifiers() & InputEvent.CTRL_MASK) != 0) {
@@ -1817,37 +1951,60 @@ public class BoardEditor extends JComponent
                         curHex.getTerrain(Terrains.WATER).getLevel() == 0)
                     addSetTerrainEasy(Terrains.WATER, 1);
             } else {
-                if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+                if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                    curHex.removeAllTerrains();
+                }
                 addSetTerrainEasy(Terrains.WATER, 1);
             }
+            
         } else if (ae.getSource().equals(buttonSw)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.SWAMP, 1);
+            
         } else if (ae.getSource().equals(buttonRo)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.ROUGH, 1);
+            
         } else if (ae.getSource().equals(buttonPv)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.PAVEMENT, 1);
+            
         } else if (ae.getSource().equals(buttonMd)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.MUD, 1);
         } else if (ae.getSource().equals(buttonTu)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.TUNDRA, 1);
+            
         } else if (ae.getSource().equals(buttonIc)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.ICE, 1);
+            
         } else if (ae.getSource().equals(buttonSn)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.SNOW, 1);
+            
         } else if (ae.getSource().equals(buttonCl)) {
             curHex.removeAllTerrains();
             refreshTerrainList();
@@ -1864,32 +2021,43 @@ public class BoardEditor extends JComponent
             lastClicked = null;
         } else if (ae.getSource().equals(buttonBu)) { 
             buttonUpDn.setSelected(false);
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0 && (ae.getModifiers() & InputEvent.ALT_MASK) == 0) 
+                curHex.removeAllTerrains();
             if ((ae.getModifiers() & InputEvent.ALT_MASK) != 0) {
                 setBasicBuilding(true);
             } else {
                 setBasicBuilding(false);
             }
         } else if (ae.getSource().equals(buttonBr)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             setBasicBridge();
+            
         } else if (ae.getSource().equals(buttonFT)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             setBasicFuelTank();
+            
         } else if (ae.getSource().equals(buttonRd)) {
-            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) curHex.removeAllTerrains();
+            if ((ae.getModifiers() & InputEvent.SHIFT_MASK) == 0) {
+                curHex.removeAllTerrains();
+            }
             buttonUpDn.setSelected(false);
             addSetTerrainEasy(Terrains.ROAD, 1);
+            
         } else if (ae.getSource().equals(buttonUpDn)) {
             // Not so useful to only do on clear terrain
             buttonOOC.setSelected(false);
+            
         } else if (ae.getSource().equals(buttonUndo)) {
             // The button should not be active when the stack is empty, but
             // let's check nevertheless
             if (undoStack.isEmpty()) { 
-                buttonUndo.setEnabled(false); 
+                buttonUndo.setEnabled(false);
             } else {
                 HashSet<IHex> recentHexes = undoStack.pop();
                 HashSet<IHex> redoHexes = new HashSet<>(); 
@@ -1902,10 +2070,15 @@ public class BoardEditor extends JComponent
                     board.setHex(hex.getCoords(), hex);
                 }
                 redoStack.push(redoHexes);
-                if (undoStack.isEmpty()) buttonUndo.setEnabled(false);
+                if (undoStack.isEmpty()) {
+                    buttonUndo.setEnabled(false);
+                }
+                hasChanges = !canReturnToSaved | (undoStack.size() != savedUndoStackSize);
                 buttonRedo.setEnabled(true);
                 currentUndoSet = null; // should be anyway
             }
+            setFrameTitle();
+            
         } else if (ae.getSource().equals(buttonRedo)) {
             // The button should not be active when the stack is empty, but
             // let's check nevertheless
@@ -1923,8 +2096,10 @@ public class BoardEditor extends JComponent
                 undoStack.push(undoHexes);
                 if (redoStack.isEmpty()) buttonRedo.setEnabled(false);
                 buttonUndo.setEnabled(true);
+                hasChanges = !canReturnToSaved | (undoStack.size() != savedUndoStackSize);
                 currentUndoSet = null; // should be anyway
             }
+            setFrameTitle();
         }
     }
 
@@ -1950,31 +2125,45 @@ public class BoardEditor extends JComponent
         HexCanvas() {
             setPreferredSize(new Dimension(90, 90));
         }
+        
+        /** Returns list or an empty list when list is null. */
+        private List<Image> safeList(List<Image> list) {
+            return list == null ? Collections.emptyList() : list;
+        }
 
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             if (curHex != null) {
+                // draw the terrain images
                 TilesetManager tm = bv.getTilesetManager();
                 g.drawImage(tm.baseFor(curHex), 0, 0, BoardView1.HEX_W, BoardView1.HEX_H, this);
-                g.setColor(getForeground());
-                if (tm.supersFor(curHex) != null) {
-                    for (final Object newVar : tm.supersFor(curHex)) {
-                        g.drawImage((Image) newVar, 0, 0, this);
-                        g.drawString(
-                                Messages.getString("BoardEditor.SUPER"), 0, 10); //$NON-NLS-1$
-                    }
+                for (final Image newVar : safeList(tm.supersFor(curHex))) {
+                    g.drawImage(newVar, 0, 0, this);
                 }
+                for (final Image newVar : safeList(tm.orthoFor(curHex))) {
+                    g.drawImage(newVar, 0, 0, this);
+                }
+                // add level and INVALID if necessary
+                if (guip.getAntiAliasing()) {
+                    ((Graphics2D) g).setRenderingHint(
+                            RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+                }
+                g.setColor(getForeground());
                 g.setFont(new Font("SansSerif", Font.PLAIN, 9)); //$NON-NLS-1$
                 g.drawString(Messages.getString("BoardEditor.LEVEL") + curHex.getLevel(), 24, 70); //$NON-NLS-1$
                 StringBuffer errBuf = new StringBuffer();
                 if (!curHex.isValid(errBuf)) {
                     g.setFont(new Font("SansSerif", Font.BOLD, 14)); //$NON-NLS-1$
                     Point hexCenter = new Point(BoardView1.HEX_W / 2, BoardView1.HEX_H / 2);
-                    bv.drawCenteredText((Graphics2D) g, Messages.getString("BoardEditor.INVALID"), hexCenter, Color.RED,
+                    bv.drawCenteredText((Graphics2D) g, 
+                            Messages.getString("BoardEditor.INVALID"), //$NON-NLS-1$
+                            hexCenter, 
+                            guip.getWarningColor(),
                             false);
-                    String tooltip = Messages.getString("BoardEditor.invalidHex") + errBuf;
-                    tooltip = tooltip.replace("\n", "<br>");
+                    String tooltip = Messages.getString("BoardEditor.invalidHex") + errBuf; //$NON-NLS-1$
+                    tooltip = tooltip.replace("\n", "<br>"); //$NON-NLS-1$ //$NON-NLS-2$
                     setToolTipText(tooltip);
                 } else {
                     setToolTipText(null);
@@ -1987,12 +2176,12 @@ public class BoardEditor extends JComponent
         // Make the hex stubborn when resizing the frame
         @Override
         public Dimension getPreferredSize() {
-            return new Dimension(80,80);
+            return new Dimension(90, 90);
         }
         
         @Override
         public Dimension getMinimumSize() {
-            return new Dimension(80,80);
+            return new Dimension(90, 90);
         }
     }
 
@@ -2016,6 +2205,30 @@ public class BoardEditor extends JComponent
                 || (setdlg != null && setdlg.isVisible()) || texElev.hasFocus()
                 || texTerrainLevel.hasFocus() || texTerrExits.hasFocus();
     }
+    
+    private void setDialogSize(JFileChooser dialog) {
+        int width = guip.getBoardEditLoadWidth();
+        int height = guip.getBoardEditLoadHeight();
+        dialog.setPreferredSize(new Dimension(width, height));   
+    }
+    
+    private void saveDialogSize(JComponent dialog) {
+        guip.setBoardEditLoadHeight(dialog.getHeight());
+        guip.setBoardEditLoadWidth(dialog.getWidth());
+    }
+    
+    /** 
+     *  Sets the Board Editor frame title, adding the current file name if any
+     *  and a "*" if the board has unsaved changes.
+     */
+    private void setFrameTitle() {
+        String title = Messages.getString("BoardEditor.title"); //$NON-NLS-1$
+        if (curfile != null) {
+            title = Messages.getString("BoardEditor.title0", curfile);  //$NON-NLS-1$ 
+        }
+        frame.setTitle(title + (hasChanges ? "*" : "")); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    
     
     /**
      * Specialized field for the BoardEditor that supports 

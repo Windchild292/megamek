@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,55 +40,9 @@ import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.util.MegaMekController;
 import megamek.client.ui.swing.widget.MegamekButton;
 import megamek.client.ui.swing.widget.SkinSpecification;
-import megamek.common.Aero;
-import megamek.common.BattleArmor;
-import megamek.common.Bay;
-import megamek.common.BipedMech;
-import megamek.common.Board;
-import megamek.common.Building;
-import megamek.common.BuildingTarget;
-import megamek.common.Compute;
-import megamek.common.Coords;
-import megamek.common.DockingCollar;
-import megamek.common.Dropship;
-import megamek.common.EjectedCrew;
-import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
-import megamek.common.EntityMovementType;
-import megamek.common.EntitySelector;
-import megamek.common.GameTurn;
-import megamek.common.IAero;
-import megamek.common.IBoard;
-import megamek.common.IBomber;
-import megamek.common.IGame;
+import megamek.common.*;
 import megamek.common.IGame.Phase;
-import megamek.common.IHex;
-import megamek.common.IPlayer;
-import megamek.common.Infantry;
-import megamek.common.LandAirMech;
-import megamek.common.ManeuverType;
-import megamek.common.Mech;
-import megamek.common.Minefield;
-import megamek.common.MiscType;
-import megamek.common.Mounted;
-import megamek.common.MovePath;
 import megamek.common.MovePath.MoveStepType;
-import megamek.common.MoveStep;
-import megamek.common.PilotingRollData;
-import megamek.common.Protomech;
-import megamek.common.ProtomechClampMount;
-import megamek.common.QuadVee;
-import megamek.common.Report;
-import megamek.common.SmallCraft;
-import megamek.common.Tank;
-import megamek.common.TankTrailerHitch;
-import megamek.common.TargetRoll;
-import megamek.common.Targetable;
-import megamek.common.TeleMissile;
-import megamek.common.Terrains;
-import megamek.common.ToHitData;
-import megamek.common.Transporter;
-import megamek.common.VTOL;
 import megamek.common.actions.AirmechRamAttackAction;
 import megamek.common.actions.ChargeAttackAction;
 import megamek.common.actions.DfaAttackAction;
@@ -101,6 +56,15 @@ import megamek.common.pathfinder.AbstractPathFinder;
 import megamek.common.pathfinder.LongestPathFinder;
 import megamek.common.pathfinder.ShortestPathFinder;
 import megamek.common.preference.PreferenceManager;
+import megamek.client.ui.swing.util.TurnTimer;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MovementDisplay extends StatusBarPhaseDisplay {
     /**
@@ -130,6 +94,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                                       | CMD_AERO | CMD_AERO_VECTORED;
     public static final int CMD_NON_INF = CMD_MECH | CMD_TANK | CMD_VTOL
                                           | CMD_AERO | CMD_AERO_VECTORED;
+    private TurnTimer tt;
 
     /**
      * This enumeration lists all of the possible ActionCommands that can be
@@ -237,7 +202,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
          */
         public int priority;
 
-        private MoveCommand(String c, int f) {
+        MoveCommand(String c, int f) {
             cmd = c;
             flag = f;
             priority = ordinal();
@@ -1057,6 +1022,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             clientgui.setDisplayVisible(true);
         }
         selectEntity(clientgui.getClient().getFirstEntityNum());
+        //check if there should be a turn timer running
+        tt = TurnTimer.init(this, clientgui.getClient());
     }
 
     /**
@@ -1064,6 +1031,12 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
      */
     private synchronized void endMyTurn() {
         final Entity ce = ce();
+
+        //get rid of still running timer, if turn is concluded before time is up
+        if (tt != null) {
+            tt.stopTimer();
+            tt = null;
+        }
 
         // end my turn, then.
         disableButtons();
@@ -1301,7 +1274,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
      */
     @Override
     public synchronized void ready() {
-
         if (ce() == null) {
             return;
         }
@@ -2812,7 +2784,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             return;
         }
 
-        // can this unit mount a dropship/small craft?
+        // can this unit mount a dropship/small craft/train?
         setMountEnabled(false);
         Coords pos = ce.getPosition();
         int elev = ce.getElevation();
@@ -3364,6 +3336,30 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         // Positions
         ring = Compute.getAcceptableUnloadPositions(ring, unloaded, clientgui
                 .getClient().getGame(), elev);
+        //If we're a train, eliminate positions held by any unit in the train. 
+        //You get stacking violation weirdness if this isn't done.
+        Set<Coords> toRemove = new HashSet<>();
+        if (ce.getTowing() != Entity.NONE) {
+            for (int i : ce.getAllTowedUnits()) {
+                Entity e = ce.getGame().getEntity(i);
+                if (e != null && e.getPosition() != null) {
+                    toRemove.add(e.getPosition());
+                }
+            }
+        } else if (ce.getTractor() != Entity.NONE) {
+            Entity tractor = ce.getGame().getEntity(ce.getTractor());
+            if (tractor != null && tractor.getPosition() != null) {
+                toRemove.add(tractor.getPosition());
+                for (int i : tractor.getAllTowedUnits()) {
+                    Entity e = ce.getGame().getEntity(i);
+                    if (e != null && e.getPosition() != null) {
+                        toRemove.add(e.getPosition());
+                    }
+                }
+            }
+        }
+        ring.removeAll(toRemove);
+        
         if (ring.size() < 1) {
             String title = Messages
                     .getString("MovementDisplay.NoPlaceToUnload.title"); //$NON-NLS-1$
@@ -3381,6 +3377,60 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                                                                Messages.getString(
                                                                        "MovementDisplay.ChooseHex" + ".message", new Object[]{//$NON-NLS-1$
                                                                                                                               ce.getShortName(), ce.getUnusedString()}), Messages
+                                                                       .getString("MovementDisplay.ChooseHex.title"),
+                                                               //$NON-NLS-1$
+                                                               JOptionPane.QUESTION_MESSAGE, null, choices, null);
+        Coords choice = null;
+        if (selected == null) {
+            return choice;
+        }
+        for (Coords c : ring) {
+            if (selected.equals(c.toString())) {
+                choice = c;
+                break;
+            }
+        }
+        return choice;
+    }
+    
+    /**
+     * Uses player input to find a legal hex where an EjectedCrew unit can be placed
+     * @param abandoned - The vessel we're escaping from
+     * @return
+     */
+    private Coords getEjectPosition(Entity abandoned) {
+        // we need to allow the user to select a hex for offloading the unit's crew
+        Coords pos = abandoned.getPosition();
+        //Create a bogus crew entity to use for legal hex calculation
+        Entity crew = new EjectedCrew();
+        crew.setId(clientgui.getClient().getGame().getNextEntityId());
+        crew.setGame(clientgui.getClient().getGame());
+        int elev = clientgui.getClient().getGame().getBoard().getHex(pos).getLevel() + abandoned.getElevation();
+        ArrayList<Coords> ring = Compute.coordsAtRange(pos, 1);
+        if (abandoned instanceof Dropship) {
+            ring = Compute.coordsAtRange(pos, 2);
+        }
+        // ok now we need to go through the ring and identify available
+        // Positions
+        ring = Compute.getAcceptableUnloadPositions(ring, crew, clientgui
+                .getClient().getGame(), elev);
+        if (ring.size() < 1) {
+            String title = Messages
+                    .getString("MovementDisplay.NoPlaceToEject.title"); //$NON-NLS-1$
+            String body = Messages
+                    .getString("MovementDisplay.NoPlaceToEject.message"); //$NON-NLS-1$
+            clientgui.doAlertDialog(title, body);
+            return null;
+        }
+        String[] choices = new String[ring.size()];
+        int i = 0;
+        for (Coords c : ring) {
+            choices[i++] = c.toString();
+        }
+        String selected = (String) JOptionPane.showInputDialog(clientgui,
+                                                               Messages.getString(
+                                                                       "MovementDisplay.ChooseEjectHex.message", new Object[]{//$NON-NLS-1$
+                                                                               abandoned.getShortName(), abandoned.getUnusedString()}), Messages
                                                                        .getString("MovementDisplay.ChooseHex.title"),
                                                                //$NON-NLS-1$
                                                                JOptionPane.QUESTION_MESSAGE, null, choices, null);
@@ -3642,6 +3692,11 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 int[] unitsLaunched = choiceDialog.getChoices();
                 for (int element : unitsLaunched) {
                     bayChoices.add(currentFighters.elementAt(element).getId());
+                    //Prompt the player to load passengers aboard small craft
+                    Entity en = clientgui.getClient().getGame().getEntity(currentFighters.elementAt(element).getId());
+                    if (en instanceof SmallCraft) {
+                        loadPassengerAtLaunch(en);
+                    }
                 }
                 choices.put(i, bayChoices);
                 // now remove them (must be a better way?)
@@ -3731,6 +3786,11 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                         for (int element : unitsLaunched) {
                             collarChoices.add(currentDropships.elementAt(
                                     element).getId());
+                            //Prompt the player to load passengers aboard the launching ship(s)
+                            Entity en = clientgui.getClient().getGame().getEntity(currentDropships.elementAt(element).getId());
+                            if (en instanceof SmallCraft) {
+                                loadPassengerAtLaunch(en);
+                            }
                         }
                         choices.put(i, collarChoices);
                         // now remove them (must be a better way?)
@@ -3746,6 +3806,42 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         // Return the chosen unit.
         return choices;
     }
+    
+    /**
+     * Worker function that consolidates code for loading dropships/small craft with passengers
+     * 
+     * @param en - The launching entity, which has already been tested to see if it's a small craft
+     */
+     private void loadPassengerAtLaunch(Entity en) {
+         SmallCraft craft = (SmallCraft) en;
+         int space = 0;
+         for (Bay b : craft.getTransportBays()) {
+             if (b instanceof CargoBay || b instanceof InfantryBay || b instanceof BattleArmorBay) {
+                 // Assume a passenger takes up 0.1 tons per single infantryman weight calculations
+                 space += (b.getUnused() / 0.1);
+             }
+         }
+         //Passengers don't actually 'load' into bays to consume space, so update what's available for anyone
+         //already aboard
+         space -= ((craft.getTotalOtherCrew() + craft.getTotalPassengers()) * 0.1);
+         //Make sure the text displays either the carrying capacity or the number of passengers left aboard
+         space = Math.min(space, ce().getNPassenger());
+         ConfirmDialog takePassenger = new ConfirmDialog(clientgui.frame,
+                 Messages.getString("MovementDisplay.FillSmallCraftPassengerDialog.Title"), //$NON-NLS-1$
+                 Messages.getString("MovementDisplay.FillSmallCraftPassengerDialog.message",
+                         new Object[]{craft.getShortName(), space, ce().getShortName() + "'", ce().getNPassenger()}), false);
+         takePassenger.setVisible(true);
+         if (takePassenger.getAnswer()) {
+             //Move the passengers
+             ce().setNPassenger(ce().getNPassenger() - space);
+             if (ce() instanceof Aero) {
+                 ((Aero)ce()).addEscapeCraft(craft.getExternalIdAsString());
+             }
+             clientgui.getClient().sendUpdateEntity(ce());
+             craft.addPassengers(ce().getExternalIdAsString(), space);
+             clientgui.getClient().sendUpdateEntity(craft);
+         }
+     }
 
     /**
      * Get the unit that the player wants to drop. This method will remove the
@@ -4782,6 +4878,22 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     cmd.addStep(MoveStepType.EJECT);
                     ready();
                 }
+            } else if (ce.isLargeCraft()) {
+                if (clientgui
+                        .doYesNoDialog(
+                                Messages.getString("MovementDisplay.AbandonDialog.title"),
+                                Messages.getString("MovementDisplay.AbandonDialog.message"))) { //$NON-NLS-1$
+                    // $NON-NLS-2$
+                    clear();
+                    // If we're abandoning while grounded, find a legal position to put an EjectedCrew unit
+                    if (!ce.isSpaceborne() && ce.getAltitude() == 0) {
+                        Coords pos = getEjectPosition(ce);
+                        cmd.addStep(MoveStepType.EJECT, ce, pos);
+                    } else {
+                        cmd.addStep(MoveStepType.EJECT);
+                    }
+                    ready();
+                }
             } else if (clientgui
                     .doYesNoDialog(
                             Messages.getString("MovementDisplay.AbandonDialog1.title"),
@@ -4824,7 +4936,9 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             // Ask the user if we're carrying multiple units.
             Entity other = getUnloadedUnit();
             if (other != null) {
-                if (ce() instanceof SmallCraft) {
+                if (ce() instanceof SmallCraft 
+                        || !ce().getAllTowedUnits().isEmpty()
+                        || ce().getTowedBy() != Entity.NONE) {
                     Coords pos = getUnloadPosition(other);
                     if (null != pos) {
                         // set other's position and end this turn - the

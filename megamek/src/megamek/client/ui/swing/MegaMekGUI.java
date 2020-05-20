@@ -442,7 +442,11 @@ public class MegaMekGUI  implements IPreferenceChangeListener, IMegaMekGUI {
         BoardEditor editor = new BoardEditor(controller);
         controller.boardEditor = editor;
         launch(editor.getFrame());
-        editor.boardNew();
+        if (GUIPreferences.getInstance().getBoardEdRndStart()) {
+            editor.boardNew(true);
+        } else {
+            editor.boardNew(false);
+        }
     }
     
     void showSkinEditor() {
@@ -1046,11 +1050,6 @@ public class MegaMekGUI  implements IPreferenceChangeListener, IMegaMekGUI {
     private void launch(JFrame launched) {
         // listen to new frame
         launched.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                unlaunch();
-            }
-
             @Override
             public void windowClosed(WindowEvent e) {
                 unlaunch();

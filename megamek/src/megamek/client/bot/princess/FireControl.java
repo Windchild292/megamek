@@ -1846,13 +1846,25 @@ public class FireControl {
         		continue;
         	}
         	
-        	
-            final double toHitThreshold = ammoConservation.get(weapon);
-            final WeaponFireInfo shoot = buildWeaponFireInfo(shooter, target, weapon, game, false);
+        	final double toHitThreshold = ammoConservation.get(weapon);
+            WeaponFireInfo shoot = buildWeaponFireInfo(shooter, target, weapon, game, false);
+            
+            // if we're below the threshold, try switching missile modes
+            if (shoot.getProbabilityToHit() <= toHitThreshold) {
+                
+                int updatedMissileMode = switchMissileMode(weapon);
+                
+                if (updatedMissileMode > -1) {
+                    shoot = buildWeaponFireInfo(shooter, target, weapon, game, false);
+                    shoot.setUpdatedFiringMode(updatedMissileMode);
+                }
+            }
+            
             if ((shoot.getProbabilityToHit() > toHitThreshold)) {
                 myPlan.add(shoot);
                 continue;
-            }
+            }            
+            
             owner.log(getClass(), METHOD_NAME, LogLevel.DEBUG,
                       "\nTo Hit Chance (" + DECF.format(shoot.getProbabilityToHit()) + ") for " + weapon.getName() +
                       " is less than threshold (" + DECF.format(toHitThreshold) + ")");
@@ -2507,14 +2519,19 @@ public class FireControl {
             }
 
             final Mounted mountedAmmo = getPreferredAmmo(shooter, info.getTarget(), weaponType);
-            // Log failures.
+            // if we found preferred ammo but can't apply it to the weapon, log it and continue.
             if ((null != mountedAmmo) && !shooter.loadWeapon(currentWeapon, mountedAmmo)) {
                 owner.log(getClass(), "loadAmmo(Entity, Targetable)", LogLevel.WARNING,
                           shooter.getDisplayName() + " tried to load " + currentWeapon.getName() + " with ammo " +
                           mountedAmmo.getDesc() + " but failed somehow.");
+                continue;
+            // if we didn't find preferred ammo after all, continue
+            } else if (mountedAmmo == null) {
+                continue;
             }
             final WeaponAttackAction action = info.getAction();
             action.setAmmoId(shooter.getEquipmentNum(mountedAmmo));
+            action.setAmmoCarrier(mountedAmmo.getEntity().getId());
             info.setAction(action);
             owner.sendAmmoChange(info.getShooter().getId(), shooter.getEquipmentNum(currentWeapon),
                                  shooter.getEquipmentNum(mountedAmmo));
@@ -3267,10 +3284,32 @@ public class FireControl {
         }
         
         if(bestTarget != null) {
-            SearchlightAttackAction slaa = new SearchlightAttackAction(shooter.getId(), bestTarget.getTargetId());
+            SearchlightAttackAction slaa = new SearchlightAttackAction(shooter.getId(), bestTarget.getTargetType(), bestTarget.getTargetId());
             return slaa;
         }
         
         return null;
+    }
+    
+    /**
+     * Attempts to switch the current weapon's firing mode between direct and indirect
+     * or vice versa. Returns -1 if the mode switch fails, or the weapon mode index if it succeeds.
+     * @return Mode switch result.
+     */
+    private int switchMissileMode(Mounted weapon) {
+        // check that we're operating a missile weapon that can switch direct/indirect modes
+        // don't bother checking non-missile weapons
+        if (weapon.getType().hasFlag(Weapon.F_MISSILE) &&
+                weapon.getType().hasModeType(Weapon.MODE_MISSILE_INDIRECT)) {
+            
+            // if we are able to switch the weapon to indirect fire mode, do so and try again
+            if (!weapon.curMode().equals(Weapon.MODE_MISSILE_INDIRECT)) {
+                return weapon.setMode(Weapon.MODE_MISSILE_INDIRECT);
+            } else {
+                return weapon.setMode("");
+            }
+        }       
+        
+        return -1;
     }
 }

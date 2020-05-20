@@ -59,6 +59,11 @@ public class InfantryPathFinder {
             // add an option to stand still
             infantryPaths.add(startingEdge);
             
+            // if, for some reason, the entity has already moved this turn or otherwise can't move, don't bother calculating paths for it
+            if(!startingEdge.getEntity().isSelectableThisTurn()) {
+                return;
+            }
+            
             // for an infantry unit with n MP, the total number of paths should be 6 * n*(n+1)/2 + 1 (triangular rule, plus "stand still")
             infantryPaths.addAll(generateChildren(startingEdge));
             
@@ -71,9 +76,13 @@ public class InfantryPathFinder {
             
             // now that we've got all our possible destinations, make sure to try every possible rotation,
             // since facing matters for field guns and if using the "dig in" and "vehicle cover" tacops rules.
+            List<MovePath> rotatedPaths = new ArrayList<>();
+            
             for(MovePath path : infantryPaths) {
-                infantryPaths.addAll(AeroPathUtil.generateValidRotations(path));
+                rotatedPaths.addAll(AeroPathUtil.generateValidRotations(path));
             }
+            
+            infantryPaths.addAll(rotatedPaths);
             
             // add "flee" option if we haven't done anything else
             if(startingEdge.getFinalCoords().isOnBoardEdge(game.getBoard()) &&

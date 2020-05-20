@@ -889,10 +889,21 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
                 waa.updateTurnsTilHit(clientgui.getClient().getGame());
             } 
         }
+        
+        updateDisplayForPendingAttack(mounted, waa);
+    }
+    
+    /**
+     * Worker function that handles setting associated ammo and other bookkeeping/UI updates
+     * for a pending weapon attack action.
+     */
+    public void updateDisplayForPendingAttack(Mounted mounted, WeaponAttackAction waa) {
+        // put this and the rest of the method into a separate function for access externally.
         if ((null != mounted.getLinked())
                 && (((WeaponType) mounted.getType()).getAmmoType() != AmmoType.T_NA)) {
             Mounted ammoMount = mounted.getLinked();
-            waa.setAmmoId(ce().getEquipmentNum(ammoMount));
+            waa.setAmmoId(ammoMount.getEntity().getEquipmentNum(ammoMount));
+            waa.setAmmoCarrier(ammoMount.getEntity().getId());
             if (((AmmoType) ammoMount.getType()).getMunitionType() == AmmoType.M_VIBRABOMB_IV) {
                 VibrabombSettingDialog vsd = new VibrabombSettingDialog(
                         clientgui.frame);
@@ -924,7 +935,6 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
         clientgui.mechD.wPan.displayMech(ce());
         clientgui.mechD.wPan.selectWeapon(nextWeapon);
         updateTarget();
-
     }
 
     /**

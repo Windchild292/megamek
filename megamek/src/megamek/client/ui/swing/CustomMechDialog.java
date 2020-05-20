@@ -291,7 +291,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
             isAero &= (e instanceof Aero) && !((e instanceof SmallCraft) || (e instanceof Jumpship));
             isMech &= (e instanceof Mech);
             isShip &= (e instanceof SmallCraft) || (e instanceof Jumpship);
-            isVTOL &= (e instanceof VTOL);
+            isVTOL &= (e.getMovementMode() == EntityMovementMode.VTOL);
             isWiGE &= (e instanceof Tank) && (e.getMovementMode() == EntityMovementMode.WIGE);
             isQuadVee &= (e instanceof QuadVee);
             isLAM &= (e instanceof LandAirMech);
@@ -766,6 +766,19 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
             }
             optionComp.setSelected(option.stringValue());
         }
+        
+        if ((OptionsConstants.GUNNERY_SANDBLASTER).equals(option.getName())) { // $NON-NLS-1$
+            optionComp.addValue(Messages.getString("CustomMechDialog.None")); //$NON-NLS-1$
+            TreeSet<String> uniqueWeapons = new TreeSet<String>();
+            for (int i = 0; i < entity.getWeaponList().size(); i++) {
+                Mounted m = entity.getWeaponList().get(i);
+                uniqueWeapons.add(m.getName());
+            }
+            for (String name : uniqueWeapons) {
+                optionComp.addValue(name);
+            }
+            optionComp.setSelected(option.stringValue());
+        }
 
         if (OptionsConstants.GUNNERY_SPECIALIST               
                 .equals(option.getName())) { //$NON-NLS-1$
@@ -1016,7 +1029,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
         boolean isQuadVee = true;
         boolean isLAM = true;
         boolean isAirMech = true;
-        boolean isGlider = true;
+        boolean isGlider = true;         
         for (Entity e : entities) {
             isAero &= ((e instanceof Aero) && !((e instanceof SmallCraft) || (e instanceof Jumpship)))
                     || ((e instanceof LandAirMech)
@@ -1024,7 +1037,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
                             || ((LandAirMech)e).getLAMType() == LandAirMech.LAM_BIMODAL
                                 && choStartingMode.getSelectedIndex() == 1));
             isShip &= (e instanceof SmallCraft) || (e instanceof Jumpship);
-            isVTOL &= (e instanceof VTOL);
+            isVTOL &= (e.getMovementMode() == EntityMovementMode.VTOL);
             isWiGE &= (e instanceof Tank) && (e.getMovementMode() == EntityMovementMode.WIGE);
             isQuadVee &= (e instanceof QuadVee);
             isLAM &= (e instanceof LandAirMech);
@@ -1098,7 +1111,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
             }
         }
 
-        if (isVTOL && (height > 50)
+        if ((isVTOL && height > 50)
                 || (isAirMech && height > 25)
                 || (isGlider && height > 12)) {
             msg = Messages.getString("CustomMechDialog.EnterCorrectHeight"); //$NON-NLS-1$
@@ -1114,6 +1127,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
             for (int i = 0; i < entities.get(0).getCrew().getSlotCount(); i++) {
                 String name = panCrewMember[i].getPilotName();
                 String nick = panCrewMember[i].getNickname();
+                int gender = panCrewMember[i].getGender();
                 boolean missing = panCrewMember[i].getMissing();
                 int gunnery;
                 int gunneryL;
@@ -1170,11 +1184,11 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
                         pilot.setGunneryMechL(gunneryL);
                         pilot.setGunneryMechB(gunneryB);
                         pilot.setGunneryMechM(gunneryM);
-                        pilot.setGunneryMech((int)Math.round((gunneryL + gunneryB + gunneryM) / 3.0));
+                        pilot.setGunneryMech((int) Math.round((gunneryL + gunneryB + gunneryM) / 3.0));
                         pilot.setGunneryAeroL(gunneryAeroL);
                         pilot.setGunneryAeroB(gunneryAeroB);
                         pilot.setGunneryAeroM(gunneryAeroM);
-                        pilot.setGunneryAero((int)Math.round((gunneryAeroL + gunneryAeroB + gunneryAeroM) / 3.0));
+                        pilot.setGunneryAero((int) Math.round((gunneryAeroL + gunneryAeroB + gunneryAeroM) / 3.0));
                     } else {
                         pilot.setGunneryMechL(gunnery);
                         pilot.setGunneryMechB(gunnery);
@@ -1192,7 +1206,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
                         entity.getCrew().setGunneryL(gunneryL, i);
                         entity.getCrew().setGunneryB(gunneryB, i);
                         entity.getCrew().setGunneryM(gunneryM, i);
-                        entity.getCrew().setGunnery((int)Math.round((gunneryL + gunneryB + gunneryM) / 3.0), i);
+                        entity.getCrew().setGunnery((int) Math.round((gunneryL + gunneryB + gunneryM) / 3.0), i);
                     } else {
                         entity.getCrew().setGunnery(gunnery, i);
                         entity.getCrew().setGunneryL(gunnery, i);
@@ -1210,6 +1224,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
                 entity.getCrew().setToughness(tough, i);
                 entity.getCrew().setName(name, i);
                 entity.getCrew().setNickname(nick, i);
+                entity.getCrew().setGender(gender, i);
                 entity.getCrew().setPortraitCategory(panCrewMember[i].getPortraitCategory(), i);
                 entity.getCrew().setPortraitFileName(panCrewMember[i].getPortraitFilename(), i);
                 if (backup >= 0) {

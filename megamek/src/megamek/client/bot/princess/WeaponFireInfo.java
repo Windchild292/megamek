@@ -35,7 +35,6 @@ import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.logging.LogLevel;
 import megamek.common.options.OptionsConstants;
-import megamek.common.weapons.Weapon;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;
 
 /**
@@ -459,15 +458,12 @@ public class WeaponFireInfo {
             for (final Mounted bomb : shooter.getBombs(BombType.F_GROUND_BOMB)) {
                 final int damagePerShot = ((BombType) bomb.getType()).getDamagePerShot();
         
-                // HE, thunder, laser and inferno bombs just affect the target hex 
+                // some bombs affect a blast radius, so we take that into account
                 final List<Coords> affectedHexes = new ArrayList<>();
-                affectedHexes.add(bombedHex);
                 
-                // a cluster bomb affects all hexes around the target
-                if (BombType.B_CLUSTER == ((BombType) bomb.getType()).getBombType()) {
-                    for (int dir = 0; 5 >= dir; dir++) {
-                        affectedHexes.add(bombedHex.translated(dir));
-                    }
+                int blastRadius = BombType.getBombBlastRadius(bomb.getType().getInternalName()); 
+                for (int radius = 0; radius <= blastRadius; radius++) {
+                    affectedHexes.addAll(BotGeometry.getHexDonut(bombedHex, radius));
                 }
                 
                 // now we go through all affected hexes and add up the damage done
@@ -524,19 +520,9 @@ public class WeaponFireInfo {
             } else {
                 setToHit(calcToHit());
             }
-
             // If we can't hit, set everything zero and return..
             if (12 < getToHit().getValue()) {
-                int indirectMode = switchMissileMode();
-                
-                if(indirectMode > -1) {
-                    setUpdatedFiringMode(indirectMode);
-                    initDamage(shooterPath, assumeUnderFlightPath, guess, bombPayload);
-                    getWeapon().setMode(""); // make sure to reset the weapon firing mode
-                    return;
-                }
-                
-            	owner.log(getClass(), METHOD_NAME, LogLevel.DEBUG, msg.append("\n\tImpossible toHit: ")
+                owner.log(getClass(), METHOD_NAME, LogLevel.DEBUG, msg.append("\n\tImpossible toHit: ")
                                                                       .append(getToHit().getValue()).toString());
                 setProbabilityToHit(0);
                 setMaxDamage(0);
@@ -634,25 +620,6 @@ public class WeaponFireInfo {
         }
     }
     
-    /**
-     * Attempts to switch the current weapon's firing mode between direct and indirect
-     * or vice versa. Returns -1 if the mode switch fails, or the weapon mode index if it succeeds.
-     * @return Mode switch result.
-     */
-    int switchMissileMode() {
-        //if we've already switched before, don't do it again
-        if(getUpdatedFiringMode() != null) {
-            return -1;
-        }
-        
-        // if we are able to switch the weapon to indirect fire mode, do so and try again
-        if(!getWeapon().curMode().equals(Weapon.MODE_MISSILE_INDIRECT)) {
-            return getWeapon().setMode(Weapon.MODE_MISSILE_INDIRECT);
-        } else {
-            return getWeapon().setMode("");
-        }
-    }
-
     WeaponAttackAction getWeaponAttackAction() {
         final String METHOD_NAME = "getWeaponAttackAction(IGame)";
         owner.methodBegin(getClass(), METHOD_NAME);
