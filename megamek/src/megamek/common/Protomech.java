@@ -274,6 +274,14 @@ public class Protomech extends Entity {
         return wmp;
     }
 
+    @Override
+    public String getRunMPasString() {
+        if (hasMyomerBooster()) {
+            return getRunMPwithoutMyomerBooster(true, false, false) + "(" + getRunMP() + ")";
+        }
+        return Integer.toString(getRunMP());
+    }
+
     /**
      * Counts the # of crits taken by proto in the location. Needed in several
      * places, due to proto set criticals.
@@ -478,11 +486,11 @@ public class Protomech extends Entity {
     /**
      * Returns the amount of heat that the entity can sink each turn. Pmechs
      * have no heat. //FIXME However, the number of heat sinks they have IS
-     * importnat... For cost and validation purposes.
+     * important... For cost and validation purposes.
      */
     @Override
     public int getHeatCapacity(boolean radicalHeatSinks) {
-        return 999;
+        return DOES_NOT_TRACK_HEAT;
     }
 
     @Override
@@ -945,6 +953,10 @@ public class Protomech extends Entity {
                 throw new LocationFullException("Weapon "
                         + mounted.getName() + " can't be mounted in "
                         + getLocationAbbr(loc));
+            }
+            // EDP armor reduces the number of torso slots by one.
+            if ((loc == LOC_TORSO) && (getArmorType(loc) == EquipmentType.T_ARMOR_EDP)) {
+                max--;
             }
             long current = getEquipment().stream().filter(m -> (m.getLocation() == loc)
                     && m.getType().isHittable()).count();
