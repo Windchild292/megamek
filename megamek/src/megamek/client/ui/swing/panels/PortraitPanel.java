@@ -24,6 +24,7 @@ import megamek.common.util.fileUtils.DirectoryItems;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class PortraitPanel extends JPanel {
     private String portraitCategory;
@@ -130,13 +131,27 @@ public class PortraitPanel extends JPanel {
             return null;
         }
     }
-    //endregion Getters/Setters
 
-    public void updatePanel() {
-        lblPortrait.setIcon(new ImageIcon((getScale() == 0) ? getImage() : getScaledImage()));
+    public void setImage(Image image) {
+        if (image == null) {
+            final int scale = (getScale() == 0) ? 75 : getScale();
+            BufferedImage noImage = new BufferedImage(scale, scale, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphics = noImage.createGraphics();
+            graphics.setComposite(AlphaComposite.Clear);
+            graphics.fillRect(0, 0, scale, scale);
+
+            image = noImage;
+        }
+
+        lblPortrait.setIcon(new ImageIcon(image));
     }
 
     public void setText(String text) {
         lblPortrait.setText(text);
+    }
+    //endregion Getters/Setters
+
+    public void updatePanel() {
+        setImage((getScale() == 0) ? getImage() : getScaledImage());
     }
 }
