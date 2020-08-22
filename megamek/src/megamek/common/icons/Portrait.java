@@ -28,6 +28,20 @@ public class Portrait extends AbstractIcon {
     private static final long serialVersionUID = -7562297705213174435L;
     public static final String DEFAULT_PORTRAIT_FILENAME = "default.gif";
 
+    //region Constructors
+    public Portrait() {
+        super();
+    }
+
+    public Portrait(String category, String fileName) {
+        super(category, fileName);
+    }
+
+    public Portrait(String category, String fileName, int width, int height) {
+        super(category, fileName, width, height);
+    }
+    //endregion Constructors
+
     @Override
     public Image getBaseImage(DirectoryItems imageDirectory) {
         String category = (Crew.ROOT_PORTRAIT.equals(getCategory())) ? "" : getCategory();
