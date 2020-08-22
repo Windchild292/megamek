@@ -12,7 +12,6 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-
 package megamek.client.ui.swing;
 
 import java.awt.Component;
@@ -23,6 +22,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
@@ -31,9 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -43,6 +41,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import megamek.client.ui.Messages;
+import megamek.client.ui.swing.panels.PortraitPanel;
 import megamek.client.ui.swing.util.ScaledImageFileFactory;
 import megamek.common.Configuration;
 import megamek.common.Crew;
@@ -58,49 +57,37 @@ import megamek.common.util.fileUtils.DirectoryItems;
  * @author Jay Lawson
  * @version 2
  */
-
 public class PortraitChoiceDialog extends JDialog {
-
     private static final long serialVersionUID = -4495461837182817406L;
     
     private JFrame frame;
     private JButton sourceButton;
-    private JButton btnCancel;
-    private JButton btnSelect;
     private JComboBox<String> comboCategories;
-    private JScrollPane scrPortraits;
     private JTable tablePortrait;
     private DirectoryItems portraits;
     private PortraitTableModel portraitModel;
     private String category;
     private String filename;
-    private PortraitTableMouseAdapter portraitMouseAdapter;
 
-
-   /** Creates new form CamoChoiceDialog */
+    /** Creates new form PortraitChoiceDialog */
    public PortraitChoiceDialog(JFrame parent, JButton button) {
-       
     // Initialize our superclass and record our parent frame.
-       super(parent, Messages
-               .getString("PortraitChoiceDialog.select_portrait"), true); //$NON-NLS-1$
+       super(parent, Messages.getString("PortraitChoiceDialog.select_portrait"), true);
        frame = parent;
        sourceButton = button;
      
-       // Parse the camo directory.
+       // Parse the portrait directory.
        try {
-           portraits = new DirectoryItems(
-                   Configuration.portraitImagesDir(),
-                   "", //$NON-NLS-1$
-                   ScaledImageFileFactory.getInstance()
-           );
+           portraits = new DirectoryItems(Configuration.portraitImagesDir(),
+                   "", ScaledImageFileFactory.getInstance());
        } catch (Exception e) {
            portraits = null;
        }
-       
-       portraitMouseAdapter = new PortraitTableMouseAdapter();
+
+       PortraitTableMouseAdapter portraitMouseAdapter = new PortraitTableMouseAdapter();
        portraitModel = new PortraitTableModel();
-       
-       scrPortraits = new JScrollPane();
+
+       JScrollPane scrPortraits = new JScrollPane();
        tablePortrait = new JTable();
        tablePortrait.setModel(portraitModel);
        tablePortrait.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -108,39 +95,27 @@ public class PortraitChoiceDialog extends JDialog {
        tablePortrait.getColumnModel().getColumn(0).setCellRenderer(portraitModel.getRenderer());
        tablePortrait.addMouseListener(portraitMouseAdapter);
        scrPortraits.setViewportView(tablePortrait);
-       comboCategories = new JComboBox<String>();
-       DefaultComboBoxModel<String> categoryModel = new DefaultComboBoxModel<String>();
+       comboCategories = new JComboBox<>();
+       DefaultComboBoxModel<String> categoryModel = new DefaultComboBoxModel<>();
        categoryModel.addElement(Crew.ROOT_PORTRAIT);
        if (portraits != null) {
            Iterator<String> names = portraits.getCategoryNames();
            while (names.hasNext()) {
                String name = names.next();
-               if (!"".equals(name)) { //$NON-NLS-1$
+               if (!"".equals(name)) {
                    categoryModel.addElement(name);
                }
            }
        }
        comboCategories.setModel(categoryModel);
-       comboCategories.setName("comboCategories"); // NOI18N
-       comboCategories.addItemListener(new java.awt.event.ItemListener() {
-           public void itemStateChanged(java.awt.event.ItemEvent evt) {
-               comboCategoriesItemStateChanged(evt);
-           }
-       });
-       btnSelect = new JButton();
+       comboCategories.setName("comboCategories");
+       comboCategories.addItemListener(this::comboCategoriesItemStateChanged);
+       JButton btnSelect = new JButton();
        btnSelect.setText(Messages.getString("PortraitChoiceDialog.Select"));
-       btnSelect.addActionListener(new java.awt.event.ActionListener() {
-           public void actionPerformed(java.awt.event.ActionEvent evt) {
-               select();
-           }
-       });
-       btnCancel = new JButton();
+       btnSelect.addActionListener(evt -> select());
+       JButton btnCancel = new JButton();
        btnCancel.setText(Messages.getString("PortraitChoiceDialog.Cancel"));
-       btnCancel.addActionListener(new java.awt.event.ActionListener() {
-           public void actionPerformed(java.awt.event.ActionEvent evt) {
-               cancel();
-           }
-       });
+       btnCancel.addActionListener(evt -> cancel());
        
        setLayout(new GridBagLayout());
        GridBagConstraints c;
@@ -184,7 +159,7 @@ public class PortraitChoiceDialog extends JDialog {
 
     private void select() {                                          
        category = portraitModel.getCategory();
-       if(tablePortrait.getSelectedRow() != -1) {
+       if (tablePortrait.getSelectedRow() != -1) {
            filename = (String) portraitModel.getValueAt(tablePortrait.getSelectedRow(), 0);
        } else {
            filename = Crew.PORTRAIT_NONE;
@@ -212,10 +187,10 @@ public class PortraitChoiceDialog extends JDialog {
        filename = pilot.getPortraitFileName(slot);
        sourceButton.setIcon(generateIcon(category, filename));
        comboCategories.getModel().setSelectedItem(category);
-           fillTable(category);
-           int rowIndex = 0;
-           for(int i = 0; i < portraitModel.getRowCount(); i++) {
-           if(((String) portraitModel.getValueAt(i, 0)).equals(filename)) {
+       fillTable(category);
+       int rowIndex = 0;
+       for (int i = 0; i < portraitModel.getRowCount(); i++) {
+           if (portraitModel.getValueAt(i, 0).equals(filename)) {
                rowIndex = i;
                break;
            }
@@ -230,7 +205,7 @@ public class PortraitChoiceDialog extends JDialog {
        Iterator<String> portraitNames;
        if (Crew.ROOT_PORTRAIT.equals(category)) {
            portraitModel.addPortrait(Crew.PORTRAIT_NONE);
-           portraitNames = portraits.getItemNames(""); //$NON-NLS-1$
+           portraitNames = portraits.getItemNames("");
        } else {
            portraitNames = portraits.getItemNames(category);
        }
@@ -238,20 +213,20 @@ public class PortraitChoiceDialog extends JDialog {
        // Get the camo names for this category.
        while (portraitNames.hasNext()) {
            String name = portraitNames.next();
-           if(!"default.gif".equals(name)) {
+           if (!"default.gif".equals(name)) {
                portraitModel.addPortrait(name);
            }
        }
-       if(portraitModel.getRowCount() > 0) {
+       if (portraitModel.getRowCount() > 0) {
            tablePortrait.setRowSelectionInterval(0, 0);
        }
    }
     
-    Icon generateIcon(String cat, String item) {
-        if((null == cat) || (null == item)) {
+    private Icon generateIcon(String cat, String item) {
+        if ((null == cat) || (null == item)) {
             return null;
         }
-        
+
         String actualItem = item;
         if (Crew.PORTRAIT_NONE.equals(actualItem)) {
             actualItem = "default.gif"; //$NON-NLS-1$
@@ -267,7 +242,7 @@ public class PortraitChoiceDialog extends JDialog {
         try {
             // We need to copy the image to make it appear.
             Image image = (Image) portraits.getItem(actualCat, actualItem);
-            if(null == image) {
+            if (null == image) {
                 //the image could not be found so switch to default one
                 category = Crew.ROOT_PORTRAIT;
                 actualCat = "";
@@ -291,158 +266,109 @@ public class PortraitChoiceDialog extends JDialog {
     }
 
     /**
-       * A table model for displaying camos
+    * A table model for displaying portraits
     */
-   public class PortraitTableModel extends AbstractTableModel {
+    public class PortraitTableModel extends AbstractTableModel {
+        private static final long serialVersionUID = -992524169822797473L;
+        private String[] columnNames;
+        private String category;
+        private List<String> names;
 
-       private static final long serialVersionUID = -992524169822797473L;
-       private String[] columnNames;
-       private String category;
-       private ArrayList<String> names;
-       private ArrayList<Image> images;
+        public PortraitTableModel() {
+            columnNames = new String[] {"Portraits"};
+            category = Crew.ROOT_PORTRAIT;
+            names = new ArrayList<>();
+        }
 
-       public PortraitTableModel() {
-           columnNames = new String[] {"Portraits"};
-           category = Crew.ROOT_PORTRAIT;
-           names = new ArrayList<String>();
-           images = new ArrayList<Image>();
-       }
+        @Override
+        public int getRowCount() {
+            return names.size();
+        }
 
-       public int getRowCount() {
-           return names.size();
-       }
+        @Override
+        public int getColumnCount() {
+            return 1;
+        }
 
-       public int getColumnCount() {
-           return 1;
-       }
+        public void reset() {
+            category = Crew.ROOT_PORTRAIT;
+            names = new ArrayList<>();
+        }
 
-       public void reset() {
-           category = Crew.ROOT_PORTRAIT;
-           names = new ArrayList<String>();
-           images = new ArrayList<Image>();
-       }
+        @Override
+        public String getColumnName(int column) {
+            return columnNames[column];
+        }
 
-       @Override
-       public String getColumnName(int column) {
-           return columnNames[column];
-       }
+        @Override
+        public Object getValueAt(int row, int col) {
+            return names.get(row);
+        }
 
-       public Object getValueAt(int row, int col) {
-           return names.get(row);
-       }
+        public void setCategory(String c) {
+            category = c;
+        }
 
-       public Object getImageAt(int row) {
-           return images.get(row);
-       }
+        public String getCategory() {
+            return category;
+        }
 
-       public void setCategory(String c) {
-           category = c;
-       }
+        public void addPortrait(String name) {
+            names.add(name);
+            fireTableDataChanged();
+        }
 
-       public String getCategory() {
-           return category;
-       }
+        @Override
+        public Class<?> getColumnClass(int c) {
+            return getValueAt(0, c).getClass();
+        }
 
-       public void addPortrait(String name) {
-           names.add(name);
-           fireTableDataChanged();
-       }
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            return false;
+        }
 
-       @Override
-       public Class<?> getColumnClass(int c) {
-           return getValueAt(0, c).getClass();
-       }
+        public PortraitTableModel.Renderer getRenderer() {
+            return new PortraitTableModel.Renderer(portraits);
+        }
 
-       @Override
-       public boolean isCellEditable(int row, int col) {
-           return false;
-       }
+        public class Renderer extends PortraitPanel implements TableCellRenderer {
+            private static final long serialVersionUID = 7916914665407121264L;
 
-       public PortraitTableModel.Renderer getRenderer() {
-           return new PortraitTableModel.Renderer();
-       }
+            public Renderer(DirectoryItems portraitDirectory) {
+                super(portraitDirectory);
+            }
 
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = this;
+                setOpaque(true);
+                setText(getValueAt(row, column).toString());
+                setPortraitCategory(category);
+                setPortraitFileName(getValueAt(row, column).toString());
+                updatePanel();
 
-       public class Renderer extends PortraitPanel implements TableCellRenderer {
-
-               private static final long serialVersionUID = 7916914665407121264L;
-
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                   Component c = this;
-                   setOpaque(true);
-                   String name = getValueAt(row, column).toString();
-                   setText(getValueAt(row, column).toString());
-                   setImage(category, name);
-                   if(isSelected) {
-                       setBackground(UIManager.getColor("Table.selectionBackground"));
-                       setForeground(UIManager.getColor("Table.selectionForeground"));
-                   } else {
+                if (isSelected) {
+                    setBackground(UIManager.getColor("Table.selectionBackground"));
+                    setForeground(UIManager.getColor("Table.selectionForeground"));
+                } else {
                     setBackground(UIManager.getColor("Table.background"));
                     setForeground(UIManager.getColor("Table.foreground"));
-                   }
-    
-                   return c;
-            }      
-       }
-   }
-   
-   public class PortraitPanel extends JPanel {
+                }
 
-       private static final long serialVersionUID = -6497926619314613457L;
-       private JLabel lblImage;
-        
-        public PortraitPanel() {
-            GridBagConstraints c = new GridBagConstraints();
-
-            lblImage = new JLabel();
-
-            setLayout(new GridBagLayout());
-            
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.BOTH;
-            c.weightx = 1.0;
-            c.weighty = 1.0;
-            add(lblImage, c);
-        }
-
-        public void setText(String text) {
-            lblImage.setText(text);
-        }
-        
-        public void setImage(String category, String name) {
-
-            if (null == category || null == name) {
-                return;
-            }
-            
-            if(name.equals(Crew.PORTRAIT_NONE)) {
-                name = "default.gif";
-            }
-
-            // Try to get the portrait file.
-            try {
-
-                // Translate the root portrait directory name.
-                if (Crew.ROOT_PORTRAIT.equals(category))
-                    category = ""; //$NON-NLS-1$
-                Image portrait = (Image) portraits.getItem(category, name);
-                lblImage.setIcon(new ImageIcon(portrait));
-            } catch (Exception err) {
-                err.printStackTrace();
+                return c;
             }
         }
     }
 
-   public class PortraitTableMouseAdapter extends MouseInputAdapter {
-
-       public void mouseClicked(MouseEvent e) {
-
-           if (e.getClickCount() == 2) {
-               select();
-           }
-       }
-   }
-
+    public class PortraitTableMouseAdapter extends MouseInputAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                select();
+            }
+        }
+    }
 }
