@@ -24,6 +24,8 @@ public class Camouflage extends AbstractIcon {
     private static final long serialVersionUID = 1093277025745250375L;
 
     public static final String NO_CAMOUFLAGE = "-- No Camo --";
+    public static final String USE_OWNER_CAMOUFLAGE = "useOwnerCamo";
+    public static final String COLOUR_CAMOUFLAGE = "-- Colour Camo --";
 
     //region Constructors
     public Camouflage() {
@@ -46,5 +48,10 @@ public class Camouflage extends AbstractIcon {
     @Override
     public Image getBaseImage() {
         return null;
+    }
+
+    @Override
+    public AbstractIcon parseFromXML() {
+
     }
 }

@@ -26,6 +26,8 @@ import org.w3c.dom.NodeList;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.io.PrintWriter;
 import java.io.Serializable;
 
@@ -168,6 +170,11 @@ public abstract class AbstractIcon implements Serializable {
         MegaMekXmlUtil.writeSimpleXMLCloseIndentedLine(pw1, indent, nodeTitle);
     }
 
+
+    public static AbstractIcon parseFromXML(Node wn) {
+        parseFromXML(new DefaultIcon(), wn);
+    }
+
     /**
      * This is used to parse an AbstractIcon from a saved XML node
      * @param retVal the AbstractIcon to parse into
@@ -216,5 +223,14 @@ public abstract class AbstractIcon implements Serializable {
     @Override
     public int hashCode() {
         return (getCategory() + getFileName()).hashCode();
+    }
+}
+
+class DefaultIcon extends AbstractIcon {
+    private static final long serialVersionUID = 2484738428995231494L;
+
+    @Override
+    public Image getBaseImage() {
+        return ;
     }
 }
