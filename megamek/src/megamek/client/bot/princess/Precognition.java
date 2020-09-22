@@ -751,12 +751,8 @@ public class Precognition implements Runnable {
             getGame().setPlayer(pindex, newPlayer);
         }
 
-        PreferenceManager.getClientPreferences().setLastPlayerColor(
-                newPlayer.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCategory(
-                newPlayer.getCamoCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(
-                newPlayer.getCamoFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCategory(newPlayer.getCamouflage().getCategory());
+        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamouflage().getFileName());
     }
 
     /**

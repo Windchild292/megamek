@@ -18,7 +18,7 @@ import java.util.Iterator;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import megamek.client.ui.swing.tileset.CamoManager;
+import megamek.client.ui.swing.tileset.MegaMekIconDirectoryManager;
 import megamek.common.icons.AbstractIcon;
 
 public class CamoChooserTree extends AbstractIconChooserTree {
@@ -29,11 +29,11 @@ public class CamoChooserTree extends AbstractIconChooserTree {
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(AbstractIcon.ROOT_CATEGORY);
         root.add(new DefaultMutableTreeNode(AbstractIcon.DEFAULT_ICON_FILENAME));
-        if (CamoManager.getCamos() != null) {
-            if (CamoManager.getCamos().getItemNames("").hasNext()) { 
+        if (MegaMekIconDirectoryManager.getCamouflage() != null) {
+            if (MegaMekIconDirectoryManager.getCamouflage().getItemNames("").hasNext()) {
                 root.add(new DefaultMutableTreeNode(AbstractIcon.ROOT_CATEGORY));
             }
-            Iterator<String> catNames = CamoManager.getCamos().getCategoryNames();
+            Iterator<String> catNames = MegaMekIconDirectoryManager.getCamouflage().getCategoryNames();
             while (catNames.hasNext()) {
                 String catName = catNames.next();
                 if ((catName != null) && !catName.equals("")) {

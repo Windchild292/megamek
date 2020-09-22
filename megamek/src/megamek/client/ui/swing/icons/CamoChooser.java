@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import megamek.client.ui.Messages;
-import megamek.client.ui.swing.tileset.StaticDirectoryManager;
+import megamek.client.ui.swing.tileset.MegaMekIconDirectoryManager;
 import megamek.common.Configuration;
 import megamek.common.Entity;
 import megamek.common.IPlayer;
@@ -81,7 +81,7 @@ public class CamoChooser extends AbstractIconChooser {
     
     /** Reloads the camo directory from disk. */
     private void refreshCamos() {
-        StaticDirectoryManager.refreshCamouflageDirectory();
+        MegaMekIconDirectoryManager.refreshCamouflageDirectory();
         refreshDirectory(new CamoChooserTree());
     }
     
@@ -109,7 +109,7 @@ public class CamoChooser extends AbstractIconChooser {
         // presented. When the includeSubDirs flag is true, all categories
         // below the selected one are also presented.
         if (includeSubDirs) {
-            for (Iterator<String> catNames = StaticDirectoryManager.getCamouflage().getCategoryNames();
+            for (Iterator<String> catNames = MegaMekIconDirectoryManager.getCamouflage().getCategoryNames();
                  catNames.hasNext(); ) {
                 String tcat = catNames.next(); 
                 if (tcat.startsWith(category)) {
@@ -131,14 +131,14 @@ public class CamoChooser extends AbstractIconChooser {
         List<AbstractIcon> result = new ArrayList<>();
         String lowerSearched = searched.toLowerCase();
         
-        for (Iterator<String> catNames = StaticDirectoryManager.getCamouflage().getCategoryNames();
+        for (Iterator<String> catNames = MegaMekIconDirectoryManager.getCamouflage().getCategoryNames();
              catNames.hasNext(); ) {
             String tcat = catNames.next(); 
             if (tcat.toLowerCase().contains(lowerSearched)) {
                 addCategoryItems(tcat, result);
                 continue;
             }
-            for (Iterator<String> itemNames = StaticDirectoryManager.getCamouflage().getItemNames(tcat);
+            for (Iterator<String> itemNames = MegaMekIconDirectoryManager.getCamouflage().getItemNames(tcat);
                  itemNames.hasNext(); ) {
                 String item = itemNames.next();
                 if (item.toLowerCase().contains(lowerSearched)) {
@@ -155,7 +155,7 @@ public class CamoChooser extends AbstractIconChooser {
      * Assumes that the root of the path (IPlayer.ROOT_CAMO) is passed as ""! 
      * */
     private void addCategoryItems(String category, List<AbstractIcon> items) {
-        for (Iterator<String> camoNames = StaticDirectoryManager.getCamouflage().getItemNames(category);
+        for (Iterator<String> camoNames = MegaMekIconDirectoryManager.getCamouflage().getItemNames(category);
              camoNames.hasNext(); ) {
             items.add(new Camouflage(category, camoNames.next()));
         }

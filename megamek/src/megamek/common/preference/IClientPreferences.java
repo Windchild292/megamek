@@ -134,8 +134,6 @@ public interface IClientPreferences extends IPreferenceStore {
 
     void setLastPlayerCategory(String camoCategory);
 
-    void setLastPlayerColor(int colorIndex);
-
     void setLastPlayerName(String name);
 
     void setLastServerPass(String serverPass);

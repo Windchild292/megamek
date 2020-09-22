@@ -20,7 +20,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 
 /**
  * This class defines a single server report. It holds information such as the
@@ -318,7 +318,7 @@ public class Report implements Serializable {
             }
             add("<font color='0xffffff'><a href=\"#entity:" + entity.getId()
                     + "\">" + entity.getShortName() + "</a></font>", true);
-            String colorcode = Integer.toHexString(PlayerColors.getColor(
+            String colorcode = Integer.toHexString(PlayerColor.getColor(
                     entity.getOwner().getColorIndex()).getRGB() & 0x00f0f0f0);
             add("<B><font color='" + colorcode + "'>"
                     + entity.getOwner().getName() + "</font></B>");

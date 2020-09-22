@@ -35,7 +35,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import megamek.client.generator.RandomGenderGenerator;
-import megamek.client.ui.swing.tileset.CamoManager;
 import megamek.common.AmmoType;
 import megamek.common.BattleArmor;
 import megamek.common.Board;
@@ -627,31 +626,31 @@ public class ScenarioLoader {
     private void parseAutoEject(Entity entity, String eject) {
         if (entity instanceof Mech) {
             Mech mech = (Mech) entity;
-            mech.setAutoEject(Boolean.valueOf(eject).booleanValue());
+            mech.setAutoEject(Boolean.parseBoolean(eject));
         }
     }
 
     private void parseCommander(Entity entity, String commander) {
-        entity.setCommander(Boolean.valueOf(commander).booleanValue());
+        entity.setCommander(Boolean.parseBoolean(commander));
     }
 
     private String getValidCamoGroup(String camoGroup) {
         // Translate base categories for userfriendliness.
-        if(camoGroup.equals("No Camo") || camoGroup.equals("None")) { //$NON-NLS-1$ //$NON-NLS-2$
+        if (camoGroup.equals("No Camo") || camoGroup.equals("None")) {
             camoGroup = IPlayer.NO_CAMO;
-        } else if (camoGroup.equals("General")) { //$NON-NLS-1$
+        } else if (camoGroup.equals("General")) {
             camoGroup = IPlayer.ROOT_CAMO;
         } else {
             // If CamoGroup does not have a trailing slash, add one, since all
             // subdirectories require it
             if (camoGroup.charAt(camoGroup.length() - 1) != '/') {
-                camoGroup += "/"; //$NON-NLS-1$
+                camoGroup += "/";
             }
         }
         
         boolean validGroup = false;
 
-        if(camoGroup.equals(IPlayer.NO_CAMO) || camoGroup.equals(IPlayer.ROOT_CAMO)) {
+        if (camoGroup.equals(IPlayer.NO_CAMO) || camoGroup.equals(IPlayer.ROOT_CAMO)) {
             validGroup = true;
         } else {
             Iterator<String> catNames = CamoManager.getCamos().getCategoryNames();
@@ -670,16 +669,17 @@ public class ScenarioLoader {
         boolean validName = false;
 
         // Validate CamoName
-        if(camoGroup.equals(IPlayer.NO_CAMO)) {
-            for(String color : IPlayer.colorNames) {
-                if(camoName.equals(color)) {
+        if (camoGroup.equals(IPlayer.NO_CAMO)) {
+            for (String color : IPlayer.colorNames) {
+                if (camoName.equals(color)) {
                     validName = true;
+                    break;
                 }
             }
         } else {
             Iterator<String> camoNames;
-            if(camoGroup.equals(IPlayer.ROOT_CAMO)) {
-                camoNames = CamoManager.getCamos().getItemNames(""); //$NON-NLS-1$
+            if (camoGroup.equals(IPlayer.ROOT_CAMO)) {
+                camoNames = CamoManager.getCamos().getItemNames("");
             } else {
                 camoNames = CamoManager.getCamos().getItemNames(camoGroup);
             }
@@ -700,12 +700,12 @@ public class ScenarioLoader {
     private void parseCamo(Entity entity, String camoString) throws ScenarioLoaderException {
         String[] camoData = camoString.split(SEPARATOR_COMMA, -1);
         String camoGroup = getValidCamoGroup(camoData[0]);
-        if(null == camoGroup) {
+        if (null == camoGroup) {
             throw new ScenarioLoaderException("invalidIndividualCamoGroup", //$NON-NLS-1$
                 camoData[0], entity.getDisplayName());
         }
         String camoName = getValidCamoName(camoGroup, camoData[1]);
-        if(null == camoName) {
+        if (null == camoName) {
             throw new ScenarioLoaderException("invalidIndividualCamoName", //$NON-NLS-1$
                 camoData[1], camoGroup, entity.getDisplayName());
         }

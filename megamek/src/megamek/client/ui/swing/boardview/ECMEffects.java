@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.ECMInfo;
 import megamek.common.IPlayer;
 
@@ -165,7 +165,7 @@ public class ECMEffects {
 
         Color tint;
         if (player != null) {
-            tint = new Color(PlayerColors.getColorRGB(player.getColorIndex()));
+            tint = new Color(PlayerColor.getColorRGB(player.getColorIndex()));
         } else {
             tint = Color.gray;
         }

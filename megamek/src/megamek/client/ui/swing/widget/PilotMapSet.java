@@ -1,18 +1,17 @@
-/**
+/*
  * MegaMek - Copyright (C) 2003,2004 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing.widget;
 
 import java.awt.Color;
@@ -27,7 +26,6 @@ import javax.swing.JComponent;
 
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.client.ui.swing.tileset.PortraitManager;
 import megamek.common.Configuration;
 import megamek.common.Entity;
 import megamek.common.Infantry;
@@ -39,10 +37,8 @@ import megamek.common.util.fileUtils.MegaMekFile;
 /**
  * Set of elements to represent pilot information in MechDisplay
  */
-
 public class PilotMapSet implements DisplayMapSet {
-
-    private static String STAR3 = "***"; //$NON-NLS-1$
+    private static String STAR3 = "***";
     private static int N_ADV = 35;
     private JComponent comp;
     private PMAreasGroup content = new PMAreasGroup();
@@ -50,7 +46,7 @@ public class PilotMapSet implements DisplayMapSet {
     private PMSimpleLabel nameL, nickL, pilotL, gunneryL, gunneryLL, gunneryML, gunneryBL, toughBL, initBL, commandBL;
     private PMSimpleLabel pilotR, gunneryR, gunneryLR, gunneryMR, gunneryBR, toughBR, initBR, commandBR, hitsR;
     private PMSimpleLabel[] advantagesR;
-    private Vector<BackGroundDrawer> bgDrawers = new Vector<BackGroundDrawer>();
+    private Vector<BackGroundDrawer> bgDrawers = new Vector<>();
     private static final Font FONT_VALUE = new Font("SansSerif", Font.PLAIN, //$NON-NLS-1$
             GUIPreferences.getInstance().getInt("AdvancedMechDisplayLargeFontSize"));
     private static final Font FONT_TITLE = new Font("SansSerif", Font.ITALIC, //$NON-NLS-1$
@@ -184,7 +180,7 @@ public class PilotMapSet implements DisplayMapSet {
             pilotL.setVisible(true);
             pilotR.setVisible(true);
 
-            portraitArea.setIdleImage(PortraitManager.getPortraitImage(en.getCrew(), slot));
+            portraitArea.setIdleImage(en.getCrew().getPortrait(slot).getImage());
 
             if ((en.getGame() != null) && en.getGame().getOptions().booleanOption(OptionsConstants.RPG_RPG_GUNNERY)) {
                 gunneryLR.setString(Integer.toString(en.getCrew().getGunneryL(slot)));
@@ -265,10 +261,12 @@ public class PilotMapSet implements DisplayMapSet {
         }
     }
 
+    @Override
     public PMAreasGroup getContentGroup() {
         return content;
     }
 
+    @Override
     public Vector<BackGroundDrawer> getBackgroundDrawers() {
         return bgDrawers;
     }

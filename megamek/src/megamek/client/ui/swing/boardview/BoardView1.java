@@ -98,7 +98,7 @@ import megamek.client.ui.swing.util.CommandAction;
 import megamek.client.ui.swing.util.ImageCache;
 import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.util.MegaMekController;
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.client.ui.swing.widget.MegamekBorder;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.client.ui.swing.widget.SkinXMLHandler;
@@ -2040,7 +2040,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                 while (allP.hasMoreElements()) {
                     cp = allP.nextElement();
                     if (board.isLegalDeployment(c, cp.getStartingPos())) {
-                        Color bC = new Color(PlayerColors.getColorRGB(cp.getColorIndex()));
+                        Color bC = new Color(PlayerColor.getColorRGB(cp.getColorIndex()));
                         drawHexBorder(g, getHexLocation(c), bC, (bThickness+2)
                                 * pCount, bThickness);
                         pCount++;
@@ -5948,7 +5948,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                         txt.append(Messages.getString("BoardView1.Tooltip.ArtyAutoHeader")); //$NON-NLS-1$
                     }
                     txt.append("<B><FONT COLOR=#"); //$NON-NLS-1$
-                    txt.append(Integer.toHexString(PlayerColors.getColorRGB(cp.getColorIndex())));
+                    txt.append(Integer.toHexString(PlayerColor.getColorRGB(cp.getColorIndex())));
                     txt.append(">&nbsp;&nbsp;"); //$NON-NLS-1$
                     txt.append(cp.getName());
                     txt.append("</FONT></B><BR>"); //$NON-NLS-1$

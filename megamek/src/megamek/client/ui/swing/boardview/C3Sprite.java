@@ -7,7 +7,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
 
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.Entity;
 
 /**
@@ -34,7 +34,7 @@ class C3Sprite extends Sprite {
         entityM = m;
         entityId = e.getId();
         masterId = m.getId();
-        spriteColor = PlayerColors.getColor(e.getOwner().getColorIndex());
+        spriteColor = PlayerColor.getColor(e.getOwner().getColorIndex());
 
         if ((e.getPosition() == null) || (m.getPosition() == null)) {
             c3Poly = new Polygon();

@@ -8,7 +8,7 @@ import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
 
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.client.ui.swing.util.StraightArrowPolygon;
 import megamek.common.Compute;
 import megamek.common.Coords;
@@ -67,7 +67,7 @@ class MovementSprite extends Sprite {
 
         // color?
         // player colors
-        moveColor = PlayerColors.getColor(en.getOwner().getColorIndex());
+        moveColor = PlayerColor.getColor(en.getOwner().getColorIndex());
         // TODO: Its not going transparent. Oh well, it is a minor issue at
         // the moment
         /*
@@ -91,7 +91,7 @@ class MovementSprite extends Sprite {
             moveColor = new Color(colour | (transparency << 24), true);
         }
 
-        // moveColor = PlayerColors.getColor(en.getOwner().getColorIndex());
+        // moveColor = PlayerColor.getColor(en.getOwner().getColorIndex());
         // angle of line connecting two hexes
         an = (start.radian(end) + (Math.PI * 1.5)) % (Math.PI * 2); // angle
         makePoly();

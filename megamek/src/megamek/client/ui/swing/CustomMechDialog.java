@@ -108,10 +108,6 @@ import megamek.common.weapons.bayweapons.CapitalMissileBayWeapon;
  */
 public class CustomMechDialog extends ClientDialog implements ActionListener,
         DialogOptionListener, ItemListener {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = -6809436986445582731L;
 
     public static int DONE = 0;
@@ -1232,8 +1228,7 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
                 entity.getCrew().setName(name, i);
                 entity.getCrew().setNickname(nick, i);
                 entity.getCrew().setGender(gender, i);
-                entity.getCrew().setPortraitCategory(panCrewMember[i].getPortraitCategory(), i);
-                entity.getCrew().setPortraitFileName(panCrewMember[i].getPortraitFilename(), i);
+                entity.getCrew().setPortrait(panCrewMember[i].getPortrait(), i);
                 if (backup >= 0) {
                     if (i == entity.getCrew().getCrewType().getPilotPos()) {
                         entity.getCrew().setBackupPilotPos(backup);

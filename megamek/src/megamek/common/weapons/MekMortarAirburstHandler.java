@@ -15,7 +15,7 @@ package megamek.common.weapons;
 
 import java.util.Vector;
 
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.AmmoType;
 import megamek.common.BattleArmor;
 import megamek.common.Building;
@@ -192,7 +192,7 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
             // Units in a building apply damage to building
             if (Compute.isInBuilding(game, target, targetPos)) {
                 IPlayer tOwner = target.getOwner();
-                String colorcode = Integer.toHexString(PlayerColors.getColor(
+                String colorcode = Integer.toHexString(PlayerColor.getColor(
                         tOwner.getColorIndex()).getRGB() & 0x00f0f0f0);
                 newReports = server.damageBuilding(bldg, numRounds, " shields "
                         + target.getShortName() + " (<B><font color='"

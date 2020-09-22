@@ -1,18 +1,19 @@
 /*
  * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common;
 
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.icons.AbstractIcon;
 
 import java.util.Vector;
@@ -28,11 +29,6 @@ public interface IPlayer extends ITurnOrdered {
     int PLAYER_NONE = -1;
     int TEAM_NONE = 0;
     int TEAM_UNASSIGNED = -1;
-    String[] colorNames = { "Blue", "Red", "Green", "Cyan",
-            "Pink", "Orange", "Gray", "Brown", "Purple", "Turquoise ",
-            "Maroon", "Spring Green", "Gold", "Sienna", "Violet", "Navy",
-            "Olive Drab", "Fuchsia", "FireBrick", "Dark Golden Rod", "Coral",
-            "Chartreuse", "Deep Purple", "Yellow" };
     String[] teamNames = {"No Team", "Team 1", "Team 2", "Team 3", "Team 4", "Team 5"};
     int MAX_TEAMS = teamNames.length;
 
@@ -76,6 +72,10 @@ public interface IPlayer extends ITurnOrdered {
 
     void setCamouflage(AbstractIcon icon);
 
+    PlayerColor getColour();
+
+    void setColour(PlayerColor colour);
+
     void setGame(IGame game);
 
     String getName();
@@ -107,10 +107,6 @@ public interface IPlayer extends ITurnOrdered {
     boolean canSeeAll();
 
     void setObserver(boolean observer);
-
-    int getColorIndex();
-
-    void setColorIndex(int index);
 
     int getStartingPos();
 
