@@ -18,6 +18,8 @@
  */
 package megamek.common.icons;
 
+import org.w3c.dom.Node;
+
 import java.awt.*;
 
 public class Camouflage extends AbstractIcon {
@@ -50,8 +52,7 @@ public class Camouflage extends AbstractIcon {
         return null;
     }
 
-    @Override
-    public AbstractIcon parseFromXML() {
-
+    public static AbstractIcon parseFromXML(Node wn) {
+        return parseFromXML(new Camouflage(), wn);
     }
 }

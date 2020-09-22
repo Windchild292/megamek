@@ -21,6 +21,7 @@ package megamek.common.icons;
 import megamek.MegaMek;
 import megamek.client.ui.swing.tileset.StaticDirectoryManager;
 import megamek.common.Crew;
+import org.w3c.dom.Node;
 
 import java.awt.*;
 
@@ -64,5 +65,9 @@ public class Portrait extends AbstractIcon {
         }
 
         return portrait;
+    }
+
+    public static AbstractIcon parseFromXML(Node wn) {
+        return parseFromXML(new Portrait(), wn);
     }
 }
