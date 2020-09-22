@@ -81,13 +81,20 @@ public enum PlayerColor {
         }
     }
 
-    public static void ensureUniqueColours(Enumeration<IPlayer> players) {
+    public static void ensureUniqueColours(Enumeration<IPlayer> players, IPlayer player) {
+        if (player == null) {
+            return;
+        }
 
+        final int playerId = player.getId();
 
-        List<PlayerColor> selectedColours = getSelectedColours(players);
+        List<PlayerColor> selectedColours = getSelectedColours(players, playerId);
         if () {
 
         }
+
+        PlayerColor colour = getNextUnusedColour(players, playerId);
+        player.setColour();
 
         boolean[] colorUsed = new boolean[IPlayer.colorNames.length];
         for (Enumeration<IPlayer> i = game.getPlayers(); i.hasMoreElements(); ) {
@@ -96,7 +103,7 @@ public enum PlayerColor {
                 colorUsed[otherPlayer.getColorIndex()] = true;
             }
         }
-        if ((null != player) && colorUsed[player.getColorIndex()]) {
+        if (colorUsed[player.getColorIndex()]) {
             // find a replacement color;
             for (int i = 0; i < colorUsed.length; i++) {
                 if (!colorUsed[i]) {

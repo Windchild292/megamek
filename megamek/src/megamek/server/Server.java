@@ -1054,7 +1054,7 @@ public class Server implements Runnable {
         // TODO : check for duplicate or reserved names
 
         // Attempt to ensure colours are unique, but do not force this
-        PlayerColor.ensureUniqueColours(game.getPlayers());
+        PlayerColor.ensureUniqueColours(game.getPlayers(), player);
     }
 
     /**
