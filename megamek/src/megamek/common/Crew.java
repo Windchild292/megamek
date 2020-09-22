@@ -25,6 +25,8 @@ import java.util.Vector;
 
 import megamek.client.generator.RandomGenderGenerator;
 import megamek.common.enums.Gender;
+import megamek.common.icons.AbstractIcon;
+import megamek.common.icons.Portrait;
 import megamek.common.options.IOption;
 import megamek.common.options.IOptionGroup;
 import megamek.common.options.OptionsConstants;
@@ -121,8 +123,7 @@ public class Crew implements Serializable {
     // pathway to pilot portrait
     public static final String ROOT_PORTRAIT = "-- General --";
     public static final String PORTRAIT_NONE = "None";
-    private final String[] portraitCategory;
-    private final String[] portraitFileName;
+    private final AbstractIcon[] portraits;
 
     //SPA RangeMaster range bands
     public static final String RANGEMASTER_NONE = "None";
@@ -317,10 +318,8 @@ public class Crew implements Serializable {
         koThisRound = new boolean[slots];
         fatigue = 0;
         toughness = new int[slots];
-        portraitCategory = new String[slots];
-        Arrays.fill(portraitCategory, ROOT_PORTRAIT);
-        portraitFileName = new String[slots];
-        Arrays.fill(portraitFileName, PORTRAIT_NONE);
+        portraits = new Portrait[slots];
+        Arrays.fill(portraits, new Portrait());
 
         options.initialize();
 
@@ -1180,24 +1179,12 @@ public class Crew implements Serializable {
         return Integer.parseInt(externalId[pos]);
     }
 
-    public void setPortraitCategory(String name, int pos) {
-        portraitCategory[pos] = name;
+    public AbstractIcon getPortrait(int index) {
+        return (portraits.length > index) ? portraits[index] : new Portrait();
     }
 
-    public String getPortraitCategory(int pos) {
-        return portraitCategory[pos];
-    }
-
-    public void setPortraitFileName(String name, int pos) {
-        portraitFileName[pos] = name;
-    }
-
-    public String getPortraitFileName(int pos) {
-        if (portraitFileName.length > pos) {
-            return portraitFileName[pos];
-        } else {
-            return PORTRAIT_NONE;
-        }
+    public void setPortrait(AbstractIcon portrait, int index) {
+        portraits[index] = portrait;
     }
 
     public int getToughness(int pos) {

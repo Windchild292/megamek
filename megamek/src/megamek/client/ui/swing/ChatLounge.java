@@ -67,9 +67,7 @@ import megamek.client.bot.ui.swing.BotGUI;
 import megamek.client.generators.RandomCallsignGenerator;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.boardview.BoardView1;
-import megamek.client.ui.swing.dialog.imageChooser.CamoChooser;
-import megamek.client.ui.swing.tileset.CamoManager;
-import megamek.client.ui.swing.tileset.PortraitManager;
+import megamek.client.ui.swing.icons.CamoChooser;
 import megamek.client.ui.swing.util.MenuScroller;
 import megamek.client.ui.swing.util.PlayerColors;
 import megamek.client.ui.swing.widget.SkinSpecification;
@@ -81,6 +79,8 @@ import megamek.common.event.GameEntityRemoveEvent;
 import megamek.common.event.GamePhaseChangeEvent;
 import megamek.common.event.GamePlayerChangeEvent;
 import megamek.common.event.GameSettingsChangeEvent;
+import megamek.common.icons.AbstractIcon;
+import megamek.common.icons.Camouflage;
 import megamek.common.options.GameOptions;
 import megamek.common.options.IOption;
 import megamek.common.options.IOptionGroup;
@@ -88,7 +88,6 @@ import megamek.common.options.OptionsConstants;
 import megamek.common.options.PilotOptions;
 import megamek.common.options.Quirks;
 import megamek.common.util.BoardUtilities;
-import megamek.common.util.fileUtils.DirectoryItem;
 import megamek.common.util.fileUtils.MegaMekFile;
 
 public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, ItemListener,
@@ -401,12 +400,12 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                         + player.getNbrMFVibra();
                 if (realColIndex == PlayerTableModel.COL_PLAYER) {
                     return Messages.getString("ChatLounge.tipPlayer",
-                            new Object[] { getValueAt(rowIndex, colIndex), player.getConstantInitBonus(), mines });
+                            getValueAt(rowIndex, colIndex), player.getConstantInitBonus(), mines);
                 } else if (realColIndex == PlayerTableModel.COL_TON) {
-                    return ((Double) getValueAt(rowIndex, colIndex)).toString();
+                    return getValueAt(rowIndex, colIndex).toString();
                 } else if (realColIndex == PlayerTableModel.COL_COST) {
                     return Messages.getString("ChatLounge.tipCost",
-                            new Object[] { (Integer) getValueAt(rowIndex, colIndex) });
+                            (Integer) getValueAt(rowIndex, colIndex));
                 } else if (realColIndex == PlayerTableModel.COL_START) {
                     return (String) getValueAt(rowIndex, colIndex);
                 } else {
@@ -458,33 +457,29 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         butCamo = new JButton();
         butCamo.setPreferredSize(new Dimension(84, 72));
         butCamo.setActionCommand("camo");
-        butCamo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Show the CamoChooser for the selected player
-                IPlayer player = getPlayerSelected().getLocalPlayer();
-                int result = camoDialog.showDialog(player);
-                
-                // If the dialog was canceled or nothing selected, do nothing
-                if ((result == JOptionPane.CANCEL_OPTION) || (camoDialog.getSelectedItem() == null)) {
-                    return; 
-                }
-                
-                // Update the player from the camo selection
-                DirectoryItem selectedItem = camoDialog.getSelectedItem();
-                if (selectedItem.getCategory().equals(IPlayer.NO_CAMO)) {
-                    player.setColorIndex(camoDialog.getSelectedIndex());
-                }
-                player.setCamoCategory(selectedItem.getCategory());
-                player.setCamoFileName(selectedItem.getItem());
-                butCamo.setIcon(CamoManager.getPlayerCamoIcon(player));
-                getPlayerSelected().sendPlayerInfo();
+        butCamo.addActionListener(e -> {
+            // Show the CamoChooser for the selected player
+            IPlayer player = getPlayerSelected().getLocalPlayer();
+            int result = camoDialog.showDialog(player);
+
+            // If the dialog was canceled or nothing selected, do nothing
+            if ((result == JOptionPane.CANCEL_OPTION) || (camoDialog.getSelectedItem() == null)) {
+                return;
             }
+
+            // Update the player from the camo selection
+            AbstractIcon selectedItem = camoDialog.getSelectedItem();
+            if (selectedItem.getCategory().equals(Camouflage.NO_CAMOUFLAGE)) {
+                player.setColorIndex(camoDialog.getSelectedIndex());
+            }
+            player.setCamouflage(selectedItem);
+            butCamo.setIcon(player.getCamouflage().getImageIcon());
+            getPlayerSelected().sendPlayerInfo();
         });
         camoDialog = new CamoChooser(clientgui.getFrame());
         refreshCamos();
 
-        butChangeStart = new JButton(Messages.getString("ChatLounge.butChangeStart")); //$NON-NLS-1$
+        butChangeStart = new JButton(Messages.getString("ChatLounge.butChangeStart"));
         butChangeStart.addActionListener(this);
 
         // layout
@@ -732,7 +727,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         butMapSize = new JButton(Messages.getString("ChatLounge.MapSize")); //$NON-NLS-1$
         butMapSize.addActionListener(this);
 
-        comboMapSizes = new JComboBox<Comparable>();
+        comboMapSizes = new JComboBox<>();
         setupMapSizes();
 
         buttonBoardPreview = new JButton(Messages.getString("BoardSelectionDialog.ViewGameBoard")); //$NON-NLS-1$
@@ -746,9 +741,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         labBoardsAvailable = new JLabel(Messages.getString("BoardSelectionDialog.mapsAvailable"), //$NON-NLS-1$
                 SwingConstants.CENTER);
 
-        lisBoardsSelected = new JList<String>(new DefaultListModel<String>());
+        lisBoardsSelected = new JList<>(new DefaultListModel<>());
         lisBoardsSelected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lisBoardsAvailable = new JList<String>(new DefaultListModel<String>());
+        lisBoardsAvailable = new JList<>(new DefaultListModel<>());
         refreshBoardsSelected();
         refreshBoardsAvailable();
         lisBoardsAvailable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -1897,12 +1892,12 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
             String hidden = ((entity.isHidden()) ? Messages.getString("ChatLounge.hidden") : ""); //$NON-NLS-1$
             String offBoard = ((entity.isOffBoard()) ? Messages.getString("ChatLounge.deploysOffBoard") : ""); //$NON-NLS-1$
             String deployRound = ((entity.getDeployRound() > 0) ? Messages.getString("ChatLounge.deploysAfterRound") //$NON-NLS-1$
-                    + entity.getDeployRound() : ""); //$NON-NLS-1$
-            value = Messages.getString("ChatLounge.EntityListEntry1", //$NON-NLS-1$
-                    new Object[] { entity.getOwner().getName(), gunnery, piloting, advantages, maneiDomini, unitClass,
-                            posQuirks, negQuirks, offBoard, deployRound, hidden });
+                    + entity.getDeployRound() : "");
+            value = Messages.getString("ChatLounge.EntityListEntry1",
+                    entity.getOwner().getName(), gunnery, piloting, advantages, maneiDomini, unitClass,
+                    posQuirks, negQuirks, offBoard, deployRound, hidden);
         } else {
-            Integer piloting = entity.getCrew().getPiloting();
+            int piloting = entity.getCrew().getPiloting();
             String advantages = (crewAdvCount > 0 ? " <" + crewAdvCount //$NON-NLS-1$
                     + Messages.getString("ChatLounge.advs") : ""); //$NON-NLS-1$ //$NON-NLS-2$
             String maneiDomini = (isManeiDomini ? Messages.getString("ChatLounge.md") : ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1910,7 +1905,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                     + Messages.getString("ChatLounge.pquirk") : ""); //$NON-NLS-1$ //$NON-NLS-2$
             String negQuirks = (negQuirkCount > 0 ? " <" + negQuirkCount //$NON-NLS-1$
                     + Messages.getString("ChatLounge.nquirk") : ""); //$NON-NLS-1$
-            Integer battleValue = entity.calculateBattleValue();
+            int battleValue = entity.calculateBattleValue();
             String hidden = ((entity.isHidden()) ? Messages.getString("ChatLounge.hidden") : ""); //$NON-NLS-1$
             String offBoard = ((entity.isOffBoard()) ? Messages.getString("ChatLounge.deploysOffBoard") : ""); //$NON-NLS-1$ //$NON-NLS-2$
             String deployRound = ((entity.getDeployRound() > 0) ? Messages.getString("ChatLounge.deploysAfterRound") //$NON-NLS-1$
@@ -1919,9 +1914,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                     .getString("ChatLounge.invalidDesign")); //$NON-NLS-1$
             value = strTreeSet
                     + Messages.getString("ChatLounge.EntityListEntry2", //$NON-NLS-1$
-                    new Object[] { entity.getDisplayName(), gunnery, piloting, advantages, maneiDomini,
-                            posQuirks, negQuirks, battleValue, strTreeView, offBoard, deployRound, hidden,
-                            valid });
+                    entity.getDisplayName(), gunnery, piloting, advantages, maneiDomini,
+                    posQuirks, negQuirks, battleValue, strTreeView, offBoard, deployRound, hidden,
+                    valid);
         }
         return value;
     }
@@ -1941,7 +1936,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
     }
 
     private void refreshCamos() {
-        butCamo.setIcon(CamoManager.getPlayerCamoIcon(getPlayerSelected().getLocalPlayer()));
+        butCamo.setIcon(getPlayerSelected().getLocalPlayer().getCamouflage().getImageIcon());
     }
 
     /**
@@ -2367,20 +2362,18 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
 
         // Choosing the player camo resets the units to have no 
         // individual camo.
-        DirectoryItem selectedItem = mcd.getSelectedItem();
+        AbstractIcon selectedItem = mcd.getSelectedItem();
         IPlayer owner = entities.get(0).getOwner();
-        DirectoryItem ownerCamo = new DirectoryItem(owner.getCamoCategory(), owner.getCamoFileName());
+        AbstractIcon ownerCamo = owner.getCamouflage();
         boolean noIndividualCamo = selectedItem.equals(ownerCamo);
         
         // Update all allowed entities with the camo
         for (Entity ent : entities) {
             if (isEditable(ent)) {
                 if (noIndividualCamo) {
-                    ent.setCamoCategory(null);
-                    ent.setCamoFileName(null);
+                    ent.setCamouflage(new Camouflage());
                 } else {
-                    ent.setCamoCategory(selectedItem.getCategory());
-                    ent.setCamoFileName(selectedItem.getItem());
+                    ent.setCamouflage(selectedItem);
                 }
                 getLocalClient(ent).sendUpdateEntity(ent);
             }
@@ -3486,7 +3479,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                         if (compact) {
                             clearImage();
                         } else {
-                            setPortrait(entity.getCrew());
+                            setImage(entity.getCrew().getPortrait(0).getImage());
                         }
                         setToolTipText(formatPilotTooltip(entity.getCrew(),
                                 clientgui.getClient().getGame().getOptions()
@@ -3535,13 +3528,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
 
                 return c;
             }
-
-            public void setPortrait(Crew pilot) {
-                String category = pilot.getPortraitCategory(0);
-                String file = pilot.getPortraitFileName(0);
-                setImage(PortraitManager.getPreviewPortraitImage(category, file));
-            }
-
         }
     }
 
@@ -3553,9 +3539,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                 return;
             }
             int[] rows = tableEntities.getSelectedRows();
-            Vector<Entity> entities = new Vector<Entity>();
-            for (int i = 0; i < rows.length; i++) {
-                entities.add(mekModel.getEntityAt(rows[i]));
+            Vector<Entity> entities = new Vector<>();
+            for (int row : rows) {
+                entities.add(mekModel.getEntityAt(row));
             }
             int code = e.getKeyCode();
             if ((code == KeyEvent.VK_DELETE) || (code == KeyEvent.VK_BACK_SPACE)) {
@@ -3694,7 +3680,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                         double loadSize = entities.stream().mapToDouble(bay::spaceForUnit).sum();
                         capacity = bay.getUnused();
                         hasEnoughCargoCapacity = loadSize <= capacity;
-                        errorMessage = Messages.getString("LoadingBay.baytoomany") + // $NON-NLS-2$
+                        errorMessage = Messages.getString("LoadingBay.baytoomany") +
                                 " " + (int) bay.getUnusedSlots()
                                 + bay.getDefaultSlotDescription() + ".";
                         // We're also using bay number to distinguish between front and rear locations

@@ -52,6 +52,7 @@ import megamek.common.actions.TeleMissileAttackAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.event.GameEntityChangeEvent;
+import megamek.common.icons.AbstractIcon;
 import megamek.common.options.GameOptions;
 import megamek.common.options.IOption;
 import megamek.common.options.IOptionGroup;
@@ -91,11 +92,8 @@ import megamek.common.weapons.other.TSEMPWeapon;
 /**
  * Entity is a master class for basically anything on the board except terrain.
  */
-public abstract class Entity extends TurnOrdered implements Transporter,
-        Targetable, RoundUpdated, PhaseUpdated, ITechnology {
-    /**
-     *
-     */
+public abstract class Entity extends TurnOrdered implements Transporter, Targetable, RoundUpdated,
+        PhaseUpdated, ITechnology {
     private static final long serialVersionUID = 1430806396279853295L;
 
     public static final int DOES_NOT_TRACK_HEAT = 999;
@@ -191,8 +189,7 @@ public abstract class Entity extends TurnOrdered implements Transporter,
 
     protected int id = Entity.NONE;
 
-    protected String camoCategory = IPlayer.NO_CAMO;
-    protected String camoFileName = null;
+    protected AbstractIcon camouflage;
 
     /**
      * ID settable by external sources (such as mm.net)
@@ -14464,20 +14461,12 @@ public abstract class Entity extends TurnOrdered implements Transporter,
     }
 
     // Deal with per entity camo
-    public void setCamoCategory(String name) {
-        camoCategory = name;
+    public AbstractIcon getCamouflage() {
+        return camouflage;
     }
 
-    public String getCamoCategory() {
-        return camoCategory;
-    }
-
-    public void setCamoFileName(String name) {
-        camoFileName = name;
-    }
-
-    public String getCamoFileName() {
-        return camoFileName;
+    public void setCamouflage(AbstractIcon camouflage) {
+        this.camouflage = camouflage;
     }
 
     public boolean getSelfDestructing() {

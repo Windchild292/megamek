@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more  
  * details.  
  */  
-package megamek.client.ui.swing.dialog.imageChooser;
+package megamek.client.ui.swing.icons;
 
 import java.awt.Window;
 import java.util.ArrayList;
@@ -19,10 +19,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import megamek.client.ui.Messages;
-import megamek.client.ui.swing.tileset.PortraitManager;
+import megamek.client.ui.swing.tileset.StaticDirectoryManager;
 import megamek.common.Configuration;
 import megamek.common.Crew;
-import megamek.common.util.fileUtils.DirectoryItem;
+import megamek.common.icons.AbstractIcon;
+import megamek.common.icons.Portrait;
 
 /**
  * This dialog allows players to select a portrait
@@ -31,31 +32,28 @@ import megamek.common.util.fileUtils.DirectoryItem;
  * Should be shown by using showDialog(). This method 
  * returns either JOptionPane.OK_OPTION or .CANCEL_OPTION.
  * 
- * @see AbstractImageChooser
+ * @see AbstractIconChooser
  */
-public class PortraitChooser extends AbstractImageChooser  {
-
+public class PortraitChooser extends AbstractIconChooser {
     private static final long serialVersionUID = 6487684461690549139L;
-
-    /** When true, camos from all subdirectories of the current selection are shown. */
-    private boolean includeSubDirs = true;
     
     /** Creates a dialog that allows players to choose a portrait. */
     public PortraitChooser(Window parent) {
         super(parent, Messages.getString("PortraitChoiceDialog.select_portrait"), 
-                new PortraitRenderer(), new PortraitChooserTree());
+                new AbstractIconRenderer(), new PortraitChooserTree());
     }
     
     @Override
-    protected ArrayList<DirectoryItem> getItems(String category) {
+    protected List<AbstractIcon> getItems(String category) {
         
-        ArrayList<DirectoryItem> result = new ArrayList<>();
+        List<AbstractIcon> result = new ArrayList<>();
         
         // The portraits of the selected category are presented. 
         // When the includeSubDirs flag is true, all categories
         // below the selected one are also presented.
         if (includeSubDirs) {
-            for (Iterator<String> catNames = PortraitManager.getPortraits().getCategoryNames(); catNames.hasNext(); ) {
+            for (Iterator<String> catNames = StaticDirectoryManager.getPortraits().getCategoryNames();
+                 catNames.hasNext(); ) {
                 String tcat = catNames.next(); 
                 if (tcat.startsWith(category)) {
                     addCategoryItems(tcat, result);
@@ -71,9 +69,10 @@ public class PortraitChooser extends AbstractImageChooser  {
      * Adds the portraits of the given category to the given items ArrayList.
      * Assumes that the root of the path (Crew.ROOT_PORTRAIT) is passed as ""! 
      */
-    private void addCategoryItems(String category, List<DirectoryItem> items) {
-        for (Iterator<String> portNames = PortraitManager.getPortraits().getItemNames(category); portNames.hasNext(); ) {
-            items.add(new DirectoryItem(category, portNames.next()));
+    private void addCategoryItems(String category, List<AbstractIcon> items) {
+        for (Iterator<String> portNames = StaticDirectoryManager.getPortraits().getItemNames(category);
+             portNames.hasNext(); ) {
+            items.add(new Portrait(category, portNames.next()));
         }
     }
     
@@ -88,17 +87,15 @@ public class PortraitChooser extends AbstractImageChooser  {
         return showDialog();
     }
     
-    /** Reloads the camo directory from disk. */
+    /** Reloads the camouflage directory from disk. */
     private void refreshPortraits() {
-        PortraitManager.refreshDirectory();
+        StaticDirectoryManager.refreshPortraitDirectory();
         refreshDirectory(new PortraitChooserTree());
     }
     
     /** Preselects the portrait of the given pilot. */ 
     public void setPilot(Crew pilot, int slot) {
-        String category = pilot.getPortraitCategory(slot);
-        String filename = pilot.getPortraitFileName(slot);
-        setSelection(category, filename);
+        AbstractIcon portrait = pilot.getPortrait(slot);
+        setSelection(portrait);
     }
-
 }

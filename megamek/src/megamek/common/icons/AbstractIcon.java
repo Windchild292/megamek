@@ -19,7 +19,6 @@
 package megamek.common.icons;
 
 import megamek.MegaMek;
-import megamek.common.util.fileUtils.DirectoryItems;
 import megamek.utils.MegaMekXmlUtil;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -106,21 +105,19 @@ public abstract class AbstractIcon implements Serializable {
     }
 
     /**
-     * @param imageDirectory the directory the image is stored within
      * @return the ImageIcon for the Image stored by the AbstractIcon
      */
-    public ImageIcon getImageIcon(DirectoryItems imageDirectory) {
-        return new ImageIcon(getImage(imageDirectory));
+    public ImageIcon getImageIcon() {
+        return new ImageIcon(getImage());
     }
 
     /**
      * This is used to create the proper image and scale it if required. It also handles null protection
      * by creating a blank image if required.
-     * @param imageDirectory the directory the image is stored within
      * @return the created image
      */
-    public Image getImage(DirectoryItems imageDirectory) {
-        Image image = getBaseImage(imageDirectory);
+    public Image getImage() {
+        Image image = getBaseImage();
 
         if (image == null) {
             return createBlankImage();
@@ -133,10 +130,9 @@ public abstract class AbstractIcon implements Serializable {
 
     /**
      * This is abstract to allow for different formats for determining the image in question
-     * @param imageDirectory the directory the image is stored within
      * @return the Image stored by the AbstractIcon
      */
-    public abstract Image getBaseImage(DirectoryItems imageDirectory);
+    public abstract Image getBaseImage();
 
     /**
      * This is a utility method that creates a blank image in the case that no image is found.
@@ -163,12 +159,13 @@ public abstract class AbstractIcon implements Serializable {
      * This writes the AbstractIcon to XML
      * @param pw1 the PrintWriter to write to
      * @param indent the indentation of the first line
+     * @param nodeTitle the title to use for the node title
      */
-    public void writeToXML(PrintWriter pw1, int indent) {
-        MegaMekXmlUtil.writeSimpleXMLOpenIndentedLine(pw1, indent, "AbstractIcon");
+    public void writeToXML(PrintWriter pw1, int indent, String nodeTitle) {
+        MegaMekXmlUtil.writeSimpleXMLOpenIndentedLine(pw1, indent, nodeTitle);
         MegaMekXmlUtil.writeSimpleXmlTag(pw1, indent + 1, "category", getCategory());
         MegaMekXmlUtil.writeSimpleXmlTag(pw1, indent + 1, "fileName", getFileName());
-        MegaMekXmlUtil.writeSimpleXMLCloseIndentedLine(pw1, indent, "AbstractIcon");
+        MegaMekXmlUtil.writeSimpleXMLCloseIndentedLine(pw1, indent, nodeTitle);
     }
 
     /**
@@ -191,10 +188,33 @@ public abstract class AbstractIcon implements Serializable {
                 }
             }
         } catch (Exception e) {
-            MegaMek.getLogger().error(AbstractIcon.class, "parseFromXML", "Failed to parse icon from nodes", e);
+            MegaMek.getLogger().error(AbstractIcon.class, "Failed to parse icon from nodes");
+            MegaMek.getLogger().error(AbstractIcon.class, e);
         }
 
         return retVal;
     }
     //endregion File IO
+
+    public boolean isDefault() {
+        return getCategory().equals(ROOT_CATEGORY) && getFileName().equals(DEFAULT_ICON_FILENAME);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        } else if (other instanceof AbstractIcon) {
+            AbstractIcon dOther = (AbstractIcon) other;
+
+            return dOther.getCategory().equals(getCategory()) && dOther.getFileName().equals(getFileName());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return (getCategory() + getFileName()).hashCode();
+    }
 }

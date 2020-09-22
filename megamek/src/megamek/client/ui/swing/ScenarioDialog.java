@@ -30,17 +30,16 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import megamek.client.ui.Messages;
-import megamek.client.ui.swing.dialog.imageChooser.CamoChooser;
-import megamek.client.ui.swing.tileset.CamoManager;
+import megamek.client.ui.swing.icons.CamoChooser;
 import megamek.common.IPlayer;
 import megamek.common.Player;
-import megamek.common.util.fileUtils.DirectoryItem;
+import megamek.common.icons.AbstractIcon;
+import megamek.common.icons.Camouflage;
 
 /**
  * Allow a user to set types and colors for scenario players
  */
 public class ScenarioDialog extends JDialog implements ActionListener {
-
     private static final long serialVersionUID = -5682593522064612790L;
     private static final int T_ME = 0;
     public static final int T_BOT = 2;
@@ -54,11 +53,11 @@ public class ScenarioDialog extends JDialog implements ActionListener {
 
     public boolean bSet;
     public int[] playerTypes;
-    public String localName = ""; //$NON-NLS-1$
+    public String localName = "";
 
-    @SuppressWarnings("unchecked")
-    public ScenarioDialog(final JFrame frame, Player[] pa) {
-        super(frame, Messages.getString("MegaMek.ScenarioDialog.title"), true); //$NON-NLS-1$
+    @SuppressWarnings(value = "unchecked")
+    public ScenarioDialog(final JFrame frame, Player... pa) {
+        super(frame, Messages.getString("MegaMek.ScenarioDialog.title"), true);
         m_frame = frame;
         m_players = pa;
         m_labels = new JLabel[pa.length];
@@ -74,44 +73,37 @@ public class ScenarioDialog extends JDialog implements ActionListener {
                     .getString("MegaMek.ScenarioDialog.me")); //$NON-NLS-1$
             m_typeChoices[x].addItem(Messages
                     .getString("MegaMek.ScenarioDialog.otherh")); //$NON-NLS-1$
-            m_typeChoices[x].addItem(Messages
-                    .getString("MegaMek.ScenarioDialog.bot")); //$NON-NLS-1$
-            m_typeChoices[x].addItem(Messages
-                    .getString("MegaMek.ScenarioDialog.otherbot")); //$NON-NLS-1$
+            m_typeChoices[x].addItem(Messages.getString("MegaMek.ScenarioDialog.bot"));
+            m_typeChoices[x].addItem(Messages.getString("MegaMek.ScenarioDialog.otherbot"));
             m_camoButtons[x] = new JButton();
             final JButton curButton = m_camoButtons[x];
-            curButton.setText(Messages.getString("MegaMek.NoCamoBtn")); //$NON-NLS-1$
+            curButton.setText(Messages.getString("MegaMek.NoCamoBtn"));
             curButton.setPreferredSize(new Dimension(84, 72));
             
             CamoChooser camoDialog = new CamoChooser(frame);
-            curButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    int result = camoDialog.showDialog(curPlayer);
+            curButton.addActionListener(e -> {
+                int result = camoDialog.showDialog(curPlayer);
 
-                    // If the dialog was canceled or nothing selected, do nothing
-                    if ((result == JOptionPane.CANCEL_OPTION) || (camoDialog.getSelectedItem() == null)) {
-                        return; 
-                    }
-
-                    // Otherwise, update the player data from the selection
-                    DirectoryItem selectedItem = camoDialog.getSelectedItem();
-                    String category = selectedItem.getCategory();
-                    if (category.equals(IPlayer.NO_CAMO)) {
-                        curPlayer.setColorIndex(camoDialog.getSelectedIndex());
-                    }
-                    curPlayer.setCamoCategory(category);
-                    curPlayer.setCamoFileName(selectedItem.getItem());
-                    curButton.setIcon(CamoManager.getPlayerCamoIcon(curPlayer));
+                // If the dialog was canceled or nothing selected, do nothing
+                if ((result == JOptionPane.CANCEL_OPTION) || (camoDialog.getSelectedItem() == null)) {
+                    return;
                 }
+
+                // Otherwise, update the player data from the selection
+                AbstractIcon selectedItem = camoDialog.getSelectedItem();
+                String category = selectedItem.getCategory();
+                if (category.equals(Camouflage.NO_CAMOUFLAGE)) {
+                    curPlayer.setColorIndex(camoDialog.getSelectedIndex());
+                }
+                curPlayer.setCamouflage(selectedItem);
+                curButton.setIcon(selectedItem.getImageIcon());
             });
         }
         getContentPane().setLayout(new BorderLayout());
         JPanel choicePanel = new JPanel();
         choicePanel.setLayout(new GridLayout(pa.length + 1, 0));
-        choicePanel.add(new JLabel(Messages
-                .getString("MegaMek.ScenarioDialog.pNameType"))); //$NON-NLS-1$
-        choicePanel.add(new JLabel(Messages
-                .getString("MegaMek.ScenarioDialog.Camo"))); //$NON-NLS-1$
+        choicePanel.add(new JLabel(Messages.getString("MegaMek.ScenarioDialog.pNameType")));
+        choicePanel.add(new JLabel(Messages.getString("MegaMek.ScenarioDialog.Camo")));
         for (int x = 0; x < pa.length; x++) {
             JPanel typePanel = new JPanel();
             typePanel.setLayout(new GridLayout(0, 1));
@@ -139,6 +131,7 @@ public class ScenarioDialog extends JDialog implements ActionListener {
                 + (frame.getSize().height / 2)) - (getSize().height / 2));
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if ("okay".equals(e.getActionCommand())) { //$NON-NLS-1$
             boolean bMeSet = false;

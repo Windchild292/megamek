@@ -19,8 +19,8 @@
 package megamek.common.icons;
 
 import megamek.MegaMek;
+import megamek.client.ui.swing.tileset.StaticDirectoryManager;
 import megamek.common.Crew;
-import megamek.common.util.fileUtils.DirectoryItems;
 
 import java.awt.*;
 
@@ -28,8 +28,22 @@ public class Portrait extends AbstractIcon {
     private static final long serialVersionUID = -7562297705213174435L;
     public static final String DEFAULT_PORTRAIT_FILENAME = "default.gif";
 
+    //region Constructors
+    public Portrait() {
+        super();
+    }
+
+    public Portrait(String category, String fileName) {
+        super(category, fileName);
+    }
+
+    public Portrait(String category, String fileName, int width, int height) {
+        super(category, fileName, width, height);
+    }
+    //endregion Constructors
+
     @Override
-    public Image getBaseImage(DirectoryItems imageDirectory) {
+    public Image getBaseImage() {
         String category = (Crew.ROOT_PORTRAIT.equals(getCategory())) ? "" : getCategory();
         String filename = getFileName();
 
@@ -41,12 +55,12 @@ public class Portrait extends AbstractIcon {
         // Try to get the player's portrait file.
         Image portrait = null;
         try {
-            portrait = (Image) imageDirectory.getItem(category, filename);
+            portrait = (Image) StaticDirectoryManager.getPortraits().getItem(category, filename);
             if (portrait == null) {
-                portrait = (Image) imageDirectory.getItem("", DEFAULT_PORTRAIT_FILENAME);
+                portrait = (Image) StaticDirectoryManager.getPortraits().getItem("", DEFAULT_PORTRAIT_FILENAME);
             }
         } catch (Exception e) {
-            MegaMek.getLogger().error(getClass(), "setPortrait", e);
+            MegaMek.getLogger().error(this, e);
         }
 
         return portrait;

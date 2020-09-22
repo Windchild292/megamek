@@ -85,7 +85,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     private MechTileset wreckTileset = new MechTileset(
             new MegaMekFile(Configuration.unitImagesDir(), DIR_NAME_WRECKS).getFile());
     private List<EntityImage> mechImageList = new ArrayList<>();
-    private Map<ArrayList<Integer>, EntityImage> mechImages = new HashMap<>();
+    private Map<List<Integer>, EntityImage> mechImages = new HashMap<>();
     private Map<String, Image> wreckageDecals = new HashMap<>();
     private Map<String, Integer> wreckageDecalCount;
 
@@ -610,10 +610,8 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         IPlayer player = entity.getOwner();
         int tint = PlayerColors.getColorRGB(player.getColorIndex());
 
-        Image camo = CamoManager.getPlayerCamoImage(player);
-        if ((entity.getCamoCategory() != null) && !entity.getCamoCategory().equals(IPlayer.NO_CAMO)) {
-            camo = CamoManager.getEntityCamoImage(entity);
-        }
+        Image camo = (entity.getCamouflage().isDefault() ? player.getCamouflage() : entity.getCamouflage()).getImage();
+
         EntityImage entityImage = null;
 
         // check if we have a duplicate image already loaded
@@ -621,7 +619,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
             EntityImage onList = j.next();
             if ((onList.getBase() != null) && onList.getBase().equals(base)
                     && (onList.tint == tint) && (onList.getCamo() != null)
-                    && onList.getCamo().equals(camo) && onList.getDmgLvl() == entity.getDamageLevel(false)) {
+                    && onList.getCamo().equals(camo) && (onList.getDmgLvl() == entity.getDamageLevel(false))) {
                 entityImage = onList;
                 break;
             }
@@ -638,7 +636,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         }
 
         // relate this id to this image set
-        ArrayList<Integer> temp = new ArrayList<Integer>();
+        List<Integer> temp = new ArrayList<>();
         temp.add(entity.getId());
         temp.add(secondaryPos);
         mechImages.put(temp, entityImage);
@@ -647,6 +645,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     /**
      * Resets the started and loaded flags
      */
+    @Override
     public synchronized void reset() {
         loaded = false;
         started = false;

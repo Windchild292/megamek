@@ -36,7 +36,7 @@ import megamek.client.generator.RandomNameGenerator;
 import megamek.client.generators.RandomCallsignGenerator;
 import megamek.client.ui.GBC;
 import megamek.client.ui.Messages;
-import megamek.client.ui.swing.dialog.imageChooser.PortraitChooser;
+import megamek.client.ui.swing.icons.PortraitChooser;
 import megamek.client.ui.swing.tileset.PortraitManager;
 import megamek.common.Entity;
 import megamek.common.EntitySelector;

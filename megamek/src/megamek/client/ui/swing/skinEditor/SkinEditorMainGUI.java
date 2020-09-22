@@ -67,7 +67,6 @@ import megamek.client.ui.swing.StatusBarPhaseDisplay;
 import megamek.client.ui.swing.TargetingPhaseDisplay;
 import megamek.client.ui.swing.UnitLoadingDialog;
 import megamek.client.ui.swing.boardview.BoardView1;
-import megamek.client.ui.swing.tileset.CamoManager;
 import megamek.client.ui.swing.unitDisplay.UnitDisplay;
 import megamek.client.ui.swing.util.PlayerColors;
 import megamek.common.Configuration;
@@ -220,7 +219,7 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
         frame.setMinimumSize(new Dimension(640, 480));
         frame.setBackground(SystemColor.menu);
         frame.setForeground(SystemColor.menuText);
-        List<Image> iconList = new ArrayList<Image>();
+        List<Image> iconList = new ArrayList<>();
         iconList.add(frame.getToolkit().getImage(
                 new MegaMekFile(Configuration.miscImagesDir(), FILENAME_ICON_16X16)
                         .toString()));
@@ -734,8 +733,6 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
         }
     }
 
-
-
     /**
      * Pops up a dialog box giving the player a series of choices that are not
      * mutually exclusive.
@@ -822,6 +819,7 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
     //
     // WindowListener
     //
+    @Override
     public void windowActivated(WindowEvent windowEvent) {
         // TODO: this is a kludge to fix a window iconify issue
         // For some reason when I click on the window button, the main UI 
@@ -831,10 +829,12 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
         frame.setState(Frame.NORMAL);
     }
 
+    @Override
     public void windowClosed(WindowEvent windowEvent) {
         // ignored
     }
 
+    @Override
     public void windowClosing(WindowEvent windowEvent) {
         if (windowEvent.getWindow().equals(skinSpecEditorD)) {
             setDisplayVisible(false);
@@ -842,10 +842,12 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
         }
     }
 
+    @Override
     public void windowDeactivated(WindowEvent windowEvent) {
         // ignored
     }
 
+    @Override
     public void windowDeiconified(WindowEvent windowEvent) {
         // TODO: this is a kludge to fix a window iconify issue
         // For some reason when I click on the window button, the main UI 
@@ -855,10 +857,12 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
         frame.setState(Frame.NORMAL);
     }
 
+    @Override
     public void windowIconified(WindowEvent windowEvent) {
         // ignored
     }
 
+    @Override
     public void windowOpened(WindowEvent windowEvent) {
         // ignored
     }
@@ -871,46 +875,52 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener,
     }
    
     public void loadPreviewImage(JLabel bp, Entity entity, IPlayer player) {
-        Image camo = CamoManager.getPlayerCamoImage(player);
-        if ((entity.getCamoCategory() != null) && !entity.getCamoCategory().equals(IPlayer.NO_CAMO)) {
-            camo = CamoManager.getEntityCamoImage(entity);
-        }
+        Image camo = (entity.getCamouflage().isDefault() ? player.getCamouflage()
+                : entity.getCamouflage()).getImage();
         int tint = PlayerColors.getColorRGB(player.getColorIndex());
         bp.setIcon(new ImageIcon(bv.getTilesetManager().loadPreviewImage(
                 entity, camo, tint, bp)));
     }
 
    
+    @Override
     public void hexMoused(BoardViewEvent b) {
         if (b.getType() == BoardViewEvent.BOARD_HEX_POPUP) {
             
         }
     }
 
+    @Override
     public void hexCursor(BoardViewEvent b) {
         // ignored
     }
 
+    @Override
     public void boardHexHighlighted(BoardViewEvent b) {
         // ignored
     }
 
+    @Override
     public void hexSelected(BoardViewEvent b) {
         // ignored
     }
 
+    @Override
     public void firstLOSHex(BoardViewEvent b) {
         // ignored
     }
 
+    @Override
     public void secondLOSHex(BoardViewEvent b, Coords c) {
         // ignored
     }
 
+    @Override
     public void finishedMovingUnits(BoardViewEvent b) {
         // ignored
     }
 
+    @Override
     public void unitSelected(BoardViewEvent b) {
         // ignored
     }

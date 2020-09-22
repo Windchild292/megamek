@@ -12,7 +12,7 @@
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
  */
-package megamek.client.ui.swing.dialog.imageChooser;
+package megamek.client.ui.swing.icons;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
-import megamek.common.util.fileUtils.DirectoryItem;
+import megamek.common.icons.AbstractIcon;
 
 /**
  * A specialized JList to display a list of (ImageChoiceDialog.DirectoryItem)s
@@ -31,12 +31,11 @@ import megamek.common.util.fileUtils.DirectoryItem;
  * Using any of the renderers in the package the images can be displayed
  * with or without the filename.
  */
-public class ImageList extends JList<DirectoryItem> {
-
+public class ImageList extends JList<AbstractIcon> {
     private static final long serialVersionUID = -8060324139099113292L;
 
     /** The list model; a default model. */
-    private DefaultListModel<DirectoryItem> itemModel;
+    private DefaultListModel<AbstractIcon> itemModel;
     
     /**
      * A specialized JList to display a list of (ImageChoiceDialog.DirectoryItem)s
@@ -46,9 +45,9 @@ public class ImageList extends JList<DirectoryItem> {
      * Using any of the renderers in the package the images can be displayed
      * with or without the filename.
      */
-    public ImageList(ListCellRenderer<DirectoryItem> renderer) {
+    public ImageList(ListCellRenderer<AbstractIcon> renderer) {
         super(); 
-        itemModel = new DefaultListModel<DirectoryItem>();
+        itemModel = new DefaultListModel<>();
         setModel(itemModel);
         
         setOpaque(true);
@@ -63,10 +62,10 @@ public class ImageList extends JList<DirectoryItem> {
     /** 
      * Updates the list to show (only) the given items.
      */
-    public void updateImages(List<DirectoryItem> items) {
+    public void updateImages(List<AbstractIcon> items) {
         itemModel.clear();
-        // LGTM does not accept addAll
-        for (DirectoryItem di: items) {
+        // addAll is Java 9 or later
+        for (AbstractIcon di: items) {
             itemModel.addElement(di);
         }
     }

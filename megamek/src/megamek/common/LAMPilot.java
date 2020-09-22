@@ -87,8 +87,7 @@ public class LAMPilot extends Crew {
         pilot.setInitBonus(crew.getInitBonus());
         pilot.setCommandBonus(crew.getCommandBonus());
         pilot.setToughness(crew.getToughness(0), 0);
-        pilot.setPortraitCategory(crew.getPortraitCategory(0), 0);
-        pilot.setPortraitFileName(crew.getPortraitFileName(0), 0);
+        pilot.setPortrait(crew.getPortrait(0), 0);
         pilot.setOptions(crew.getOptions());
 
         pilot.setExternalIdAsString(crew.getExternalIdAsString(0), 0);
@@ -225,6 +224,7 @@ public class LAMPilot extends Crew {
         }
     }
 
+    @Override
     public String getSkillsAsString(boolean showPiloting, boolean rpgSkills) {
         return getSkillsAsString(0, showPiloting, rpgSkills);
     }

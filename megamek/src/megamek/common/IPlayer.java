@@ -1,4 +1,4 @@
-/**
+/*
  * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
  *
  *  This program is free software; you can redistribute it and/or modify it
@@ -13,6 +13,8 @@
  */
 package megamek.common;
 
+import megamek.common.icons.AbstractIcon;
+
 import java.util.Vector;
 
 /**
@@ -23,25 +25,16 @@ import java.util.Vector;
  * To change this template use File | Settings | File Templates.
  */
 public interface IPlayer extends ITurnOrdered {
-    public static final int PLAYER_NONE = -1;
-    public static final int TEAM_NONE = 0;
-    public static final int TEAM_UNASSIGNED = -1;
-    public static final String[] colorNames = { "Blue", "Red", "Green", "Cyan",
+    int PLAYER_NONE = -1;
+    int TEAM_NONE = 0;
+    int TEAM_UNASSIGNED = -1;
+    String[] colorNames = { "Blue", "Red", "Green", "Cyan",
             "Pink", "Orange", "Gray", "Brown", "Purple", "Turquoise ",
             "Maroon", "Spring Green", "Gold", "Sienna", "Violet", "Navy",
             "Olive Drab", "Fuchsia", "FireBrick", "Dark Golden Rod", "Coral",
             "Chartreuse", "Deep Purple", "Yellow" };
-    public static final String[] teamNames = {"No Team", "Team 1", "Team 2",
-                                              "Team 3", "Team 4", "Team 5"};
-    public static final int MAX_TEAMS = teamNames.length;
-    /**
-     * The "no camo" category.
-     */
-    public static final String NO_CAMO = "-- No Camo --";
-    /**
-     * The category for camos in the root directory.
-     */
-    public static final String ROOT_CAMO = "-- General --";
+    String[] teamNames = {"No Team", "Team 1", "Team 2", "Team 3", "Team 4", "Team 5"};
+    int MAX_TEAMS = teamNames.length;
 
     Vector<Minefield> getMinefields();
 
@@ -79,13 +72,9 @@ public interface IPlayer extends ITurnOrdered {
 
     int getNbrMFInferno();
 
-    void setCamoCategory(String name);
+    AbstractIcon getCamouflage();
 
-    String getCamoCategory();
-
-    void setCamoFileName(String name);
-
-    String getCamoFileName();
+    void setCamouflage(AbstractIcon icon);
 
     void setGame(IGame game);
 
@@ -167,14 +156,16 @@ public interface IPlayer extends ITurnOrdered {
 
     /**
      * Used to increase the initial BV by the specified value, which may be necessary if the player reinforces.
-     * @param bv
+     * @param bv the BV to increase the initial count by
      */
     void increaseInitialBV(int bv);
 
     int getInitialBV();
 
+    @Override
     void setInitCompensationBonus(int newBonus);
 
+    @Override
     int getInitCompensationBonus();
 
     void setConstantInitBonus(int b);
@@ -200,7 +191,9 @@ public interface IPlayer extends ITurnOrdered {
     Vector<Integer> getAirborneVTOL();
     
     // Make sure IPlayer implements both
+    @Override
     boolean equals(Object obj);
     
+    @Override
     int hashCode();
 }
