@@ -224,8 +224,7 @@ public class MissileMineClearanceHandler extends AmmoWeaponHandler {
             // buildings
             if (Compute.isInBuilding(game, target, targetPos)) {
                 IPlayer tOwner = target.getOwner();
-                String colorcode = Integer.toHexString(PlayerColor.getColor(
-                        tOwner.getColorIndex()).getRGB() & 0x00f0f0f0);
+                String colorcode = Integer.toHexString(tOwner.getColour().getColourHexCode() & 0x00f0f0f0);
                 newReports = server.damageBuilding(bldg, damage, " shields "
                         + target.getShortName() + " (<B><font color='"
                         + colorcode + "'>" + tOwner.getName() + "</font></B>)"

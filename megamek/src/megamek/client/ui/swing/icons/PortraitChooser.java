@@ -36,18 +36,17 @@ import megamek.common.icons.Portrait;
  */
 public class PortraitChooser extends AbstractIconChooser {
     private static final long serialVersionUID = 6487684461690549139L;
-    
+
     /** Creates a dialog that allows players to choose a portrait. */
     public PortraitChooser(Window parent) {
         super(parent, Messages.getString("PortraitChoiceDialog.select_portrait"), 
                 new AbstractIconRenderer(), new PortraitChooserTree());
     }
-    
+
     @Override
     protected List<AbstractIcon> getItems(String category) {
-        
         List<AbstractIcon> result = new ArrayList<>();
-        
+
         // The portraits of the selected category are presented. 
         // When the includeSubDirs flag is true, all categories
         // below the selected one are also presented.
@@ -67,7 +66,7 @@ public class PortraitChooser extends AbstractIconChooser {
     
     /** 
      * Adds the portraits of the given category to the given items ArrayList.
-     * Assumes that the root of the path (Crew.ROOT_PORTRAIT) is passed as ""! 
+     * Assumes that the root of the path {@link AbstractIcon}.ROOT_CATEGORY is passed as ""!
      */
     private void addCategoryItems(String category, List<AbstractIcon> items) {
         for (Iterator<String> portNames = MegaMekIconDirectoryManager.getPortraits().getItemNames(category);

@@ -38,7 +38,7 @@ public abstract class AbstractIcon implements Serializable {
     public static final int DEFAULT_IMAGE_SCALE = 75;
 
     private String category;
-    private String fileName;
+    private String filename;
 
     private int width;
     private int height;
@@ -49,13 +49,13 @@ public abstract class AbstractIcon implements Serializable {
         this(ROOT_CATEGORY, DEFAULT_ICON_FILENAME);
     }
 
-    protected AbstractIcon(String category, String fileName) {
-        this(category, fileName, 0, 0);
+    protected AbstractIcon(String category, String filename) {
+        this(category, filename, 0, 0);
     }
 
-    protected AbstractIcon(String category, String fileName, int width, int height) {
+    protected AbstractIcon(String category, String filename, int width, int height) {
         setCategory(category);
-        setFileName(fileName);
+        setFilename(filename);
         setWidth(width);
         setHeight(height);
     }
@@ -70,12 +70,12 @@ public abstract class AbstractIcon implements Serializable {
         this.category = category;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public int getWidth() {
@@ -151,7 +151,7 @@ public abstract class AbstractIcon implements Serializable {
 
     @Override
     public String toString() {
-        return getCategory() + "/" + getFileName();
+        return getCategory() + "/" + getFilename();
     }
 
     //region File IO
@@ -164,7 +164,7 @@ public abstract class AbstractIcon implements Serializable {
     public void writeToXML(PrintWriter pw1, int indent, String nodeTitle) {
         MegaMekXmlUtil.writeSimpleXMLOpenIndentedLine(pw1, indent, nodeTitle);
         MegaMekXmlUtil.writeSimpleXmlTag(pw1, indent + 1, "category", getCategory());
-        MegaMekXmlUtil.writeSimpleXmlTag(pw1, indent + 1, "fileName", getFileName());
+        MegaMekXmlUtil.writeSimpleXmlTag(pw1, indent + 1, "fileName", getFilename());
         MegaMekXmlUtil.writeSimpleXMLCloseIndentedLine(pw1, indent, nodeTitle);
     }
 
@@ -184,7 +184,7 @@ public abstract class AbstractIcon implements Serializable {
                 if (wn2.getNodeName().equalsIgnoreCase("category")) {
                     retVal.setCategory(wn2.getTextContent().trim());
                 } else if (wn2.getNodeName().equalsIgnoreCase("fileName")) {
-                    retVal.setFileName(wn2.getTextContent().trim());
+                    retVal.setFilename(wn2.getTextContent().trim());
                 }
             }
         } catch (Exception e) {
@@ -197,7 +197,15 @@ public abstract class AbstractIcon implements Serializable {
     //endregion File IO
 
     public boolean isDefault() {
-        return getCategory().equals(ROOT_CATEGORY) && getFileName().equals(DEFAULT_ICON_FILENAME);
+        return hasDefaultCategory() && hasDefaultFilename();
+    }
+
+    public boolean hasDefaultCategory() {
+        return ROOT_CATEGORY.equals(getCategory());
+    }
+
+    public boolean hasDefaultFilename() {
+        return DEFAULT_ICON_FILENAME.equals(getFilename());
     }
 
     @Override
@@ -207,7 +215,7 @@ public abstract class AbstractIcon implements Serializable {
         } else if (other instanceof AbstractIcon) {
             AbstractIcon dOther = (AbstractIcon) other;
 
-            return dOther.getCategory().equals(getCategory()) && dOther.getFileName().equals(getFileName());
+            return dOther.getCategory().equals(getCategory()) && dOther.getFilename().equals(getFilename());
         } else {
             return false;
         }
@@ -215,6 +223,6 @@ public abstract class AbstractIcon implements Serializable {
 
     @Override
     public int hashCode() {
-        return (getCategory() + getFileName()).hashCode();
+        return (getCategory() + getFilename()).hashCode();
     }
 }

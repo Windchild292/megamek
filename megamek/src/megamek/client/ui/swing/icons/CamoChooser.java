@@ -169,7 +169,7 @@ public class CamoChooser extends AbstractIconChooser {
     private void setEntity(Entity entity) {
         // Store the owner's camo to display as the only "No Camo" option
         // This may be a color
-        String item = entity.getOwner().getCamouflage().getFileName();
+        String item = entity.getOwner().getCamouflage().getFilename();
         if (entity.getOwner().getCamouflage().getCategory().equals(Camouflage.NO_CAMOUFLAGE)) {
             item = IPlayer.colorNames[entity.getOwner().getColorIndex()];
         }

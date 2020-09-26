@@ -121,8 +121,6 @@ public class Crew implements Serializable {
     private PilotOptions options = new PilotOptions();
 
     // pathway to pilot portrait
-    public static final String ROOT_PORTRAIT = "-- General --";
-    public static final String PORTRAIT_NONE = "None";
     private final AbstractIcon[] portraits;
 
     //SPA RangeMaster range bands
@@ -1184,7 +1182,9 @@ public class Crew implements Serializable {
     }
 
     public void setPortrait(AbstractIcon portrait, int index) {
-        portraits[index] = portrait;
+        if (index < portraits.length) {
+            portraits[index] = portrait;
+        }
     }
 
     public int getToughness(int pos) {

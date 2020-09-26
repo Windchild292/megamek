@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
 
+import megamek.MegaMek;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.bayweapons.BayWeapon;
 import megamek.common.weapons.ppc.PPCWeapon;
@@ -4053,14 +4054,16 @@ public class Aero extends Entity implements IAero, IBomber {
     @Override
     public boolean isDmgLight() {
         if (getArmorRemainingPercent() <= 0.75) {
+            MegaMek.getLogger().debug(this, "Lightly Damaged: " + getDisplayName()
+                    + " has under 75% armour remaining");
             return true;
-        }
-
-        if (getInternalRemainingPercent() < 0.9) {
+        } else if (getInternalRemainingPercent() < 0.9) {
+            MegaMek.getLogger().debug(this, "Lightly Damaged: " + getDisplayName()
+                    + " has under 90% internal structure remaining");
             return true;
-        }
-
-        if ((getCrew() != null) && (getCrew().getHits() == 1)) {
+        } else if ((getCrew() != null) && (getCrew().getHits() >= 1)) {
+            MegaMek.getLogger().debug(this, "Lightly Damaged: " + getDisplayName()
+                    + "'s crew has taken a minimum of one hit per person");
             return true;
         }
 
@@ -4070,12 +4073,20 @@ public class Aero extends Entity implements IAero, IBomber {
         }
 
         int totalWeapons = getTotalWeaponList().size();
+
+        // Prevents the damage check from failing on unarmed aero units
+        if (totalWeapons == 0) {
+            MegaMek.getLogger().debug(this, "no installed weapons");
+            return false;
+        }
+
         int totalInoperable = 0;
         for (Mounted weap : getTotalWeaponList()) {
             if (weap.isCrippled()) {
                 totalInoperable++;
             }
         }
+
         return ((double) totalInoperable / totalWeapons) >= 0.25;
     }
 

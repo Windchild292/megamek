@@ -765,7 +765,7 @@ public class Client implements IClientCommandHandler {
     public void sendPlayerInfo() {
         IPlayer player = game.getPlayer(localPlayerNumber);
         PreferenceManager.getClientPreferences().setLastPlayerCategory(player.getCamouflage().getCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(player.getCamouflage().getFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCamoName(player.getCamouflage().getFilename());
         send(new Packet(Packet.COMMAND_PLAYER_UPDATE, player));
     }
 
@@ -918,7 +918,7 @@ public class Client implements IClientCommandHandler {
         }
 
         PreferenceManager.getClientPreferences().setLastPlayerCategory(newPlayer.getCamouflage().getCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamouflage().getFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamouflage().getFilename());
     }
 
     /**

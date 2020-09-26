@@ -917,7 +917,7 @@ class EntitySprite extends Sprite {
         //add portrait?
         if ((entity.getCrew() != null) && GUIPreferences.getInstance().getBoolean(GUIPreferences.SHOW_PILOT_PORTRAIT_TT)) {
             AbstractIcon portrait = entity.getCrew().getPortrait(0);
-            String imagePath = Configuration.portraitImagesDir() + "/" + portrait.getCategory() + portrait.getFileName();
+            String imagePath = Configuration.portraitImagesDir() + "/" + portrait.getCategory() + portrait.getFilename();
             File f = new File(imagePath);
             if (f.exists()) {
                 // HACK: Get the real portrait to find the size of the image

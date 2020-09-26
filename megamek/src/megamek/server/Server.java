@@ -748,7 +748,7 @@ public class Server implements Runnable {
         IPlayer player = (IPlayer) packet.getObject(0);
         IPlayer gamePlayer = game.getPlayer(connId);
         if (null != gamePlayer) {
-            gamePlayer.setColorIndex(player.getColorIndex());
+            gamePlayer.setColour(player.getColour());
             gamePlayer.setStartingPos(player.getStartingPos());
             gamePlayer.setTeam(player.getTeam());
             gamePlayer.setCamouflage(player.getCamouflage());

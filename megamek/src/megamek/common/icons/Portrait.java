@@ -43,13 +43,19 @@ public class Portrait extends AbstractIcon {
     }
     //endregion Constructors
 
+
+    @Override
+    public boolean hasDefaultFilename() {
+        return super.hasDefaultFilename() || DEFAULT_PORTRAIT_FILENAME.equals(getFilename());
+    }
+
     @Override
     public Image getBaseImage() {
-        String category = (Crew.ROOT_PORTRAIT.equals(getCategory())) ? "" : getCategory();
-        String filename = getFileName();
+        String category = hasDefaultCategory() ? "" : getCategory();
+        String filename = getFilename();
 
         // Return the default image if the player has selected no portrait file.
-        if ((category == null) || (filename == null) || Crew.PORTRAIT_NONE.equals(filename)) {
+        if ((category == null) || (filename == null) || hasDefaultFilename()) {
             filename = DEFAULT_PORTRAIT_FILENAME;
         }
 

@@ -192,8 +192,7 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
             // Units in a building apply damage to building
             if (Compute.isInBuilding(game, target, targetPos)) {
                 IPlayer tOwner = target.getOwner();
-                String colorcode = Integer.toHexString(PlayerColor.getColor(
-                        tOwner.getColorIndex()).getRGB() & 0x00f0f0f0);
+                String colorcode = Integer.toHexString(tOwner.getColour().getColourHexCode() & 0x00f0f0f0);
                 newReports = server.damageBuilding(bldg, numRounds, " shields "
                         + target.getShortName() + " (<B><font color='"
                         + colorcode + "'>" + tOwner.getName()

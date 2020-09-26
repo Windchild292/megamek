@@ -6,8 +6,6 @@ import megamek.client.ui.swing.util.ScaledImageFileFactory;
 import megamek.common.Configuration;
 import megamek.common.util.fileUtils.DirectoryItems;
 
-import java.awt.image.BufferedImage;
-
 public class MegaMekIconDirectoryManager {
     /** The DirectoryItems object holding all camouflage file information */
     private static DirectoryItems camouflageDirectory;
@@ -26,9 +24,6 @@ public class MegaMekIconDirectoryManager {
      * True at startup and when the portrait directory should be re-parsed.
      * Used to avoid re-parsing the directory repeatedly when there's an error. */
     private static boolean parsePortraitDirectory = true;
-
-    /** Holds a drawn "fail" image that can be used when image loading fails. */
-    public static BufferedImage failPortrait;
 
     // This class is not to be instantiated
     private MegaMekIconDirectoryManager() {

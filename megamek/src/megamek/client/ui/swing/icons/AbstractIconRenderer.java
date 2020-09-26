@@ -33,7 +33,7 @@ public class AbstractIconRenderer extends JPanel implements ListCellRenderer<Abs
      */
     private void setImage(AbstractIcon icon) {
         lblImage.setIcon(icon.getImageIcon());
-        tip = "<HTML><BODY>" + icon.getCategory() + "<BR>" + icon.getFileName();
+        tip = "<HTML><BODY>" + icon.getCategory() + "<BR>" + icon.getFilename();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class AbstractIconRenderer extends JPanel implements ListCellRenderer<Abs
             setForeground(UIManager.getColor("Table.foreground"));
         }
         setImage(value);
-        setText(value.getFileName());
+        setText(value.getFilename());
 
         return this;
     }

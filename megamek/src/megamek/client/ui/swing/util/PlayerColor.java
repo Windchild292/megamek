@@ -89,9 +89,7 @@ public enum PlayerColor {
         final int playerId = player.getId();
 
         List<PlayerColor> selectedColours = getSelectedColours(players, playerId);
-        if () {
 
-        }
 
         PlayerColor colour = getNextUnusedColour(players, playerId);
         player.setColour();
