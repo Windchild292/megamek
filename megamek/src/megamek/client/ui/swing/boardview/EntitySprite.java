@@ -20,9 +20,8 @@ import java.util.stream.Collectors;
 
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.client.ui.swing.tileset.PortraitManager;
 import megamek.client.ui.swing.util.EntityWreckHelper;
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.Aero;
 import megamek.common.Compute;
 import megamek.common.Configuration;
@@ -46,6 +45,7 @@ import megamek.common.RangeType;
 import megamek.common.Tank;
 import megamek.common.TechConstants;
 import megamek.common.WeaponType;
+import megamek.common.icons.AbstractIcon;
 import megamek.common.options.OptionsConstants;
 import megamek.common.options.PilotOptions;
 
@@ -64,7 +64,7 @@ class EntitySprite extends Sprite {
     private static final Color LABEL_SPACE_BACK = new Color(0,0,200,200);
     private static final Color LABEL_GROUND_BACK = new Color(50,50,50,200);
     private static Color LABEL_BACK;
-    enum Positioning { LEFT, RIGHT };
+    enum Positioning { LEFT, RIGHT }
     
     // Individuals
     final Entity entity;
@@ -546,7 +546,7 @@ class EntitySprite extends Sprite {
                             graph.setColor(GUIPreferences.getInstance().getEnemyUnitColor());
                         }
                     } else {
-                        graph.setColor(PlayerColors.getColor(
+                        graph.setColor(PlayerColor.getColor(
                                 entity.getOwner().getColorIndex(), false));
                     }
                     Stroke oldStroke = graph.getStroke();
@@ -855,7 +855,7 @@ class EntitySprite extends Sprite {
 
         // Unit Chassis and Player
         addToTT("Unit", NOBR,
-                Integer.toHexString(PlayerColors.getColorRGB(
+                Integer.toHexString(PlayerColor.getColorRGB(
                         entity.getOwner().getColorIndex())), 
                 entity.getChassis(), 
                 entity.getOwner().getName());
@@ -902,9 +902,9 @@ class EntitySprite extends Sprite {
             addToTT("Advs", NOBR, numAdv);
         
         // Pilot Manei Domini
-        if ((entity.getCrew().countOptions(
-                PilotOptions.MD_ADVANTAGES) > 0)) 
+        if ((entity.getCrew().countOptions(PilotOptions.MD_ADVANTAGES) > 0)) {
             addToTT("MD", NOBR);
+        }
         
         if (entity instanceof Infantry) {
             Infantry inf = (Infantry) entity;
@@ -915,24 +915,20 @@ class EntitySprite extends Sprite {
         }
         
         //add portrait?
-        if(null != entity.getCrew()) {
-            String category = entity.getCrew().getPortraitCategory(0);
-            String file = entity.getCrew().getPortraitFileName(0);
-            if (GUIPreferences.getInstance().getBoolean(GUIPreferences.SHOW_PILOT_PORTRAIT_TT) &&
-                    (null != category) && (null != file)) {
-                String imagePath = Configuration.portraitImagesDir() + "/" + category + file;
-                File f = new File(imagePath);
-                if(f.exists()) {
-                    // HACK: Get the real portrait to find the size of the image
-                    // and scale the tooltip HTML IMG accordingly
-                    Image portrait = PortraitManager.getUnscaledPortraitImage(category, file);
-                    if (portrait.getWidth(null) > portrait.getHeight(null)) {
-                        float h = 60f * portrait.getHeight(null) / portrait.getWidth(null);
-                        addToTT("PilotPortraitW", BR, imagePath, (int) h);
-                    } else {
-                        float w = 60f * portrait.getWidth(null) / portrait.getHeight(null);
-                        addToTT("PilotPortraitH", BR, imagePath, (int) w);
-                    }
+        if ((entity.getCrew() != null) && GUIPreferences.getInstance().getBoolean(GUIPreferences.SHOW_PILOT_PORTRAIT_TT)) {
+            AbstractIcon portrait = entity.getCrew().getPortrait(0);
+            String imagePath = Configuration.portraitImagesDir() + "/" + portrait.getCategory() + portrait.getFileName();
+            File f = new File(imagePath);
+            if (f.exists()) {
+                // HACK: Get the real portrait to find the size of the image
+                // and scale the tooltip HTML IMG accordingly
+                Image portraitImage = portrait.getImage();
+                if (portraitImage.getWidth(null) > portraitImage.getHeight(null)) {
+                    float h = 60f * portraitImage.getHeight(null) / portraitImage.getWidth(null);
+                    addToTT("PilotPortraitW", BR, imagePath, (int) h);
+                } else {
+                    float w = 60f * portraitImage.getWidth(null) / portraitImage.getHeight(null);
+                    addToTT("PilotPortraitH", BR, imagePath, (int) w);
                 }
             }
         }
@@ -942,12 +938,13 @@ class EntitySprite extends Sprite {
         // Unit movement ability
         if (thisGunEmp == null) {
             addToTT("Movement", BR, entity.getWalkMP(), entity.getRunMPasString());
-            if (entity.getJumpMP() > 0) tooltipString.append("/" + entity.getJumpMP());
+            if (entity.getJumpMP() > 0) {
+                tooltipString.append("/").append(entity.getJumpMP());
+            }
         }
         
         // Armor and Internals
-        addToTT("ArmorInternals", BR, entity.getTotalArmor(),
-                entity.getTotalInternal());
+        addToTT("ArmorInternals", BR, entity.getTotalArmor(), entity.getTotalInternal());
 
         // Build a "status bar" visual representation of each
         // component of the unit using block element characters.
@@ -1097,7 +1094,7 @@ class EntitySprite extends Sprite {
                 .getBoolean(GUIPreferences.SHOW_WPS_IN_TT)) {
 
             ArrayList<Mounted> weapons = entity.getWeaponList();
-            HashMap<String, Integer> wpNames = new HashMap<String,Integer>();
+            HashMap<String, Integer> wpNames = new HashMap<>();
 
             // Gather names, counts, Clan/IS
             // When clan then the number will be stored as negative
@@ -1105,7 +1102,7 @@ class EntitySprite extends Sprite {
                 String weapDesc = curWp.getDesc();
                 // Append ranges
                 WeaponType wtype = (WeaponType)curWp.getType();
-                int ranges[];
+                int[] ranges;
                 if (entity.isAero()) {
                     ranges = wtype.getATRanges();
                 } else {
@@ -1201,7 +1198,7 @@ class EntitySprite extends Sprite {
         if (onlyDetectedBySensors()) {
             return "C0C0C0";
         } else {
-            return Integer.toHexString(PlayerColors.getColorRGB(entity
+            return Integer.toHexString(PlayerColor.getColorRGB(entity
                     .getOwner().getColorIndex()));
         }
     }

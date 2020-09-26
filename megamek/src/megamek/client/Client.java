@@ -748,7 +748,7 @@ public class Client implements IClientCommandHandler {
      * Sends a "player done" message to the server.
      */
     public synchronized void sendDone(boolean done) {
-        send(new Packet(Packet.COMMAND_PLAYER_READY, Boolean.valueOf(done)));
+        send(new Packet(Packet.COMMAND_PLAYER_READY, done));
         flushConn();
     }
 
@@ -764,9 +764,8 @@ public class Client implements IClientCommandHandler {
      */
     public void sendPlayerInfo() {
         IPlayer player = game.getPlayer(localPlayerNumber);
-        PreferenceManager.getClientPreferences().setLastPlayerColor(player.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCategory(player.getCamoCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(player.getCamoFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCategory(player.getCamouflage().getCategory());
+        PreferenceManager.getClientPreferences().setLastPlayerCamoName(player.getCamouflage().getFileName());
         send(new Packet(Packet.COMMAND_PLAYER_UPDATE, player));
     }
 
@@ -778,7 +777,7 @@ public class Client implements IClientCommandHandler {
     }
 
     public void sendEntityWeaponOrderUpdate(Entity entity) {
-        Object data[];
+        Object[] data;
         if (entity.getWeaponSortOrder() == Entity.WeaponSortOrder.CUSTOM) {
             data = new Object[3];
             data[2] = entity.getCustomWeaponOrder();
@@ -798,7 +797,7 @@ public class Client implements IClientCommandHandler {
      *            The Entity to add.
      */
     public void sendAddEntity(Entity entity) {
-        ArrayList<Entity> entities = new ArrayList<Entity>(1);
+        List<Entity> entities = new ArrayList<>(1);
         entities.add(entity);
         sendAddEntity(entities);
     }
@@ -918,9 +917,8 @@ public class Client implements IClientCommandHandler {
             game.setPlayer(pindex, newPlayer);
         }
 
-        PreferenceManager.getClientPreferences().setLastPlayerColor(newPlayer.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCategory(newPlayer.getCamoCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamoFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCategory(newPlayer.getCamouflage().getCategory());
+        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamouflage().getFileName());
     }
 
     /**

@@ -10,7 +10,7 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.image.ImageObserver;
 
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.Coords;
 import megamek.common.Entity;
 
@@ -29,7 +29,7 @@ class FlyOverSprite extends Sprite {
     public FlyOverSprite(BoardView1 boardView1, final Entity e) {
         super(boardView1);
         en = e;
-        spriteColor = PlayerColors.getColor(e.getOwner().getColorIndex());
+        spriteColor = PlayerColor.getColor(e.getOwner().getColorIndex());
         image = null;
         prepare();
     }

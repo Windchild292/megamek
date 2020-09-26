@@ -1,4 +1,4 @@
-/**
+/*
  * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
  *
  *  This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.AmmoType;
 import megamek.common.Building;
 import megamek.common.Compute;
@@ -39,11 +39,6 @@ import megamek.server.Server;
  * @author arlith
  */
 public class MissileMineClearanceHandler extends AmmoWeaponHandler {
-
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = 2753652169368638804L;
 
     /**
@@ -52,8 +47,7 @@ public class MissileMineClearanceHandler extends AmmoWeaponHandler {
      * @param g
      * @param s
      */
-    public MissileMineClearanceHandler(ToHitData t, WeaponAttackAction w, IGame g,
-            Server s) {
+    public MissileMineClearanceHandler(ToHitData t, WeaponAttackAction w, IGame g, Server s) {
         super(t, w, g, s);
     }
 
@@ -149,7 +143,7 @@ public class MissileMineClearanceHandler extends AmmoWeaponHandler {
         vPhaseReport.addElement(r);
 
         // Handle mine clearance
-        List<Minefield> mfRemoved = new ArrayList<Minefield>();
+        List<Minefield> mfRemoved = new ArrayList<>();
         int missileDamage = (wtype instanceof LRMWeapon) ? 1 : 2;
         int mineDamage = wtype.getRackSize() * missileDamage;
         boolean updateMinefields = false;
@@ -203,7 +197,7 @@ public class MissileMineClearanceHandler extends AmmoWeaponHandler {
 
         // Damage Terrain if applicable
         IHex h = game.getBoard().getHex(targetPos);
-        newReports = new Vector<Report>();
+        newReports = new Vector<>();
         if ((h != null) && h.hasTerrainfactor()) {
             r = new Report(3384);
             r.indent(2);
@@ -230,7 +224,7 @@ public class MissileMineClearanceHandler extends AmmoWeaponHandler {
             // buildings
             if (Compute.isInBuilding(game, target, targetPos)) {
                 IPlayer tOwner = target.getOwner();
-                String colorcode = Integer.toHexString(PlayerColors.getColor(
+                String colorcode = Integer.toHexString(PlayerColor.getColor(
                         tOwner.getColorIndex()).getRGB() & 0x00f0f0f0);
                 newReports = server.damageBuilding(bldg, damage, " shields "
                         + target.getShortName() + " (<B><font color='"

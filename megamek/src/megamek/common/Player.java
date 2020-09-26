@@ -1,17 +1,16 @@
 /*
  * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common;
 
 import java.util.Enumeration;
@@ -19,20 +18,19 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import megamek.common.event.GamePlayerChangeEvent;
+import megamek.common.icons.AbstractIcon;
+import megamek.common.icons.Camouflage;
 import megamek.common.options.OptionsConstants;
 
 /**
  * Represents a player in the game.
  */
 public final class Player extends TurnOrdered implements IPlayer {
-    /**
-     *
-     */
     private static final long serialVersionUID = 6828849559007455760L;
 
     private transient IGame game;
 
-    private String name = "unnamed";
+    private String name;
     private int id;
 
     private int team = TEAM_NONE;
@@ -46,7 +44,7 @@ public final class Player extends TurnOrdered implements IPlayer {
 
     private int colorIndex = 0;
 
-    // these are game-specific, and maybe should be seperate from the player
+    // these are game-specific, and maybe should be separate from the player
     // object
     private int startingPos = Board.START_ANY;
 
@@ -58,7 +56,7 @@ public final class Player extends TurnOrdered implements IPlayer {
     private int num_mf_inferno = 0;
 
     // hexes that are automatically hit by artillery
-    private Vector<Coords> artyAutoHitHexes = new Vector<Coords>();
+    private Vector<Coords> artyAutoHitHexes = new Vector<>();
 
     private int initialBV;
 
@@ -68,11 +66,9 @@ public final class Player extends TurnOrdered implements IPlayer {
     private int constantInitBonus = 0;
     private int streakCompensationBonus = 0;
 
-    private String camoCategory = IPlayer.NO_CAMO;
+    private AbstractIcon camouflage = new Camouflage();
 
-    private String camoFileName = null;
-
-    private Vector<Minefield> visibleMinefields = new Vector<Minefield>();
+    private Vector<Minefield> visibleMinefields = new Vector<>();
 
     private boolean admitsDefeat = false;
     
@@ -81,6 +77,11 @@ public final class Player extends TurnOrdered implements IPlayer {
      * player's request to chang teams.
      */
     private boolean allowingTeamChange = false;
+
+    public Player(int id, String name) {
+        this.name = name;
+        this.id = id;
+    }
 
     @Override
     public Vector<Minefield> getMinefields() {
@@ -175,28 +176,13 @@ public final class Player extends TurnOrdered implements IPlayer {
     }
 
     @Override
-    public void setCamoCategory(String name) {
-        camoCategory = name;
+    public AbstractIcon getCamouflage() {
+        return camouflage;
     }
 
     @Override
-    public String getCamoCategory() {
-        return camoCategory;
-    }
-
-    @Override
-    public void setCamoFileName(String name) {
-        camoFileName = name;
-    }
-
-    @Override
-    public String getCamoFileName() {
-        return camoFileName;
-    }
-
-    public Player(int id, String name) {
-        this.name = name;
-        this.id = id;
+    public void setCamouflage(AbstractIcon camouflage) {
+        this.camouflage = camouflage;
     }
 
     @Override
@@ -386,18 +372,15 @@ public final class Player extends TurnOrdered implements IPlayer {
 
     @Override
     public boolean hasTAG() {
-        for (Iterator<Entity> e = game
-                .getSelectedEntities(new EntitySelector() {
+        for (Iterator<Entity> e = game.getSelectedEntities(new EntitySelector() {
                     private final int ownerId = getId();
 
+                    @Override
                     public boolean accept(Entity entity) {
                         if (entity.getOwner() == null) {
                             return false;
                         }
-                        if (ownerId == entity.getOwner().getId()) {
-                            return true;
-                        }
-                        return false;
+                        return ownerId == entity.getOwner().getId();
                     }
                 }); e.hasNext(); ) {
             Entity m = e.next();
@@ -568,7 +551,7 @@ public final class Player extends TurnOrdered implements IPlayer {
     public Vector<Integer> getAirborneVTOL() {
 
         //a vector of unit ids
-        Vector<Integer> units = new Vector<Integer>();
+        Vector<Integer> units = new Vector<>();
         for (Entity entity : game.getEntitiesVector()) {
             if (entity.getOwner().equals(this)) {
                 if (((entity instanceof VTOL)
@@ -582,6 +565,7 @@ public final class Player extends TurnOrdered implements IPlayer {
         return units;
     }
     
+    @Override
     public String toString() {
         return "Player " + getId() + " (" + getName() + ")";
     }

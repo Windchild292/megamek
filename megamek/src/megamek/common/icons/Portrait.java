@@ -19,8 +19,9 @@
 package megamek.common.icons;
 
 import megamek.MegaMek;
-import megamek.client.ui.swing.tileset.StaticDirectoryManager;
+import megamek.client.ui.swing.tileset.MegaMekIconDirectoryManager;
 import megamek.common.Crew;
+import org.w3c.dom.Node;
 
 import java.awt.*;
 
@@ -55,14 +56,18 @@ public class Portrait extends AbstractIcon {
         // Try to get the player's portrait file.
         Image portrait = null;
         try {
-            portrait = (Image) StaticDirectoryManager.getPortraits().getItem(category, filename);
+            portrait = (Image) MegaMekIconDirectoryManager.getPortraits().getItem(category, filename);
             if (portrait == null) {
-                portrait = (Image) StaticDirectoryManager.getPortraits().getItem("", DEFAULT_PORTRAIT_FILENAME);
+                portrait = (Image) MegaMekIconDirectoryManager.getPortraits().getItem("", DEFAULT_PORTRAIT_FILENAME);
             }
         } catch (Exception e) {
             MegaMek.getLogger().error(this, e);
         }
 
         return portrait;
+    }
+
+    public static AbstractIcon parseFromXML(Node wn) {
+        return parseFromXML(new Portrait(), wn);
     }
 }

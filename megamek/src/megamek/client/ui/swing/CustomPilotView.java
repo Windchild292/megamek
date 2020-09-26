@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -37,7 +38,6 @@ import megamek.client.generators.RandomCallsignGenerator;
 import megamek.client.ui.GBC;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.icons.PortraitChooser;
-import megamek.client.ui.swing.tileset.PortraitManager;
 import megamek.common.Entity;
 import megamek.common.EntitySelector;
 import megamek.common.Infantry;
@@ -45,6 +45,7 @@ import megamek.common.LAMPilot;
 import megamek.common.Protomech;
 import megamek.common.Tank;
 import megamek.common.enums.Gender;
+import megamek.common.icons.AbstractIcon;
 import megamek.common.options.OptionsConstants;
 import megamek.common.preference.PreferenceManager;
 
@@ -54,7 +55,6 @@ import megamek.common.preference.PreferenceManager;
  * for the entire crew.
  * 
  * @author Neoancient
- *
  */
 public class CustomPilotView extends JPanel {
     private static final long serialVersionUID = 345126674612500365L;
@@ -81,11 +81,10 @@ public class CustomPilotView extends JPanel {
     
     private final JComboBox<String> cbBackup = new JComboBox<>();
     
-    private final ArrayList<Entity> entityUnitNum = new ArrayList<>();
+    private final List<Entity> entityUnitNum = new ArrayList<>();
     private final JComboBox<String> choUnitNum = new JComboBox<>();
-    
-    private String portraitCategory;
-    private String portraitFilename;
+
+    private AbstractIcon portrait;
 
     public CustomPilotView(CustomMechDialog parent, Entity entity, int slot, boolean editable) {
         this.entity = entity;
@@ -105,23 +104,21 @@ public class CustomPilotView extends JPanel {
         button.setText(Messages.getString("CustomMechDialog.labPortrait"));
         button.setActionCommand("portrait"); 
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 int result = portraitDialog.showDialog(entity.getCrew(), slot);
                 if (result == JOptionPane.OK_OPTION) {
                     if (portraitDialog.getSelectedItem() != null) {
-                        portraitCategory = portraitDialog.getSelectedItem().getCategory();
-                        portraitFilename = portraitDialog.getSelectedItem().getItem();
-                        ((JButton) e.getSource()).setIcon(
-                                PortraitManager.getPortraitIcon(portraitCategory, portraitFilename));
-                    } 
+                        portrait = portraitDialog.getSelectedItem();
+                        ((JButton) e.getSource()).setIcon(portrait.getImageIcon());
+                    }
                 }
             }
         });
         
         portraitDialog = new PortraitChooser(parent);
-        portraitCategory = entity.getCrew().getPortraitCategory(slot);
-        portraitFilename = entity.getCrew().getPortraitFileName(slot);
-        button.setIcon(PortraitManager.getPortraitIcon(entity.getCrew(), slot));
+        portrait = entity.getCrew().getPortrait(slot);
+        button.setIcon(portrait.getImageIcon());
         add(button, GBC.std().gridheight(2));
 
         button = new JButton(Messages.getString("CustomMechDialog.RandomName"));
@@ -291,6 +288,7 @@ public class CustomPilotView extends JPanel {
 
                         private final short unitNumber = entity.getUnitNumber();
 
+                        @Override
                         public boolean accept(Entity unitEntity) {
                             return (unitEntity instanceof Protomech)
                                     && (ownerId == unitEntity.getOwnerId())
@@ -428,13 +426,9 @@ public class CustomPilotView extends JPanel {
     public int getToughness() {
         return Integer.parseInt(fldTough.getText());
     }
-    
-    public String getPortraitCategory() {
-        return portraitCategory;
-    }
-    
-    public String getPortraitFilename() {
-        return portraitFilename;
+
+    public AbstractIcon getPortrait() {
+        return portrait;
     }
     
     public Entity getEntityUnitNumSwap() {

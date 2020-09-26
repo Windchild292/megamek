@@ -69,7 +69,7 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.boardview.BoardView1;
 import megamek.client.ui.swing.icons.CamoChooser;
 import megamek.client.ui.swing.util.MenuScroller;
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
 import megamek.common.enums.Gender;
@@ -1432,7 +1432,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         tooltipString.append("<HTML>");
 
         // Unit Chassis and Player
-        addToTT("Unit", NOBR, Integer.toHexString(PlayerColors.getColorRGB(entity.getOwner().getColorIndex())),
+        addToTT("Unit", NOBR, Integer.toHexString(PlayerColor.getColorRGB(entity.getOwner().getColorIndex())),
                 entity.getChassis(), entity.getOwner().getName());
 
         // Pilot Info

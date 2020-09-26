@@ -9,7 +9,7 @@ import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
 import megamek.client.ui.Messages;
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.client.ui.swing.util.StraightArrowPolygon;
 import megamek.common.Compute;
 import megamek.common.Coords;
@@ -77,7 +77,7 @@ class AttackSprite extends Sprite {
         target = this.boardView1.game.getTarget(targetType, targetId);
 
         // color?
-        attackColor = PlayerColors.getColor(ae.getOwner().getColorIndex());
+        attackColor = PlayerColor.getColor(ae.getOwner().getColorIndex());
         // angle of line connecting two hexes
         Coords targetPosition;
         if (Compute.isGroundToAir(ae, target)) {

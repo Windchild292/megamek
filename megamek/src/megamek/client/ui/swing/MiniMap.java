@@ -67,7 +67,7 @@ import megamek.client.event.BoardViewListener;
 import megamek.client.event.BoardViewListenerAdapter;
 import megamek.client.ui.IBoardView;
 import megamek.client.ui.Messages;
-import megamek.client.ui.swing.util.PlayerColors;
+import megamek.client.ui.swing.util.PlayerColor;
 import megamek.common.Aero;
 import megamek.common.Configuration;
 import megamek.common.Coords;
@@ -1099,7 +1099,7 @@ public class MiniMap extends JPanel {
             yPoints[3] = yPoints[0] - 2;
             yPoints[2] = yPoints[1] - 2;
         }
-        g.setColor(PlayerColors.getColor(source.getOwner().getColorIndex()));
+        g.setColor(PlayerColor.getColor(source.getOwner().getColorIndex()));
         g.fillPolygon(xPoints, yPoints, 4);
         g.setColor(Color.black);
         g.drawPolygon(xPoints, yPoints, 4);
@@ -1116,7 +1116,7 @@ public class MiniMap extends JPanel {
                     // (?)
                     Entity attackTarget = m_game.getEntity(otherAttack
                             .getEntityId());
-                    g.setColor(PlayerColors.getColor(attackTarget.getOwner()
+                    g.setColor(PlayerColor.getColor(attackTarget.getOwner()
                             .getColorIndex()));
 
                     xPoints[0] = xPoints[3];
@@ -1314,7 +1314,7 @@ public class MiniMap extends JPanel {
             }
 
             // Fill the form in player color
-            g2.setColor(new Color(PlayerColors.getColorRGB(
+            g2.setColor(new Color(PlayerColor.getColorRGB(
                     entity.getOwner().getColorIndex())));
             g2.fill(form);
 
@@ -1358,7 +1358,7 @@ public class MiniMap extends JPanel {
 
                 // Fill the icon according to player color
                 Color pColor = new Color(
-                        PlayerColors.getColorRGB(entity.getOwner().getColorIndex()));
+                        PlayerColor.getColorRGB(entity.getOwner().getColorIndex()));
                 g.setColor(pColor);
                 g.fillOval(baseX - radius, baseY - radius, dia, dia);
 
@@ -1374,7 +1374,7 @@ public class MiniMap extends JPanel {
 
                 // Fill the icon according to the player color
                 Color pColor = new Color(
-                        PlayerColors.getColorRGB(entity.getOwner().getColorIndex()));
+                        PlayerColor.getColorRGB(entity.getOwner().getColorIndex()));
                 g.setColor(pColor);
                 g.fillPolygon(xPoints, yPoints, xPoints.length);
 
