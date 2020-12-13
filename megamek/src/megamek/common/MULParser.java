@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
 import megamek.MegaMek;
 import megamek.client.generator.RandomNameGenerator;
 import megamek.common.enums.Gender;
+import megamek.common.icons.Camouflage;
 import megamek.common.weapons.infantry.InfantryWeapon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -698,9 +699,10 @@ public class MULParser {
         }
 
         // Camo
-        // Must be a null, and not an empty string, if it isn't being used. - Dylan 2014-04-04
-        entity.setCamoCategory(entityTag.getAttribute(CAMO_CATEGORY).equals("") ? null : entityTag.getAttribute(CAMO_CATEGORY));
-        entity.setCamoFileName(entityTag.getAttribute(CAMO_FILENAME).equals("") ? null : entityTag.getAttribute(CAMO_FILENAME));
+        entity.setCamouflage(new Camouflage(
+                entityTag.getAttribute(CAMO_CATEGORY).equals("") ? Camouflage.NO_CAMOUFLAGE : entityTag.getAttribute(CAMO_CATEGORY),
+                entityTag.getAttribute(CAMO_FILENAME).equals("") ? Camouflage.DEFAULT_ICON_FILENAME : entityTag.getAttribute(CAMO_FILENAME)
+        ));
 
         // external id
         String extId = entityTag.getAttribute(EXT_ID);
@@ -710,7 +712,7 @@ public class MULParser {
         entity.setExternalIdAsString(extId);
 
         // external id
-        if(entity instanceof MechWarrior) {
+        if (entity instanceof MechWarrior) {
             String pickUpId = entityTag.getAttribute(PICKUP_ID);
             if ((null == pickUpId) || (pickUpId.length() == 0)) {
                 pickUpId = "-1";

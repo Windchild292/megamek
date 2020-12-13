@@ -78,7 +78,6 @@ import megamek.common.IPlayer;
 import megamek.common.MechFileParser;
 import megamek.common.MechSummary;
 import megamek.common.MechSummaryCache;
-import megamek.common.icons.Camouflage;
 import megamek.common.loaders.EntityLoadingException;
 import megamek.common.util.Distractable;
 import megamek.common.util.fileUtils.MegaMekFile;
@@ -872,8 +871,8 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener, BoardVi
     }
    
     public void loadPreviewImage(JLabel bp, Entity entity, IPlayer player) {
-        Image camo = ((entity.getCamoCategory() != null) && !Camouflage.NO_CAMOUFLAGE.equals(entity.getCamoCategory())
-                ? entity.getCamouflage() : player.getCamouflage()).getImage();
+        Image camo = (entity.getCamouflage().hasDefaultCategory()
+                ? player.getCamouflage() : entity.getCamouflage()).getImage();
         int tint = PlayerColors.getColorRGB(player.getColorIndex());
         bp.setIcon(new ImageIcon(bv.getTilesetManager().loadPreviewImage(entity, camo, tint, bp)));
     }

@@ -54,7 +54,7 @@ public class ScenarioDialog extends JDialog implements ActionListener {
 
     public boolean bSet;
     public int[] playerTypes;
-    public String localName = ""; //$NON-NLS-1$
+    public String localName = "";
 
     @SuppressWarnings("unchecked")
     public ScenarioDialog(final JFrame frame, Player[] pa) {
@@ -94,8 +94,7 @@ public class ScenarioDialog extends JDialog implements ActionListener {
                 if (Camouflage.NO_CAMOUFLAGE.equals(category)) {
                     curPlayer.setColorIndex(camoDialog.getSelectedIndex());
                 }
-                curPlayer.setCamoCategory(category);
-                curPlayer.setCamoFileName(selectedIcon.getFilename());
+                curPlayer.setCamouflage(selectedIcon);
                 curButton.setIcon(curPlayer.getCamouflage().getImageIcon());
             });
         }
