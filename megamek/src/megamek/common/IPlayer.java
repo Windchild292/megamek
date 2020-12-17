@@ -1,4 +1,5 @@
 /*
+/*
  * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
  *
  *  This program is free software; you can redistribute it and/or modify it
@@ -69,13 +70,7 @@ public interface IPlayer extends ITurnOrdered {
 
     AbstractIcon getCamouflage();
 
-    void setCamoCategory(String name);
-
-    String getCamoCategory();
-
-    void setCamoFileName(String name);
-
-    String getCamoFileName();
+    void setCamouflage(AbstractIcon camouflage);
 
     void setGame(IGame game);
 

@@ -78,7 +78,6 @@ import megamek.common.IPlayer;
 import megamek.common.MechFileParser;
 import megamek.common.MechSummary;
 import megamek.common.MechSummaryCache;
-import megamek.common.icons.Camouflage;
 import megamek.common.loaders.EntityLoadingException;
 import megamek.common.util.Distractable;
 import megamek.common.util.fileUtils.MegaMekFile;
@@ -409,6 +408,7 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener, BoardVi
     /**
      * Implement the <code>ActionListener</code> interface.
      */
+    @Override
     public void actionPerformed(ActionEvent event) {
     }
 
@@ -850,16 +850,18 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener, BoardVi
     public void windowDeiconified(WindowEvent windowEvent) {
         // TODO: this is a kludge to fix a window iconify issue
         // For some reason when I click on the window button, the main UI 
-        // window doesn't deiconify.  This fix doesn't allow me to iconify the
+        // window doesn't deiconify. This fix doesn't allow me to iconify the
         // window by clicking the window button, but it's better than the
         // alternative
         frame.setState(Frame.NORMAL);
     }
 
+    @Override
     public void windowIconified(WindowEvent windowEvent) {
         // ignored
     }
 
+    @Override
     public void windowOpened(WindowEvent windowEvent) {
         // ignored
     }
@@ -872,10 +874,11 @@ public class SkinEditorMainGUI extends JPanel implements WindowListener, BoardVi
     }
    
     public void loadPreviewImage(JLabel bp, Entity entity, IPlayer player) {
-        Image camo = ((entity.getCamoCategory() != null) && !Camouflage.NO_CAMOUFLAGE.equals(entity.getCamoCategory())
-                ? entity.getCamouflage() : player.getCamouflage()).getImage();
+        Image camo = (entity.getCamouflage().hasDefaultCategory()
+                ? player.getCamouflage() : entity.getCamouflage()).getImage();
         int tint = PlayerColors.getColorRGB(player.getColorIndex());
-        bp.setIcon(new ImageIcon(bv.getTilesetManager().loadPreviewImage(entity, camo, tint, bp)));
+        Image icon = bv.getTilesetManager().loadPreviewImage(entity, camo, tint, bp);
+        bp.setIcon((icon != null) ? new ImageIcon(icon) : null);
     }
 
    

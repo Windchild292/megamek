@@ -815,17 +815,16 @@ public class EntityListFile {
                 output.write("\" c3UUID=\"");
                 output.write(entity.getC3UUIDAsString());
             }
-            if (null != entity.getCamoCategory()) {
-                output.write("\" camoCategory=\"");
-                output.write(entity.getCamoCategory());
+            if (!entity.getCamouflage().hasDefaultCategory()) {
+                output.write("\" camoCategory=\"" + entity.getCamouflage().getCategory());
             }
-            if (null != entity.getCamoFileName()) {
-                output.write("\" camoFileName=\"");
-                output.write(entity.getCamoFileName());
+            if (!entity.getCamouflage().hasDefaultFilename()) {
+                output.write("\" camoFileName=\"" + entity.getCamouflage().getFilename());
             }
-            if(entity instanceof MechWarrior && !((MechWarrior)entity).getPickedUpByExternalIdAsString().equals("-1")) {
+            if ((entity instanceof MechWarrior)
+                    && !((MechWarrior) entity).getPickedUpByExternalIdAsString().equals("-1")) {
                 output.write("\" pickUpId=\"");
-                output.write(((MechWarrior)entity).getPickedUpByExternalIdAsString());
+                output.write(((MechWarrior) entity).getPickedUpByExternalIdAsString());
             }
 
             // Save some values for conventional infantry

@@ -30,11 +30,12 @@ public class Camouflage extends AbstractIcon {
     private static final long serialVersionUID = 1093277025745250375L;
 
     public static final String NO_CAMOUFLAGE = "-- No Camo --";
+    public static final String COLOUR_CAMOUFLAGE = "-- Colour Camo --";
     //endregion Variable Declarations
 
     //region Constructors
     public Camouflage() {
-        super();
+        super(NO_CAMOUFLAGE);
     }
 
     public Camouflage(String category, String filename) {
@@ -72,5 +73,10 @@ public class Camouflage extends AbstractIcon {
         graphics.setColor(colour);
         graphics.fillRect(0, 0, 84, 72);
         return result;
+    }
+
+    @Override
+    public AbstractIcon clone() {
+        return new Camouflage(getCategory(), getFilename());
     }
 }

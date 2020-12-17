@@ -90,12 +90,10 @@ public class ScenarioDialog extends JDialog implements ActionListener {
 
                 // Otherwise, update the player data from the selection
                 AbstractIcon selectedIcon = camoDialog.getSelectedItem();
-                String category = selectedIcon.getCategory();
-                if (Camouflage.NO_CAMOUFLAGE.equals(category)) {
+                if (Camouflage.NO_CAMOUFLAGE.equals(selectedIcon.getCategory())) {
                     curPlayer.setColorIndex(camoDialog.getSelectedIndex());
                 }
-                curPlayer.setCamoCategory(category);
-                curPlayer.setCamoFileName(selectedIcon.getFilename());
+                curPlayer.setCamouflage(selectedIcon);
                 curButton.setIcon(curPlayer.getCamouflage().getImageIcon());
             });
         }

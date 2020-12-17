@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
 import megamek.MegaMek;
 import megamek.client.generator.RandomNameGenerator;
 import megamek.common.enums.Gender;
+import megamek.common.icons.Camouflage;
 import megamek.common.weapons.infantry.InfantryWeapon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -666,9 +667,8 @@ public class MULParser {
         // Was never deployed
         try {
             String ndeploy = entityTag.getAttribute(NEVER_DEPLOYED);
-            boolean wasNeverDeployed =
-                    Boolean.parseBoolean(entityTag.getAttribute(NEVER_DEPLOYED));
-            if(null == ndeploy || ndeploy.isEmpty()) {
+            boolean wasNeverDeployed = Boolean.parseBoolean(entityTag.getAttribute(NEVER_DEPLOYED));
+            if ((null == ndeploy) || ndeploy.isEmpty()) {
                 //this will default to false above, but we want it to default to true
                 wasNeverDeployed = true;
             }
@@ -698,9 +698,11 @@ public class MULParser {
         }
 
         // Camo
-        // Must be a null, and not an empty string, if it isn't being used. - Dylan 2014-04-04
-        entity.setCamoCategory(entityTag.getAttribute(CAMO_CATEGORY).equals("") ? null : entityTag.getAttribute(CAMO_CATEGORY));
-        entity.setCamoFileName(entityTag.getAttribute(CAMO_FILENAME).equals("") ? null : entityTag.getAttribute(CAMO_FILENAME));
+        // TODO : AbstractIcon : Remove migration post-release
+        entity.setCamouflage(new Camouflage(
+                entityTag.getAttribute(CAMO_CATEGORY).equals("") ? Camouflage.NO_CAMOUFLAGE : entityTag.getAttribute(CAMO_CATEGORY),
+                entityTag.getAttribute(CAMO_FILENAME).equals("") ? Camouflage.DEFAULT_ICON_FILENAME : entityTag.getAttribute(CAMO_FILENAME)
+        ));
 
         // external id
         String extId = entityTag.getAttribute(EXT_ID);
@@ -710,7 +712,7 @@ public class MULParser {
         entity.setExternalIdAsString(extId);
 
         // external id
-        if(entity instanceof MechWarrior) {
+        if (entity instanceof MechWarrior) {
             String pickUpId = entityTag.getAttribute(PICKUP_ID);
             if ((null == pickUpId) || (pickUpId.length() == 0)) {
                 pickUpId = "-1";
@@ -749,8 +751,7 @@ public class MULParser {
         }
 
         // Load some values for conventional infantry
-        if ((entity instanceof Infantry)
-                && !(entity instanceof BattleArmor)) {
+        if ((entity instanceof Infantry) && !(entity instanceof BattleArmor)) {
             Infantry inf = (Infantry) entity;
             String armorDiv = entityTag.getAttribute(ARMOR_DIVISOR);
             if (armorDiv.length() > 0) {
@@ -780,7 +781,7 @@ public class MULParser {
             }
             
             String infSquadNum = entityTag.getAttribute(INF_SQUAD_NUM);
-            if(infSquadNum.length() > 0) {
+            if (infSquadNum.length() > 0) {
                 inf.setSquadN(Integer.parseInt(infSquadNum));
                 inf.autoSetInternal();
             }

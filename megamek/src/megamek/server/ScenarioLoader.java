@@ -700,8 +700,7 @@ public class ScenarioLoader {
                 camoData[1], camoGroup, entity.getDisplayName());
         }
 
-        entity.setCamoCategory(camoGroup);
-        entity.setCamoFileName(camoName);
+        entity.setCamouflage(new Camouflage(camoGroup, camoName));
     }
 
     /*
@@ -720,8 +719,7 @@ public class ScenarioLoader {
                 camoData[1], camoGroup, player.getName());
         }
 
-        player.setCamoCategory(camoGroup);
-        player.setCamoFileName(camoName);
+        player.setCamouflage(new Camouflage(camoGroup, camoName));
     }
 
     private int findIndex(String[] sa, String s) {

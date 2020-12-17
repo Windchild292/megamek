@@ -39,13 +39,11 @@ public final class Player extends TurnOrdered implements IPlayer {
     private boolean ghost = false; // disconnected player
     private boolean observer = false;
 
-    private boolean see_entire_board = false; // Player can observe
-    // double blind games
+    private boolean see_entire_board = false; // Player can observe double blind games
 
     private int colorIndex = 0;
 
-    // these are game-specific, and maybe should be seperate from the player
-    // object
+    // these are game-specific, and maybe should be separate from the player object
     private int startingPos = Board.START_ANY;
 
     // number of minefields
@@ -66,9 +64,7 @@ public final class Player extends TurnOrdered implements IPlayer {
     private int constantInitBonus = 0;
     private int streakCompensationBonus = 0;
 
-    private String camoCategory = Camouflage.NO_CAMOUFLAGE;
-
-    private String camoFileName = null;
+    private AbstractIcon camouflage = new Camouflage();
 
     private Vector<Minefield> visibleMinefields = new Vector<>();
 
@@ -174,27 +170,12 @@ public final class Player extends TurnOrdered implements IPlayer {
 
     @Override
     public AbstractIcon getCamouflage() {
-        return new Camouflage(getCamoCategory(), getCamoFileName());
+        return camouflage;
     }
 
     @Override
-    public void setCamoCategory(String name) {
-        camoCategory = name;
-    }
-
-    @Override
-    public String getCamoCategory() {
-        return camoCategory;
-    }
-
-    @Override
-    public void setCamoFileName(String name) {
-        camoFileName = name;
-    }
-
-    @Override
-    public String getCamoFileName() {
-        return camoFileName;
+    public void setCamouflage(AbstractIcon camouflage) {
+        this.camouflage = camouflage;
     }
 
     public Player(int id, String name) {

@@ -169,7 +169,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     public static final String ENTITY_AIR_TO_GROUND_SENSOR_RANGE= Messages.getString("Entity.sensor_range_vs_ground_target");
 
     // Weapon sort order defines
-    public static enum WeaponSortOrder {
+    public enum WeaponSortOrder {
         DEFAULT("DEFAULT"),
         RANGE_LH("RANGE_LH"),
         RANGE_HL("RANGE_HL"),
@@ -189,13 +189,12 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
 
     protected int id = Entity.NONE;
 
-    protected String camoCategory = Camouflage.NO_CAMOUFLAGE;
-    protected String camoFileName = null;
+    private AbstractIcon camouflage = new Camouflage();
 
     /**
      * ID settable by external sources (such as mm.net)
      */
-    protected String externalId = "-1";
+    protected String externalId;
 
     protected double weight;
     protected boolean omni = false;
@@ -14514,23 +14513,31 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
 
     // Deal with per entity camo
     public AbstractIcon getCamouflage() {
-        return new Camouflage(getCamoCategory(), getCamoFileName());
+        return camouflage;
     }
 
-    public void setCamoCategory(String name) {
-        camoCategory = name;
+    public void setCamouflage(AbstractIcon camouflage) {
+        this.camouflage = camouflage;
     }
 
+    @Deprecated
+    public void setCamoCategory(String category) {
+        getCamouflage().setCategory(category);
+    }
+
+    @Deprecated
     public String getCamoCategory() {
-        return camoCategory;
+        return getCamouflage().getCategory();
     }
 
-    public void setCamoFileName(String name) {
-        camoFileName = name;
+    @Deprecated
+    public void setCamoFileName(String filename) {
+        getCamouflage().setFilename(filename);
     }
 
+    @Deprecated
     public String getCamoFileName() {
-        return camoFileName;
+        return getCamouflage().getFilename();
     }
 
     public boolean getSelfDestructing() {

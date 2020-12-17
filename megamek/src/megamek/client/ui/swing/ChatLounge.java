@@ -472,8 +472,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
             if (Camouflage.NO_CAMOUFLAGE.equals(selectedItem.getCategory())) {
                 player.setColorIndex(camoDialog.getSelectedIndex());
             }
-            player.setCamoCategory(selectedItem.getCategory());
-            player.setCamoFileName(selectedItem.getFilename());
+            player.setCamouflage(selectedItem);
             butCamo.setIcon(player.getCamouflage().getImageIcon());
             getPlayerSelected().sendPlayerInfo();
         });
@@ -2354,30 +2353,22 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
         // Display the CamoChooserDialog and await the result
         // The dialog is preset to the first selected unit's settings
         CamoChooserDialog mcd = new CamoChooserDialog(clientgui.getFrame());
-        int result = mcd.showDialog(entities.get(0));
+        final int result = mcd.showDialog(entities.get(0));
 
         // If the dialog was canceled or nothing was selected, do nothing
-        if ((result == JOptionPane.CANCEL_OPTION) || (mcd.getSelectedItem() == null)) {
+        if ((result == JOptionPane.CANCEL_OPTION) || (mcd.getSelectedItem() == null)
+                || !(mcd.getSelectedItem() instanceof Camouflage)) {
             return;
         }
 
-        // Choosing the player camo resets the units to have no 
-        // individual camo.
-        AbstractIcon selectedItem = mcd.getSelectedItem();
-        IPlayer owner = entities.get(0).getOwner();
-        AbstractIcon ownerCamo = owner.getCamouflage();
-        boolean noIndividualCamo = selectedItem.equals(ownerCamo);
-        
+        // Choosing the player camo resets the units to have no individual camo.
+        final Camouflage selectedItem = (Camouflage) mcd.getSelectedItem();
+        final boolean noIndividualCamo = selectedItem.equals(entities.get(0).getOwner().getCamouflage());
+
         // Update all allowed entities with the camo
         for (Entity ent : entities) {
             if (isEditable(ent)) {
-                if (noIndividualCamo) {
-                    ent.setCamoCategory(null);
-                    ent.setCamoFileName(null);
-                } else {
-                    ent.setCamoCategory(selectedItem.getCategory());
-                    ent.setCamoFileName(selectedItem.getFilename());
-                }
+                ent.setCamouflage(noIndividualCamo ? new Camouflage() : selectedItem.clone());
                 getLocalClient(ent).sendUpdateEntity(ent);
             }
         }

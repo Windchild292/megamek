@@ -114,7 +114,6 @@ import megamek.common.event.GamePlayerConnectedEvent;
 import megamek.common.event.GamePlayerDisconnectedEvent;
 import megamek.common.event.GameReportEvent;
 import megamek.common.event.GameSettingsChangeEvent;
-import megamek.common.icons.Camouflage;
 import megamek.common.net.Packet;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.AddBotUtil;
@@ -124,10 +123,10 @@ import megamek.common.util.SharedConfiguration;
 import megamek.common.util.StringUtil;
 
 public class ClientGUI extends JPanel implements WindowListener, BoardViewListener, ActionListener, ComponentListener {
-    private static final String FILENAME_ICON_16X16 = "megamek-icon-16x16.png"; //$NON-NLS-1$
-    private static final String FILENAME_ICON_32X32 = "megamek-icon-32x32.png"; //$NON-NLS-1$
-    private static final String FILENAME_ICON_48X48 = "megamek-icon-48x48.png"; //$NON-NLS-1$
-    private static final String FILENAME_ICON_256X256 = "megamek-icon-256x256.png"; //$NON-NLS-1$
+    private static final String FILENAME_ICON_16X16 = "megamek-icon-16x16.png";
+    private static final String FILENAME_ICON_32X32 = "megamek-icon-32x32.png";
+    private static final String FILENAME_ICON_48X48 = "megamek-icon-48x48.png";
+    private static final String FILENAME_ICON_256X256 = "megamek-icon-256x256.png";
 
     private static final long serialVersionUID = 3913466735610109147L;
 
@@ -1847,16 +1846,12 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
     }
 
     public void loadPreviewImage(JLabel bp, Entity entity, IPlayer player) {
-        Image camo = ((entity.getCamoCategory() != null) && !Camouflage.NO_CAMOUFLAGE.equals(entity.getCamoCategory())
-                ? entity.getCamouflage() : player.getCamouflage()).getImage();
+        Image camo = (entity.getCamouflage().hasDefaultCategory()
+                ? player.getCamouflage() : entity.getCamouflage()).getImage();
         // This seems unnecessary as Camouflage will return an image for a playercolor:
         int tint = PlayerColors.getColorRGB(player.getColorIndex());
         Image icon = bv.getTilesetManager().loadPreviewImage(entity, camo, tint, bp);
-        if (icon != null) {
-            bp.setIcon(new ImageIcon(icon));
-        } else {
-            bp.setIcon(null);
-        }
+        bp.setIcon((icon != null) ? new ImageIcon(icon) : null);
     }
 
     /**

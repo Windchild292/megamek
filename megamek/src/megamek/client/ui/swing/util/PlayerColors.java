@@ -18,11 +18,12 @@ import java.awt.Color;
 import megamek.client.ui.swing.GUIPreferences;
 
 public class PlayerColors {
-    public static final String[] COLOR_NAMES = { "Blue", "Red", "Green", "Cyan",
-            "Pink", "Orange", "Gray", "Brown", "Purple", "Turquoise ",
-            "Maroon", "Spring Green", "Gold", "Sienna", "Violet", "Navy",
-            "Olive Drab", "Fuchsia", "FireBrick", "Dark Golden Rod", "Coral",
-            "Chartreuse", "Deep Purple", "Yellow" };
+    public static final String[] COLOR_NAMES = {
+            "Blue", "Red", "Green", "Cyan", "Pink",
+            "Orange", "Gray", "Brown", "Purple", "Turquoise",
+            "Maroon", "Spring Green", "Gold", "Sienna", "Violet",
+            "Navy", "Olive Drab", "Fuchsia", "FireBrick", "Dark Golden Rod",
+            "Coral", "Chartreuse", "Deep Purple", "Yellow" };
 
     protected static final int[] COLOR_RGBS = { 0x8686BF, 0xCC6666, 0x87BF86,
             0x8FCCCC, 0xF29DC8, 0xF2AA61, 0xBEBEBE, 0x98816B, 0x800080,
@@ -36,7 +37,7 @@ public class PlayerColors {
                 return getColor(idx);
             }
         }
-        return getColor(0);
+        return getColor(23);
     }
 
     public static Color getColor(int colorIndex) {

@@ -3,17 +3,16 @@
  * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client;
 
 import java.awt.*;
@@ -765,8 +764,8 @@ public class Client implements IClientCommandHandler {
     public void sendPlayerInfo() {
         IPlayer player = game.getPlayer(localPlayerNumber);
         PreferenceManager.getClientPreferences().setLastPlayerColor(player.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCategory(player.getCamoCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(player.getCamoFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCategory(player.getCamouflage().getCategory());
+        PreferenceManager.getClientPreferences().setLastPlayerCamoName(player.getCamouflage().getFilename());
         send(new Packet(Packet.COMMAND_PLAYER_UPDATE, player));
     }
 
@@ -778,7 +777,7 @@ public class Client implements IClientCommandHandler {
     }
 
     public void sendEntityWeaponOrderUpdate(Entity entity) {
-        Object data[];
+        Object[] data;
         if (entity.getWeaponSortOrder() == Entity.WeaponSortOrder.CUSTOM) {
             data = new Object[3];
             data[2] = entity.getCustomWeaponOrder();
@@ -896,12 +895,12 @@ public class Client implements IClientCommandHandler {
             send(new Packet(Packet.COMMAND_LOAD_GAME, new Object[] { newGame }));
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Can't find local savegame " + f); //$NON-NLS-1$
+            System.out.println("Can't find local savegame " + f);
         }
     }
 
     public void sendExplodeBuilding(DemolitionCharge charge) {
-        Object data[] = new Object[1];
+        Object[] data = new Object[1];
         data[0] = charge;
         send(new Packet(Packet.COMMAND_BLDG_EXPLODE, data));
     }
@@ -919,8 +918,8 @@ public class Client implements IClientCommandHandler {
         }
 
         PreferenceManager.getClientPreferences().setLastPlayerColor(newPlayer.getColorIndex());
-        PreferenceManager.getClientPreferences().setLastPlayerCategory(newPlayer.getCamoCategory());
-        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamoFileName());
+        PreferenceManager.getClientPreferences().setLastPlayerCategory(newPlayer.getCamouflage().getCategory());
+        PreferenceManager.getClientPreferences().setLastPlayerCamoName(newPlayer.getCamouflage().getFilename());
     }
 
     /**
