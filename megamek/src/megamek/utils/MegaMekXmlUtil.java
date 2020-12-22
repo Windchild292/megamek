@@ -219,12 +219,6 @@ public class MegaMekXmlUtil {
             pw1.println(indentStr(indent) + "<" + name + ">" + StringUtils.join(values, ',') + "</" + name + ">");
         }
     }
-
-    public static void writeSimpleXMLTag(PrintWriter pw1, int indent, String name, Object... values) {
-        if (values.length > 0) {
-            pw1.println(indentStr(indent) + "<" + name + ">" + StringUtils.join(values, ',') + "</" + name + ">");
-        }
-    }
     //endregion Simple XML Tag
 
     //region Close Indented Line
