@@ -194,6 +194,15 @@ public class MegaMekXmlUtil {
         }
     }
 
+    public static <T> void writeSimpleXMLTag(PrintWriter pw1, int indent, String name, String attr,
+                                             T val, String value) {
+        pw1.print(indentStr(indent) + "<" + escape(name));
+        if (val != null) {
+            pw1.print(attr + "=\"" + val + "\" ");
+        }
+        pw1.print(value + ">\n");
+    }
+
     public static void writeSimpleXMLTag(PrintWriter pw1, int indent, String name, int... values) {
         if (values.length > 0) {
             pw1.println(indentStr(indent) + "<" + name + ">" + StringUtils.join(values, ',') + "</" + name + ">");
