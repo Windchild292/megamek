@@ -37,7 +37,7 @@ public class PlayerColors {
                 return getColor(idx);
             }
         }
-        return getColor(23);
+        return getColor(0);
     }
 
     public static Color getColor(int colorIndex) {

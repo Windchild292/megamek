@@ -281,7 +281,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * central hex plus all of the other hexes this entity occupies. The central
      * hex is important for drawing multi-hex sprites.
      */
-    protected Map<Integer, Coords> secondaryPositions = null;
+    protected Map<Integer, Coords> secondaryPositions;
 
     protected int facing = 0;
     protected int sec_facing = 0;
@@ -14518,26 +14518,6 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
 
     public void setCamouflage(AbstractIcon camouflage) {
         this.camouflage = camouflage;
-    }
-
-    @Deprecated
-    public void setCamoCategory(String category) {
-        getCamouflage().setCategory(category);
-    }
-
-    @Deprecated
-    public String getCamoCategory() {
-        return getCamouflage().getCategory();
-    }
-
-    @Deprecated
-    public void setCamoFileName(String filename) {
-        getCamouflage().setFilename(filename);
-    }
-
-    @Deprecated
-    public String getCamoFileName() {
-        return getCamouflage().getFilename();
     }
 
     public boolean getSelfDestructing() {
