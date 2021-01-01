@@ -1,20 +1,15 @@
 /*
  * MegaMek - Copyright (C) 2002, 2003 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
- */
-
-/**
- * The random skill dialog allows the player to randomly assign skills to pilots based on overall experience level.
- *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.client.ui.swing;
 
@@ -32,8 +27,10 @@ import megamek.client.generator.RandomSkillsGenerator;
 import megamek.client.ui.Messages;
 import megamek.common.Entity;
 
-public class RandomSkillDialog extends JDialog implements ActionListener,
-        ItemListener {
+/**
+ * The random skill dialog allows the player to randomly assign skills to pilots based on overall experience level.
+ */
+public class RandomSkillDialog extends JDialog implements ActionListener, ItemListener {
 
     private static final long serialVersionUID = -2459992981678758743L;
     private Client client;
@@ -54,8 +51,7 @@ public class RandomSkillDialog extends JDialog implements ActionListener,
         init();
     }
 
-    private void init(){
-
+    private void init() {
         initComponents();
 
         client = clientgui.getClient();
