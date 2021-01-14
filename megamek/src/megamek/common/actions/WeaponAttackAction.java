@@ -1,17 +1,16 @@
 /*
  * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common.actions;
 
 import java.io.Serializable;
@@ -53,10 +52,8 @@ import megamek.common.LandAirMech;
 import megamek.common.LosEffects;
 import megamek.common.Mech;
 import megamek.common.MechWarrior;
-import megamek.common.MinefieldTarget;
 import megamek.common.MiscType;
 import megamek.common.Mounted;
-import megamek.common.PlanetaryConditions;
 import megamek.common.Protomech;
 import megamek.common.QuadMech;
 import megamek.common.QuadVee;
@@ -75,6 +72,7 @@ import megamek.common.TripodMech;
 import megamek.common.VTOL;
 import megamek.common.Warship;
 import megamek.common.WeaponType;
+import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.DiveBombAttack;
 import megamek.common.weapons.InfantryAttack;
@@ -1834,13 +1832,11 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             }
             
             // Ballistic and Missile weapons are subject to wind conditions
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if ((windCond == PlanetaryConditions.WI_TORNADO_F13) && wtype.hasFlag(WeaponType.F_MISSILE)
+            Wind wind = game.getPlanetaryConditions().getWindStrength();
+            if (wind.isTornadoF13() && wtype.hasFlag(WeaponType.F_MISSILE)
                     && !game.getBoard().inSpace()) {
                 return Messages.getString("WeaponAttackAction.NoMissileTornado");
-            }
-
-            if ((windCond == PlanetaryConditions.WI_TORNADO_F4) && !game.getBoard().inSpace()
+            } else if (wind.isTornadoF4() && !game.getBoard().inSpace()
                     && (wtype.hasFlag(WeaponType.F_MISSILE) || wtype.hasFlag(WeaponType.F_BALLISTIC))) {
                 return Messages.getString("WeaponAttackAction.F4Tornado");
             }
@@ -2803,51 +2799,59 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         TargetRoll weatherToHitMods = new TargetRoll();
 
         // weather mods (not in space)
-        int weatherMod = game.getPlanetaryConditions().getWeatherHitPenalty(ae);
+        int weatherMod = game.getPlanetaryConditions().getWeather().getHitPenalty(ae);
         if ((weatherMod != 0) && !game.getBoard().inSpace()) {
-            weatherToHitMods.addModifier(weatherMod, game.getPlanetaryConditions().getWeatherDisplayableName());
+            weatherToHitMods.addModifier(weatherMod, game.getPlanetaryConditions().getWeather().toString());
         }
 
         // wind mods (not in space)
         if (!game.getBoard().inSpace()) {
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if (windCond == PlanetaryConditions.WI_MOD_GALE) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_MISSILE)) {
-                    weatherToHitMods.addModifier(1, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_STRONG_GALE) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
-                    weatherToHitMods.addModifier(1, PlanetaryConditions.getWindDisplayableName(windCond));
-                } else if (wtype != null && wtype.hasFlag(WeaponType.F_MISSILE)) {
-                    weatherToHitMods.addModifier(2, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_STORM) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
-                    weatherToHitMods.addModifier(2, PlanetaryConditions.getWindDisplayableName(windCond));
-                } else if (wtype != null && wtype.hasFlag(WeaponType.F_MISSILE)) {
-                    weatherToHitMods.addModifier(3, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_TORNADO_F13) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_ENERGY)) {
-                    weatherToHitMods.addModifier(2, PlanetaryConditions.getWindDisplayableName(windCond));
-                } else {
-                    weatherToHitMods.addModifier(3, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_TORNADO_F4) {
-                weatherToHitMods.addModifier(3, PlanetaryConditions.getWindDisplayableName(windCond));
+            Wind wind = game.getPlanetaryConditions().getWindStrength();
+            switch (wind) {
+                case MODERATE_GALE:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_MISSILE)) {
+                        weatherToHitMods.addModifier(1, wind.toString());
+                    }
+                    break;
+                case STRONG_GALE:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
+                        weatherToHitMods.addModifier(1, wind.toString());
+                    } else if ((wtype != null) && wtype.hasFlag(WeaponType.F_MISSILE)) {
+                        weatherToHitMods.addModifier(2, wind.toString());
+                    }
+                    break;
+                case STORM:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
+                        weatherToHitMods.addModifier(2, wind.toString());
+                    } else if ((wtype != null) && wtype.hasFlag(WeaponType.F_MISSILE)) {
+                        weatherToHitMods.addModifier(3, wind.toString());
+                    }
+                    break;
+                case TORNADO_F13:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_ENERGY)) {
+                        weatherToHitMods.addModifier(2, wind.toString());
+                    } else {
+                        weatherToHitMods.addModifier(3, wind.toString());
+                    }
+                    break;
+                case TORNADO_F4:
+                    weatherToHitMods.addModifier(3, wind.toString());
+                    break;
+                default:
+                    break;
             }
         }
 
         // fog mods (not in space)
-        if (wtype != null && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
-                && (game.getPlanetaryConditions().getFog() == PlanetaryConditions.FOG_HEAVY)) {
+        if ((wtype != null) && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
+                && game.getPlanetaryConditions().getFog().isHeavy()) {
             weatherToHitMods.addModifier(1, Messages.getString("WeaponAttackAction.HeavyFog"));
         }
 
         // blowing sand mods
-        if (wtype != null && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
+        if ((wtype != null) && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
                 && game.getPlanetaryConditions().isSandBlowing()
-                && (game.getPlanetaryConditions().getWindStrength() > PlanetaryConditions.WI_LIGHT_GALE)) {
+                && game.getPlanetaryConditions().getWindStrength().isModerateGaleOrStronger()) {
             weatherToHitMods.addModifier(1, Messages.getString("WeaponAttackAction.BlowingSand"));
         }
 

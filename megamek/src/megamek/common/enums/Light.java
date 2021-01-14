@@ -19,37 +19,152 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
-import megamek.client.generator.RandomGenderGenerator;
+import megamek.common.util.EncodeControl;
+
+import java.util.ResourceBundle;
 
 public enum Light {
+    //region Enum Declarations
+    DAY("Light.DAY.text"),
+    DUSK("Light.DUSK.text"),
+    FULL_MOON("Light.FULL_MOON.text"),
+    MOONLESS("Light.MOONLESS.text"),
+    PITCH_BLACK("Light.PITCH_BLACK.text");
+    //endregion Enum Declarations
+
+    //region Variable Declarations
+    private final String name;
+
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    //endregion Variable Declarations
+
+    //region Constructors
+    Light(String name) {
+        this.name = resources.getString(name);
+    }
+    //endregion Constructors
+
+    //region Boolean Comparisons
+    public boolean isDay() {
+        return this == DAY;
+    }
+
+    public boolean isDusk() {
+        return this == DUSK;
+    }
+
+    public boolean isFullMoon() {
+        return this == FULL_MOON;
+    }
+
+    public boolean isMoonless() {
+        return this == MOONLESS;
+    }
+
+    public boolean isPitchBlack() {
+        return this == PITCH_BLACK;
+    }
+
+    public boolean isNight() {
+        return isFullMoon() || isMoonless() || isPitchBlack();
+    }
+    //endregion Boolean Comparisons
+
     /**
-     * @param input the string to parse
-     * @return the gender defined by the input, or a randomly generated string if the string isn't a
-     * proper value
+     * to-hit penalty for light
      */
-    public static Gender parseFromString(String input) {
+    public int getHitPenalty(boolean isWeapon) {
+        switch (this) {
+            case DUSK:
+                return 1;
+            case FULL_MOON:
+                return 2;
+            case MOONLESS:
+                return isWeapon ? 3 : 1;
+            case PITCH_BLACK:
+                return isWeapon ? 4 : 2;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * heat bonus to hit for being overheated in darkness
+     */
+    public int getHeatBonus(int heat) {
+        double divisor;
+        switch (this) {
+            case DUSK:
+                divisor = 25.0;
+                break;
+            case FULL_MOON:
+                divisor = 20.0;
+                break;
+            case MOONLESS:
+                divisor = 15.0;
+                break;
+            case PITCH_BLACK:
+                divisor = 10.0;
+                break;
+            default:
+                divisor = 10000.0;
+                break;
+        }
+        return (-1 * (int) Math.floor(heat / divisor));
+    }
+
+    /**
+     * piloting penalty for running/flanking/etc for light
+     */
+    public int getPilotingPenalty() {
+        switch (this) {
+            case MOONLESS:
+                return 1;
+            case PITCH_BLACK:
+                return 2;
+            default:
+                return 0;
+        }
+    }
+
+    //region File I/O
+    /**
+     * @param text the string to parse
+     * @return the Light, or DAY if there is an error in parsing
+     */
+    public static Light parseFromString(String text) {
         try {
-            return valueOf(input);
+            valueOf(text);
         } catch (Exception ignored) {
 
         }
 
         try {
-            switch (Integer.parseInt(input)) {
-                case 0:
-                    return MALE;
+            switch (Integer.parseInt(text)) {
                 case 1:
-                    return FEMALE;
-                case -1:
+                    return DUSK;
+                case 2:
+                    return FULL_MOON;
+                case 3:
+                    return MOONLESS;
+                case 4:
+                    return PITCH_BLACK;
+                case 0:
                 default:
-                    return RandomGenderGenerator.generate();
+                    return DAY;
             }
         } catch (Exception ignored) {
 
         }
 
-        MegaMek.getLogger().error("Failed to parse the gender value from input String " + input
-                + ". Returning a newly generated gender.");
-        return RandomGenderGenerator.generate();
+        MegaMek.getLogger().error("Unable to parse " + text + " into a Light. Returning DAY.");
+
+        return DAY;
+    }
+    //endregion File I/O
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

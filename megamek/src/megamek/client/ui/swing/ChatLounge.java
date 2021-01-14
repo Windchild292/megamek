@@ -3965,8 +3965,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
                     .booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_BURST);
             boolean isHotLoad = clientgui.getClient().getGame().getOptions()
                     .booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_HOTLOAD);
-            boolean isSearchlight = clientgui.getClient().getGame().getPlanetaryConditions()
-                    .getLight() > PlanetaryConditions.L_DUSK;
+            boolean isSearchlight = clientgui.getClient().getGame().getPlanetaryConditions().getLight().isNight();
             boolean allLoaded = true;
             boolean allUnloaded = true;
             boolean allCapFighter = true;

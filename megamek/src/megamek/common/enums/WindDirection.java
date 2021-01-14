@@ -19,38 +19,105 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
-import megamek.client.generator.RandomGenderGenerator;
+import megamek.common.util.EncodeControl;
+
+import java.util.ResourceBundle;
 
 public enum WindDirection {
+    //region Enum Declarations
+    NORTH("WindDirection.NORTH.text"),
+    NORTHEAST("WindDirection.NORTHEAST.text"),
+    SOUTHEAST("WindDirection.SOUTHEAST.text"),
+    SOUTH("WindDirection.SOUTH.text"),
+    SOUTHWEST("WindDirection.SOUTHWEST.text"),
+    NORTHWEST("WindDirection.NORTHWEST.text"),
+    RANDOMIZE("WindDirection.RANDOMIZE.text");
+    //endregion Enum Declarations
 
+    //region Variable Declarations
+    private final String name;
+
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    //endregion Variable Declarations
+
+    //region Constructors
+    WindDirection(String name) {
+        this.name = resources.getString(name);
+    }
+    //endregion Constructors
+
+    //region Boolean Comparisons
+    public boolean isNorth() {
+        return this == NORTH;
+    }
+
+    public boolean isNortheast() {
+        return this == NORTHEAST;
+    }
+
+    public boolean isSoutheast() {
+        return this == SOUTHEAST;
+    }
+
+    public boolean isSouth() {
+        return this == SOUTH;
+    }
+
+    public boolean isSouthwest() {
+        return this == SOUTHWEST;
+    }
+
+    public boolean isNorthwest() {
+        return this == NORTHWEST;
+    }
+
+    public boolean isRandomize() {
+        return this == RANDOMIZE;
+    }
+    //endregion Boolean Comparisons
+
+    //region File I/O
     /**
-     * @param input the string to parse
-     * @return the gender defined by the input, or a randomly generated string if the string isn't a
-     * proper value
+     * @param text the string to parse
+     * @return the WindDirection, or RANDOMIZE if there is an error in parsing
      */
-    public static Gender parseFromString(String input) {
+    public static WindDirection parseFromString(String text) {
         try {
-            return valueOf(input);
+            valueOf(text);
         } catch (Exception ignored) {
 
         }
 
         try {
-            switch (Integer.parseInt(input)) {
+            switch (Integer.parseInt(text)) {
                 case 0:
-                    return MALE;
+                    return NORTH;
                 case 1:
-                    return FEMALE;
-                case -1:
+                    return NORTHEAST;
+                case 2:
+                    return SOUTHEAST;
+                case 3:
+                    return SOUTH;
+                case 4:
+                    return SOUTHWEST;
+                case 5:
+                    return NORTHWEST;
+                case 6:
                 default:
-                    return RandomGenderGenerator.generate();
+                    return RANDOMIZE;
             }
         } catch (Exception ignored) {
 
         }
 
-        MegaMek.getLogger().error("Failed to parse the gender value from input String " + input
-                + ". Returning a newly generated gender.");
-        return RandomGenderGenerator.generate();
+        MegaMek.getLogger().error("Unable to parse " + text + " into an WindDirection. Returning RANDOMIZE.");
+
+        return RANDOMIZE;
+    }
+    //endregion File I/O
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

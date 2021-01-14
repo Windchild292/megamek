@@ -1545,7 +1545,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             g.dispose();
             mask = createShadowMask(mask);
             mask = blurOp.filter(mask, null);
-            if (game.getPlanetaryConditions().getLight() != PlanetaryConditions.L_DAY) {
+            if (!game.getPlanetaryConditions().getLight().isDay()) {
                 mask = blurOp.filter(mask, null);
             }
             shadowImageCache.put(orig.hashCode(), mask);
@@ -1599,12 +1599,12 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         shadowMap = config.createCompatibleImage(width, height,
                 Transparency.TRANSLUCENT);
 
-        Graphics2D g = (Graphics2D)(shadowMap.createGraphics());
+        Graphics2D g = shadowMap.createGraphics();
 
-        if ((game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_MOONLESS) ||
-        (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_PITCH_BLACK)) {
+        if (game.getPlanetaryConditions().getLight().isMoonless()
+                || game.getPlanetaryConditions().getLight().isPitchBlack()) {
             lightDirection = new double[] { 0, 0 };
-        } else if (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DUSK) {
+        } else if (game.getPlanetaryConditions().getLight().isDusk()) {
             // TODO: replace when made user controlled
             lightDirection = new double[] { -38, 14 };
         } else {
@@ -2691,7 +2691,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             Point p2DST = new Point(hex_size.width, hex_size.height);
 
             Composite svComp = g.getComposite();
-            if (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DAY) {
+            if (game.getPlanetaryConditions().getLight().isDay()) {
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.55f));
             } else {
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.45f));
@@ -2798,7 +2798,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         // Darken the hex for night-time, if applicable
         if (guip.getBoolean(GUIPreferences.ADVANCED_DARKEN_MAP_AT_NIGHT)
                 && (game.isPositionIlluminated(c) == IGame.ILLUMINATED_NONE)
-                && (game.getPlanetaryConditions().getLight() > PlanetaryConditions.L_DAY)) {
+                && !game.getPlanetaryConditions().getLight().isDay()) {
             for (int x = 0; x < hexImage.getWidth(); ++x) {
                 for (int y = 0; y < hexImage.getHeight(); ++y) {
                     hexImage.setRGB(x, y, getNightDarkenedColor(hexImage.getRGB(x, y)));
@@ -3028,7 +3028,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                 // Darken the hex for night-time, if applicable
                 if (GUIPreferences.getInstance().getBoolean(GUIPreferences.ADVANCED_DARKEN_MAP_AT_NIGHT)
                         && (game.isPositionIlluminated(c) == IGame.ILLUMINATED_NONE)
-                        && (game.getPlanetaryConditions().getLight() > PlanetaryConditions.L_DAY)) {
+                        && !game.getPlanetaryConditions().getLight().isDay()) {
                     for (int x = 0; x < scaledImage.getWidth(null); ++x) {
                         for (int y = 0; y < scaledImage.getHeight(); ++y) {
                             scaledImage.setRGB(x, y, getNightDarkenedColor(scaledImage.getRGB(x, y)));
@@ -3206,32 +3206,29 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         int al = (rgb >> 24);
 
         switch (game.getPlanetaryConditions().getLight()) {
-        case PlanetaryConditions.L_FULL_MOON:
-            rd = rd / 4; // 1/4 red
-            gr = gr / 4; // 1/4 green
-            bl = bl / 2; // half blue
-            break;
-        case PlanetaryConditions.L_PITCH_BLACK:
-            int gy = (rd + gr + bl) / 16;
-            if (Math.random() < 0.3) {
-                gy = gy * 4 / 5;
-            }
-            if (Math.random() < 0.3) {
-                gy = gy * 5 / 4;
-            }
-            rd = gy + rd / 5;
-            gr = gy + gr / 5;
-            bl = gy + bl / 5;
-            break;
-        case PlanetaryConditions.L_MOONLESS:
-            rd = rd / 4;
-            gr = gr / 4;
-            bl = bl / 2;
-            break;
-        case PlanetaryConditions.L_DUSK:
-            bl = bl * 3 / 4;
-            break;
-        default:
+            case FULL_MOON:
+            case MOONLESS:
+                rd = rd / 4; // 1/4 red
+                gr = gr / 4; // 1/4 green
+                bl = bl / 2; // half blue
+                break;
+            case PITCH_BLACK:
+                int gy = (rd + gr + bl) / 16;
+                if (Math.random() < 0.3) {
+                    gy = gy * 4 / 5;
+                }
+                if (Math.random() < 0.3) {
+                    gy = gy * 5 / 4;
+                }
+                rd = gy + rd / 5;
+                gr = gy + gr / 5;
+                bl = gy + bl / 5;
+                break;
+            case DUSK:
+                bl = bl * 3 / 4;
+                break;
+            default:
+                break;
         }
 
         return (al << 24) + (rd << 16) + (gr << 8) + bl;

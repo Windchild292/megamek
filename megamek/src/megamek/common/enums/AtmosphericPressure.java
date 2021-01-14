@@ -19,38 +19,102 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
-import megamek.client.generator.RandomGenderGenerator;
+import megamek.common.util.EncodeControl;
+
+import java.util.ResourceBundle;
 
 public enum AtmosphericPressure {
+    //region Enum Declarations
+    VACUUM("AtmosphericPressure.VACUUM.text"),
+    TRACE("AtmosphericPressure.TRACE.text"),
+    THIN("AtmosphericPressure.THIN.text"),
+    STANDARD("AtmosphericPressure.STANDARD.text"),
+    HIGH("AtmosphericPressure.HIGH.text"),
+    VERY_HIGH("AtmosphericPressure.VERY_HIGH.text");
+    //endregion Enum Declarations
 
+    //region Variable Declarations
+    private final String name;
+
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    //endregion Variable Declarations
+
+    //region Constructors
+    AtmosphericPressure(String name) {
+        this.name = resources.getString(name);
+    }
+    //endregion Constructors
+
+    //region Boolean Comparisons
+    public boolean isVacuum() {
+        return this == VACUUM;
+    }
+
+    public boolean isTrace() {
+        return this == TRACE;
+    }
+
+    public boolean isThin() {
+        return this == THIN;
+    }
+
+    public boolean isStandard() {
+        return this == STANDARD;
+    }
+
+    public boolean isHigh() {
+        return this == HIGH;
+    }
+
+    public boolean isVeryHigh() {
+        return this == VERY_HIGH;
+    }
+
+    public boolean isTraceOrVacuum() {
+        return isTrace() || isVacuum();
+    }
+    //endregion Boolean Comparisons
+
+    //region File I/O
     /**
-     * @param input the string to parse
-     * @return the gender defined by the input, or a randomly generated string if the string isn't a
-     * proper value
+     * @param text the string to parse
+     * @return the AtmosphericPressure, or STANDARD if there is an error in parsing
      */
-    public static Gender parseFromString(String input) {
+    public static AtmosphericPressure parseFromString(String text) {
         try {
-            return valueOf(input);
+            valueOf(text);
         } catch (Exception ignored) {
 
         }
 
         try {
-            switch (Integer.parseInt(input)) {
+            switch (Integer.parseInt(text)) {
                 case 0:
-                    return MALE;
+                    return VACUUM;
                 case 1:
-                    return FEMALE;
-                case -1:
+                    return TRACE;
+                case 2:
+                    return THIN;
+                case 4:
+                    return HIGH;
+                case 5:
+                    return VERY_HIGH;
+                case 3:
                 default:
-                    return RandomGenderGenerator.generate();
+                    return STANDARD;
             }
         } catch (Exception ignored) {
 
         }
 
-        MegaMek.getLogger().error("Failed to parse the gender value from input String " + input
-                + ". Returning a newly generated gender.");
-        return RandomGenderGenerator.generate();
+        MegaMek.getLogger().error("Unable to parse " + text + " into an AtmosphericPressure. Returning STANDARD.");
+
+        return STANDARD;
+    }
+    //endregion File I/O
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

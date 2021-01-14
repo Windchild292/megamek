@@ -99,6 +99,7 @@ import megamek.common.actions.UnjamTurretAction;
 import megamek.common.actions.UnloadStrandedAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.containers.PlayerIDandList;
+import megamek.common.enums.Wind;
 import megamek.common.event.GameListener;
 import megamek.common.event.GameVictoryEvent;
 import megamek.common.icons.Camouflage;
@@ -2390,7 +2391,7 @@ public class Server implements Runnable {
                 clearReports();
                 resolveHeat();
                 if (game.getPlanetaryConditions().isSandBlowing()
-                    && (game.getPlanetaryConditions().getWindStrength() > PlanetaryConditions.WI_LIGHT_GALE)) {
+                        && game.getPlanetaryConditions().getWindStrength().isModerateGaleOrStronger()) {
                     addReport(resolveBlowingSandDamage());
                 }
                 addReport(resolveControlRolls());
@@ -3964,18 +3965,18 @@ public class Server implements Runnable {
             if(!game.getBoard().inSpace()) {
                 // Wind direction and strength
                 Report rWindDir = new Report(1025, Report.PUBLIC);
-                rWindDir.add(game.getPlanetaryConditions().getWindDirDisplayableName());
+                rWindDir.add(game.getPlanetaryConditions().getWindDirection().toString());
                 rWindDir.newlines = 0;
                 Report rWindStr = new Report(1030, Report.PUBLIC);
-                rWindStr.add(game.getPlanetaryConditions().getWindDisplayableName());
+                rWindStr.add(game.getPlanetaryConditions().getWindStrength().toString());
                 rWindStr.newlines = 0;
                 Report rWeather = new Report(1031, Report.PUBLIC);
-                rWeather.add(game.getPlanetaryConditions().getWeatherDisplayableName());
+                rWeather.add(game.getPlanetaryConditions().getWeather().toString());
                 rWeather.newlines = 0;
                 Report rLight = new Report(1032, Report.PUBLIC);
-                rLight.add(game.getPlanetaryConditions().getLightDisplayableName());
+                rLight.add(game.getPlanetaryConditions().getLight().toString());
                 Report rVis = new Report(1033, Report.PUBLIC);
-                rVis.add(game.getPlanetaryConditions().getFogDisplayableName());
+                rVis.add(game.getPlanetaryConditions().getFog().toString());
                 addReport(rWindDir);
                 addReport(rWindStr);
                 addReport(rWeather);
@@ -11918,7 +11919,7 @@ public class Server implements Runnable {
             if ((entity instanceof Mech) && !entity.isProne()
                 && (hex.terrainLevel(Terrains.WATER) <= partialWaterLevel)) {
                 for (int loop = 0; loop < entity.locations(); loop++) {
-                    if (game.getPlanetaryConditions().isVacuum()
+                    if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()
                             || ((entity.getEntityType() & Entity.ETYPE_AERO) == 0 && entity.isSpaceborne())) {
                         entity.setLocationStatus(loop, ILocationExposureStatus.VACUUM);
                     } else {
@@ -11947,7 +11948,7 @@ public class Server implements Runnable {
             }
         } else {
             for (int loop = 0; loop < entity.locations(); loop++) {
-                if (game.getPlanetaryConditions().isVacuum()
+                if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()
                         || ((entity.getEntityType() & Entity.ETYPE_AERO) == 0 && entity.isSpaceborne())) {
                     entity.setLocationStatus(loop, ILocationExposureStatus.VACUUM);
                 } else {
@@ -13181,7 +13182,7 @@ public class Server implements Runnable {
                 // all spheroid craft should have velocity of zero in atmosphere
                 // regardless of what was entered
                 IAero a = (IAero) entity;
-                if (a.isSpheroid() || game.getPlanetaryConditions().isVacuum()) {
+                if (a.isSpheroid() || game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
                     a.setCurrentVelocity(0);
                     a.setNextVelocity(0);
                 }
@@ -14960,7 +14961,7 @@ public class Server implements Runnable {
         }
 
         // no lighting fires in tornadoes
-        if (game.getPlanetaryConditions().getWindStrength() > PlanetaryConditions.WI_STORM) {
+        if (game.getPlanetaryConditions().getWindStrength().isTornado()) {
             nTargetRoll = new TargetRoll(TargetRoll.AUTOMATIC_FAIL, "tornado");
         }
 
@@ -20698,8 +20699,8 @@ public class Server implements Runnable {
             final IHex curHex = game.getBoard().getHex(entity.getPosition());
             if ((((entity.getElevation() < 0) && ((curHex
                     .terrainLevel(Terrains.WATER) > 1) || ((curHex
-                    .terrainLevel(Terrains.WATER) == 1) && entity.isProne()))) || game
-                    .getPlanetaryConditions().isVacuum())
+                    .terrainLevel(Terrains.WATER) == 1) && entity.isProne())))
+                    || game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum())
                     && (entity.getHitCriticals(CriticalSlot.TYPE_SYSTEM,
                             Mech.SYSTEM_LIFE_SUPPORT, Mech.LOC_HEAD) > 0)) {
                 Report r = new Report(6020);
@@ -22095,7 +22096,7 @@ public class Server implements Runnable {
 
         // Is the infantry in vacuum?
         if ((isPlatoon || isBattleArmor) && !te.isDestroyed() && !te.isDoomed()
-            && game.getPlanetaryConditions().isVacuum()) {
+            && game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
             // PBI. Double damage.
             damage *= 2;
             r = new Report(6041);
@@ -27448,7 +27449,7 @@ public class Server implements Runnable {
             // if this is a vacuum check and we are in trace atmosphere then
             // adjust target
             if ((entity.getLocationStatus(loc) == ILocationExposureStatus.VACUUM)
-                    && (game.getPlanetaryConditions().getAtmosphere() == PlanetaryConditions.ATMO_TRACE)) {
+                    && game.getPlanetaryConditions().getAtmosphere().isTrace()) {
                 target = 12;
             }
             // if this is a surface naval vessel and the attack is not from
@@ -29023,7 +29024,7 @@ public class Server implements Runnable {
      */
     public void addSmoke(ArrayList<Coords> coords, int windDir, boolean bInferno) {
         // if a tornado, then no smoke!
-        if (game.getPlanetaryConditions().getWindStrength() > PlanetaryConditions.WI_STORM) {
+        if (game.getPlanetaryConditions().getWindStrength().isTornado()) {
             return;
         }
 
@@ -33396,8 +33397,7 @@ public class Server implements Runnable {
                     if (step.getMpUsed() > limit) {
                         // We moved too fast, let's make PSR to see if we get
                         // damage
-                        game.addExtremeGravityPSR(entity.checkMovedTooFast(
-                                step, moveType));
+                        game.addExtremeGravityPSR(entity.checkMovedTooFast(step, moveType));
                     }
                 } else if (moveType == EntityMovementType.MOVE_JUMP) {
                     MegaMek.getLogger().debug("Gravity move check jump: " 
@@ -33406,8 +33406,7 @@ public class Server implements Runnable {
                     int gravWalkMP = entity.getWalkMP();
                     if (step.getMpUsed() > cachedMaxMPExpenditure) {
                         // Jumped too far, make PSR to see if we get damaged
-                        game.addExtremeGravityPSR(entity.checkMovedTooFast(
-                                step, moveType));
+                        game.addExtremeGravityPSR(entity.checkMovedTooFast(step, moveType));
                     } else if ((game.getPlanetaryConditions().getGravity() > 1)
                             && ((origWalkMP - gravWalkMP) > 0)) {
                         // jumping in high g is bad for your legs
@@ -33415,15 +33414,12 @@ public class Server implements Runnable {
                         // Ignore this if no damage would be dealt
                         rollTarget = entity.getBasePilotingRoll(moveType);
                         entity.addPilotingModifierForTerrain(rollTarget, step);
-                        int gravMod = game.getPlanetaryConditions()
-                                .getGravityPilotPenalty();
+                        int gravMod = game.getPlanetaryConditions().getGravityPilotingPenalty();
                         if ((gravMod != 0) && !game.getBoard().inSpace()) {
-                            rollTarget.addModifier(gravMod, game
-                                    .getPlanetaryConditions().getGravity()
+                            rollTarget.addModifier(gravMod, game.getPlanetaryConditions().getGravity()
                                     + "G gravity");
                         }
-                        rollTarget.append(new PilotingRollData(entity.getId(),
-                                0, "jumped in high gravity"));
+                        rollTarget.append(new PilotingRollData(entity.getId(), 0, "jumped in high gravity"));
                         game.addExtremeGravityPSR(rollTarget);
                     }
                 }
@@ -34069,26 +34065,24 @@ public class Server implements Runnable {
         
             //Vacuum shouldn't apply to ASF ejection since they're designed for it, but the rules don't specify
             //High and low pressures make more sense to apply to all
-            if (game.getPlanetaryConditions().getAtmosphere() == PlanetaryConditions.ATMO_VACUUM) {
+            if (game.getPlanetaryConditions().getAtmosphere().isVacuum()) {
                 rollTarget.addModifier(3, "Vacuum");
-            } else if (game.getPlanetaryConditions().getAtmosphere() == PlanetaryConditions.ATMO_VHIGH) {
+            } else if (game.getPlanetaryConditions().getAtmosphere().isVeryHigh()) {
                 rollTarget.addModifier(2, "Very High Atmosphere Pressure");
-            } else if (game.getPlanetaryConditions().getAtmosphere() == PlanetaryConditions.ATMO_TRACE) {
+            } else if (game.getPlanetaryConditions().getAtmosphere().isTrace()) {
                 rollTarget.addModifier(2, "Trace atmosphere");
             }
         }
 
-        if ((game.getPlanetaryConditions().getWeather() == PlanetaryConditions.WE_HEAVY_SNOW)
-                || (game.getPlanetaryConditions().getWeather() == PlanetaryConditions.WE_ICE_STORM)
-                || (game.getPlanetaryConditions().getWeather() == PlanetaryConditions.WE_DOWNPOUR)
-                || (game.getPlanetaryConditions().getWindStrength() == PlanetaryConditions.WI_STRONG_GALE)) {
+        if (game.getPlanetaryConditions().getWeather().isHeavySnow()
+                || game.getPlanetaryConditions().getWeather().isIceStorm()
+                || game.getPlanetaryConditions().getWeather().isDownpour()
+                || game.getPlanetaryConditions().getWindStrength().isStrongGale()) {
             rollTarget.addModifier(2, "Bad Weather");
-        }
-
-        if ((game.getPlanetaryConditions().getWindStrength() >= PlanetaryConditions.WI_STORM)
-                || (game.getPlanetaryConditions().getWeather() == PlanetaryConditions.WE_BLIZZARD)
-                || ((game.getPlanetaryConditions().getWeather() == PlanetaryConditions.WE_HEAVY_SNOW) && (game
-                        .getPlanetaryConditions().getWindStrength() == PlanetaryConditions.WI_STRONG_GALE))) {
+        } else if (game.getPlanetaryConditions().getWindStrength().isStormOrGreater()
+                || game.getPlanetaryConditions().getWeather().isBlizzard()
+                || (game.getPlanetaryConditions().getWeather().isHeavySnow()
+                        && game.getPlanetaryConditions().getWindStrength().isStrongGale())) {
             rollTarget.addModifier(3, "Really Bad Weather");
         }
         return rollTarget;
@@ -34177,7 +34171,7 @@ public class Server implements Runnable {
             r.indent(3);
             vDesc.addElement(r);
             // Don't make ill-equipped pilots abandon into vacuum
-            if (game.getPlanetaryConditions().isVacuum() && !entity.isAero()) {
+            if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum() && !entity.isAero()) {
                 return vDesc;
             }
 
@@ -34219,7 +34213,7 @@ public class Server implements Runnable {
         else if (game.getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_VEHICLES_CAN_EJECT)
                  && (entity instanceof Tank)) {
             // Don't make them abandon into vacuum
-            if (game.getPlanetaryConditions().isVacuum()) {
+            if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
                 return vDesc;
             }
             EjectedCrew crew = new EjectedCrew(entity);
@@ -35579,8 +35573,8 @@ public class Server implements Runnable {
     private Vector<Report> resolveBlowingSandDamage() {
         Vector<Report> vFullReport = new Vector<>();
         vFullReport.add(new Report(5002, Report.PUBLIC));
-        int damage_bonus = Math.max(0, game.getPlanetaryConditions().getWindStrength()
-                - PlanetaryConditions.WI_MOD_GALE);
+        int damage_bonus = Math.max(0, game.getPlanetaryConditions().getWindStrength().ordinal()
+                - Wind.MODERATE_GALE.ordinal());
         // cycle through each team and damage 1d6 airborne VTOL/WiGE
         for (Enumeration<Team> loop = game.getTeams(); loop.hasMoreElements(); ) {
             Team team = loop.nextElement();

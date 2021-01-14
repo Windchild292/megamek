@@ -21,7 +21,6 @@ import java.util.Vector;
 
 import megamek.MegaMek;
 import megamek.common.options.OptionsConstants;
-import megamek.common.preference.PreferenceManager;
 import megamek.common.weapons.InfantryAttack;
 import megamek.common.weapons.infantry.InfantryWeapon;
 
@@ -531,7 +530,7 @@ public class BattleArmor extends Infantry {
         // partial wing gives extra MP in atmosphere
         if ((mp > 0)
                 && hasWorkingMisc(MiscType.F_PARTIAL_WING)
-                && ((game == null) || !game.getPlanetaryConditions().isVacuum())) {
+                && ((game == null) || !game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum())) {
             mp++;
         }
         if ((mp > 0) && hasWorkingMisc(MiscType.F_JUMP_BOOSTER)) {

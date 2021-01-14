@@ -2,15 +2,15 @@
  * MegaMek -
  * Copyright (C) 2008 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.client.ui;
 
@@ -299,16 +299,13 @@ public class SharedUtility {
             
             
 
-            int lightPenalty = entity.getGame().getPlanetaryConditions()
-                    .getLightPilotPenalty();
+            int lightPenalty = entity.getGame().getPlanetaryConditions().getLight().getPilotingPenalty();
             if (lightPenalty > 0) {
-                rollTarget.addModifier(lightPenalty, entity.getGame()
-                        .getPlanetaryConditions().getLightDisplayableName());
+                rollTarget.addModifier(lightPenalty, entity.getGame().getPlanetaryConditions().getLight().toString());
             }
 
             //check if we are moving recklessly
-            rollTarget = entity.checkRecklessMove(step, overallMoveType,
-                    curHex, lastPos, curPos, prevHex);
+            rollTarget = entity.checkRecklessMove(step, overallMoveType, curHex, lastPos, curPos, prevHex);
             checkNag(rollTarget, nagReport, psrList);
 
             // check for crossing ice
@@ -318,8 +315,7 @@ public class SharedUtility {
                     && (step.getElevation() == 0)
                     && (moveType != EntityMovementType.MOVE_JUMP)
                     && !(entity instanceof Infantry)
-                    && !(isPavementStep && curHex
-                            .containsTerrain(Terrains.BRIDGE))) {
+                    && !(isPavementStep && curHex.containsTerrain(Terrains.BRIDGE))) {
                 nagReport.append(Messages.getString("MovementDisplay.IceMoving"));
             }
 
@@ -336,9 +332,7 @@ public class SharedUtility {
                     && !(entity instanceof Mech) && (step.getElevation() <= 1)
                     && (moveType != EntityMovementType.MOVE_JUMP)
                     && !(curPos.equals(lastPos))) {
-                nagReport.append(Messages.getString(
-                        "MovementDisplay.FireMoving",
-                        new Object[] { Integer.valueOf(8) }));
+                nagReport.append(Messages.getString("MovementDisplay.FireMoving", 8));
             }
 
             // check for magma
@@ -347,15 +341,13 @@ public class SharedUtility {
                     && (entity.getMovementMode() != EntityMovementMode.HOVER)
                     && (moveType != EntityMovementType.MOVE_JUMP)
                     && !(curPos.equals(lastPos))) {
-                nagReport.append(Messages
-                        .getString("MovementDisplay.MagmaCrustMoving"));
+                nagReport.append(Messages.getString("MovementDisplay.MagmaCrustMoving"));
             } else if ((level == 2) && (step.getElevation() == 0)
                     && (moveType != EntityMovementType.MOVE_JUMP)
                     && (entity.getMovementMode() != EntityMovementMode.HOVER)
                     && (entity.getMovementMode() != EntityMovementMode.WIGE)
                     && !(curPos.equals(lastPos))) {
-                nagReport.append(Messages
-                        .getString("MovementDisplay.MagmaLiquidMoving"));
+                nagReport.append(Messages.getString("MovementDisplay.MagmaLiquidMoving"));
             }
 
             // check for sideslip
@@ -401,17 +393,14 @@ public class SharedUtility {
                                 && ((origWalkMP - gravWalkMP) > 0)) {
                             rollTarget = entity.getBasePilotingRoll(md.getLastStepMovementType());
                             entity.addPilotingModifierForTerrain(rollTarget, step);
-                            int gravMod = game.getPlanetaryConditions()
-                                    .getGravityPilotPenalty();
+                            int gravMod = game.getPlanetaryConditions().getGravityPilotingPenalty();
                             if ((gravMod != 0) && !game.getBoard().inSpace()) {
-                                rollTarget.addModifier(gravMod, game
-                                        .getPlanetaryConditions().getGravity()
+                                rollTarget.addModifier(gravMod, game.getPlanetaryConditions().getGravity()
                                         + "G gravity");
                             }
-                            rollTarget.append(new PilotingRollData(entity
-                                    .getId(), 0, "jumped in high gravity"));
-                            SharedUtility.checkNag(rollTarget, nagReport,
-                                    psrList);
+                            rollTarget.append(new PilotingRollData(entity.getId(), 0,
+                                    "jumped in high gravity"));
+                            SharedUtility.checkNag(rollTarget, nagReport, psrList);
                         }
                         if (step.getMpUsed() > entity.getSprintMP(false, false, false)) {
                             rollTarget = entity.checkMovedTooFast(step, overallMoveType);

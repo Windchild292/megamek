@@ -38,6 +38,8 @@ import megamek.common.MapSettings;
 import megamek.common.OffBoardDirection;
 import megamek.common.PlanetaryConditions;
 import megamek.common.Terrains;
+import megamek.common.enums.Weather;
+import megamek.common.enums.Wind;
 import megamek.common.util.generator.ElevationGenerator;
 import megamek.common.util.generator.SimplexGenerator;
 
@@ -1060,7 +1062,7 @@ public class BoardUtilities {
     /*
      * adjust the board based on weather conditions
      */
-    public static void addWeatherConditions(IBoard board, int weatherCond, int windCond) {
+    public static void addWeatherConditions(IBoard board, Weather weatherCond, Wind windCond) {
         ITerrainFactory tf = Terrains.getTerrainFactory();
 
         for (int x = 0; x < board.getWidth(); x++) {

@@ -18,8 +18,11 @@ package megamek.common.enums;
 
 import megamek.MegaMek;
 import megamek.client.generator.RandomGenderGenerator;
+import megamek.common.util.EncodeControl;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * Author's Note: This is for Biological Gender (strictly speaking, the term is Sex) only,
@@ -27,26 +30,24 @@ import java.util.List;
  */
 public enum Gender {
     //region Enum Declarations
-    MALE(false, "Male"),
-    FEMALE(false, "Female"),
-    OTHER_MALE(true, "Male"),
-    OTHER_FEMALE(true, "Female"),
-    RANDOMIZE(true);
+    MALE(false, "Gender.Male.text"),
+    FEMALE(false, "Gender.Female.text"),
+    OTHER_MALE(true, "Gender.Male.text"),
+    OTHER_FEMALE(true, "Gender.Female.text"),
+    RANDOMIZE(true, "Gender.Randomize.text");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final boolean internal;
     private final String displayName;
+
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    Gender(boolean internal) {
-        this(internal, "");
-    }
-
     Gender(boolean internal, String displayName) {
         this.internal = internal;
-        this.displayName = resources.get(displayName);
+        this.displayName = resources.getString(displayName);
     }
     //endregion Constructors
 

@@ -19,37 +19,204 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
-import megamek.client.generator.RandomGenderGenerator;
+import megamek.common.Entity;
+import megamek.common.util.EncodeControl;
+
+import java.util.ResourceBundle;
 
 public enum Weather {
+    //region Enum Declarations
+    CLEAR("Weather.CLEAR.text"),
+    LIGHT_RAIN("Weather.LIGHT_RAIN.text"),
+    MODERATE_RAIN("Weather.MODERATE_RAIN.text"),
+    HEAVY_RAIN("Weather.HEAVY_RAIN.text"),
+    GUSTING_RAIN("Weather.GUSTING_RAIN.text"),
+    DOWNPOUR("Weather.DOWNPOUR.text"),
+    LIGHT_SNOW("Weather.LIGHT_SNOW.text"),
+    MODERATE_SNOW("Weather.MODERATE_SNOW.text"),
+    SNOW_FLURRIES("Weather.SNOW_FLURRIES.text"),
+    HEAVY_SNOW("Weather.HEAVY_SNOW.text"),
+    SLEET("Weather.SLEET.text"),
+    BLIZZARD("Weather.BLIZZARD.text"),
+    ICE_STORM("Weather.ICE_STORM.text"),
+    LIGHT_HAIL("Weather.LIGHT_HAIL.text"),
+    HEAVY_HAIL("Weather.HEAVY_HAIL.text");
+    //endregion Enum Declarations
+
+    //region Variable Declarations
+    private final String name;
+
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    //endregion Variable Declarations
+
+    //region Constructors
+    Weather(String name) {
+        this.name = resources.getString(name);
+    }
+    //endregion Constructors
+
+    //region Boolean Comparisons
+    public boolean isClear() {
+        return this == CLEAR;
+    }
+
+    public boolean isLightRain() {
+        return this == LIGHT_RAIN;
+    }
+
+    public boolean isModerateRain() {
+        return this == MODERATE_RAIN;
+    }
+
+    public boolean isHeavyRain() {
+        return this == HEAVY_RAIN;
+    }
+
+    public boolean isGustingRain() {
+        return this == GUSTING_RAIN;
+    }
+
+    public boolean isDownpour() {
+        return this == DOWNPOUR;
+    }
+
+    public boolean isLightSnow() {
+        return this == LIGHT_SNOW;
+    }
+
+    public boolean isModerateSnow() {
+        return this == MODERATE_SNOW;
+    }
+
+    public boolean isSnowFlurries() {
+        return this == SNOW_FLURRIES;
+    }
+
+    public boolean isHeavySnow() {
+        return this == HEAVY_SNOW;
+    }
+
+    public boolean isSleet() {
+        return this == SLEET;
+    }
+
+    public boolean isBlizzard() {
+        return this == BLIZZARD;
+    }
+
+    public boolean isIceStorm() {
+        return this == ICE_STORM;
+    }
+
+    public boolean isLightHail() {
+        return this == LIGHT_HAIL;
+    }
+
+    public boolean isHeavyHail() {
+        return this == HEAVY_HAIL;
+    }
+    //endregion Boolean Comparisons
+
+
     /**
-     * @param input the string to parse
-     * @return the gender defined by the input, or a randomly generated string if the string isn't a
-     * proper value
+     * to-hit penalty for weather
      */
-    public static Gender parseFromString(String input) {
+    public int getHitPenalty(Entity en) {
+        switch (this) {
+            case LIGHT_RAIN:
+            case LIGHT_SNOW:
+                return en.isConventionalInfantry() ? 1 : 0;
+            case MODERATE_RAIN:
+            case HEAVY_RAIN:
+            case MODERATE_SNOW:
+            case HEAVY_SNOW:
+            case SLEET:
+            case GUSTING_RAIN:
+            case SNOW_FLURRIES:
+            case BLIZZARD:
+                return 1;
+            case DOWNPOUR:
+                return 2;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * piloting penalty for weather
+     */
+    public int getPilotingPenalty() {
+        switch (this) {
+            case HEAVY_RAIN:
+            case HEAVY_SNOW:
+            case GUSTING_RAIN:
+            case BLIZZARD:
+                return 1;
+            case DOWNPOUR:
+                return 2;
+            default:
+                return 0;
+        }
+    }
+
+    //region File I/O
+    /**
+     * @param text the string to parse
+     * @return the Weather, or CLEAR if there is an error in parsing
+     */
+    public static Weather parseFromString(String text) {
         try {
-            return valueOf(input);
+            valueOf(text);
         } catch (Exception ignored) {
 
         }
 
         try {
-            switch (Integer.parseInt(input)) {
-                case 0:
-                    return MALE;
+            switch (Integer.parseInt(text)) {
                 case 1:
-                    return FEMALE;
-                case -1:
+                    return LIGHT_RAIN;
+                case 2:
+                    return MODERATE_RAIN;
+                case 3:
+                    return HEAVY_RAIN;
+                case 4:
+                    return GUSTING_RAIN;
+                case 5:
+                    return DOWNPOUR;
+                case 6:
+                    return LIGHT_SNOW;
+                case 7:
+                    return MODERATE_SNOW;
+                case 8:
+                    return SNOW_FLURRIES;
+                case 9:
+                    return HEAVY_SNOW;
+                case 10:
+                    return SLEET;
+                case 11:
+                    return BLIZZARD;
+                case 12:
+                    return ICE_STORM;
+                case 13:
+                    return LIGHT_HAIL;
+                case 14:
+                    return HEAVY_HAIL;
+                case 0:
                 default:
-                    return RandomGenderGenerator.generate();
+                    return CLEAR;
             }
         } catch (Exception ignored) {
 
         }
 
-        MegaMek.getLogger().error("Failed to parse the gender value from input String " + input
-                + ". Returning a newly generated gender.");
-        return RandomGenderGenerator.generate();
+        MegaMek.getLogger().error("Unable to parse " + text + " into a Weather. Returning CLEAR.");
+
+        return CLEAR;
+    }
+    //endregion File I/O
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

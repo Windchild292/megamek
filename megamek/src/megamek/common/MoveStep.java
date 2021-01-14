@@ -41,11 +41,8 @@ import megamek.common.pathfinder.CachedEntityState;
  * class needs to be agnostic of what path it belongs to.
  */
 public class MoveStep implements Serializable {
-    /**
-     *
-     */
     private static final long serialVersionUID = -6075640793056182285L;
-    private MoveStepType type = MoveStepType.NONE;
+    private MoveStepType type;
     private int targetId = Entity.NONE;
     private int targetType = Targetable.TYPE_ENTITY;
     private Coords targetPos;
@@ -2877,8 +2874,8 @@ public class MoveStep implements Serializable {
             movementType = EntityMovementType.MOVE_CAREFUL_STAND;
         }
 
-        // only walking speed in Tornados
-        if (game.getPlanetaryConditions().getWindStrength() == PlanetaryConditions.WI_TORNADO_F4) {
+        // only walking speed in F4 Tornados
+        if (game.getPlanetaryConditions().getWindStrength().isTornadoF4()) {
             if (getMpUsed() > tmpWalkMP) {
                 movementType = EntityMovementType.MOVE_ILLEGAL;
                 return;
@@ -2955,23 +2952,27 @@ public class MoveStep implements Serializable {
                 && !carefulExempt) {
             // Fog
             switch (game.getPlanetaryConditions().getFog()) {
-                case PlanetaryConditions.FOG_LIGHT:
+                case LIGHT:
                     mp += 1;
                     break;
-                case PlanetaryConditions.FOG_HEAVY:
+                case HEAVY:
                     mp += 2;
+                    break;
+                default:
                     break;
             }
             // Light
-            switch (game.getPlanetaryConditions().getLight()){
-                case PlanetaryConditions.L_FULL_MOON:
+            switch (game.getPlanetaryConditions().getLight()) {
+                case FULL_MOON:
                     mp += 1;
                     break;
-                case  PlanetaryConditions.L_MOONLESS:
+                case MOONLESS:
                     mp += 2;
                     break;
-                case PlanetaryConditions.L_PITCH_BLACK:
+                case PITCH_BLACK:
                     mp += 3;
+                    break;
+                default:
                     break;
             }
         }
@@ -4020,7 +4021,7 @@ public class MoveStep implements Serializable {
             return false;
         }
         // are we airborne in non-vacuum?
-        return en.isAirborne() && !game.getPlanetaryConditions().isVacuum();
+        return en.isAirborne() && !game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum();
     }
 
     /**
