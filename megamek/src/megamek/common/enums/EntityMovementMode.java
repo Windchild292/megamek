@@ -172,6 +172,14 @@ public enum EntityMovementMode {
     public boolean isHoverOrWIGE() {
         return isHover() || isWIGE();
     }
+
+    public boolean isMarine() {
+        return isNaval() || isHydrofoil() || isSubmarine();
+    }
+
+    public boolean isTrain() {
+        return isRail() || isMaglev();
+    }
     //endregion Boolean Comparisons
 
     //region File I/O
