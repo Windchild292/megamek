@@ -46,7 +46,7 @@ public enum Gender {
 
     Gender(boolean internal, String displayName) {
         this.internal = internal;
-        this.displayName = displayName;
+        this.displayName = resources.get(displayName);
     }
     //endregion Constructors
 
