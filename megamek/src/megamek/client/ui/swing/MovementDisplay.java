@@ -2770,6 +2770,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             setUnloadEnabled((ce.getUnitsUnloadableFromBays().size() > 0)
                              && !ce.isAirborne());
             setLoadEnabled(false);
+            setMountEnabled(false);
             return;
         }
 
@@ -5314,7 +5315,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         updateProneButtons();
         updateRACButton();
         updateSearchlightButton();
-        updateLoadButtons();
         updateElevationButtons();
         updateTakeOffButtons();
         updateLandButtons();
