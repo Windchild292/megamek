@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
 
 public class LandAirMech extends BipedMech implements IAero, IBomber {

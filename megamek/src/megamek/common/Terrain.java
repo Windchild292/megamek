@@ -17,6 +17,7 @@ package megamek.common;
 import java.io.Serializable;
 import java.util.Objects;
 
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
 
 /**

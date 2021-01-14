@@ -17,6 +17,7 @@ package megamek.common.loaders;
 
 import megamek.MegaMek;
 import megamek.common.*;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.util.BuildingBlock;
 
 /**
@@ -75,19 +76,13 @@ public class BLKLargeSupportTankFile extends BLKFile implements IMechLoader {
         setFluff(t);
         checkManualBV(t);
 
-        if (!dataFile.exists("tonnage")) {
-            throw new EntityLoadingException("Could not find weight block.");
-        }
+        assert dataFile.exists("tonnage") : "Could not find weight block.";
         t.setWeight(dataFile.getDataAsDouble("tonnage")[0]);
 
-        if (!dataFile.exists("motion_type")) {
-            throw new EntityLoadingException("Could not find movement block.");
-        }
+        assert dataFile.exists("motion_type") : "Could not find movement block.";
         String sMotion = dataFile.getDataAsString("motion_type")[0];
-        EntityMovementMode nMotion = EntityMovementMode.getMode(sMotion);
-        if (nMotion == EntityMovementMode.NONE) {
-            throw new EntityLoadingException("Invalid movement type: " + sMotion);
-        }
+        EntityMovementMode nMotion = EntityMovementMode.parseFromString(sMotion);
+        assert !nMotion.isNone() : "Invalid movement type: " + sMotion;
         t.setMovementMode(nMotion);
 
         addTransports(t);

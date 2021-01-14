@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.enums.EntityMovementMode;
 
 /**
  * Methods shared by Aero and LandAirMech

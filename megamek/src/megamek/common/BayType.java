@@ -16,6 +16,7 @@ package megamek.common;
 import java.util.function.Predicate;
 
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.EntityMovementMode;
 
 /**
  * Data for various transport bay types. This is used by MekHQ for cubicle parts, but can also be

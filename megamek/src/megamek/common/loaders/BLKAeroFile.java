@@ -18,7 +18,7 @@ package megamek.common.loaders;
 import megamek.common.Aero;
 import megamek.common.Engine;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EquipmentType;
 import megamek.common.IArmorState;
 import megamek.common.LocationFullException;

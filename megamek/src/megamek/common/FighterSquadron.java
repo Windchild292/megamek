@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import megamek.common.IGame.Phase;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
 
 /**

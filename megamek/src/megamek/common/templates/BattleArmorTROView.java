@@ -20,7 +20,7 @@ import java.util.Map;
 
 import megamek.common.AmmoType;
 import megamek.common.BattleArmor;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityWeightClass;
 import megamek.common.EquipmentType;
 import megamek.common.Messages;

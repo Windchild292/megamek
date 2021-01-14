@@ -16,6 +16,8 @@
 
 package megamek.common;
 
+import megamek.common.enums.EntityMovementMode;
+
 import java.io.Serializable;
 
 /**
@@ -336,25 +338,21 @@ public class PlanetaryConditions implements Serializable {
 
         switch(windStrength) {
         case (WI_MOD_GALE):
-            if((en instanceof VTOL) || (en.getMovementMode() == EntityMovementMode.WIGE)) {
+            if ((en instanceof VTOL) || en.getMovementMode().isWIGE()) {
                 penalty = 1;
             }
             break;
         case (WI_STRONG_GALE):
-            if((en instanceof VTOL) || (en.getMovementMode() == EntityMovementMode.WIGE)
-                    || (en.getMovementMode() == EntityMovementMode.HOVER)) {
+            if ((en instanceof VTOL) || en.getMovementMode().isHoverOrWIGE()) {
                 penalty = 2;
-            }
-            else if((en instanceof Mech) || (en.isAirborne())) {
+            }else if ((en instanceof Mech) || (en.isAirborne())) {
                 penalty = 1;
             }
             break;
         case (WI_STORM):
-            if((en instanceof VTOL) || (en instanceof Mech) || (en.getMovementMode() == EntityMovementMode.WIGE)
-                    || (en.getMovementMode() == EntityMovementMode.HOVER)) {
+            if ((en instanceof VTOL) || (en instanceof Mech) || en.getMovementMode().isHoverOrWIGE()) {
                 penalty = 3;
-            }
-            else if(en.isAirborne()) {
+            } else if (en.isAirborne()) {
                 penalty = 2;
             }
             break;

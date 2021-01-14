@@ -72,7 +72,7 @@ import megamek.common.Aero;
 import megamek.common.Configuration;
 import megamek.common.Coords;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityVisibilityUtils;
 import megamek.common.GameTurn;
 import megamek.common.GunEmplacement;

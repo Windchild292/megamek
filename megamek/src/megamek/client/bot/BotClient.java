@@ -47,7 +47,7 @@ import megamek.common.Coords;
 import megamek.common.ECMInfo;
 import megamek.common.Entity;
 import megamek.common.EntityListFile;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EquipmentType;
 import megamek.common.GameTurn;
 import megamek.common.IBoard;

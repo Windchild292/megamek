@@ -11,23 +11,10 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
-/*
- * BLkFile.java
- * 
- * Created on April 6, 2002, 2:06 AM
- */
-
-/**
- * This class loads Infantry BLK files.
- * 
- * @author Suvarov454@sourceforge.net (James A. Damour )
- * @version $revision:$
- */
 package megamek.common.loaders;
 
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EquipmentType;
 import megamek.common.Infantry;
 import megamek.common.LocationFullException;
@@ -36,12 +23,19 @@ import megamek.common.WeaponType;
 import megamek.common.util.BuildingBlock;
 import megamek.common.weapons.infantry.InfantryWeapon;
 
+/**
+ * This class loads Infantry BLK files.
+ *
+ * @author Suvarov454@sourceforge.net (James A. Damour)
+ * @version $revision:$
+ */
 public class BLKInfantryFile extends BLKFile implements IMechLoader {
 
     public BLKInfantryFile(BuildingBlock bb) {
         dataFile = bb;
     }
 
+    @Override
     public Entity getEntity() throws EntityLoadingException {
 
         Infantry t = new Infantry();
@@ -79,17 +73,12 @@ public class BLKInfantryFile extends BLKFile implements IMechLoader {
             t.setArmorDamageDivisor(dataFile.getDataAsInt("InfantryArmor")[0]);
         }
 
-        if (!dataFile.exists("motion_type")) {
-            throw new EntityLoadingException("Could not find movement block.");
-        }
+        assert dataFile.exists("motion_type") : "Could not find movement block.";
         String sMotion = dataFile.getDataAsString("motion_type")[0];
         t.setMicrolite(sMotion.equalsIgnoreCase("microlite"));
-        EntityMovementMode nMotion = EntityMovementMode.getMode(sMotion);
-        if (nMotion == EntityMovementMode.NONE) {
-            throw new EntityLoadingException("Invalid movement type: " + sMotion);
-        }
-        if (nMotion == EntityMovementMode.INF_UMU
-        		&& sMotion.toLowerCase().contains("motorized")) {
+        EntityMovementMode nMotion = EntityMovementMode.parseFromString(sMotion);
+        assert !nMotion.isNone() : "Invalid movement type: " + sMotion;
+        if (nMotion.isUMUInfantry() && sMotion.toLowerCase().contains("motorized")) {
         	t.setMotorizedScuba();
         } else {
         	t.setMovementMode(nMotion);
@@ -205,8 +194,7 @@ public class BLKInfantryFile extends BLKFile implements IMechLoader {
             // If we just have the tag without values, take defaults
             if ((amSkill == null) || (amSkill.length < 1)) {
                 // TM lists AM skill defaults on pg 40
-                if ((t.getMovementMode() == EntityMovementMode.INF_MOTORIZED) 
-                        || (t.getMovementMode() == EntityMovementMode.INF_JUMP)) {
+                if (t.getMovementMode().isMotorizedInfantry() || t.getMovementMode().isJumpInfantry()) {
                     t.setAntiMekSkill(Infantry.ANTI_MECH_SKILL_JUMP);
                 } else {
                     t.setAntiMekSkill(Infantry.ANTI_MECH_SKILL_FOOT);

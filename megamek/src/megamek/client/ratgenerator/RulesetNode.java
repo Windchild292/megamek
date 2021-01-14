@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2016 The MegaMek Team
+ * MegaMek - Copyright (C) 2016-2021 - The MegaMek Team. All Rights Reserved.
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the Free
@@ -21,14 +21,13 @@ import java.util.stream.Collectors;
 import org.w3c.dom.Node;
 
 import megamek.MegaMek;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.UnitType;
 
 /**
  * Base class of all nodes in the Force Generator faction ruleset files.
  * 
  * @author Neoancient
- *
  */
 public class RulesetNode {
     protected String name;
@@ -310,9 +309,9 @@ public class RulesetNode {
                     }
                     for (String p : property.split(",")) {
                         if (p.startsWith("-")) {
-                            fd.getMovementModes().remove(EntityMovementMode.getMode(p.replace("-", "")));
+                            fd.getMovementModes().remove(EntityMovementMode.parseFromString(p.replace("-", "")));
                         } else {
-                            fd.getMovementModes().add(EntityMovementMode.getMode(p.replace("+", "")));
+                            fd.getMovementModes().add(EntityMovementMode.parseFromString(p.replace("+", "")));
                         }
                     }
                     break;

@@ -38,7 +38,7 @@ import megamek.common.Compute;
 import megamek.common.Coords;
 import megamek.common.Dropship;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.IBoard;
 import megamek.common.IGame;
 import megamek.common.IHex;

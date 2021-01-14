@@ -20,7 +20,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import megamek.common.Compute;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EquipmentType;
 import megamek.common.Infantry;
 import megamek.common.Messages;

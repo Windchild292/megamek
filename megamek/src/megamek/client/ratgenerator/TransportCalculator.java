@@ -13,7 +13,7 @@ import megamek.common.ASFBay;
 import megamek.common.BattleArmorBay;
 import megamek.common.Bay;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.HeavyVehicleBay;
 import megamek.common.InfantryBay;
 import megamek.common.LightVehicleBay;

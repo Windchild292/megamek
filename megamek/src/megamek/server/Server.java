@@ -99,6 +99,7 @@ import megamek.common.actions.UnjamTurretAction;
 import megamek.common.actions.UnloadStrandedAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.containers.PlayerIDandList;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.event.GameListener;
 import megamek.common.event.GameVictoryEvent;
 import megamek.common.icons.Camouflage;

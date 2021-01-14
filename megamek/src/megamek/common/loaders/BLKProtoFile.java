@@ -11,25 +11,19 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
+package megamek.common.loaders;
 
-/*
- * BLkFile.java
- *
- * Created on April 6, 2002, 2:06 AM
- */
-
+import megamek.common.*;
+import megamek.common.enums.EntityMovementMode;
+import megamek.common.util.BuildingBlock;
+import megamek.common.verifier.TestProtomech;
 /**
  * This class loads 'Proto BLK files.
  *
  * @author Suvarov454@sourceforge.net (James A. Damour)
  * @version $revision:$
+ * Created on April 6, 2002, 2:06 AM
  */
-package megamek.common.loaders;
-
-import megamek.common.*;
-import megamek.common.util.BuildingBlock;
-import megamek.common.verifier.TestProtomech;
-
 public class BLKProtoFile extends BLKFile implements IMechLoader {
 
     public BLKProtoFile(BuildingBlock bb) {
@@ -66,23 +60,17 @@ public class BLKProtoFile extends BLKFile implements IMechLoader {
         setFluff(t);
         checkManualBV(t);
 
-        if (!dataFile.exists("tonnage")) {
-            throw new EntityLoadingException("Could not find weight block.");
-        }
+        assert dataFile.exists("tonnage") : "Could not find weight block.";
         t.setWeight(dataFile.getDataAsDouble("tonnage")[0]);
 
         String sMotion = dataFile.getDataAsString("motion_type")[0];
-        EntityMovementMode nMotion = EntityMovementMode.getMode(sMotion);
-        if (nMotion == EntityMovementMode.NONE) {
-            throw new EntityLoadingException("Invalid movement type: " + sMotion);
-        }
+        EntityMovementMode nMotion = EntityMovementMode.parseFromString(sMotion);
+        assert !nMotion.isNone() : "Invalid movement type: " + sMotion;
         t.setMovementMode(nMotion);
-        t.setIsQuad(nMotion == EntityMovementMode.QUAD);
-        t.setIsGlider(nMotion == EntityMovementMode.WIGE);
+        t.setIsQuad(nMotion.isQuad());
+        t.setIsGlider(nMotion.isWIGE());
 
-        if (!dataFile.exists("cruiseMP")) {
-            throw new EntityLoadingException("Could not find cruiseMP block.");
-        }
+        assert dataFile.exists("cruiseMP") : "Could not find cruiseMP block.";
         t.setOriginalWalkMP(dataFile.getDataAsInt("cruiseMP")[0]);
 
         int engineCode = BLKFile.FUSION;

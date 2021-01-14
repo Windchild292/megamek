@@ -28,7 +28,7 @@ import megamek.common.Building;
 import megamek.common.BulldozerMovePath;
 import megamek.common.Coords;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.IBoard;
 import megamek.common.IGame;
 import megamek.common.MovePath;

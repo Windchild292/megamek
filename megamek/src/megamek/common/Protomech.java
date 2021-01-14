@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.preference.PreferenceManager;
 
 /**

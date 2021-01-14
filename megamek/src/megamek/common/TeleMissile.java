@@ -16,6 +16,8 @@
  */
 package megamek.common;
 
+import megamek.common.enums.EntityMovementMode;
+
 /**
  * @author Jay Lawson
  */

@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.util.StringUtil;
 import megamek.common.weapons.infantry.InfantryWeapon;
 

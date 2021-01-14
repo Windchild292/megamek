@@ -17,7 +17,7 @@ package megamek.client.ui.swing.util;
 import megamek.client.ui.swing.tileset.TilesetManager;
 import megamek.common.Engine;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityWeightClass;
 import megamek.common.GunEmplacement;
 import megamek.common.IEntityRemovalConditions;

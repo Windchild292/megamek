@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import megamek.client.bot.princess.FireControl;
-import megamek.common.pathfinder.ShortestPathFinder;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.pathfinder.BoardClusterTracker.MovementType;
 
 /**

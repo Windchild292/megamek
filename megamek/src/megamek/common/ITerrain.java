@@ -14,6 +14,8 @@
 
 package megamek.common;
 
+import megamek.common.enums.EntityMovementMode;
+
 /**
  * Represents a single type of terrain or condition in a hex. The type of a
  * terrain is immutable, once created, but the level and exits are changable.

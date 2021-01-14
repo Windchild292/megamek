@@ -50,6 +50,7 @@ import megamek.common.actions.PushAttackAction;
 import megamek.common.actions.TeleMissileAttackAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.event.GameEntityChangeEvent;
 import megamek.common.icons.Camouflage;
 import megamek.common.options.GameOptions;

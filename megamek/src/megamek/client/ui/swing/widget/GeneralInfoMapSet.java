@@ -31,7 +31,7 @@ import megamek.client.ui.swing.GUIPreferences;
 import megamek.common.Configuration;
 import megamek.common.Crew;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityMovementType;
 import megamek.common.GunEmplacement;
 import megamek.common.IAero;

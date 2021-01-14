@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 
 import megamek.common.Building.BasementType;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.EntityMovementMode;
 
 /**
  * Hex represents a single hex on the board.

@@ -26,6 +26,7 @@
 package megamek.common.loaders;
 
 import megamek.common.*;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.util.BuildingBlock;
 
 public class BLKSpaceStationFile extends BLKFile implements IMechLoader {

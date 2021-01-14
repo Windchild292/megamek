@@ -17,6 +17,7 @@ package megamek.common;
 
 import java.io.PrintWriter;
 
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
 import megamek.common.preference.PreferenceManager;
 

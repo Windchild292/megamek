@@ -11,12 +11,11 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
+package megamek.common.loaders;
 
-/*
- * BLkFile.java
- *
- * Created on April 6, 2002, 2:06 AM
- */
+import megamek.common.*;
+import megamek.common.enums.EntityMovementMode;
+import megamek.common.util.BuildingBlock;
 
 /**
  * This class loads BattleArmor BLK files.
@@ -24,17 +23,13 @@
  * @author Suvarov454@sourceforge.net (James A. Damour )
  * @version $revision:$
  */
-package megamek.common.loaders;
-
-import megamek.common.*;
-import megamek.common.util.BuildingBlock;
-
 public class BLKBattleArmorFile extends BLKFile implements IMechLoader {
 
     public BLKBattleArmorFile(BuildingBlock bb) {
         dataFile = bb;
     }
 
+    @Override
     public Entity getEntity() throws EntityLoadingException {
 
         BattleArmor t = new BattleArmor();
@@ -90,7 +85,7 @@ public class BLKBattleArmorFile extends BLKFile implements IMechLoader {
             throw new EntityLoadingException("Could not find movement block.");
         }
         String sMotion = dataFile.getDataAsString("motion_type")[0];
-        t.setMovementMode(EntityMovementMode.getMode(sMotion));
+        t.setMovementMode(EntityMovementMode.parseFromString(sMotion));
         // Add equipment to calculate unit tech advancement correctly
         try {
             switch (t.getMovementMode()) {
@@ -105,6 +100,8 @@ public class BLKBattleArmorFile extends BLKFile implements IMechLoader {
                     break;
                 case NONE:
                     throw new EntityLoadingException("Invalid movement type: " + sMotion);
+                default:
+                    break;
             }
         } catch (LocationFullException ignore) {
             // Adding to LOC_NONE

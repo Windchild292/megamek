@@ -1,15 +1,15 @@
 /*
- * MegaMek - Copyright (C) 2016 The MegaMek Team
+ * MegaMek - Copyright (C) 2016-2021 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.client.ratgenerator;
 
@@ -20,15 +20,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import megamek.MegaMek;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 
 /**
- * 
  * A force node contains the rules for generating a force when the ForceDescriptor matches the
  * characteristics defined by the force node.
  *
  * @author Neoancient
- *
  */
 public class ForceNode extends RulesetNode {
     protected Integer eschelon;
@@ -46,17 +44,17 @@ public class ForceNode extends RulesetNode {
         super();
         eschelon = null;
         eschelonName = null;
-        nameNodes = new ArrayList<ValueNode>();
-        coNodes = new ArrayList<CommanderNode>();
-        xoNodes = new ArrayList<CommanderNode>();
-        ruleGroups = new ArrayList<ArrayList<OptionGroupNode>>();
-        subforces = new ArrayList<SubforcesNode>();
-        attached = new ArrayList<SubforcesNode>();
+        nameNodes = new ArrayList<>();
+        coNodes = new ArrayList<>();
+        xoNodes = new ArrayList<>();
+        ruleGroups = new ArrayList<>();
+        subforces = new ArrayList<>();
+        attached = new ArrayList<>();
     }
 
     public boolean apply(ForceDescriptor fd) {
         for (ArrayList<OptionGroupNode> group : ruleGroups) {
-            ArrayList<OptionGroupNode> toApply = new ArrayList<OptionGroupNode>();
+            ArrayList<OptionGroupNode> toApply = new ArrayList<>();
             for (OptionGroupNode rule : group) {
                 if (rule.matches(fd)) {
                     toApply.add(rule);
@@ -112,7 +110,7 @@ public class ForceNode extends RulesetNode {
                         String content = n.getContent();
                         if (content.startsWith("-")) {
                             for (String p : content.replaceFirst("\\-", "").split(",")) {
-                                fd.getMovementModes().remove(EntityMovementMode.getMode(p));
+                                fd.getMovementModes().remove(EntityMovementMode.parseFromString(p));
                             }
                             break;
                         }
@@ -122,7 +120,7 @@ public class ForceNode extends RulesetNode {
                             fd.getMovementModes().clear();
                         }
                         for (String p : content.split(",")) {
-                            fd.getMovementModes().add(EntityMovementMode.getMode(p));
+                            fd.getMovementModes().add(EntityMovementMode.parseFromString(p));
                         }
                         break;
                     case "formation":
@@ -367,13 +365,13 @@ public class ForceNode extends RulesetNode {
                 case "flags":
                 case "changeEschelon":
                     if (currentRuleGroup == null) {
-                        currentRuleGroup = new ArrayList<OptionGroupNode>();
+                        currentRuleGroup = new ArrayList<>();
                         ruleGroups.add(currentRuleGroup);
                     }
                     ruleGroups.get(0).add(OptionGroupNode.createFromXml(wn));
                     break;
                 case "ruleGroup":
-                    currentRuleGroup = new ArrayList<OptionGroupNode>();
+                    currentRuleGroup = new ArrayList<>();
                     ruleGroups.add(currentRuleGroup);
                     for (int y = 0; y < wn.getChildNodes().getLength(); y++) {
                         Node wn2 = wn.getChildNodes().item(y);
@@ -407,15 +405,11 @@ public class ForceNode extends RulesetNode {
      */
     public String show() {
         if (null == desc) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Force Node [eschelon:").append(eschelon).append(" predicates:");
-            sb.append(predicates.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
-                    .collect(Collectors.joining(",")));
-            sb.append(" assertions:");
-            sb.append(assertions.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
-                    .collect(Collectors.joining(",")));
-            sb.append("]");
-            desc = sb.toString();
+            desc = "Force Node [eschelon:" + eschelon + " predicates:"
+                    + predicates.entrySet().stream().map(e -> e.getKey() + "="
+                    + e.getValue()).collect(Collectors.joining(",")) +
+                    " assertions:" + assertions.entrySet().stream().map(e -> e.getKey() + "="
+                    + e.getValue()).collect(Collectors.joining(",")) + "]";
         }
         return desc;
     }

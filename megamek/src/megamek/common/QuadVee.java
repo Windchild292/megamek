@@ -3,6 +3,7 @@
  */
 package megamek.common;
 
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
 
 /**

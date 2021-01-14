@@ -14,6 +14,7 @@
  */
 package megamek.common;
 
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.verifier.SupportVeeStructure;
 
 import java.text.NumberFormat;

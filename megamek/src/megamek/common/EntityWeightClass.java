@@ -15,6 +15,8 @@
 package megamek.common;
 
 
+import megamek.common.enums.EntityMovementMode;
+
 /**
  * weight class limits and names
  */
@@ -178,7 +180,7 @@ public class EntityWeightClass {
      */
     public static int getSupportWeightClass(double tonnage, String type) {
         double[] weightLimits;
-        switch (EntityMovementMode.getMode(type)) {
+        switch (EntityMovementMode.parseFromString(type)) {
             case WHEELED:
                 weightLimits = wheeledSupportVehicleWeightLimits;
                 break;

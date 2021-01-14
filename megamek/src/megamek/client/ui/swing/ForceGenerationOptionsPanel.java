@@ -51,7 +51,7 @@ import megamek.client.ratgenerator.RATGenerator;
 import megamek.client.ratgenerator.UnitTable;
 import megamek.client.ratgenerator.UnitTable.Parameters;
 import megamek.client.ui.Messages;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityWeightClass;
 import megamek.common.MechSummary;
 import megamek.common.UnitType;
@@ -645,10 +645,8 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
             
             for (MissionRole role : MissionRole.values()) {
                 if (role.fitsUnitType(unitType)) {
-                    JCheckBox chk = new JCheckBox(Messages.getString("MissionRole."
-                            + role.toString()));
-                    chk.setToolTipText(Messages.getString("MissionRole."
-                            + role.toString() + ".tooltip"));
+                    JCheckBox chk = new JCheckBox(Messages.getString("MissionRole." + role));
+                    chk.setToolTipText(Messages.getString("MissionRole." + role + ".tooltip"));
                     chk.setName(role.toString());
                     roleChecks.add(chk);
                 }
@@ -865,7 +863,7 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
 
         public List<EntityMovementMode> getMotiveTypes() {
             return subtypeChecks.stream().filter(AbstractButton::isSelected)
-                    .map(chk -> EntityMovementMode.getMode(chk.getName())).collect(Collectors.toList());
+                    .map(chk -> EntityMovementMode.parseFromString(chk.getName())).collect(Collectors.toList());
         }
     }
     

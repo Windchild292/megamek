@@ -20,7 +20,7 @@
 package megamek.common.verifier;
 
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.Infantry;
 import megamek.common.options.OptionsConstants;
 

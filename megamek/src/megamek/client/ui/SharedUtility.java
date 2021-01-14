@@ -24,7 +24,7 @@ import megamek.common.Compute;
 import megamek.common.Coords;
 import megamek.common.EjectedCrew;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityMovementType;
 import megamek.common.EscapePods;
 import megamek.common.IAero;

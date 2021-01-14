@@ -15,6 +15,7 @@
 package megamek.common;
 
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.EntityMovementMode;
 
 /**
  * IHex represents a single hex on the board.
@@ -276,7 +277,7 @@ public interface IHex extends Cloneable {
      * @return modifier to PSRs made in the hex
      */
     public abstract void terrainPilotingModifier(EntityMovementMode moveType, PilotingRollData roll,
-            boolean enteringRubble);
+                                                 boolean enteringRubble);
 
     /**
      * (Only if statically determinable)

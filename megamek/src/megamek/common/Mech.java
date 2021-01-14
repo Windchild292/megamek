@@ -22,6 +22,7 @@ import java.text.NumberFormat;
 import java.util.*;
 
 import megamek.MegaMek;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.loaders.MtfFile;
 import megamek.common.options.OptionsConstants;
 import megamek.common.preference.PreferenceManager;

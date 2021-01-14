@@ -32,7 +32,7 @@ import org.w3c.dom.NodeList;
 
 import megamek.MegaMek;
 import megamek.common.Configuration;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.MechSummary;
 import megamek.common.MechSummaryCache;
 import megamek.common.UnitType;

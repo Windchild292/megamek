@@ -29,9 +29,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import megamek.client.bot.princess.CardinalEdge;
 import megamek.client.bot.princess.Princess;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.logging.LogLevel;
 import megamek.common.options.OptionsConstants;
 import megamek.common.pathfinder.AbstractPathFinder;

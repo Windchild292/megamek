@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import megamek.MegaMek;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
 import megamek.common.verifier.SupportVeeStructure;
 import megamek.common.verifier.TestEntity;

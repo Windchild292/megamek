@@ -27,8 +27,8 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import megamek.MegaMek;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
-import megamek.common.preference.PreferenceManager;
 import megamek.common.weapons.infantry.InfantryWeapon;
 
 /**

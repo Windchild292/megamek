@@ -18,7 +18,7 @@ import megamek.client.Client;
 import megamek.client.ui.swing.MovementDisplay;
 import megamek.common.Coords;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.MovePath;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.options.OptionsConstants;

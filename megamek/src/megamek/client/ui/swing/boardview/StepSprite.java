@@ -20,7 +20,7 @@ import java.awt.image.BufferedImage;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityMovementType;
 import megamek.common.IAero;
 import megamek.common.MiscType;

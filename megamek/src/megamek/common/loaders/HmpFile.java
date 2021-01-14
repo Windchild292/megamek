@@ -35,7 +35,7 @@ import megamek.common.BipedMech;
 import megamek.common.CriticalSlot;
 import megamek.common.Engine;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EquipmentType;
 import megamek.common.LocationFullException;
 import megamek.common.Mech;

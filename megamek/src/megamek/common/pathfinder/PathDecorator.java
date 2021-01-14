@@ -22,7 +22,7 @@ import java.util.Set;
 
 import megamek.common.BulldozerMovePath;
 import megamek.common.Coords;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.IHex;
 import megamek.common.MovePath;
 import megamek.common.Terrains;

@@ -14,6 +14,8 @@
 
 package megamek.common;
 
+import megamek.common.enums.EntityMovementMode;
+
 import java.util.Map;
 
 /**

@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Vector;
 
 import megamek.client.ui.swing.util.PlayerColour;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.event.GamePlayerChangeEvent;
 import megamek.common.icons.Camouflage;
 import megamek.common.options.OptionsConstants;

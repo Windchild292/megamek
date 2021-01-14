@@ -1,17 +1,16 @@
 /*
- * MegaMek - Copyright (C) 2018 - The MegaMek Team
+ * MegaMek - Copyright (C) 2018-2021 - The MegaMek Team
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.utils;
 
 import java.awt.Dimension;
@@ -19,6 +18,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -60,12 +60,11 @@ import megamek.client.ratgenerator.FactionRecord.TechCategory;
 import megamek.client.ratgenerator.ModelRecord;
 import megamek.client.ratgenerator.RATGenerator;
 import megamek.common.Configuration;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.UnitType;
 
 /**
  * @author neoancient
- *
  */
 public class RATGeneratorEditor extends JFrame {
 
@@ -615,28 +614,23 @@ public class RATGeneratorEditor extends JFrame {
                     ? extends Integer> entry) {
                 MasterUnitListTableModel model = entry.getModel();
                 ModelRecord rec = model.getUnitRecord(entry.getIdentifier());
-                if (cbUnitType.getSelectedIndex() > 0 &&
-                        !UnitType.getTypeName(rec.getUnitType()).equals(cbUnitType.getSelectedItem())) {
+                if ((cbUnitType.getSelectedIndex() > 0)
+                        && !UnitType.getTypeName(rec.getUnitType()).equals(cbUnitType.getSelectedItem())) {
                     return false;
-                }
-                if (cbMovementType.getSelectedIndex() > 0 &&
-                        (rec.getMovementMode() != EntityMovementMode.getMode((String) cbMovementType.getSelectedItem()))) {
+                } else if ((cbMovementType.getSelectedIndex() > 0)
+                        && (rec.getMovementMode() != EntityMovementMode.parseFromString((String) cbMovementType.getSelectedItem()))) {
                     return false;
-                }
-                if (txtSearch.getText().length() > 0) {
+                } else if (txtSearch.getText().length() > 0) {
                     return rec.getKey().toLowerCase().contains(txtSearch.getText().toLowerCase());
+                } else {
+                    return true;
                 }
-                return true;
             }
         };
         masterUnitListSorter.setRowFilter(rf);
     }
 
     private static class MasterUnitListTableModel extends DefaultTableModel {
-
-        /**
-         * 
-         */
         private static final long serialVersionUID = 2792332961159226169L;
 
         public static final int COL_CHASSIS = 0;
@@ -752,7 +746,6 @@ public class RATGeneratorEditor extends JFrame {
     }
 
     private static class UnitEditorTableModel extends DefaultTableModel {
-
         private static final long serialVersionUID = 1323721840252090355L;
 
         public static final int MODE_MODEL = 0;
@@ -839,6 +832,7 @@ public class RATGeneratorEditor extends JFrame {
             return ERAS.length + 1;
         }
 
+        @Override
         public int getRowCount() {
             if (data == null) {
                 return 0;
@@ -894,20 +888,20 @@ public class RATGeneratorEditor extends JFrame {
         }
 
         public boolean addEntry(String faction) {
-            if(unitRecord == null) {                 
+            if (unitRecord == null) {
                 return false;
             }
             
-            if(mode == MODE_MODEL) {
+            if (mode == MODE_MODEL) {
                 boolean chassisRecordFound = false;
-                for(int era : ERAS) {
-                    if(rg.getChassisFactionRatings(era, unitRecord.getChassisKey()) != null) {
+                for (int era : ERAS) {
+                    if (rg.getChassisFactionRatings(era, unitRecord.getChassisKey()) != null) {
                         chassisRecordFound = true;
                         break;
                     }
                 }
                 
-                if(!chassisRecordFound) {
+                if (!chassisRecordFound) {
                     return false;
                 }
             }                    
@@ -962,7 +956,8 @@ public class RATGeneratorEditor extends JFrame {
         }
     }
 
-    private static class UnitTypeComparator implements Comparator<String> {
+    private static class UnitTypeComparator implements Comparator<String>, Serializable {
+        private static final long serialVersionUID = 1768307910977605360L;
         private Map<String, Integer> keys;
 
         public UnitTypeComparator() {
@@ -979,10 +974,6 @@ public class RATGeneratorEditor extends JFrame {
     }
 
     private static class FactionListTableModel extends DefaultTableModel {
-
-        /**
-         * 
-         */
         private static final long serialVersionUID = -2719685611810784836L;
 
         public static final int COL_CODE = 0;
@@ -1073,30 +1064,30 @@ public class RATGeneratorEditor extends JFrame {
         @Override
         public void setValueAt(Object val, int row, int col) {
             switch (col) {
-            case COL_CLAN:
-                data.get(row).setClan((Boolean)val);
-                break;
-            case COL_PERIPHERY:
-                data.get(row).setPeriphery((Boolean)val);
-                break;
-            case COL_NAME:
-                data.get(row).setNames((String)val);
-                break;
-            case COL_YEARS:
-                try {
-                    data.get(row).setYears((String)val);
-                } catch (Exception ex) {
-                    //Illegal format; ignore new value
-                }
-                break;
-            case COL_MINOR:
-                data.get(row).setMinor((Boolean)val);
-                break;
-            case COL_RATINGS:
-                data.get(row).setRatings((String)val);
-                break;
-            case COL_USE_ALT_FACTION:
-                data.get(row).setParentFactions((String)val);
+                case COL_CLAN:
+                    data.get(row).setClan((Boolean) val);
+                    break;
+                case COL_PERIPHERY:
+                    data.get(row).setPeriphery((Boolean) val);
+                    break;
+                case COL_NAME:
+                    data.get(row).setNames((String) val);
+                    break;
+                case COL_YEARS:
+                    try {
+                        data.get(row).setYears((String) val);
+                    } catch (Exception ignored) {
+                        //Illegal format; ignore new value
+                    }
+                    break;
+                case COL_MINOR:
+                    data.get(row).setMinor((Boolean) val);
+                    break;
+                case COL_RATINGS:
+                    data.get(row).setRatings((String) val);
+                    break;
+                case COL_USE_ALT_FACTION:
+                    data.get(row).setParentFactions((String) val);
             }
         }
         
@@ -1202,24 +1193,24 @@ public class RATGeneratorEditor extends JFrame {
             }
             int rating = (row - 1) % factionRec.getRatingLevels().size();
             switch ((row - 1) / factionRec.getRatingLevels().size()) {
-            case CAT_OMNI_PCT:
-                return factionRec.getPctTech(TechCategory.OMNI, era, rating);
-            case CAT_CLAN_PCT:
-                return factionRec.getPctTech(TechCategory.CLAN, era, rating);
-            case CAT_SL_PCT:
-                return factionRec.getPctTech(TechCategory.IS_ADVANCED, era, rating);
-            case CAT_OMNI_AERO_PCT:
-                return factionRec.getPctTech(TechCategory.OMNI_AERO, era, rating);
-            case CAT_CLAN_AERO_PCT:
-                return factionRec.getPctTech(TechCategory.CLAN_AERO, era, rating);
-            case CAT_SL_AERO_PCT:
-                return factionRec.getPctTech(TechCategory.IS_ADVANCED_AERO, era, rating);
-            case CAT_CLAN_VEE_PCT:
-                return factionRec.getPctTech(TechCategory.CLAN_VEE, era, rating);
-            case CAT_SL_VEE_PCT:
-                return factionRec.getPctTech(TechCategory.IS_ADVANCED_VEE, era, rating);
-            default:
-                return "?";
+                case CAT_OMNI_PCT:
+                    return factionRec.getPctTech(TechCategory.OMNI, era, rating);
+                case CAT_CLAN_PCT:
+                    return factionRec.getPctTech(TechCategory.CLAN, era, rating);
+                case CAT_SL_PCT:
+                    return factionRec.getPctTech(TechCategory.IS_ADVANCED, era, rating);
+                case CAT_OMNI_AERO_PCT:
+                    return factionRec.getPctTech(TechCategory.OMNI_AERO, era, rating);
+                case CAT_CLAN_AERO_PCT:
+                    return factionRec.getPctTech(TechCategory.CLAN_AERO, era, rating);
+                case CAT_SL_AERO_PCT:
+                    return factionRec.getPctTech(TechCategory.IS_ADVANCED_AERO, era, rating);
+                case CAT_CLAN_VEE_PCT:
+                    return factionRec.getPctTech(TechCategory.CLAN_VEE, era, rating);
+                case CAT_SL_VEE_PCT:
+                    return factionRec.getPctTech(TechCategory.IS_ADVANCED_VEE, era, rating);
+                default:
+                    return "?";
             }
         }
         
@@ -1281,10 +1272,6 @@ public class RATGeneratorEditor extends JFrame {
     }
     
     private static class SalvageEditorTableModel extends DefaultTableModel {
-        
-        /**
-         * 
-         */
         private static final long serialVersionUID = -3155497417382584025L;
         
         ArrayList<String> factions;
@@ -1343,6 +1330,7 @@ public class RATGeneratorEditor extends JFrame {
             return ERAS.length + 1;
         }
         
+        @Override
         public int getRowCount() {
             if (data == null) {
                 return 0;

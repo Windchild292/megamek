@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.util.StringUtil;
 
 /**
@@ -291,7 +292,7 @@ public abstract class TestEntity implements TestEntityOption {
      * @return A list of all armors that meet the tech constraints
      */
     public static List<EquipmentType> legalArmorsFor(long etype, boolean industrial, boolean primitive,
-            EntityMovementMode movementMode, ITechManager techManager) {
+                                                     EntityMovementMode movementMode, ITechManager techManager) {
         if ((etype & Entity.ETYPE_BATTLEARMOR) != 0) {
             return TestBattleArmor.legalArmorsFor(techManager);
         } else if ((etype & Entity.ETYPE_SMALL_CRAFT) != 0) {

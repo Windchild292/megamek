@@ -14,7 +14,7 @@
 package megamek.client.bot;
 
 import megamek.common.Coords;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.annotations.Nullable;
 import megamek.common.util.StringUtil;
 

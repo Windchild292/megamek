@@ -67,7 +67,7 @@ import megamek.client.ratgenerator.ModelRecord;
 import megamek.client.ratgenerator.UnitTable;
 import megamek.client.ui.Messages;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.IGame.Phase;
 import megamek.common.IPlayer;
 import megamek.common.enums.Gender;

@@ -26,7 +26,7 @@ import java.util.Objects;
 import megamek.common.AmmoType;
 import megamek.common.Engine;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EquipmentType;
 import megamek.common.Mounted;
 import megamek.common.Tank;

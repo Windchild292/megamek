@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import megamek.MegaMek;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.options.OptionsConstants;
-import megamek.common.preference.PreferenceManager;
 import megamek.common.weapons.InfantryAttack;
 import megamek.common.weapons.infantry.InfantryWeapon;
 

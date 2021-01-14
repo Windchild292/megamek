@@ -17,6 +17,8 @@
 
 package megamek.common;
 
+import megamek.common.enums.EntityMovementMode;
+
 /** This class describes a group of escape pods and/or lifeboats that has launched from a larger craft
  *
  * @author MKerensky

@@ -1,5 +1,20 @@
-/**
- * 
+/*
+ * Copyright (c) 2016-2021 - The MegaMek Team. All Rights Reserved.
+ *
+ * This file is part of MegaMek.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.client.ratgenerator;
 
@@ -24,7 +39,7 @@ import java.util.stream.IntStream;
 
 import megamek.common.AmmoType;
 import megamek.common.Compute;
-import megamek.common.EntityMovementMode;
+import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityWeightClass;
 import megamek.common.EquipmentMode;
 import megamek.common.EquipmentType;
@@ -46,10 +61,8 @@ import megamek.common.weapons.tag.TAGWeapon;
  * Campaign Operations rules for force generation.
  * 
  * @author Neoancient
- *
  */
 public class FormationType {
-    
     public static final int FLAG_MEK = 1 << UnitType.MEK;
     public static final int FLAG_TANK = 1 << UnitType.TANK;
     public static final int FLAG_BATTLE_ARMOR = 1 << UnitType.BATTLE_ARMOR;
@@ -57,7 +70,7 @@ public class FormationType {
     public static final int FLAG_PROTOMEK = 1 << UnitType.PROTOMEK;
     public static final int FLAG_VTOL = 1 << UnitType.VTOL;
     public static final int FLAG_NAVAL = 1 << UnitType.NAVAL;
-    
+
     public static final int FLAG_CONV_FIGHTER = 1 << UnitType.CONV_FIGHTER;
     public static final int FLAG_AERO = 1 << UnitType.AERO;
     public static final int FLAG_SMALL_CRAFT = 1 << UnitType.SMALL_CRAFT;
@@ -214,7 +227,7 @@ public class FormationType {
                 int damage = 0;
                 if (weapon.getAmmoType() != AmmoType.T_NA) {
                     Optional<EquipmentType> ammo = ms.getEquipmentNames().stream()
-                        .map(name -> EquipmentType.get(name))
+                        .map(EquipmentType::get)
                         .filter(eq -> eq instanceof AmmoType
                                 && ((AmmoType)eq).getAmmoType() == weapon.getAmmoType()
                                 && ((AmmoType)eq).getRackSize() == weapon.getRackSize())
@@ -285,7 +298,7 @@ public class FormationType {
         
         List<Integer> wcs = IntStream.rangeClosed(minWeightClass,
                 Math.min(maxWeightClass, EntityWeightClass.WEIGHT_SUPER_HEAVY))
-                .mapToObj(Integer::valueOf)
+                .boxed()
                 .collect(Collectors.toList());
         List<Integer> airWcs = wcs.stream().filter(wc -> wc < EntityWeightClass.WEIGHT_ASSAULT)
                 .collect(Collectors.toList()); 
@@ -387,10 +400,10 @@ public class FormationType {
                 List<UnitTable.Parameters> tempParams = params.stream().map(UnitTable.Parameters::copy)
                         .collect(Collectors.toList());
                 for (int index : undeterminedVees) {
-                    tempParams.get(index).getMovementModes().add(EntityMovementMode.getMode(veeMode));
+                    tempParams.get(index).getMovementModes().add(EntityMovementMode.parseFromString(veeMode));
                 }
                 for (int index : undeterminedInfantry) {
-                    tempParams.get(index).getMovementModes().add(EntityMovementMode.getMode(infMode));
+                    tempParams.get(index).getMovementModes().add(EntityMovementMode.parseFromString(infMode));
                 }
                 List<MechSummary> list = generateFormation(tempParams, numUnits, networkMask, false);
                 if (!list.isEmpty()) {
@@ -400,7 +413,7 @@ public class FormationType {
         }
         /* If we cannot meet all criteria with a specific motive type, try without respect to motive type */
         
-        int cUnits = (int)numUnits.stream().mapToInt(Integer::intValue).sum();
+        int cUnits = numUnits.stream().mapToInt(Integer::intValue).sum();
 
         /* Simple case: all units have the same requirements. */
         if (otherCriteria.isEmpty() && useGrouping == null
