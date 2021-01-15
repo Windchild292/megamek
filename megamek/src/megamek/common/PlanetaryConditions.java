@@ -338,19 +338,19 @@ public class PlanetaryConditions implements Serializable {
 
         switch(windStrength) {
         case (WI_MOD_GALE):
-            if ((en instanceof VTOL) || en.getMovementMode().isWIGE()) {
+            if ((en instanceof VTOL) || en.getMovementMode().isWiGE()) {
                 penalty = 1;
             }
             break;
         case (WI_STRONG_GALE):
-            if ((en instanceof VTOL) || en.getMovementMode().isHoverOrWIGE()) {
+            if ((en instanceof VTOL) || en.getMovementMode().isHoverOrWiGE()) {
                 penalty = 2;
             }else if ((en instanceof Mech) || (en.isAirborne())) {
                 penalty = 1;
             }
             break;
         case (WI_STORM):
-            if ((en instanceof VTOL) || (en instanceof Mech) || en.getMovementMode().isHoverOrWIGE()) {
+            if ((en instanceof VTOL) || (en instanceof Mech) || en.getMovementMode().isHoverOrWiGE()) {
                 penalty = 3;
             } else if (en.isAirborne()) {
                 penalty = 2;

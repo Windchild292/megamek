@@ -22,6 +22,10 @@ package megamek.common.enums;
 import megamek.MegaMek;
 import megamek.common.util.EncodeControl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -133,7 +137,7 @@ public enum EntityMovementMode {
         return this == QUAD_SWIM;
     }
 
-    public boolean isWIGE() {
+    public boolean isWiGE() {
         return this == WIGE;
     }
 
@@ -169,8 +173,29 @@ public enum EntityMovementMode {
         return this == MAGLEV;
     }
 
-    public boolean isHoverOrWIGE() {
-        return isHover() || isWIGE();
+    //region Combinations
+    public boolean isTrackedOrWheeled() {
+        return isTracked() || isWheeled();
+    }
+
+    public boolean isTrackedWheeledOrHover() {
+        return isTrackedOrWheeled() || isHover();
+    }
+
+    public boolean isCombatVehicle() {
+        return isTrackedWheeledOrHover() || isVTOLOrWiGE() || isMarine();
+    }
+
+    public boolean isInfantryVehicle() {
+        return isTrackedOrWheeled() || isMotorizedInfantry();
+    }
+
+    public boolean isHoverOrWiGE() {
+        return isHover() || isWiGE();
+    }
+
+    public boolean isVTOLOrWiGE() {
+        return isVTOL() || isWiGE();
     }
 
     public boolean isMarine() {
@@ -180,7 +205,30 @@ public enum EntityMovementMode {
     public boolean isTrain() {
         return isRail() || isMaglev();
     }
+    //endregion Combinations
     //endregion Boolean Comparisons
+
+    //region Subgrouping Getters
+    public static List<EntityMovementMode> getCombatVehicleModes() {
+        List<EntityMovementMode> combatVehicleModes = new ArrayList<>();
+        for (EntityMovementMode mode : values()) {
+            if (mode.isInfantryVehicle()) {
+                combatVehicleModes.add(mode);
+            }
+        }
+        return combatVehicleModes;
+    }
+
+    public static List<EntityMovementMode> getInfantryVehicleModes() {
+        List<EntityMovementMode> infantryVehicleModes = new ArrayList<>();
+        for (EntityMovementMode mode : values()) {
+            if (mode.isInfantryVehicle()) {
+                infantryVehicleModes.add(mode);
+            }
+        }
+        return infantryVehicleModes;
+    }
+    //endregion Subgrouping Getters
 
     //region File I/O
     /**

@@ -68,7 +68,7 @@ public class BLKProtoFile extends BLKFile implements IMechLoader {
         assert !nMotion.isNone() : "Invalid movement type: " + sMotion;
         t.setMovementMode(nMotion);
         t.setIsQuad(nMotion.isQuad());
-        t.setIsGlider(nMotion.isWIGE());
+        t.setIsGlider(nMotion.isWiGE());
 
         assert dataFile.exists("cruiseMP") : "Could not find cruiseMP block.";
         t.setOriginalWalkMP(dataFile.getDataAsInt("cruiseMP")[0]);

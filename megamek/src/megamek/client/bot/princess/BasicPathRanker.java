@@ -1,15 +1,15 @@
 /*
  * MegaMek - Copyright (C) 2000-2011 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.client.bot.princess;
 
@@ -34,7 +34,6 @@ import megamek.common.BuildingTarget;
 import megamek.common.Compute;
 import megamek.common.Coords;
 import megamek.common.Entity;
-import megamek.common.enums.EntityMovementMode;
 import megamek.common.EntityMovementType;
 import megamek.common.IBoard;
 import megamek.common.IGame;
@@ -61,11 +60,11 @@ import megamek.common.options.OptionsConstants;
 public class BasicPathRanker extends PathRanker implements IPathRanker {
 
     // this is a value used to indicate how much we value the unit being at its destination
-    private final int ARRIVED_AT_DESTINATION_FACTOR = 250;
+    private static final int ARRIVED_AT_DESTINATION_FACTOR = 250;
     
     // this is a value used to indicate how much we dis-value the unit being destroyed as a result of
     // what it's doing
-    private final int UNIT_DESTRUCTION_FACTOR = 1000;
+    private static final int UNIT_DESTRUCTION_FACTOR = 1000;
     
     protected final DecimalFormat LOG_DECIMAL =
             new DecimalFormat("0.00", DecimalFormatSymbols.getInstance());
@@ -992,8 +991,7 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
         logMsg.append("\n\tCalculating ice hazard:  ");
 
         // Hover units are above the surface.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE()) {
             logMsg.append("Hovering above ice (0).");
             return 0;
         }
@@ -1008,12 +1006,11 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
         // Hazard is based on chance to break through to the water underneath.
         double breakthroughMod = jumpLanding ? 0.5 : 0.1667;
         logMsg.append("\n\t\tChance to break through ice: ")
-              .append(LOG_PERCENT.format(breakthroughMod));
+                .append(LOG_PERCENT.format(breakthroughMod));
 
-        double hazard = calcWaterHazard(movingUnit, hex, step, logMsg) *
-                        breakthroughMod;
+        double hazard = calcWaterHazard(movingUnit, hex, step, logMsg) * breakthroughMod;
         logMsg.append("\n\t\tHazard value (")
-              .append(LOG_DECIMAL.format(hazard)).append(").");
+                .append(LOG_DECIMAL.format(hazard)).append(").");
         return hazard;
     }
 
@@ -1028,9 +1025,8 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
         }
 
         // Hover units are above the surface.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode() ||
-            EntityMovementMode.NAVAL == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE()
+                || movingUnit.getMovementMode().isNaval()) {
             logMsg.append("Hovering or swimming above water (0).");
             return 0;
         }
@@ -1170,8 +1166,7 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
         logMsg.append("\n\tCalculating magma hazard:  ");
 
         // Hovers are unaffected.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE()) {
             logMsg.append("Hovering above magma (0).");
             return 0;
         }
@@ -1212,8 +1207,7 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
 
 
         // Hovers are unaffected.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE()) {
             logMsg.append("Hovering above lava (0).");
             return 0;
         }
