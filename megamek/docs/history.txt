@@ -1,6 +1,15 @@
 VERSION HISTORY:
 ----------------
-0.47.16 (RC2)-SNAPSHOT
+0.47.17 (RC3)-SNAPSHOT
++ Issue #2557 - SimonLandmine maps out of date.
++ Issue #2529: Dead-fire ammo wrong shots/ton (missed some)
++ Data: Updated unit_roles and RAT Gen files for RecGuides and Golden Century.
++ Issues #1967/1968: Swapping to use ImageIO.read() for Portrait Zip File reads
++ PR #2567: Colour Camouflage: Fixing Colour Camouflage Tint Application and Colour Setter
++ Issue #2565: Bot performance improvement for situations where there are C3/ECM type units on the field
++ PR #2562: Prevent "mount" button from being active for grounded dropships, as it doesn't do anything and throws an exception when clicked
+
+0.47.16 (RC2) (2021-01-05 1700 UTC)
 + Issue #2510: Prevent bot from directly targeting gun emplacements with physical attacks for an insta-kill
 + Issue #2513, #907: Adjust message for gun emplacement ammo criticals to more clearly indicate if no damage has occurred; 
 		implement non-weapon/ammo critical hits (e.g. ECM) on gun emplacements
@@ -15,6 +24,11 @@ VERSION HISTORY:
 + Issue #2544: Rear or turret-mounted weapons failing to load
 + Issue #2550: NPE when 'Go Down' is used by an elevation 1 AirMech
 + PR #2554: Fix TargetRoll description if negative modifier is first
++ Data: New Sprites, Rec Guide 7 units, some date fixes (#2520)
++ Issue #2529: Dead-fire ammo wrong shots/ton
++ Issue #2527: Purchase list showing different items as same description
++ PR #2556: Remove duplicate boards.
++ Issue #2523: Ammo explosion should apply 1 hit of feedback damage even with auto-eject
 
 0.47.15 (RC1) (2020-12-14 2330 UTC)
 + Pr #2458: When loading saved games, drop down box allows selecting of player names present in game
