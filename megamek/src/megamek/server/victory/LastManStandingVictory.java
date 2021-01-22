@@ -1,15 +1,21 @@
 /*
- * MegaMek - Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.server.victory;
 
@@ -23,12 +29,16 @@ import megamek.common.IPlayer;
  * implementation of "last player/team standing"
  */
 public class LastManStandingVictory implements IVictoryConditions, Serializable {
-
+    //region Variable Declarations
     private static final long serialVersionUID = 3372431109525075853L;
+    //endregion Variable Declarations
 
+    //region Constructors
     public LastManStandingVictory() {
     }
+    //endregion Constructors
 
+    @Override
     public VictoryResult victory(IGame game, Map<String, Object> ctx) {
         // check all players/teams for aliveness
         int playersAlive = 0;
@@ -61,18 +71,13 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         // check if there's one player alive
         if (playersAlive < 1) {
             return VictoryResult.drawResult();
-        } else if (playersAlive == 1) {
-            if (lastPlayer != null && lastPlayer.getTeam() == IPlayer.TEAM_NONE) {
-                // individual victory
-                return new VictoryResult(true, lastPlayer.getId(), IPlayer.TEAM_NONE);
-            }
+        } else if ((playersAlive == 1) && (lastPlayer.getTeam() == IPlayer.TEAM_NONE)) {
+            // individual victory
+            return new VictoryResult(true, lastPlayer.getId(), IPlayer.TEAM_NONE);
         }
 
-        // did we only find one live team?
-        if (oneTeamAlive && !unteamedAlive) {
-            // team victory
-            return new VictoryResult(true, IPlayer.PLAYER_NONE, lastTeam);
-        }
-        return VictoryResult.noResult();
+        return (oneTeamAlive && !unteamedAlive)
+                ? new VictoryResult(true, IPlayer.PLAYER_NONE, lastTeam)
+                : VictoryResult.noResult();
     }
 }

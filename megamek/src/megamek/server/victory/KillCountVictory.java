@@ -1,15 +1,21 @@
 /*
- * MegaMek - Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.server.victory;
 
@@ -25,29 +31,41 @@ import megamek.common.Player;
 import megamek.common.Report;
 
 /**
- * Implements a kill count victory condition.  Victory is achieved if a team (or
- * a player with no team) achieves more kills than the set amount.  If multiple
+ * Implements a kill count victory condition. Victory is achieved if a team (or
+ * a player with no team) achieves more kills than the set amount. If multiple
  * teams/players achieve the kill condition in a turn, victory is awarded to the
  * player/team with the highest kill count.
  */
 public class KillCountVictory implements IVictoryConditions, Serializable {
-    /**
-     * 
-     */
+    //region Variable Declarations
     private static final long serialVersionUID = -6622529899835634696L;
-    protected int killCondition;
+    private int killCondition;
+    //region Variable Declarations
 
-    public KillCountVictory(int kc) {
-        killCondition = kc;
+    //region Constructors
+    public KillCountVictory(int killCondition) {
+        setKillCondition(killCondition);
+    }
+    //endregion Constructors
+
+    //region Getters/Setters
+    public int getKillCondition() {
+        return killCondition;
     }
 
+    public void setKillCondition(int killCondition) {
+        this.killCondition = killCondition;
+    }
+    //endregion Getters/Setters
+
+    @Override
     public VictoryResult victory(IGame game, Map<String, Object> ctx) {
         boolean victory = false;
-        VictoryResult vr = new VictoryResult(true);
+        VictoryResult victoryResult = new VictoryResult(true);
         // Stores the number of kills for each team
-        Hashtable<Integer,Integer> killsTeam = new Hashtable<Integer,Integer>();
+        Map<Integer,Integer> killsTeam = new Hashtable<>();
         // Stores the number of kills for players no on a team
-        Hashtable<Integer,Integer> killsPlayer = new Hashtable<Integer,Integer>();
+        Map<Integer,Integer> killsPlayer = new Hashtable<>();
         
         updateKillTables(game, killsTeam, killsPlayer, game.getWreckedEntities());
         updateKillTables(game, killsTeam, killsPlayer, game.getCarcassEntities());
@@ -55,62 +73,57 @@ public class KillCountVictory implements IVictoryConditions, Serializable {
         boolean teamHasHighestKills = true;
         int highestKillsId = -1;
         int killCount = 0;
-        for (Integer killer : killsTeam.keySet()){
-            if (killsTeam.get(killer) > killCount){
+        for (Integer killer : killsTeam.keySet()) {
+            if (killsTeam.get(killer) > killCount) {
                 highestKillsId = killer;
                 killCount = killsTeam.get(killer);
             }
         }
         
-        for (Integer killer : killsPlayer.keySet()){
-            if (killsTeam.get(killer) > killCount){
+        for (Integer killer : killsPlayer.keySet()) {
+            if (killsPlayer.get(killer) > killCount) {
                 highestKillsId = killer;
                 killCount = killsPlayer.get(killer);
                 teamHasHighestKills = false;
             }
         }
         
-        if (killCount >= killCondition){
-            Report r = new Report(7106, Report.PUBLIC);
+        if (killCount >= getKillCondition()) {
+            Report report = new Report(7106, Report.PUBLIC);
             victory = true;
             if (teamHasHighestKills) {
-                r.add("Team " + highestKillsId);
-                vr.addTeamScore(highestKillsId, 1.0);                
+                report.add("Team " + highestKillsId);
+                victoryResult.addTeamScore(highestKillsId, 1.0);
             } else {
                 IPlayer winner = game.getPlayer(highestKillsId);
-                r.add(winner.getName());
-                vr.addPlayerScore(winner.getId(), 1.0);
+                report.add(winner.getName());
+                victoryResult.addPlayerScore(winner.getId(), 1.0);
             }
-            r.add(killCount);
-            vr.addReport(r);
+            report.add(killCount);
+            victoryResult.getReports().add(report);
         }
-        
-        if (victory)
-            return vr;
-        return VictoryResult.noResult();
+
+        return victory ? victoryResult : VictoryResult.noResult();
     }
     
-    private void updateKillTables(IGame game,
-            Hashtable<Integer, Integer> teamKills,
-            Hashtable<Integer, Integer> playerKills,
-            Enumeration<Entity> victims) {
-        while (victims.hasMoreElements())
-        {
+    private void updateKillTables(IGame game, Map<Integer, Integer> teamKills,
+                                  Map<Integer, Integer> playerKills, Enumeration<Entity> victims) {
+        while (victims.hasMoreElements()) {
             Entity wreck = victims.nextElement();
             Entity killer = game.getEntityFromAllSources(wreck.getKillerId());
             
-            if (killer == null){
+            if (killer == null) {
                 continue;
             }            
             
             int team = killer.getOwner().getTeam();
             // Friendly fire doesn't count
-            if (team == wreck.getOwner().getTeam()){
+            if (team == wreck.getOwner().getTeam()) {
                 continue;
             }
-            if (team != Player.TEAM_NONE){
+            if (team != Player.TEAM_NONE) {
                 Integer kills = teamKills.get(team);
-                if (kills == null){
+                if (kills == null) {
                     kills = 1;
                 } else {
                     kills++;
@@ -119,11 +132,11 @@ public class KillCountVictory implements IVictoryConditions, Serializable {
             } else {
                 Integer player = killer.getOwner().getId();
                 // Friendly fire doesn't count
-                if (wreck.getOwner().getId() == player){
+                if (wreck.getOwner().getId() == player) {
                     continue;
                 }
                 Integer kills = playerKills.get(player);
-                if (kills == null){
+                if (kills == null) {
                     kills = 1;
                 } else {
                     kills++;

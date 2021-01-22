@@ -1,15 +1,21 @@
 /*
- * MegaMek - Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.server.victory;
 
@@ -19,132 +25,149 @@ import java.util.List;
 import java.util.Map;
 
 import megamek.common.IGame;
-import megamek.common.Report;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
 
 public class Victory implements Serializable {
+    //region Variable Declarations
     private static final long serialVersionUID = -8633873540471130320L;
     
     private boolean checkForVictory;
-    private int neededVictoryConditions;
+    private int neededVictoryConditionsCount;
+    private List<IVictoryConditions> victoryConditions;
 
     private IVictoryConditions force = new ForceVictory();
     private IVictoryConditions lastMan = new LastManStandingVictory();
-    private IVictoryConditions[] VCs = null;
+    //endregion Variable Declarations
 
+    //region Constructors
     public Victory(GameOptions options) {
         checkForVictory = options.booleanOption(OptionsConstants.VICTORY_CHECK_VICTORY);
+        setVictoryConditions(checkForVictory() ? buildVictoryConditionsList(options) : null);
+    }
+    //endregion Constructors
 
-        if (checkForVictory) {
-            VCs = buildVClist(options);
-        }
+    //region Getters/Setters
+    public boolean checkForVictory() {
+        return checkForVictory;
     }
 
-    private IVictoryConditions[] buildVClist(GameOptions options) {
-        neededVictoryConditions = options.intOption(OptionsConstants.VICTORY_ACHIEVE_CONDITIONS);
-        List<IVictoryConditions> victories = new ArrayList<IVictoryConditions>();
+    public void setCheckForVictory(boolean checkForVictory) {
+        this.checkForVictory = checkForVictory;
+    }
+
+    public int getNeededVictoryConditionsCount() {
+        return neededVictoryConditionsCount;
+    }
+
+    public void setNeededVictoryConditionsCount(int neededVictoryConditionsCount) {
+        this.neededVictoryConditionsCount = neededVictoryConditionsCount;
+    }
+
+    public List<IVictoryConditions> getVictoryConditions() {
+        return victoryConditions;
+    }
+
+    public void setVictoryConditions(List<IVictoryConditions> victoryConditions) {
+        this.victoryConditions = victoryConditions;
+    }
+    //endregion Getters/Setters
+
+    private List<IVictoryConditions> buildVictoryConditionsList(GameOptions options) {
+        setNeededVictoryConditionsCount(options.intOption(OptionsConstants.VICTORY_ACHIEVE_CONDITIONS));
+        List<IVictoryConditions> victoryConditions = new ArrayList<>();
+
         // BV related victory conditions
         if (options.booleanOption(OptionsConstants.VICTORY_USE_BV_DESTROYED)) {
-            victories.add(new BVDestroyedVictory(options.intOption(OptionsConstants.VICTORY_BV_DESTROYED_PERCENT)));
+            victoryConditions.add(new BVDestroyedVictory(options.intOption(OptionsConstants.VICTORY_BV_DESTROYED_PERCENT)));
         }
+
         if (options.booleanOption(OptionsConstants.VICTORY_USE_BV_RATIO)) {
-            victories.add(new BVRatioVictory(options.intOption(OptionsConstants.VICTORY_BV_RATIO_PERCENT)));
+            victoryConditions.add(new BVRatioVictory(options.intOption(OptionsConstants.VICTORY_BV_RATIO_PERCENT)));
         }
 
         // Kill count victory condition
         if (options.booleanOption(OptionsConstants.VICTORY_USE_KILL_COUNT)) {
-            victories.add(new KillCountVictory(options.intOption(OptionsConstants.VICTORY_GAME_KILL_COUNT)));
+            victoryConditions.add(new KillCountVictory(options.intOption(OptionsConstants.VICTORY_GAME_KILL_COUNT)));
         }
 
         // Commander killed victory condition
         if (options.booleanOption(OptionsConstants.VICTORY_COMMANDER_KILLED)) {
-            victories.add(new EnemyCmdrDestroyedVictory());
+            victoryConditions.add(new EnemyCmdrDestroyedVictory());
         }
-        return victories.toArray(new IVictoryConditions[0]);
+
+        return victoryConditions;
     }
 
     public VictoryResult checkForVictory(IGame game, Map<String, Object> context) {
-        VictoryResult reVal;
+        VictoryResult victoryResult;
 
         // Check for ForceVictory
         // Always check for forced victory, so games without victory conditions
         // can be completed
-        reVal = force.victory(game, context);
-        if (reVal.victory()) {
-            return reVal;
+        victoryResult = force.victory(game, context);
+        if (victoryResult.victory()) {
+            return victoryResult;
         }
 
         // Check optional Victory conditions
         // These can have reports
-        if (checkForVictory) {
-            if (VCs == null) {
-                VCs = buildVClist(game.getOptions());
+        if (checkForVictory()) {
+            if (getVictoryConditions() == null) {
+                setVictoryConditions(buildVictoryConditionsList(game.getOptions()));
             }
-            reVal = checkOptionalVictory(game, context);
-            if (reVal.victory()) {
-                return reVal;
+            victoryResult = checkOptionalVictory(game, context);
+            if (victoryResult.victory()) {
+                return victoryResult;
             }
         }
 
         // Check for LastManStandingVictory
         VictoryResult lastManResult = lastMan.victory(game, context);
-        if (checkForVictory && !reVal.victory() && lastManResult.victory()) {
+        if (checkForVictory() && !victoryResult.victory() && lastManResult.victory()) {
             return lastManResult;
         }
-        return reVal;
+        return victoryResult;
     }
 
     private VictoryResult checkOptionalVictory(IGame game, Map<String, Object> context) {
         boolean victory = false;
-        VictoryResult vr = new VictoryResult(true);
+        VictoryResult victoryResult = new VictoryResult(true);
 
         // combine scores
-        for (IVictoryConditions v : VCs) {
-            VictoryResult res = v.victory(game, context);
-            for (Report r : res.getReports()) {
-                vr.addReport(r);
-            }
-            if (res.victory()) {
+        for (IVictoryConditions victoryCondition : getVictoryConditions()) {
+            VictoryResult result = victoryCondition.victory(game, context);
+            victoryResult.getReports().addAll(result.getReports());
+            if (result.victory()) {
                 victory = true;
             }
-            for (int pl : res.getPlayers()) {
-                vr.addPlayerScore(pl, vr.getPlayerScore(pl) + res.getPlayerScore(pl));
+            for (Map.Entry<Integer, Double> player : result.getPlayerScores().entrySet()) {
+                victoryResult.addPlayerScore(player.getKey(), victoryResult.getPlayerScore(player.getKey()) + player.getValue());
             }
-            for (int t : res.getTeams()) {
-                vr.addTeamScore(t, vr.getTeamScore(t) + res.getTeamScore(t));
+            for (Map.Entry<Integer, Double> team : result.getTeamScores().entrySet()) {
+                victoryResult.addTeamScore(team.getKey(), victoryResult.getTeamScore(team.getKey()) + team.getValue());
             }
         }
-        // find highscore for thresholding, also divide the score
-        // to an average
+        // find the high score for thresholding, also divide the score to an average
         double highScore = 0.0;
-        for (int pl : vr.getPlayers()) {
-            double sc = vr.getPlayerScore(pl);
-            vr.addPlayerScore(pl, sc / VCs.length);
-            if (sc > highScore) {
-                highScore = sc;
+        for (Map.Entry<Integer, Double> player : victoryResult.getPlayerScores().entrySet()) {
+            victoryResult.addPlayerScore(player.getKey(), player.getValue() / getVictoryConditions().size());
+            if (player.getValue() > highScore) {
+                highScore = player.getValue();
             }
         }
-        for (int pl : vr.getTeams()) {
-            double sc = vr.getTeamScore(pl);
-            vr.addTeamScore(pl, sc / VCs.length);
-            if (sc > highScore) {
-                highScore = sc;
+        for (Map.Entry<Integer, Double> team : victoryResult.getTeamScores().entrySet()) {
+            victoryResult.addTeamScore(team.getKey(), team.getValue() / getVictoryConditions().size());
+            if (team.getValue() > highScore) {
+                highScore = team.getValue();
             }
         }
-        if (highScore < neededVictoryConditions) {
+        if (highScore < getNeededVictoryConditionsCount()) {
             victory = false;
         }
-        vr.setVictory(victory);
+        victoryResult.setVictory(victory);
 
-        if (vr.victory()) {
-            return vr;
-        }
-
-        if (!vr.victory() && game.gameTimerIsExpired()) {
-            return VictoryResult.drawResult();
-        }
-
-        return vr;
+        return (!victoryResult.victory() && game.gameTimerIsExpired())
+                ? VictoryResult.drawResult() : victoryResult;
     }
 }

@@ -1,15 +1,21 @@
 /*
- * MegaMek - Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.server.victory;
 
@@ -19,48 +25,40 @@ import megamek.common.IGame;
 import megamek.common.IPlayer;
 
 /**
- * abstract baseclass for bv-checking victory implementations
+ * abstract baseclass for BV-checking victory implementations
  */
 public abstract class AbstractBVVictory implements IVictoryConditions, Serializable {
-    /**
-     * 
-     */
+    //region Variable Declarations
     private static final long serialVersionUID = -689891568905531049L;
+    //endregion Variable Declarations
 
     public int getFriendlyBV(IGame game, IPlayer player) {
-        int ret = 0;
+        int friendlyBV = 0;
         for (IPlayer other : game.getPlayersVector()) {
-            if (other.isObserver())
-                continue;
-            if (!other.isEnemyOf(player)) {
-                ret += other.getBV();
+            if (!other.isObserver() && !other.isEnemyOf(player)) {
+                friendlyBV += other.getBV();
             }
         }
-        return ret;
+        return friendlyBV;
     }
 
     public int getEnemyBV(IGame game, IPlayer player) {
-        int ret = 0;
+        int enemyBV = 0;
         for (IPlayer other : game.getPlayersVector()) {
-            if (other.isObserver())
-                continue;
-            if (other.isEnemyOf(player)) {
-                ret += other.getBV();
+            if (!other.isObserver() && other.isEnemyOf(player)) {
+                enemyBV += other.getBV();
             }
         }
-        return ret;
+        return enemyBV;
     }
 
     public int getEnemyInitialBV(IGame game, IPlayer player) {
-        int ret = 0;
+        int enemyInitialBV = 0;
         for (IPlayer other : game.getPlayersVector()) {
-            if (other.isObserver())
-                continue;
-            if (other.isEnemyOf(player)) {
-                ret += other.getInitialBV();
+            if (other.isObserver() && other.isEnemyOf(player)) {
+                enemyInitialBV += other.getInitialBV();
             }
         }
-        return ret;
+        return enemyInitialBV;
     }
-
 }

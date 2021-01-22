@@ -1,15 +1,21 @@
 /*
- * MegaMek - Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.server.victory;
 
@@ -24,15 +30,17 @@ import megamek.common.IPlayer;
  * implementation of player-agreed victory
  */
 public class ForceVictory implements IVictoryConditions, Serializable {
-
-    /**
-     * 
-     */
+    //region Variable Declarations
     private static final long serialVersionUID = 1782762191476942976L;
+    //endregion Variable Declarations
 
+    //region Constructors
     public ForceVictory() {
-    }
 
+    }
+    //endregion Constructors
+
+    @Override
     public VictoryResult victory(IGame game, Map<String, Object> ctx) {
         if (!game.isForceVictory()) {
             return VictoryResult.noResult();
@@ -44,10 +52,8 @@ public class ForceVictory implements IVictoryConditions, Serializable {
 
         // Individual victory.
         if (victoryPlayerId != IPlayer.PLAYER_NONE) {
-            for (int i = 0; i < players.size(); i++) {
-                IPlayer player = players.get(i);
-
-                if (player.getId() != victoryPlayerId && !player.isObserver()) {
+            for (IPlayer player : players) {
+                if ((player.getId() != victoryPlayerId) && !player.isObserver()) {
                     if (!player.admitsDefeat()) {
                         forceVictory = false;
                         break;
@@ -55,12 +61,11 @@ public class ForceVictory implements IVictoryConditions, Serializable {
                 }
             }
         }
+
         // Team victory.
         if (victoryTeam != IPlayer.TEAM_NONE) {
-            for (int i = 0; i < players.size(); i++) {
-                IPlayer player = players.get(i);
-
-                if (player.getTeam() != victoryTeam && !player.isObserver()) {
+            for (IPlayer player : players) {
+                if ((player.getTeam() != victoryTeam) && !player.isObserver()) {
                     if (!player.admitsDefeat()) {
                         forceVictory = false;
                         break;
@@ -69,10 +74,6 @@ public class ForceVictory implements IVictoryConditions, Serializable {
             }
         }
 
-        if (forceVictory) {
-            return new VictoryResult(true, victoryPlayerId, victoryTeam);
-        }
-
-        return VictoryResult.noResult();
+        return forceVictory ? new VictoryResult(true, victoryPlayerId, victoryTeam) : VictoryResult.noResult();
     }
 }
