@@ -34,16 +34,17 @@ public class Victory implements Serializable {
     
     private boolean checkForVictory;
     private int neededVictoryConditionsCount;
-    private List<IVictoryConditions> victoryConditions;
-
-    private IVictoryConditions force = new ForceVictory();
-    private IVictoryConditions lastMan = new LastManStandingVictory();
+    private List<AbstractVictoryCondition> victoryConditions;
+    private AbstractVictoryCondition timeVictory;
     //endregion Variable Declarations
 
     //region Constructors
     public Victory(GameOptions options) {
-        checkForVictory = options.booleanOption(OptionsConstants.VICTORY_CHECK_VICTORY);
-        setVictoryConditions(checkForVictory() ? buildVictoryConditionsList(options) : null);
+        setCheckForVictory(options.booleanOption(OptionsConstants.VICTORY_CHECK_VICTORY));
+        if (checkForVictory() && options.booleanOption(OptionsConstants.VICTORY_USE_GAME_TURN_LIMIT)) {
+            setTimeVictory(new TimeVictory(options.intOption(OptionsConstants.VICTORY_GAME_TURN_LIMIT)));
+        }
+        buildVictoryConditionsList(options);
     }
     //endregion Constructors
 
@@ -64,79 +65,77 @@ public class Victory implements Serializable {
         this.neededVictoryConditionsCount = neededVictoryConditionsCount;
     }
 
-    public List<IVictoryConditions> getVictoryConditions() {
+    public List<AbstractVictoryCondition> getVictoryConditions() {
         return victoryConditions;
     }
 
-    public void setVictoryConditions(List<IVictoryConditions> victoryConditions) {
+    public void setVictoryConditions(List<AbstractVictoryCondition> victoryConditions) {
         this.victoryConditions = victoryConditions;
+    }
+
+    public AbstractVictoryCondition getTimeVictory() {
+        return timeVictory;
+    }
+
+    public void setTimeVictory(AbstractVictoryCondition timeVictory) {
+        this.timeVictory = timeVictory;
     }
     //endregion Getters/Setters
 
-    private List<IVictoryConditions> buildVictoryConditionsList(GameOptions options) {
-        setNeededVictoryConditionsCount(options.intOption(OptionsConstants.VICTORY_ACHIEVE_CONDITIONS));
-        List<IVictoryConditions> victoryConditions = new ArrayList<>();
+    private void buildVictoryConditionsList(GameOptions options) {
+        List<AbstractVictoryCondition> victoryConditions = new ArrayList<>();
 
-        // BV related victory conditions
-        if (options.booleanOption(OptionsConstants.VICTORY_USE_BV_DESTROYED)) {
-            victoryConditions.add(new BVDestroyedVictory(options.intOption(OptionsConstants.VICTORY_BV_DESTROYED_PERCENT)));
+        // Default Victory Conditions that cannot be disabled
+        victoryConditions.add(new ForceVictory());
+        victoryConditions.add(new LastManStandingVictory());
+
+        if (checkForVictory()) {
+            setNeededVictoryConditionsCount(options.intOption(OptionsConstants.VICTORY_ACHIEVE_CONDITIONS));
+
+            // BV related victory conditions
+            if (options.booleanOption(OptionsConstants.VICTORY_USE_BV_DESTROYED)) {
+                victoryConditions.add(new BVDestroyedVictory(options.intOption(OptionsConstants.VICTORY_BV_DESTROYED_PERCENT)));
+            }
+
+            if (options.booleanOption(OptionsConstants.VICTORY_USE_BV_RATIO)) {
+                victoryConditions.add(new BVRatioVictory(options.intOption(OptionsConstants.VICTORY_BV_RATIO_PERCENT)));
+            }
+
+            // Kill count victory condition
+            if (options.booleanOption(OptionsConstants.VICTORY_USE_KILL_COUNT)) {
+                victoryConditions.add(new KillCountVictory(options.intOption(OptionsConstants.VICTORY_GAME_KILL_COUNT)));
+            }
+
+            // Commander killed victory condition
+            if (options.booleanOption(OptionsConstants.VICTORY_COMMANDER_KILLED)) {
+                victoryConditions.add(new AllEnemyCommandersDestroyedVictory());
+            }
         }
 
-        if (options.booleanOption(OptionsConstants.VICTORY_USE_BV_RATIO)) {
-            victoryConditions.add(new BVRatioVictory(options.intOption(OptionsConstants.VICTORY_BV_RATIO_PERCENT)));
-        }
-
-        // Kill count victory condition
-        if (options.booleanOption(OptionsConstants.VICTORY_USE_KILL_COUNT)) {
-            victoryConditions.add(new KillCountVictory(options.intOption(OptionsConstants.VICTORY_GAME_KILL_COUNT)));
-        }
-
-        // Commander killed victory condition
-        if (options.booleanOption(OptionsConstants.VICTORY_COMMANDER_KILLED)) {
-            victoryConditions.add(new EnemyCmdrDestroyedVictory());
-        }
-
-        return victoryConditions;
+        setVictoryConditions(victoryConditions);
     }
 
-    public VictoryResult checkForVictory(IGame game, Map<String, Object> context) {
-        VictoryResult victoryResult;
-
-        // Check for ForceVictory
-        // Always check for forced victory, so games without victory conditions
-        // can be completed
-        victoryResult = force.victory(game, context);
-        if (victoryResult.victory()) {
-            return victoryResult;
-        }
-
+    public VictoryResult checkForVictory(IGame game) {
+        VictoryResult victoryResult = VictoryResult.noResult();
         // Check optional Victory conditions
         // These can have reports
         if (checkForVictory()) {
-            if (getVictoryConditions() == null) {
-                setVictoryConditions(buildVictoryConditionsList(game.getOptions()));
-            }
-            victoryResult = checkOptionalVictory(game, context);
+            victoryResult = checkOptionalVictory(game);
             if (victoryResult.victory()) {
                 return victoryResult;
             }
         }
 
-        // Check for LastManStandingVictory
-        VictoryResult lastManResult = lastMan.victory(game, context);
-        if (checkForVictory() && !victoryResult.victory() && lastManResult.victory()) {
-            return lastManResult;
-        }
         return victoryResult;
     }
 
-    private VictoryResult checkOptionalVictory(IGame game, Map<String, Object> context) {
+    private VictoryResult checkOptionalVictory(IGame game) {
         boolean victory = false;
         VictoryResult victoryResult = new VictoryResult(true);
 
         // combine scores
-        for (IVictoryConditions victoryCondition : getVictoryConditions()) {
-            VictoryResult result = victoryCondition.victory(game, context);
+        for (AbstractVictoryCondition victoryCondition : getVictoryConditions()) {
+            VictoryResult result = victoryCondition.victory(game);
             victoryResult.getReports().addAll(result.getReports());
             if (result.victory()) {
                 victory = true;
@@ -165,9 +164,14 @@ public class Victory implements Serializable {
         if (highScore < getNeededVictoryConditionsCount()) {
             victory = false;
         }
+
         victoryResult.setVictory(victory);
 
-        return (!victoryResult.victory() && game.gameTimerIsExpired())
-                ? VictoryResult.drawResult() : victoryResult;
+        if (victoryResult.victory()) {
+            return victoryResult;
+        }
+
+        VictoryResult timeVictory = (getTimeVictory() != null) ? getTimeVictory().victory(game) : null;
+        return ((timeVictory != null) && timeVictory.victory()) ? timeVictory : victoryResult;
     }
 }

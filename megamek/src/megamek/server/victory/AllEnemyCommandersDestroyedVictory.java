@@ -19,9 +19,7 @@
  */
 package megamek.server.victory;
 
-import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import megamek.common.IGame;
@@ -31,23 +29,22 @@ import megamek.common.Report;
 /**
  * implements "enemy commander destroyed"
  */
-public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializable {
+public class AllEnemyCommandersDestroyedVictory extends AbstractVictoryCondition {
     //region Variable Declarations
     private static final long serialVersionUID = 2525190210964235691L;
     //endregion Variable Declarations
 
     //region Constructors
-    public EnemyCmdrDestroyedVictory() {
-
+    public AllEnemyCommandersDestroyedVictory() {
+        super("AllEnemyCommandersDestroyedVictory.title");
     }
     //endregion Constructors
 
     @Override
-    public VictoryResult victory(IGame game, Map<String, Object> ctx) {
-        VictoryResult victoryResult = new VictoryResult(true);
+    public VictoryResult victory(IGame game) {
+        VictoryResult victoryResult = new VictoryResult(false);
         // check all players/teams for killing enemy commanders
         // score is 1.0 when enemy commanders are dead
-        boolean victory = false;
         Set<Integer> doneTeams = new HashSet<>();
         for (IPlayer player : game.getPlayersVector()) {
             boolean killedAll = true;
@@ -70,18 +67,24 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
             }
             // all enemy commanders are dead
             if (killedAll) {
-                Report report = new Report(7110, Report.PUBLIC);
-                if (team == IPlayer.TEAM_NONE) {
-                    report.add(player.getName());
-                    victoryResult.addPlayerScore(player.getId(), 1);
-                } else {
-                    report.add("Team " + team);
-                    victoryResult.addTeamScore(team, 1);
-                }
-                victoryResult.getReports().add(report);
-                victory = true;
+                victoryResult.setVictory(true);
+                createReport(victoryResult, player.getTeam(), player.getId(), player.getName());
             }
         }
-        return victory ? victoryResult : VictoryResult.noResult();
+        return victoryResult;
+    }
+
+    @Override
+    protected VictoryResult createReport(Object... data) {
+        Report report = new Report(7111, Report.PUBLIC);
+        if ((Integer) data[1] == IPlayer.TEAM_NONE) {
+            report.add((String) data[3]);
+            ((VictoryResult) data[0]).addPlayerScore((Integer) data[2], 1);
+        } else {
+            report.add("Team " + data[1]);
+            ((VictoryResult) data[0]).addTeamScore((Integer) data[1], 1);
+        }
+        ((VictoryResult) data[0]).getReports().add(report);
+        return (VictoryResult) data[0];
     }
 }

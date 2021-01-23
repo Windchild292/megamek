@@ -19,27 +19,25 @@
  */
 package megamek.server.victory;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 
 /**
  * implementation of "last player/team standing"
  */
-public class LastManStandingVictory implements IVictoryConditions, Serializable {
+public class LastManStandingVictory extends AbstractVictoryCondition {
     //region Variable Declarations
     private static final long serialVersionUID = 3372431109525075853L;
     //endregion Variable Declarations
 
     //region Constructors
     public LastManStandingVictory() {
+        super("LastManStandingVictory.title");
     }
     //endregion Constructors
 
     @Override
-    public VictoryResult victory(IGame game, Map<String, Object> ctx) {
+    public VictoryResult victory(IGame game) {
         // check all players/teams for aliveness
         int playersAlive = 0;
         IPlayer lastPlayer = null;
@@ -79,5 +77,10 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         return (oneTeamAlive && !unteamedAlive)
                 ? new VictoryResult(true, IPlayer.PLAYER_NONE, lastTeam)
                 : VictoryResult.noResult();
+    }
+
+    @Override
+    protected VictoryResult createReport(Object... data) {
+        return null;
     }
 }

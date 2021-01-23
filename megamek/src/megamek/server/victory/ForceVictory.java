@@ -19,9 +19,7 @@
  */
 package megamek.server.victory;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import megamek.common.IGame;
 import megamek.common.IPlayer;
@@ -29,19 +27,19 @@ import megamek.common.IPlayer;
 /**
  * implementation of player-agreed victory
  */
-public class ForceVictory implements IVictoryConditions, Serializable {
+public class ForceVictory extends AbstractVictoryCondition {
     //region Variable Declarations
     private static final long serialVersionUID = 1782762191476942976L;
     //endregion Variable Declarations
 
     //region Constructors
     public ForceVictory() {
-
+        super("ForceVictory.title");
     }
     //endregion Constructors
 
     @Override
-    public VictoryResult victory(IGame game, Map<String, Object> ctx) {
+    public VictoryResult victory(IGame game) {
         if (!game.isForceVictory()) {
             return VictoryResult.noResult();
         }
@@ -75,5 +73,10 @@ public class ForceVictory implements IVictoryConditions, Serializable {
         }
 
         return forceVictory ? new VictoryResult(true, victoryPlayerId, victoryTeam) : VictoryResult.noResult();
+    }
+
+    @Override
+    protected VictoryResult createReport(Object... data) {
+        return null;
     }
 }

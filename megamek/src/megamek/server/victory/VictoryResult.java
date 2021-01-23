@@ -47,6 +47,10 @@ public class VictoryResult {
         this(victory, IPlayer.PLAYER_NONE, IPlayer.TEAM_NONE);
     }
 
+    public VictoryResult(boolean victory, int team, IPlayer player) {
+        this(victory, team, player.getId());
+    }
+
     public VictoryResult(boolean victory, int player, int team) {
         setVictory(victory);
         setThrowable(new Throwable());

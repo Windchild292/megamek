@@ -19,18 +19,22 @@
  */
 package megamek.server.victory;
 
-import java.io.Serializable;
-
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 
 /**
  * abstract baseclass for BV-checking victory implementations
  */
-public abstract class AbstractBVVictory implements IVictoryConditions, Serializable {
+public abstract class AbstractBVVictory extends AbstractVictoryCondition {
     //region Variable Declarations
     private static final long serialVersionUID = -689891568905531049L;
     //endregion Variable Declarations
+
+    //region Constructors
+    protected AbstractBVVictory(String name) {
+        super(name);
+    }
+    //endregion Constructors
 
     public int getFriendlyBV(IGame game, IPlayer player) {
         int friendlyBV = 0;

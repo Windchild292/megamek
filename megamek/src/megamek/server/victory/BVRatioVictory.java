@@ -20,7 +20,6 @@
 package megamek.server.victory;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import megamek.common.IGame;
@@ -43,6 +42,7 @@ public class BVRatioVictory extends AbstractBVVictory {
 
     //region Constructors
     public BVRatioVictory(int ratio) {
+        super("BVRatioVictory.title");
         setRatio(ratio);
     }
     //endregion Constructors
@@ -58,9 +58,8 @@ public class BVRatioVictory extends AbstractBVVictory {
     //endregion Getters/Setters
 
     @Override
-    public VictoryResult victory(IGame game, Map<String, Object> ctx) {
-        boolean victory = false;
-        VictoryResult victoryResult = new VictoryResult(true);
+    public VictoryResult victory(IGame game) {
+        VictoryResult victoryResult = new VictoryResult(false);
         // now check for detailed victory conditions...
         Set<Integer> doneTeams = new HashSet<>();
         for (IPlayer player : game.getPlayersVector()) {
@@ -78,19 +77,26 @@ public class BVRatioVictory extends AbstractBVVictory {
             int enemyBV = getEnemyBV(game, player);
 
             if ((enemyBV == 0) || ((100 * friendlyBV) / enemyBV >= getRatio())) {
-                Report report = new Report(7100, Report.PUBLIC);
-                victory = true;
-                if (team == IPlayer.TEAM_NONE) {
-                    report.add(player.getName());
-                    victoryResult.addPlayerScore(player.getId(), 1.0);
-                } else {
-                    report.add("Team " + team);
-                    victoryResult.addTeamScore(team, 1.0);
-                }
-                report.add((enemyBV == 0) ? 9999 : (100 * friendlyBV) / enemyBV);
-                victoryResult.getReports().add(report);
+                createReport(victoryResult, team, player.getId(), player.getName(),
+                        (enemyBV == 0) ? 9999 : (100 * friendlyBV) / enemyBV);
+                victoryResult.setVictory(true);
             }
         }
-        return victory ? victoryResult : VictoryResult.noResult();
+        return victoryResult;
+    }
+
+    @Override
+    protected VictoryResult createReport(Object... data) {
+        Report report = new Report(7100, Report.PUBLIC);
+        if ((Integer) data[1] == IPlayer.TEAM_NONE) {
+            report.add((String) data[3]);
+            ((VictoryResult) data[0]).addPlayerScore((Integer) data[2], 1.0);
+        } else {
+            report.add("Team " + data[1]);
+            ((VictoryResult) data[0]).addTeamScore((Integer) data[1], 1.0);
+        }
+        report.add((Integer) data[4]);
+        ((VictoryResult) data[0]).getReports().add(report);
+        return ((VictoryResult) data[0]);
     }
 }
