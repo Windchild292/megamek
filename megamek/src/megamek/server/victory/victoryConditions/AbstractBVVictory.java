@@ -17,13 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 
+import java.util.stream.IntStream;
+
 /**
- * abstract baseclass for BV-checking victory implementations
+ * Abstract base class for BV-checking victory implementations
  */
 public abstract class AbstractBVVictory extends AbstractVictoryCondition {
     //region Variable Declarations
@@ -36,33 +38,17 @@ public abstract class AbstractBVVictory extends AbstractVictoryCondition {
     }
     //endregion Constructors
 
-    public int getFriendlyBV(IGame game, IPlayer player) {
-        int friendlyBV = 0;
-        for (IPlayer other : game.getPlayersVector()) {
-            if (!other.isObserver() && !other.isEnemyOf(player)) {
-                friendlyBV += other.getBV();
-            }
-        }
-        return friendlyBV;
-    }
-
     public int getEnemyBV(IGame game, IPlayer player) {
-        int enemyBV = 0;
-        for (IPlayer other : game.getPlayersVector()) {
-            if (!other.isObserver() && other.isEnemyOf(player)) {
-                enemyBV += other.getBV();
-            }
-        }
-        return enemyBV;
+        return game.getPlayersVector().stream()
+                .filter(p -> !p.isObserver() && p.isEnemyOf(player))
+                .flatMapToInt(p -> IntStream.of(p.getBV()))
+                .sum();
     }
 
     public int getEnemyInitialBV(IGame game, IPlayer player) {
-        int enemyInitialBV = 0;
-        for (IPlayer other : game.getPlayersVector()) {
-            if (other.isObserver() && other.isEnemyOf(player)) {
-                enemyInitialBV += other.getInitialBV();
-            }
-        }
-        return enemyInitialBV;
+        return game.getPlayersVector().stream()
+                .filter(p -> !p.isObserver() && p.isEnemyOf(player))
+                .flatMapToInt(p -> IntStream.of(p.getInitialBV()))
+                .sum();
     }
 }

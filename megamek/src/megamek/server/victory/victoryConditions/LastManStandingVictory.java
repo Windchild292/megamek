@@ -17,10 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IGame;
 import megamek.common.IPlayer;
+import megamek.server.victory.VictoryResult;
 
 /**
  * implementation of "last player/team standing"
@@ -77,10 +78,5 @@ public class LastManStandingVictory extends AbstractVictoryCondition {
         return (oneTeamAlive && !unteamedAlive)
                 ? new VictoryResult(true, IPlayer.PLAYER_NONE, lastTeam)
                 : VictoryResult.noResult();
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        return null;
     }
 }

@@ -27,6 +27,14 @@ import java.util.Map;
 import megamek.common.IGame;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
+import megamek.server.victory.victoryConditions.AbstractVictoryCondition;
+import megamek.server.victory.victoryConditions.AllEnemyCommandersDestroyedVictory;
+import megamek.server.victory.victoryConditions.BVDestroyedVictory;
+import megamek.server.victory.victoryConditions.BVRatioVictory;
+import megamek.server.victory.victoryConditions.ForceVictory;
+import megamek.server.victory.victoryConditions.KillCountVictory;
+import megamek.server.victory.victoryConditions.LastManStandingVictory;
+import megamek.server.victory.victoryConditions.TurnVictory;
 
 public class Victory implements Serializable {
     //region Variable Declarations
@@ -35,14 +43,14 @@ public class Victory implements Serializable {
     private boolean checkForVictory;
     private int neededVictoryConditionsCount;
     private List<AbstractVictoryCondition> victoryConditions;
-    private AbstractVictoryCondition timeVictory;
+    private AbstractVictoryCondition turnVictory;
     //endregion Variable Declarations
 
     //region Constructors
     public Victory(GameOptions options) {
         setCheckForVictory(options.booleanOption(OptionsConstants.VICTORY_CHECK_VICTORY));
         if (checkForVictory() && options.booleanOption(OptionsConstants.VICTORY_USE_GAME_TURN_LIMIT)) {
-            setTimeVictory(new TimeVictory(options.intOption(OptionsConstants.VICTORY_GAME_TURN_LIMIT)));
+            setTurnVictory(new TurnVictory(options.intOption(OptionsConstants.VICTORY_GAME_TURN_LIMIT)));
         }
         buildVictoryConditionsList(options);
     }
@@ -73,12 +81,12 @@ public class Victory implements Serializable {
         this.victoryConditions = victoryConditions;
     }
 
-    public AbstractVictoryCondition getTimeVictory() {
-        return timeVictory;
+    public AbstractVictoryCondition getTurnVictory() {
+        return turnVictory;
     }
 
-    public void setTimeVictory(AbstractVictoryCondition timeVictory) {
-        this.timeVictory = timeVictory;
+    public void setTurnVictory(AbstractVictoryCondition turnVictory) {
+        this.turnVictory = turnVictory;
     }
     //endregion Getters/Setters
 
@@ -171,7 +179,7 @@ public class Victory implements Serializable {
             return victoryResult;
         }
 
-        VictoryResult timeVictory = (getTimeVictory() != null) ? getTimeVictory().victory(game) : null;
+        VictoryResult timeVictory = (getTurnVictory() != null) ? getTurnVictory().victory(game) : null;
         return ((timeVictory != null) && timeVictory.victory()) ? timeVictory : victoryResult;
     }
 }

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +25,7 @@ import java.util.Set;
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.server.victory.VictoryResult;
 
 /**
  * implements "enemy commander destroyed"
@@ -68,23 +69,19 @@ public class AllEnemyCommandersDestroyedVictory extends AbstractVictoryCondition
             // all enemy commanders are dead
             if (killedAll) {
                 victoryResult.setVictory(true);
-                createReport(victoryResult, player.getTeam(), player.getId(), player.getName());
+
+                Report report = new Report(7111, Report.PUBLIC);
+                if (player.getTeam() == IPlayer.TEAM_NONE) {
+                    report.add(player.getName());
+                    victoryResult.addPlayerScore(player.getId(), 1);
+                } else {
+                    report.add(player.getTeamObject().toString());
+                    victoryResult.addTeamScore(player.getTeam(), 1);
+                }
+                victoryResult.getReports().add(report);
+                return victoryResult;
             }
         }
         return victoryResult;
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        Report report = new Report(7111, Report.PUBLIC);
-        if ((Integer) data[1] == IPlayer.TEAM_NONE) {
-            report.add((String) data[3]);
-            ((VictoryResult) data[0]).addPlayerScore((Integer) data[2], 1);
-        } else {
-            report.add("Team " + data[1]);
-            ((VictoryResult) data[0]).addTeamScore((Integer) data[1], 1);
-        }
-        ((VictoryResult) data[0]).getReports().add(report);
-        return (VictoryResult) data[0];
     }
 }

@@ -16,12 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.Entity;
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.common.Team;
+import megamek.common.annotations.Nullable;
+import megamek.server.victory.VictoryResult;
+
+import java.util.Objects;
 
 public class TargetedEnemyCommanderDestroyedVictory extends AbstractTargetedVictoryCondition {
     //region Variable Declarations
@@ -30,10 +35,11 @@ public class TargetedEnemyCommanderDestroyedVictory extends AbstractTargetedVict
     //endregion Variable Declarations
 
     //region Constructors
-    public TargetedEnemyCommanderDestroyedVictory(int originTeam, IPlayer originPlayer,
-                                                  int targetTeam, IPlayer targetPlayer, Entity targetEntity) {
+    public TargetedEnemyCommanderDestroyedVictory(@Nullable Team originTeam, @Nullable IPlayer originPlayer,
+                                                  @Nullable Team targetTeam, @Nullable IPlayer targetPlayer,
+                                                  Entity targetEntity) {
         super("TargetedEnemyCommanderDestroyedVictory.title", originTeam, originPlayer, targetTeam, targetPlayer);
-        setTargetEntity(targetEntity);
+        setTargetEntity(Objects.requireNonNull(targetEntity));
     }
     //endregion Constructors
 
@@ -49,21 +55,20 @@ public class TargetedEnemyCommanderDestroyedVictory extends AbstractTargetedVict
 
     @Override
     public VictoryResult victory(IGame game) {
-        return getTargetEntity().isDestroyed() ? createReport() : VictoryResult.noResult();
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        VictoryResult victoryResult = new VictoryResult(true, getOriginTeam(), getOriginPlayer());
-        Report report = new Report(7110, Report.PUBLIC);
-        if (getOriginPlayer() == null) {
-            report.add("Team " + getOriginTeam());
-            victoryResult.addTeamScore(getOriginTeam(), 1.0);
+        if (getTargetEntity().isDestroyed()) {
+            VictoryResult victoryResult = new VictoryResult(true, getOriginTeam().getId(), getOriginPlayer());
+            Report report = new Report(7110, Report.PUBLIC);
+            if (getOriginPlayer() == null) {
+                report.add(getOriginTeam().toString());
+                victoryResult.addTeamScore(getOriginTeam().getId(), 1.0);
+            } else {
+                report.add(getOriginPlayer().getName());
+                victoryResult.addPlayerScore(getOriginPlayer().getId(), 1.0);
+            }
+            victoryResult.getReports().add(report);
+            return victoryResult;
         } else {
-            report.add(getOriginPlayer().getName());
-            victoryResult.addPlayerScore(getOriginPlayer().getId(), 1.0);
+            return VictoryResult.noResult();
         }
-        victoryResult.getReports().add(report);
-        return victoryResult;
     }
 }

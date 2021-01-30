@@ -16,6 +16,8 @@ package megamek.common;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 /**
  * The Team class holds a list of information about a team. It holds the
@@ -23,27 +25,27 @@ import java.util.Vector;
  * implements functions that gather the number of units each team has.
  */
 public final class Team extends TurnOrdered {
+    //region Variable Declarations
     private static final long serialVersionUID = 2270215552964191597L;
-    private Vector<IPlayer> players = new Vector<>();
-    private int id;
-    private Boolean ObserverTeam = null;
 
+    private int id;
+    private Vector<IPlayer> players = new Vector<>();
+    private Boolean ObserverTeam = null;
+    //endregion Variable Declarations
+
+    //region Constructors
     public Team(int newID) {
         id = newID;
     }
+    //endregion Constructors
 
     public int getSize() {
         return players.size();
     }
 
     public int getNonObserverSize() {
-        int nonObservers = 0;
-        for (int i = 0; i < players.size(); i++) {
-            if (!players.get(i).isObserver()) {
-                nonObservers++;
-            }
-        }
-        return nonObservers;
+        return Math.toIntExact(getPlayersVector().stream()
+                .filter(Predicate.not(IPlayer::isObserver)).count());
     }
 
     public Enumeration<IPlayer> getPlayers() {
@@ -52,9 +54,9 @@ public final class Team extends TurnOrdered {
 
     public Enumeration<IPlayer> getNonObserverPlayers() {
         Vector<IPlayer> nonObservers = new Vector<>();
-        for (int i = 0; i < players.size(); i++) {
-            if (!players.get(i).isObserver()) {
-                nonObservers.add(players.get(i));
+        for (IPlayer player : players) {
+            if (!player.isObserver()) {
+                nonObservers.add(player);
             }
         }
         return nonObservers.elements();
@@ -62,10 +64,6 @@ public final class Team extends TurnOrdered {
     
     public Vector<IPlayer> getPlayersVector() {
         return players;
-    }
-
-    public void resetTeam() {
-        players.removeAllElements();
     }
 
     public void addPlayer(IPlayer p) {
@@ -80,12 +78,7 @@ public final class Team extends TurnOrdered {
     }
     
     public void cacheObserverStatus() {
-        ObserverTeam = Boolean.TRUE;
-        for (int i = 0; i < players.size(); i++) {
-            if (!players.get(i).isObserver()) {
-                ObserverTeam = false;
-            }
-        }
+        ObserverTeam = getPlayersVector().stream().allMatch(IPlayer::isObserver);
     }
 
     //get the next player on this team.
@@ -340,5 +333,25 @@ public final class Team extends TurnOrdered {
             units.addAll(player.getAirborneVTOL());
         }
         return units;
+    }
+
+    /**
+     * @return the Team's BV
+     */
+    public int getBV() {
+        return getPlayersVector().stream()
+                .filter(Predicate.not(IPlayer::isObserver))
+                .flatMapToInt(p -> IntStream.of(p.getBV()))
+                .sum();
+    }
+
+    /**
+     * @return the Team's Initial BV
+     */
+    public int getInitialBV() {
+        return getPlayersVector().stream()
+                .filter(Predicate.not(IPlayer::isObserver))
+                .flatMapToInt(p -> IntStream.of(p.getInitialBV()))
+                .sum();
     }
 }

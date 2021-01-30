@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,32 +25,36 @@ import java.util.Set;
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.server.victory.VictoryResult;
 
 /**
- * Implementation which will match when a certain percentage of all enemy BV is destroyed.
- *
- * Note: this could be improved by giving more points for killing more than required amount
+ * implements bv-ratio victory checking ratio is defined as
+ * (friendly BV / enemy BC) > (BV Ratio Percent / 100) = win so this comparison is valid for
+ * 3 team combat, but you must drop ALL enemies combined to below given ratio.
+ * if multiple players reach this goal at the same time, the result is declared
+ * a draw
+ * Note: this could be improved to take into account ratios which exceed given ratio
  */
-public class BVDestroyedVictory extends AbstractBVVictory {
+public class BVRatioVictory extends AbstractBVVictory {
     //region Variable Declarations
-    private static final long serialVersionUID = -1807333576570154144L;
-    private int destroyedPercent;
+    private static final long serialVersionUID = -6622529899835634696L;
+    private int ratio;
     //endregion Variable Declarations
 
     //region Constructors
-    public BVDestroyedVictory(int destroyedPercent) {
-        super("BVDestroyedVictory.title");
-        setDestroyedPercent(destroyedPercent);
+    public BVRatioVictory(int ratio) {
+        super("BVRatioVictory.title");
+        setRatio(ratio);
     }
     //endregion Constructors
 
     //region Getters/Setters
-    public int getDestroyedPercent() {
-        return destroyedPercent;
+    public int getRatio() {
+        return ratio;
     }
 
-    public void setDestroyedPercent(int destroyedPercent) {
-        this.destroyedPercent = destroyedPercent;
+    public void setRatio(int ratio) {
+        this.ratio = ratio;
     }
     //endregion Getters/Setters
 
@@ -66,34 +70,28 @@ public class BVDestroyedVictory extends AbstractBVVictory {
             int team = player.getTeam();
             if (team != IPlayer.TEAM_NONE) {
                 if (doneTeams.contains(team)) {
-                    continue; // skip if already
+                    continue;
                 }
                 doneTeams.add(team);
             }
+            int friendlyBV = player.getTeamObject().getBV();
             int enemyBV = getEnemyBV(game, player);
-            int initialEnemyBV = getEnemyInitialBV(game, player);
 
-            if ((initialEnemyBV != 0) && (((enemyBV * 100) / initialEnemyBV) <= (100 - getDestroyedPercent()))) {
-                createReport(victoryResult, team, player.getId(), player.getName(),
-                        100 - ((enemyBV * 100) / initialEnemyBV));
+            if ((enemyBV == 0) || ((100 * friendlyBV) / enemyBV >= getRatio())) {
                 victoryResult.setVictory(true);
+                Report report = new Report(7100, Report.PUBLIC);
+                if (player.getTeam() == IPlayer.TEAM_NONE) {
+                    report.add(player.getName());
+                    victoryResult.addPlayerScore(player.getId(), 1.0);
+                } else {
+                    report.add(player.getTeamObject().toString());
+                    victoryResult.addTeamScore(player.getTeam(), 1.0);
+                }
+                report.add((enemyBV == 0) ? 9999 : (100 * friendlyBV) / enemyBV);
+                victoryResult.getReports().add(report);
+                return victoryResult;
             }
         }
         return victoryResult;
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        Report report = new Report(7105, Report.PUBLIC);
-        if ((Integer) data[1] == IPlayer.TEAM_NONE) {
-            report.add((String) data[3]);
-            ((VictoryResult) data[0]).addPlayerScore((Integer) data[2], 1.0);
-        } else {
-            report.add("Team " + data[1]);
-            ((VictoryResult) data[0]).addTeamScore((Integer) data[1], 1.0);
-        }
-        report.add((Integer) data[4]);
-        ((VictoryResult) data[0]).getReports().add(report);
-        return ((VictoryResult) data[0]);
     }
 }

@@ -16,25 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IPlayer;
+import megamek.common.Team;
 import megamek.common.annotations.Nullable;
 
 public abstract class AbstractTargetedVictoryCondition extends AbstractVictoryCondition {
     //region Variable Declarations
     private static final long serialVersionUID = 3705712748148487741L;
 
-    private int originTeam;
+    private Team originTeam;
     private IPlayer originPlayer;
-    private int targetTeam;
+    private Team targetTeam;
     private IPlayer targetPlayer;
     //endregion Variable Declarations
 
     //region Constructors
     protected AbstractTargetedVictoryCondition(String name,
-                                               int originTeam, @Nullable IPlayer originPlayer,
-                                               int targetTeam, @Nullable IPlayer targetPlayer) {
+                                               @Nullable Team originTeam, @Nullable IPlayer originPlayer,
+                                               @Nullable Team targetTeam, @Nullable IPlayer targetPlayer) {
         super(name);
         setOriginTeam(originTeam);
         setOriginPlayer(originPlayer);
@@ -44,11 +45,11 @@ public abstract class AbstractTargetedVictoryCondition extends AbstractVictoryCo
     //endregion Constructors
 
     //region Getters/Setters
-    public int getOriginTeam() {
+    public @Nullable Team getOriginTeam() {
         return originTeam;
     }
 
-    public void setOriginTeam(int originTeam) {
+    public void setOriginTeam(@Nullable Team originTeam) {
         this.originTeam = originTeam;
     }
 
@@ -60,11 +61,11 @@ public abstract class AbstractTargetedVictoryCondition extends AbstractVictoryCo
         this.originPlayer = originPlayer;
     }
 
-    public int getTargetTeam() {
+    public @Nullable Team getTargetTeam() {
         return targetTeam;
     }
 
-    public void setTargetTeam(int targetTeam) {
+    public void setTargetTeam(@Nullable Team targetTeam) {
         this.targetTeam = targetTeam;
     }
 

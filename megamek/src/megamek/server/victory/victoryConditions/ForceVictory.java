@@ -17,15 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
-
-import java.util.List;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IGame;
 import megamek.common.IPlayer;
+import megamek.server.victory.VictoryResult;
 
 /**
- * implementation of player-agreed victory
+ * Implementation of player-agreed victory
  */
 public class ForceVictory extends AbstractVictoryCondition {
     //region Variable Declarations
@@ -45,38 +44,23 @@ public class ForceVictory extends AbstractVictoryCondition {
         }
         int victoryPlayerId = game.getVictoryPlayerId();
         int victoryTeam = game.getVictoryTeam();
-        List<IPlayer> players = game.getPlayersVector();
         boolean forceVictory = true;
 
         // Individual victory.
         if (victoryPlayerId != IPlayer.PLAYER_NONE) {
-            for (IPlayer player : players) {
-                if ((player.getId() != victoryPlayerId) && !player.isObserver()) {
-                    if (!player.admitsDefeat()) {
-                        forceVictory = false;
-                        break;
-                    }
-                }
-            }
+            forceVictory = game.getPlayersVector().stream()
+                    .filter(p -> !p.isObserver() && (p.getId() != victoryPlayerId))
+                    .allMatch(IPlayer::admitsDefeat);
         }
 
         // Team victory.
         if (victoryTeam != IPlayer.TEAM_NONE) {
-            for (IPlayer player : players) {
-                if ((player.getTeam() != victoryTeam) && !player.isObserver()) {
-                    if (!player.admitsDefeat()) {
-                        forceVictory = false;
-                        break;
-                    }
-                }
-            }
+            forceVictory = game.getPlayersVector().stream()
+                    .filter(p -> !p.isObserver() && (p.getTeam() != victoryTeam))
+                    .allMatch(IPlayer::admitsDefeat);
         }
 
-        return forceVictory ? new VictoryResult(true, victoryPlayerId, victoryTeam) : VictoryResult.noResult();
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        return null;
+        return forceVictory ? new VictoryResult(true, victoryPlayerId, victoryTeam)
+                : VictoryResult.noResult();
     }
 }

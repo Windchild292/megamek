@@ -16,11 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.common.Team;
+import megamek.common.annotations.Nullable;
+import megamek.server.victory.VictoryResult;
 
 public class TargetedEnemyCommandersDestroyedVictory extends AbstractTargetedVictoryCondition {
     //region Variable Declarations
@@ -28,26 +31,21 @@ public class TargetedEnemyCommandersDestroyedVictory extends AbstractTargetedVic
     //endregion Variable Declarations
 
     //region Constructors
-    public TargetedEnemyCommandersDestroyedVictory(int originTeam, IPlayer originPlayer,
-                                                   int targetTeam, IPlayer targetPlayer) {
+    public TargetedEnemyCommandersDestroyedVictory(@Nullable Team originTeam, @Nullable IPlayer originPlayer,
+                                                   @Nullable Team targetTeam, @Nullable IPlayer targetPlayer) {
         super("TargetedEnemyCommandersDestroyedVictory.title", originTeam, originPlayer, targetTeam, targetPlayer);
     }
     //endregion Constructors
 
     @Override
     public VictoryResult victory(IGame game) {
-        if ((getTargetPlayer() != null) && (game.getLiveCommandersOwnedBy(getTargetPlayer()) == 0)) {
-            return createReport();
-        } else { // Target Team
-            boolean allKilled = true;
-            for (IPlayer enemy : game.getPlayersVector()) {
-                if ((enemy.getTeam() == getTargetTeam()) && (game.getLiveCommandersOwnedBy(enemy) > 0)) {
-                    allKilled = false;
-                    break;
-                }
+        if (getTargetPlayer() == null) {
+            if (getTargetTeam().getPlayersVector().stream()
+                    .allMatch(p -> game.getLiveCommandersOwnedBy(p) == 0)) {
+                return createReport();
             }
-
-            if (allKilled) {
+        } else { // Target Player
+            if (game.getLiveCommandersOwnedBy(getTargetPlayer()) == 0) {
                 return createReport();
             }
         }
@@ -55,13 +53,12 @@ public class TargetedEnemyCommandersDestroyedVictory extends AbstractTargetedVic
         return VictoryResult.noResult();
     }
 
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        VictoryResult victoryResult = new VictoryResult(true, getOriginTeam(), getOriginPlayer());
+    private VictoryResult createReport() {
+        VictoryResult victoryResult = new VictoryResult(true, getOriginTeam().getId(), getOriginPlayer());
         Report report = new Report(7111, Report.PUBLIC);
         if (getOriginPlayer() == null) {
-            report.add("Team " + getOriginTeam());
-            victoryResult.addTeamScore(getOriginTeam(), 1.0);
+            report.add(getOriginTeam().toString());
+            victoryResult.addTeamScore(getOriginTeam().getId(), 1.0);
         } else {
             report.add(getOriginPlayer().getName());
             victoryResult.addPlayerScore(getOriginPlayer().getId(), 1.0);

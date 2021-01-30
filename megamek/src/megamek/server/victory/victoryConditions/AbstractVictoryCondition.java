@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IGame;
 import megamek.common.util.EncodeControl;
+import megamek.server.victory.VictoryResult;
 
 import java.io.Serializable;
 import java.util.ResourceBundle;
@@ -51,14 +52,6 @@ public abstract class AbstractVictoryCondition implements Serializable {
      * @param game The game to determine if the victory has occurred for
      */
     public abstract VictoryResult victory(IGame game);
-
-    /**
-     * This method is a sub method of victory used to create the final report and VictoryResult
-     *
-     * @param data any extra data that may be required for certain victory conditions
-     * @return the final VictoryResult
-     */
-    protected abstract VictoryResult createReport(Object... data);
     //endregion Abstract Methods
 
     @Override

@@ -16,21 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.common.Team;
+import megamek.common.annotations.Nullable;
+import megamek.server.victory.VictoryResult;
 
-public class TargetedBVDestroyedVictory extends AbstractTargetedBVVictory {
+public class TargetedBVDestroyedVictory extends AbstractTargetedVictoryCondition {
     //region Variable Declarations
     private static final long serialVersionUID = -5588887849955271714L;
     private int targetPercentage;
     //endregion Variable Declarations
 
     //region Constructors
-    protected TargetedBVDestroyedVictory(int originTeam, IPlayer originPlayer,
-                                         int targetTeam, IPlayer targetPlayer, int targetPercentage) {
+    protected TargetedBVDestroyedVictory(@Nullable Team originTeam, @Nullable IPlayer originPlayer,
+                                         @Nullable Team targetTeam, @Nullable IPlayer targetPlayer,
+                                         int targetPercentage) {
         super("TargetedBVDestroyedVictory.title", originTeam, originPlayer, targetTeam, targetPlayer);
         setTargetPercentage(targetPercentage);
     }
@@ -48,32 +52,25 @@ public class TargetedBVDestroyedVictory extends AbstractTargetedBVVictory {
 
     @Override
     public VictoryResult victory(IGame game) {
-        int enemyBV = getEnemyBV(game);
-        int initialEnemyBV = getEnemyInitialBV(game);
+        final boolean isTargetTeam = getTargetPlayer() == null;
+        int enemyBV = isTargetTeam ? getTargetTeam().getBV() : getTargetPlayer().getBV();
+        int initialEnemyBV = isTargetTeam ? getTargetTeam().getInitialBV() : getTargetPlayer().getInitialBV();
 
         if ((initialEnemyBV != 0) && (((enemyBV * 100) / initialEnemyBV) <= (100 - getTargetPercentage()))) {
-            return createReport(getOriginTeam(),
-                    (getOriginPlayer() == null) ? 0 : getOriginPlayer().getId(),
-                    (getOriginPlayer() == null) ? "" : getOriginPlayer().getName(),
-                    100 - ((enemyBV * 100) / initialEnemyBV));
+            VictoryResult victoryResult = new VictoryResult(true);
+            Report report = new Report(7105, Report.PUBLIC);
+            if (getOriginPlayer() == null) {
+                report.add(getOriginTeam().toString());
+                victoryResult.addTeamScore(getOriginTeam().getId(), 1.0);
+            } else {
+                report.add(getOriginPlayer().getName());
+                victoryResult.addPlayerScore(getOriginPlayer().getId(), 1.0);
+            }
+            report.add(100 - ((enemyBV * 100) / initialEnemyBV));
+            victoryResult.getReports().add(report);
+            return victoryResult;
         }
 
         return VictoryResult.noResult();
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        VictoryResult victoryResult = new VictoryResult(true);
-        Report report = new Report(7105, Report.PUBLIC);
-        if ((Integer) data[0] == IPlayer.TEAM_NONE) {
-            report.add((String) data[2]);
-            victoryResult.addPlayerScore((Integer) data[1], 1.0);
-        } else {
-            report.add("Team " + data[0]);
-            victoryResult.addTeamScore((Integer) data[0], 1.0);
-        }
-        report.add((Integer) data[3]);
-        victoryResult.getReports().add(report);
-        return victoryResult;
     }
 }

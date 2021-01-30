@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -27,6 +27,7 @@ import megamek.common.Entity;
 import megamek.common.IGame;
 import megamek.common.Player;
 import megamek.common.Report;
+import megamek.server.victory.VictoryResult;
 
 /**
  * Implements a kill count victory condition. Victory is achieved if a team (or
@@ -85,26 +86,22 @@ public class KillCountVictory extends AbstractVictoryCondition {
             }
         }
 
-        return (kills >= getKillTarget())
-                ? createReport(teamHasHighestKills, highestKillsId, kills,
-                        teamHasHighestKills ? "" : game.getPlayer(highestKillsId).getName())
-                : VictoryResult.noResult();
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        VictoryResult victoryResult = new VictoryResult(true);
-        Report report = new Report(7106, Report.PUBLIC);
-        if ((Boolean) data[0]) {
-            report.add("Team " + data[1]);
-            victoryResult.addTeamScore((Integer) data[1], 1.0);
+        if (kills >= getKillTarget()) {
+            VictoryResult victoryResult = new VictoryResult(true);
+            Report report = new Report(7106, Report.PUBLIC);
+            if (teamHasHighestKills) {
+                report.add("Team " + highestKillsId);
+                victoryResult.addTeamScore(highestKillsId, 1.0);
+            } else {
+                report.add(game.getPlayer(highestKillsId).getName());
+                victoryResult.addPlayerScore(highestKillsId, 1.0);
+            }
+            report.add(kills);
+            victoryResult.getReports().add(report);
+            return victoryResult;
         } else {
-            report.add((String) data[3]);
-            victoryResult.addPlayerScore((Integer) data[1], 1.0);
+            return VictoryResult.noResult();
         }
-        report.add((Integer) data[2]);
-        victoryResult.getReports().add(report);
-        return victoryResult;
     }
 
     private void updateKillTables(IGame game, Map<Integer, Integer> teamKills,

@@ -16,19 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory;
+package megamek.server.victory.victoryConditions;
 
 import megamek.common.IGame;
 import megamek.common.Report;
+import megamek.server.victory.VictoryResult;
 
-public class TimeVictory extends AbstractVictoryCondition {
+public class TurnVictory extends AbstractVictoryCondition {
     //region Variable Declarations
     private static final long serialVersionUID = 2316521702386709171L;
     private int turnLimit;
     //endregion Variable Declarations
 
     //region Constructors
-    public TimeVictory(int turnLimit) {
+    public TurnVictory(int turnLimit) {
         super("TimeVictory.title");
         setTurnLimit(turnLimit);
     }
@@ -46,15 +47,14 @@ public class TimeVictory extends AbstractVictoryCondition {
 
     @Override
     public VictoryResult victory(IGame game) {
-        return (game.getRoundCount() >= getTurnLimit()) ? createReport() : VictoryResult.noResult();
-    }
-
-    @Override
-    protected VictoryResult createReport(Object... data) {
-        VictoryResult victoryResult = VictoryResult.drawResult();
-        Report report = new Report(7112, Report.PUBLIC);
-        report.add(getTurnLimit());
-        victoryResult.getReports().add(report);
-        return victoryResult;
+        if (game.getRoundCount() >= getTurnLimit()) {
+            VictoryResult victoryResult = VictoryResult.drawResult();
+            Report report = new Report(7112, Report.PUBLIC);
+            report.add(getTurnLimit());
+            victoryResult.getReports().add(report);
+            return victoryResult;
+        } else {
+            return VictoryResult.noResult();
+        }
     }
 }
