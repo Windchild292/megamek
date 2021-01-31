@@ -179,7 +179,7 @@ public class Victory implements Serializable {
             return victoryResult;
         }
 
-        VictoryResult timeVictory = (getTurnVictory() != null) ? getTurnVictory().victory(game) : null;
-        return ((timeVictory != null) && timeVictory.victory()) ? timeVictory : victoryResult;
+        VictoryResult turnVictory = (getTurnVictory() != null) ? getTurnVictory().victory(game) : null;
+        return ((turnVictory != null) && turnVictory.victory()) ? turnVictory : victoryResult;
     }
 }

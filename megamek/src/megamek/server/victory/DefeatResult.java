@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.server.victory.defeatConditions;
+package megamek.server.victory;
 
-public class CommanderSlainDefeat extends AbstractDefeatCondition {
+public class DefeatResult extends AbstractGameConclusionResult {
 }

@@ -32,7 +32,7 @@ import megamek.common.Report;
 /**
  * The VictoryResult stores player scores and a flag if a game-ending victory has been achieved or not
  */
-public class VictoryResult {
+public class VictoryResult extends AbstractGameConclusionResult {
     //region Variable Declarations
     private boolean victory;
     private Throwable throwable;
