@@ -21,6 +21,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -1533,7 +1534,7 @@ public class EquipChoicePanel extends JPanel {
                 inf = (Infantry) entity;
                 
                 SimpleTechLevel gameTechLevel = SimpleTechLevel.getGameTechLevel(client.getGame());
-                int year = client.getGame().getOptions().intOption("year");
+                int year = client.getGame().getOptions().intOption(OptionsConstants.ALLOWED_YEAR);
                 for (Enumeration<EquipmentType> e = MiscType.getAllTypes(); e.hasMoreElements();) {
                     final EquipmentType et = e.nextElement();
                     if (et.hasFlag(MiscType.F_ARMOR_KIT)
@@ -1541,7 +1542,7 @@ public class EquipChoicePanel extends JPanel {
                         armorKits.add(et);
                     }
                 }
-                Collections.sort(armorKits, (et1, et2) -> et1.getName().compareTo(et2.getName()));
+                armorKits.sort(Comparator.comparing(EquipmentType::getName));
 
                 cbArmorKit.addItem(Messages.getString("CustomMechDialog.Custom"));
                 armorKits.forEach(k -> cbArmorKit.addItem(k.getName()));

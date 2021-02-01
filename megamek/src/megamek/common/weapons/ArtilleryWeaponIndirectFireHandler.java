@@ -475,7 +475,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             // in the ArtilleryWeaponDirectFireHandler
             Coords origPos = targetPos;
             int moF = toHit.getMoS();
-            if (ae.hasAbility("oblique_artillery")) {
+            if (ae.hasAbility(OptionsConstants.GUNNERY_OBLIQUE_ARTILLERY)) {
                 // getMoS returns a negative MoF
                 // simple math is better so lets make it positive
                 moF = Math.max(moF + 2, 0);

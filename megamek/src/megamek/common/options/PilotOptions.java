@@ -1,17 +1,16 @@
 /*
  * MegaMek - Copyright (C) 2000-2003 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common.options;
 
 import java.util.Vector;
@@ -33,7 +32,7 @@ public class PilotOptions extends AbstractOptions {
 
     @Override
     public void initialize() {
-        IBasicOptionGroup adv = addGroup("adv", LVL3_ADVANTAGES); //$NON-NLS-1$
+        IBasicOptionGroup adv = addGroup(OptionsConstants.ADVANTAGES, LVL3_ADVANTAGES);
 
         addOption(adv, OptionsConstants.PILOT_ANIMAL_MIMIC, false); //$NON-NLS-1$
         // addOption(adv, OptionsConstants.PILOT_CROSS_COUNTRY, false); //$NON-NLS-1$
@@ -70,17 +69,17 @@ public class PilotOptions extends AbstractOptions {
         // addOption(adv, OptionsConstants.GUNNERY_FIST_FIRE, false); //$NON-NLS-1$
         addOption(adv, OptionsConstants.GUNNERY_GOLDEN_GOOSE, false); //$NON-NLS-1$
         // addOption(adv, OptionsConstants.GUNNERY_GROUND_HUGGER, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.GUNNERY_SPECIALIST, new Vector<String>()); //$NON-NLS-1$
+        addOption(adv, OptionsConstants.GUNNERY_SPECIALIST, new Vector<>()); //$NON-NLS-1$
         // addOption(adv, OptionsConstants.GUNNERY_MARKSMAN, false); //$NON-NLS-1$
         addOption(adv, OptionsConstants.GUNNERY_MULTI_TASKER, false); //$NON-NLS-1$
         addOption(adv, OptionsConstants.PILOT_APTITUDE_GUNNERY, false); //$NON-NLS-1$
         addOption(adv, OptionsConstants.GUNNERY_OBLIQUE_ARTILLERY, false); //$NON-NLS-1$
         addOption(adv, OptionsConstants.GUNNERY_OBLIQUE_ATTACKER, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.GUNNERY_RANGE_MASTER,  new Vector<String>()); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.GUNNERY_SANDBLASTER, new Vector<String>()); //$NON-NLS-1$
+        addOption(adv, OptionsConstants.GUNNERY_RANGE_MASTER,  new Vector<>()); //$NON-NLS-1$
+        addOption(adv, OptionsConstants.GUNNERY_SANDBLASTER, new Vector<>()); //$NON-NLS-1$
         // addOption(adv, OptionsConstants.GUNNERY_SHARPSHOOTER, false); //$NON-NLS-1$
         addOption(adv, OptionsConstants.GUNNERY_SNIPER, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.GUNNERY_WEAPON_SPECIALIST, new Vector<String>()); //$NON-NLS-1$
+        addOption(adv, OptionsConstants.GUNNERY_WEAPON_SPECIALIST, new Vector<>()); //$NON-NLS-1$
 
          // Misc Abilities
          // addOption(adv, OptionsConstants.MISC_ANTAGONIZER, false); //$NON-NLS-1$
@@ -89,7 +88,7 @@ public class PilotOptions extends AbstractOptions {
          addOption(adv, OptionsConstants.MISC_EAGLE_EYES, false); //$NON-NLS-1$
          // addOption(adv, OptionsConstants.MISC_ENV_SPECIALIST, false); //$NON-NLS-1$
          addOption(adv, OptionsConstants.MISC_FORWARD_OBSERVER, false); //$NON-NLS-1$
-         addOption(adv, OptionsConstants.MISC_HUMAN_TRO, new Vector<String>()); //$NON-NLS-1$
+         addOption(adv, OptionsConstants.MISC_HUMAN_TRO, new Vector<>()); //$NON-NLS-1$
          addOption(adv, OptionsConstants.MISC_IRON_MAN, false); //$NON-NLS-1$
          addOption(adv, OptionsConstants.MISC_PAIN_RESISTANCE, false); //$NON-NLS-1$
          addOption(adv, OptionsConstants.MISC_TACTICAL_GENIUS, false); //$NON-NLS-1$
@@ -111,41 +110,25 @@ public class PilotOptions extends AbstractOptions {
         addOption(adv, OptionsConstants.UNOFF_SENSOR_GEEK, false); //$NON-NLS-1$
         addOption(adv, OptionsConstants.UNOFF_SMALL_PILOT, false); //$NON-NLS-1$
 
-        IBasicOptionGroup edge = addGroup("edge", EDGE_ADVANTAGES); //$NON-NLS-1$
-        addOption(edge, "edge", 0); //$NON-NLS-1$
-        /* different edge triggers */
-        // Mech Triggers
-        addOption(edge, "edge_when_headhit", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_tac", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_ko", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_explosion", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_masc_fails", false); //$NON-NLS-1$
-        //Aero Triggers
-        addOption(edge, "edge_when_aero_alt_loss", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_explosion", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_ko", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_lucky_crit", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_nuke_crit", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_unit_cargo_lost", false); //$NON-NLS-1$
-        
-        addOption(edge, OptionsConstants.EDGE, 0); //$NON-NLS-1$
+        IBasicOptionGroup edge = addGroup(OptionsConstants.EDGE, EDGE_ADVANTAGES);
+        addOption(edge, OptionsConstants.EDGE, 0);
         //different edge triggers 
         //Mech Triggers
-        addOption(edge, OptionsConstants.EDGE_WHEN_HEADHIT, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_TAC, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_KO, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_EXPLOSION, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_MASC_FAILS, false); //$NON-NLS-1$
+        addOption(edge, OptionsConstants.EDGE_WHEN_HEADHIT, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_TAC, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_KO, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_EXPLOSION, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_MASC_FAILS, false);
         //Aero Triggers
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_ALT_LOSS, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_EXPLOSION, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_KO, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_LUCKY_CRIT, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_NUKE_CRIT, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_UNIT_CARGO_LOST, false); //$NON-NLS-1$
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_ALT_LOSS, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_EXPLOSION, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_KO, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_LUCKY_CRIT, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_NUKE_CRIT, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_UNIT_CARGO_LOST, false);
 
         // manei domini
-        IBasicOptionGroup md = addGroup("md", MD_ADVANTAGES); //$NON-NLS-1$
+        IBasicOptionGroup md = addGroup(OptionsConstants.MD, MD_ADVANTAGES); //$NON-NLS-1$
         addOption(md, OptionsConstants.MD_PAIN_SHUNT, false); // $NON-NLS-1$
         addOption(md, OptionsConstants.MD_COMM_IMPLANT, false); // $NON-NLS-1$
         //TODO - -1 bonus when spotting for LRMs and moving through mines.

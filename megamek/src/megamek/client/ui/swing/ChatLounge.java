@@ -2927,7 +2927,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener, 
 
     public void refreshTechLevelLabel() {
         String tlString;
-        IOption tlOpt = clientgui.getClient().getGame().getOptions().getOption("techlevel");
+        IOption tlOpt = clientgui.getClient().getGame().getOptions().getOption(OptionsConstants.ALLOWED_TECHLEVEL);
         if (tlOpt != null) {
             tlString = tlOpt.stringValue();
 

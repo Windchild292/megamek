@@ -11,7 +11,7 @@ import megamek.common.options.OptionsConstants;
 /**
  * Common interface for all entities capable of carrying bombs and making bomb attacks, includig Aero,
  * LandAirMech, and VTOL.
- * 
+ * \
  * @author Neoancient
  *
  */
@@ -93,9 +93,8 @@ public interface IBomber {
      * equipment.
      */
     default void applyBombs() {
-        IGame game = ((Entity)this).getGame();
-        int gameTL = TechConstants.getSimpleLevel(game.getOptions()
-                .stringOption("techlevel"));
+        IGame game = ((Entity) this).getGame();
+        int gameTL = TechConstants.getSimpleLevel(game.getOptions().stringOption(OptionsConstants.ALLOWED_TECHLEVEL));
         Integer[] sorted = new Integer[BombType.B_NUM];
         // Apply the largest bombs first because we need to fit larger bombs into a single location
         // in LAMs.

@@ -30,6 +30,7 @@ import megamek.common.Entity;
 import megamek.common.Mounted;
 import megamek.common.options.IOption;
 import megamek.common.options.IOptionGroup;
+import megamek.common.options.OptionsConstants;
 import megamek.common.options.Quirks;
 import megamek.common.options.WeaponQuirks;
 
@@ -138,28 +139,24 @@ public class QuirksPanel extends JPanel {
         for (final Object newVar : quirkComps) {
             DialogOptionComponent comp = (DialogOptionComponent) newVar;
             option = comp.getOption();
-            if ((comp.getValue() == Messages.getString("CustomMechDialog.None"))) { // NON-NLS-$1
-                entity.getQuirks().getOption(option.getName()).setValue("None"); // NON-NLS-$1
+            if ((comp.getValue() == Messages.getString("CustomMechDialog.None"))) {
+                entity.getQuirks().getOption(option.getName()).setValue(OptionsConstants.NONE);
             } else {
-                entity.getQuirks().getOption(option.getName())
-                      .setValue(comp.getValue());
+                entity.getQuirks().getOption(option.getName()).setValue(comp.getValue());
             }
         }
         // now for weapon quirks
         Set<Integer> set = h_wpnQuirkComps.keySet();
         for (Integer key : set) {
             Mounted m = entity.getEquipment(key);
-            ArrayList<DialogOptionComponent> wpnQuirkComps = h_wpnQuirkComps
-                    .get(key);
+            ArrayList<DialogOptionComponent> wpnQuirkComps = h_wpnQuirkComps.get(key);
             for (final Object newVar : wpnQuirkComps) {
                 DialogOptionComponent comp = (DialogOptionComponent) newVar;
                 option = comp.getOption();
-                if ((comp.getValue() == Messages
-                        .getString("CustomMechDialog.None"))) { // NON-NLS-$1
-                    m.getQuirks().getOption(option.getName()).setValue("None"); // NON-NLS-$1
+                if ((comp.getValue() == Messages.getString("CustomMechDialog.None"))) {
+                    m.getQuirks().getOption(option.getName()).setValue(OptionsConstants.NONE);
                 } else {
-                    m.getQuirks().getOption(option.getName())
-                     .setValue(comp.getValue());
+                    m.getQuirks().getOption(option.getName()).setValue(comp.getValue());
                 }
             }
         }

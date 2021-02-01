@@ -22,6 +22,8 @@
 
 package megamek.common;
 
+import megamek.common.options.OptionsConstants;
+
 /**
  * Contains some constants representing equipment/unit tech levels
  *
@@ -175,7 +177,7 @@ public class TechConstants {
      * @return
      */
     public static int getSimpleLevel(IGame game) {
-        return getSimpleLevel(game.getOptions().stringOption("techlevel"));
+        return getSimpleLevel(game.getOptions().stringOption(OptionsConstants.ALLOWED_TECHLEVEL));
     }
 
     /**

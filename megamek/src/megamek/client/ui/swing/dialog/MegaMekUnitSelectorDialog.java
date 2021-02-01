@@ -57,7 +57,7 @@ public class MegaMekUnitSelectorDialog extends AbstractUnitSelectorDialog {
         allowedYear = gameOptions.intOption(OptionsConstants.ALLOWED_YEAR);
         canonOnly = gameOptions.booleanOption(OptionsConstants.ALLOWED_CANON_ONLY);
         allowInvalid = gameOptions.booleanOption(OptionsConstants.ALLOWED_ALLOW_ILLEGAL_UNITS);
-        gameTechLevel = TechConstants.getSimpleLevel(gameOptions.stringOption("techlevel"));
+        gameTechLevel = TechConstants.getSimpleLevel(gameOptions.stringOption(OptionsConstants.ALLOWED_TECHLEVEL));
     }
 
     //region Button Methods

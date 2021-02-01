@@ -397,8 +397,7 @@ public class RandomArmyDialog extends JDialog implements ActionListener, WindowL
         c.weightx = 1.0;
         c.weighty = 0.0;
         pRATGenTop.add(m_pRATGenOptions, c);
-        m_pRATGenOptions.setYear(m_clientgui.getClient().getGame().getOptions()
-                .intOption("year"));
+        m_pRATGenOptions.setYear(m_clientgui.getClient().getGame().getOptions().intOption(OptionsConstants.ALLOWED_YEAR));
         
         c = new GridBagConstraints();
         c.gridx = 0;
@@ -459,8 +458,7 @@ public class RandomArmyDialog extends JDialog implements ActionListener, WindowL
         m_pFormations.setLayout(new BorderLayout());
 
         m_pFormations.add(new JScrollPane(m_pFormationOptions), BorderLayout.CENTER);
-        m_pFormationOptions.setYear(m_clientgui.getClient().getGame().getOptions()
-                .intOption("year"));
+        m_pFormationOptions.setYear(m_clientgui.getClient().getGame().getOptions().intOption(OptionsConstants.ALLOWED_YEAR));
         
         m_pForceGen = new ForceGeneratorViewUi(cl);
 
@@ -836,7 +834,7 @@ public class RandomArmyDialog extends JDialog implements ActionListener, WindowL
 
     private void updateTechChoice() {
         int gameTL = TechConstants.getSimpleLevel(m_client.getGame()
-                .getOptions().stringOption("techlevel"));
+                .getOptions().stringOption(OptionsConstants.ALLOWED_TECHLEVEL));
         int maxTech;
         switch (gameTL) {
             case TechConstants.T_SIMPLE_INTRO:
@@ -889,8 +887,8 @@ public class RandomArmyDialog extends JDialog implements ActionListener, WindowL
     }
     
     private void updateRATYear() {
-        int gameYear = m_clientgui.getClient().getGame().getOptions().intOption("year");
-        
+        int gameYear = m_clientgui.getClient().getGame().getOptions().intOption(OptionsConstants.ALLOWED_YEAR);
+
         m_pRATGenOptions.setYear(gameYear);
         m_pFormationOptions.setYear(gameYear);
         m_pForceGen.setYear(gameYear);

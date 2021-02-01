@@ -1,15 +1,15 @@
 /*
  * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common.options;
 
@@ -19,13 +19,15 @@ package megamek.common.options;
  * @since 2/21/14 7:57 AM
  */
 public class OptionsConstants {
+    public static final String NONE = "none";
 
-    public static final String QUIRK_POS_ANIMALISTIC = "animalistic"; //$NON-NLS-1$
-    public static final String QUIRK_POS_ANTI_AIR = "anti_air"; //$NON-NLS-1$
-    public static final String QUIRK_POS_ATMO_FLYER= "atmo_flyer"; //$NON-NLS-1$
-    public static final String QUIRK_POS_BARREL_FIST_LA = "barrel_fists_la"; //$NON-NLS-1$
-    public static final String QUIRK_POS_BARREL_FIST_RA = "barrel_fists_ra"; //$NON-NLS-1$
-    public static final String QUIRK_POS_BATTLE_COMP = "battle_computer"; //$NON-NLS-1$
+    //region Quirks
+    public static final String QUIRK_POS_ANIMALISTIC = "animalistic";
+    public static final String QUIRK_POS_ANTI_AIR = "anti_air";
+    public static final String QUIRK_POS_ATMO_FLYER= "atmo_flyer";
+    public static final String QUIRK_POS_BARREL_FIST_LA = "barrel_fists_la";
+    public static final String QUIRK_POS_BARREL_FIST_RA = "barrel_fists_ra";
+    public static final String QUIRK_POS_BATTLE_COMP = "battle_computer";
     public static final String QUIRK_POS_BATTLE_FIST_LA = "battle_fists_la"; //$NON-NLS-1$
     public static final String QUIRK_POS_BATTLE_FIST_RA = "battle_fists_ra"; //$NON-NLS-1$
     public static final String QUIRK_POS_COMBAT_COMPUTER= "combat_computer"; //$NON-NLS-1$
@@ -139,111 +141,108 @@ public class OptionsConstants {
     //through all the weapons on both the quirk and partial repairs tabs just to add these.
     public static final String QUIRK_WEAP_NEG_MISREPAIRED = "misrepaired_weapon"; //$NON-NLS-1$
     public static final String QUIRK_WEAP_NEG_MISREPLACED = "misreplaced_weapon"; //$NON-NLS-1$
+    //endregion Quirks
 
+    //region Advantages
+    public static final String ADVANTAGES = "adv";
     // PILOTING SKILLS
     public static final String PILOT_APTITUDE_GUNNERY = "aptitude_gunnery"; //$NON-NLS-1$
     public static final String PILOT_APTITUDE_PILOTING = "aptitude_piloting"; //$NON-NLS-1$
-    public static final String PILOT_ANIMAL_MIMIC= "animal_mimic"; //$NON-NLS$
-    // public static final String PILOT_CROSS_COUNTRY= "cross_country";
-    // //$NON-NLS$
+    public static final String PILOT_ANIMAL_MIMIC = "animal_mimic"; //$NON-NLS$
+    // public static final String PILOT_CROSS_COUNTRY = "cross_country";
     public static final String PILOT_DODGE_MANEUVER = "dodge_maneuver"; // $NON-NLS$
-    // public static final String PILOT_DUST_OFF= "dust_off"; //$NON-NLS$
-    // public static final String PILOT_HVY_LIFTER= "hvy_lifter"; //$NON-NLS$
-    // public static final String PILOT_HOPPER= "hopper"; //$NON-NLS$
+    // public static final String PILOT_DUST_OFF = "dust_off";
+    // public static final String PILOT_HVY_LIFTER = "hvy_lifter";
+    // public static final String PILOT_HOPPER = "hopper";
     public static final String PILOT_HOPPING_JACK = "hopping_jack"; // $NON-NLS$
     public static final String PILOT_HOT_DOG = "hot_dog"; // $NON-NLS$
     public static final String PILOT_JUMPING_JACK = "jumping_jack"; // $NON-NLS$
     public static final String PILOT_MANEUVERING_ACE = "maneuvering_ace"; // $NON-NLS$
     public static final String PILOT_MELEE_MASTER = "melee_master"; // $NON-NLS$
     public static final String PILOT_MELEE_SPECIALIST = "melee_specialist"; // $NON-NLS$
-    // public static final String PILOT_NATURAL_GRACE= "natural_grace";
-    // //$NON-NLS$
-    // public static final String PILOT_RIDE_WASH= "ride_wash"; //$NON-NLS$
+    // public static final String PILOT_NATURAL_GRACE = "natural_grace";
+    // public static final String PILOT_RIDE_WASH = "ride_wash";
     public static final String PILOT_SHAKY_STICK = "shaky_stick"; // $NON-NLS$
-    // public static final String PILOT_SLUGGER= "slugger"; //$NON-NLS$
-    // public static final String PILOT_SPEED_DEMON= "speed_demon"; //$NON-NLS$
-    // public static final String PILOT_STAND_ASIDE= "stand_aside"; //$NON-NLS$
-    // public static final String PILOT_SWORDSMAN= "swordsman"; //$NON-NLS$
-    // public static final String PILOT_TM_= "tm_"; //$NON-NLS$
-    public static final String PILOT_TM_FOREST_RANGER= "tm_forest_ranger"; //$NON-NLS$
-    public static final String PILOT_TM_FROGMAN= "tm_frogman"; //$NON-NLS$
-    public static final String PILOT_TM_MOUNTAINEER= "tm_mountaineer"; //$NON-NLS$
-    public static final String PILOT_TM_SWAMP_BEAST= "tm_swamp_beast"; //$NON-NLS$
-    // public static final String PILOT_WIND_WALKER= "wind_walker"; //$NON-NLS$
-    public static final String PILOT_ZWEIHANDER= "zweihander"; //$NON-NLS$
+    // public static final String PILOT_SLUGGER = "slugger";
+    // public static final String PILOT_SPEED_DEMON = "speed_demon";
+    // public static final String PILOT_STAND_ASIDE = "stand_aside";
+    // public static final String PILOT_SWORDSMAN = "swordsman";
+    // public static final String PILOT_TM_ = "tm_";
+    public static final String PILOT_TM_FOREST_RANGER = "tm_forest_ranger"; //$NON-NLS$
+    public static final String PILOT_TM_FROGMAN = "tm_frogman"; //$NON-NLS$
+    public static final String PILOT_TM_MOUNTAINEER = "tm_mountaineer"; //$NON-NLS$
+    public static final String PILOT_TM_SWAMP_BEAST = "tm_swamp_beast"; //$NON-NLS$
+    // public static final String PILOT_WIND_WALKER = "wind_walker";
+    public static final String PILOT_ZWEIHANDER = "zweihander"; //$NON-NLS$
 
     // GUNNERY SKILLS
-    // public static final String GUNNERY_BLOOD_STALKER= "blood_stalker";
-    // //$NON-NLS$
-    public static final String GUNNERY_CLUSTER_HITTER = "cluster_hitter"; // $NON-NLS$
-    public static final String GUNNERY_CLUSTER_MASTER = "cluster_master"; // $NON-NLS$
-    // public static final String GUNNERY_FIST_FIRE= "fist_fire"; //$NON-NLS$
-    public static final String GUNNERY_GOLDEN_GOOSE = "golden_goose"; // $NON-NLS$
-    // public static final String GUNNERY_GROUND_HUGGER= "ground_hugger";
-    // //$NON-NLS$
-    public static final String GUNNERY_SPECIALIST = "specialist"; // $NON-NLS$
-    // public static final String GUNNERY_MARKSMAN= "marksman"; //$NON-NLS$
-    public static final String GUNNERY_MULTI_TASKER = "multi_tasker"; // $NON-NLS$
-    public static final String GUNNERY_OBLIQUE_ARTILLERY = "oblique_artillery"; // $NON-NLS$
-    public static final String GUNNERY_OBLIQUE_ATTACKER = "oblique_attacker"; // $NON-NLS$
-    public static final String GUNNERY_RANGE_MASTER= "range_master";
-    // //$NON-NLS$
-    public static final String GUNNERY_SANDBLASTER = "sandblaster"; // $NON-NLS$
-    // public static final String GUNNERY_SHARPSHOOTER= "sharpshooter";
-    // //$NON-NLS$
-    public static final String GUNNERY_SNIPER = "sniper"; // $NON-NLS$
-    public static final String GUNNERY_WEAPON_SPECIALIST = "weapon_specialist"; // $NON-NLS$
+    // public static final String GUNNERY_BLOOD_STALKER = "blood_stalker";
+    public static final String GUNNERY_CLUSTER_HITTER = "cluster_hitter";
+    public static final String GUNNERY_CLUSTER_MASTER = "cluster_master";
+    // public static final String GUNNERY_FIST_FIRE = "fist_fire";
+    public static final String GUNNERY_GOLDEN_GOOSE = "golden_goose";
+    // public static final String GUNNERY_GROUND_HUGGER = "ground_hugger";
+    public static final String GUNNERY_SPECIALIST = "specialist";
+    // public static final String GUNNERY_MARKSMAN = "marksman";
+    public static final String GUNNERY_MULTI_TASKER = "multi_tasker";
+    public static final String GUNNERY_OBLIQUE_ARTILLERY = "oblique_artillery";
+    public static final String GUNNERY_OBLIQUE_ATTACKER = "oblique_attacker";
+    public static final String GUNNERY_RANGE_MASTER = "range_master";
+    public static final String GUNNERY_SANDBLASTER = "sandblaster";
+    // public static final String GUNNERY_SHARPSHOOTER = "sharpshooter";
+    public static final String GUNNERY_SNIPER = "sniper";
+    public static final String GUNNERY_WEAPON_SPECIALIST = "weapon_specialist";
 
     // MISC ABILITIES
-    // public static final String MISC_ANTAGONIZER= "antagonizer"; //$NON-NLS$
-    // public static final String MISC_COMBAT_INTUITION= "combat_intuition";
-    // //$NON-NLS$
-    // public static final String MISC_DEMORALIZER= "demoralizer"; //$NON-NLS$
-    public static final String MISC_EAGLE_EYES = "eagle_eyes"; // $NON-NLS$
-    // public static final String MISC_ENV_SPECIALIST= "env_specialist";
-    // //$NON-NLS$
-    public static final String MISC_FORWARD_OBSERVER = "forward_observer"; // $NON-NLS$
-    public static final String MISC_HUMAN_TRO= "human_tro"; //$NON-NLS$
-    public static final String MISC_IRON_MAN = "iron_man"; // $NON-NLS$
-    public static final String MISC_PAIN_RESISTANCE = "pain_resistance"; // $NON-NLS$
-    public static final String MISC_TACTICAL_GENIUS = "tactical_genius"; // $NON-NLS$
+    // public static final String MISC_ANTAGONIZER = "antagonizer";
+    // public static final String MISC_COMBAT_INTUITION = "combat_intuition";
+    // public static final String MISC_DEMORALIZER = "demoralizer";
+    public static final String MISC_EAGLE_EYES = "eagle_eyes";
+    // public static final String MISC_ENV_SPECIALIST = "env_specialist";
+    public static final String MISC_FORWARD_OBSERVER = "forward_observer";
+    public static final String MISC_HUMAN_TRO = "human_tro";
+    public static final String MISC_IRON_MAN = "iron_man";
+    public static final String MISC_PAIN_RESISTANCE = "pain_resistance";
+    public static final String MISC_TACTICAL_GENIUS = "tactical_genius";
 
     // INFANTRY ABILITIES
-    public static final String INFANTRY_FOOT_CAV = "foot_cav"; // $NON-NLS$
-    public static final String INFANTRY_URBAN_GUERRILLA = "urban_guerrilla"; // $NON-NLS$
+    public static final String INFANTRY_FOOT_CAV = "foot_cav";
+    public static final String INFANTRY_URBAN_GUERRILLA = "urban_guerrilla";
 
     // UNOFFICIAL
-    public static final String UNOFF_EI_IMPLANT = "ei_implant"; // $NON-NLS$
-    public static final String UNOFF_GUNNERY_LASER = "gunnery_laser"; // $NON-NLS$
-    public static final String UNOFF_GUNNERY_MISSILE = "gunnery_missile"; // $NON-NLS$
-    public static final String UNOFF_GUNNERY_BALLISTIC = "gunnery_ballistic"; // $NON-NLS$
-    public static final String UNOFF_CLAN_PILOT_TRAINING = "clan_pilot_training"; // $NON-NLS$
-    public static final String UNOFF_SOME_LIKE_IT_HOT = "some_like_it_hot"; // $NON-NLS$
-    public static final String UNOFF_WEATHERED = "weathered"; // $NON-NLS$
-    public static final String UNOFF_ALLWEATHER = "allweather"; // $NON-NLS$
-    public static final String UNOFF_BLIND_FIGHTER = "blind_fighter"; // $NON-NLS$
-    public static final String UNOFF_SENSOR_GEEK = "sensor_geek"; // $NON-NLS$
-    public static final String UNOFF_SMALL_PILOT = "small_pilot"; // $NON-NLS$
+    public static final String UNOFF_EI_IMPLANT = "ei_implant";
+    public static final String UNOFF_GUNNERY_LASER = "gunnery_laser";
+    public static final String UNOFF_GUNNERY_MISSILE = "gunnery_missile";
+    public static final String UNOFF_GUNNERY_BALLISTIC = "gunnery_ballistic";
+    public static final String UNOFF_CLAN_PILOT_TRAINING = "clan_pilot_training";
+    public static final String UNOFF_SOME_LIKE_IT_HOT = "some_like_it_hot";
+    public static final String UNOFF_WEATHERED = "weathered";
+    public static final String UNOFF_ALLWEATHER = "allweather";
+    public static final String UNOFF_BLIND_FIGHTER = "blind_fighter";
+    public static final String UNOFF_SENSOR_GEEK = "sensor_geek";
+    public static final String UNOFF_SMALL_PILOT = "small_pilot";
+    //endregion Advantages
 
-    
-      //EDGE 
-    public static final String EDGE = "edge"; //$NON-NLS$ 
+    //region Edge
+    public static final String EDGE = "edge";
     //different edge triggers
     //Mech Triggers
-    public static final String EDGE_WHEN_HEADHIT= "edge_when_headhit"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_TAC= "edge_when_tac"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_KO= "edge_when_ko"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_EXPLOSION= "edge_when_explosion"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_MASC_FAILS= "edge_when_masc_fails"; //$NON-NLS$
+    public static final String EDGE_WHEN_HEADHIT = "edge_when_headhit";
+    public static final String EDGE_WHEN_TAC = "edge_when_tac";
+    public static final String EDGE_WHEN_KO = "edge_when_ko";
+    public static final String EDGE_WHEN_EXPLOSION = "edge_when_explosion";
+    public static final String EDGE_WHEN_MASC_FAILS = "edge_when_masc_fails";
     //Aero Triggers
-    public static final String EDGE_WHEN_AERO_ALT_LOSS= "edge_when_aero_alt_loss"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_EXPLOSION= "edge_when_aero_explosion"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_KO= "edge_when_aero_ko"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_LUCKY_CRIT= "edge_when_aero_lucky_crit"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_NUKE_CRIT= "edge_when_aero_nuke_crit"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_UNIT_CARGO_LOST= "edge_when_aero_unit_cargo_lost"; //$NON-NLS$
+    public static final String EDGE_WHEN_AERO_ALT_LOSS = "edge_when_aero_alt_loss";
+    public static final String EDGE_WHEN_AERO_EXPLOSION = "edge_when_aero_explosion";
+    public static final String EDGE_WHEN_AERO_KO = "edge_when_aero_ko";
+    public static final String EDGE_WHEN_AERO_LUCKY_CRIT = "edge_when_aero_lucky_crit";
+    public static final String EDGE_WHEN_AERO_NUKE_CRIT = "edge_when_aero_nuke_crit";
+    public static final String EDGE_WHEN_AERO_UNIT_CARGO_LOST = "edge_when_aero_unit_cargo_lost";
+    //endregion Edge
 
-    // Manei Domini
+    //region Manei Domini
+    public static final String MD = "md";
     public static final String MD_PAIN_SHUNT = "artificial_pain_shunt"; // $NON-NLS$
     public static final String MD_VDNI = "vdni"; // $NON-NLS$
     public static final String MD_BVDNI = "bvdni"; // $NON-NLS$
@@ -270,8 +269,11 @@ public class OptionsConstants {
     public static final String MD_TRIPLE_CORE_PROCESSOR = "triple_core_processor"; // $NON-NLS$    
     public static final String MD_SUICIDE_IMPLANTS = "suicide_implants"; // $NON-NLS$  
     public static final String MD_PROTO_DNI = "proto_dni"; // $NON-NLS$ 
-    
-    
+    //endregion Manei Domini
+
+    //region Partial Repairs
+    //endregion Partial Repairs
+
     //GAME OPTIONS TO BE MOVED.
     public static final String BASE_FRIENDLY_FIRE= "friendly_fire";  //$NON-NLS$
     public static final String BASE_TURN_TIMER = "turn_timer"; //$NON-NLS$
@@ -301,28 +303,28 @@ public class OptionsConstants {
     public static final String BASE_RANDOM_BASEMENTS= "random_basements";  //$NON-NLS$
     public static final String BASE_AUTO_AMS= "auto_ams";  //$NON-NLS$
 
-    public static final String VICTORY_SKIP_FORCED_VICTORY= "skip_forced_victory";  //$NON-NLS$
-    public static final String VICTORY_CHECK_VICTORY= "check_victory";  //$NON-NLS$
-    public static final String VICTORY_ACHIEVE_CONDITIONS= "achieve_conditions";  //$NON-NLS$
-    public static final String VICTORY_USE_BV_DESTROYED= "use_bv_destroyed";  //$NON-NLS$
-    public static final String VICTORY_BV_DESTROYED_PERCENT= "bv_destroyed_percent";  //$NON-NLS$
-    public static final String VICTORY_USE_BV_RATIO= "use_bv_ratio";  //$NON-NLS$
-    public static final String VICTORY_BV_RATIO_PERCENT= "bv_ratio_percent";  //$NON-NLS$
-    public static final String VICTORY_USE_GAME_TURN_LIMIT= "use_game_turn_limit";  //$NON-NLS$
-    public static final String VICTORY_GAME_TURN_LIMIT= "game_turn_limit";  //$NON-NLS$
-    public static final String VICTORY_USE_KILL_COUNT= "use_kill_count";  //$NON-NLS$
-    public static final String VICTORY_GAME_KILL_COUNT= "game_kill_count";  //$NON-NLS$
-    public static final String VICTORY_COMMANDER_KILLED= "commander_killed";  //$NON-NLS$
+    public static final String VICTORY_SKIP_FORCED_VICTORY = "skip_forced_victory";
+    public static final String VICTORY_CHECK_VICTORY = "check_victory";
+    public static final String VICTORY_ACHIEVE_CONDITIONS = "achieve_conditions";
+    public static final String VICTORY_USE_BV_DESTROYED = "use_bv_destroyed";
+    public static final String VICTORY_BV_DESTROYED_PERCENT = "bv_destroyed_percent";
+    public static final String VICTORY_USE_BV_RATIO = "use_bv_ratio";
+    public static final String VICTORY_BV_RATIO_PERCENT = "bv_ratio_percent";
+    public static final String VICTORY_USE_GAME_TURN_LIMIT = "use_game_turn_limit";
+    public static final String VICTORY_GAME_TURN_LIMIT = "game_turn_limit";
+    public static final String VICTORY_USE_KILL_COUNT = "use_kill_count";
+    public static final String VICTORY_GAME_KILL_COUNT = "game_kill_count";
+    public static final String VICTORY_COMMANDER_KILLED = "commander_killed";
 
-    public static final String ALLOWED_CANON_ONLY= "canon_only";  //$NON-NLS$
-    public static final String ALLOWED_YEAR= "year";  //$NON-NLS$
-    public static final String ALLOWED_TECHLEVEL= "techlevel";  //$NON-NLS$
-    public static final String ALLOWED_ERA_BASED = "era_based"; //$NON_NLS$
-    public static final String ALLOWED_ALLOW_ILLEGAL_UNITS= "allow_illegal_units";  //$NON-NLS$
-    public static final String ALLOWED_CLAN_IGNORE_EQ_LIMITS= "clan_ignore_eq_limits";  //$NON-NLS$
-    public static final String ALLOWED_NO_CLAN_PHYSICAL= "no_clan_physical";  //$NON-NLS$
-    public static final String ALLOWED_ALLOW_NUKES= "allow_nukes";  //$NON-NLS$
-    public static final String ALLOWED_REALLY_ALLOW_NUKES= "really_allow_nukes";  //$NON-NLS$
+    public static final String ALLOWED_CANON_ONLY = "canon_only";
+    public static final String ALLOWED_YEAR = "year";
+    public static final String ALLOWED_TECHLEVEL = "techlevel";
+    public static final String ALLOWED_ERA_BASED = "era_based";
+    public static final String ALLOWED_ALLOW_ILLEGAL_UNITS = "allow_illegal_units";
+    public static final String ALLOWED_CLAN_IGNORE_EQ_LIMITS = "clan_ignore_eq_limits";
+    public static final String ALLOWED_NO_CLAN_PHYSICAL = "no_clan_physical";
+    public static final String ALLOWED_ALLOW_NUKES = "allow_nukes";
+    public static final String ALLOWED_REALLY_ALLOW_NUKES = "really_allow_nukes";
 
     public static final String ADVANCED_MINEFIELDS= "minefields";  //$NON-NLS$
     public static final String ADVANCED_HIDDEN_UNITS= "hidden_units";  //$NON-NLS$
@@ -527,6 +529,4 @@ public class OptionsConstants {
     public static final String RPG_CONDITIONAL_EJECTION= "conditional_ejection";  //$NON-NLS$
     public static final String RPG_MANUAL_SHUTDOWN= "manual_shutdown";  //$NON-NLS$
     public static final String RPG_BEGIN_SHUTDOWN= "begin_shutdown";  //$NON-NLS$
-
-
 }

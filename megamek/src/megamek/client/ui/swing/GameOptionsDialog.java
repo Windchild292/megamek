@@ -500,7 +500,7 @@ public class GameOptionsDialog extends JDialog implements ActionListener, Dialog
             } else {
                 optionComp.setEditable(false);
             }
-        } else if (option.getName().equals("techlevel")) {
+        } else if (option.getName().equals(OptionsConstants.ALLOWED_TECHLEVEL)) {
             for (String tlName : TechConstants.T_SIMPLE_NAMES) {
                 optionComp.addValue(tlName);
             }
@@ -531,19 +531,15 @@ public class GameOptionsDialog extends JDialog implements ActionListener, Dialog
         } else {
             optionComp.setEditable(editable);
         }
-        List<DialogOptionComponent> comps = optionComps.get(option.getName());
-        if (comps == null) {
-            comps = new ArrayList<DialogOptionComponent>();
-            optionComps.put(option.getName(), comps);
-        }
+        List<DialogOptionComponent> comps = optionComps.computeIfAbsent(option.getName(), k -> new ArrayList<>());
         comps.add(optionComp);
     }
 
     // Gets called when one of the option checkboxes is clicked.
     // Arguments are the GameOption object and the true/false
     // state of the checkbox.
+    @Override
     public void optionClicked(DialogOptionComponent clickedComp, IOption option, boolean state) {
-
         // Ensure that any other DialogOptionComponents with the same IOption
         // have the same value
         List<DialogOptionComponent> comps = optionComps.get(option.getName());
