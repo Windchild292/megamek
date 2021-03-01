@@ -29681,7 +29681,7 @@ public class Server implements Runnable {
                     // Mark the original report to indicate which players
                     // received an obscured version of it.
                     if (p != null) {
-                        r.addObscuredRecipient(p.getName());
+                        r.getObscuredRecipients().addElement(p.getName());
                     }
                 }
             }

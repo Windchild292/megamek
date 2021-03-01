@@ -607,18 +607,6 @@ public class Report implements Serializable {
 
     /**
      * Internal method. Not for typical use.
-     *
-     * Adds the given player name to the report's list of players who received an obscured version
-     * of this report from the server at some time in the past.
-     *
-     * @param playerName the String containing the player's name
-     */
-    public void addObscuredRecipient(String playerName) {
-        obscuredRecipients.addElement(playerName);
-    }
-
-    /**
-     * Internal method. Not for typical use.
      * <p>
      * Tests whether the given player name is on the report's list of players
      * who received an obscured version of this report from the server at some
