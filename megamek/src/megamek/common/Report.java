@@ -490,7 +490,7 @@ public class Report implements Serializable {
             if (showImage || (indentation <= MMConstants.DEFAULT_SPACE_INDENTATION)) {
                 imageCode = "<span id='" + entity.getId() + "'></span>";
             }
-            add(true, "<font color='0xffffff'><a href=\"#entity:" + entity.getId()
+            add("<font color='0xffffff'><a href=\"#entity:" + entity.getId()
                     + "\">" + entity.getShortName() + "</a></font>");
             add("<B><font color='" + entity.getOwner().getColour().getHexString(0x00F0F0F0) + "'>"
                     + entity.getOwner().getName() + "</font></B>");
