@@ -1,17 +1,16 @@
 /*
  * MegaMek - Copyright (C) 2000-2003 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common.options;
 
 import java.util.Vector;
@@ -23,9 +22,9 @@ import java.util.Vector;
  */
 public class PilotOptions extends AbstractOptions {
     private static final long serialVersionUID = 6628080570425023949L;
-    public static final String LVL3_ADVANTAGES = "lvl3Advantages"; //$NON-NLS-1$
-    public static final String EDGE_ADVANTAGES = "edgeAdvantages"; //$NON-NLS-1$
-    public static final String MD_ADVANTAGES = "MDAdvantages"; //$NON-NLS-1$
+    public static final String LVL3_ADVANTAGES = "lvl3Advantages";
+    public static final String EDGE_ADVANTAGES = "edgeAdvantages";
+    public static final String MD_ADVANTAGES = "MDAdvantages";
 
     public PilotOptions() {
         super();
@@ -99,82 +98,68 @@ public class PilotOptions extends AbstractOptions {
         addOption(adv, OptionsConstants.INFANTRY_URBAN_GUERRILLA, false); //$NON-NLS-1$
 
         // Unofficial      
-        addOption(adv, OptionsConstants.UNOFF_EI_IMPLANT, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_GUNNERY_LASER, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_GUNNERY_MISSILE, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_GUNNERY_BALLISTIC, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_CLAN_PILOT_TRAINING, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_SOME_LIKE_IT_HOT, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_WEATHERED, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_ALLWEATHER, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_BLIND_FIGHTER, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_SENSOR_GEEK, false); //$NON-NLS-1$
-        addOption(adv, OptionsConstants.UNOFF_SMALL_PILOT, false); //$NON-NLS-1$
+        addOption(adv, OptionsConstants.UNOFF_EI_IMPLANT, false);
+        addOption(adv, OptionsConstants.UNOFF_GUNNERY_LASER, false);
+        addOption(adv, OptionsConstants.UNOFF_GUNNERY_MISSILE, false);
+        addOption(adv, OptionsConstants.UNOFF_GUNNERY_BALLISTIC, false);
+        addOption(adv, OptionsConstants.UNOFF_CLAN_PILOT_TRAINING, false);
+        addOption(adv, OptionsConstants.UNOFF_SOME_LIKE_IT_HOT, false);
+        addOption(adv, OptionsConstants.UNOFF_WEATHERED, false);
+        addOption(adv, OptionsConstants.UNOFF_ALLWEATHER, false);
+        addOption(adv, OptionsConstants.UNOFF_BLIND_FIGHTER, false);
+        addOption(adv, OptionsConstants.UNOFF_SENSOR_GEEK, false);
+        addOption(adv, OptionsConstants.UNOFF_SMALL_PILOT, false);
 
-        IBasicOptionGroup edge = addGroup("edge", EDGE_ADVANTAGES); //$NON-NLS-1$
-        addOption(edge, "edge", 0); //$NON-NLS-1$
-        /* different edge triggers */
-        // Mech Triggers
-        addOption(edge, "edge_when_headhit", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_tac", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_ko", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_explosion", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_masc_fails", false); //$NON-NLS-1$
-        //Aero Triggers
-        addOption(edge, "edge_when_aero_alt_loss", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_explosion", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_ko", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_lucky_crit", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_nuke_crit", false); //$NON-NLS-1$
-        addOption(edge, "edge_when_aero_unit_cargo_lost", false); //$NON-NLS-1$
-        
-        addOption(edge, OptionsConstants.EDGE, 0); //$NON-NLS-1$
-        //different edge triggers 
+        //region Edge
+        IBasicOptionGroup edge = addGroup(OptionsConstants.EDGE, EDGE_ADVANTAGES);
+        addOption(edge, OptionsConstants.EDGE, 0);
+        //different edge triggers
         //Mech Triggers
-        addOption(edge, OptionsConstants.EDGE_WHEN_HEADHIT, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_TAC, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_KO, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_EXPLOSION, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_MASC_FAILS, false); //$NON-NLS-1$
+        addOption(edge, OptionsConstants.EDGE_WHEN_HEADHIT, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_TAC, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_KO, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_EXPLOSION, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_MASC_FAILS, false);
         //Aero Triggers
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_ALT_LOSS, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_EXPLOSION, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_KO, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_LUCKY_CRIT, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_NUKE_CRIT, false); //$NON-NLS-1$
-        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_UNIT_CARGO_LOST, false); //$NON-NLS-1$
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_ALT_LOSS, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_EXPLOSION, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_KO, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_LUCKY_CRIT, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_NUKE_CRIT, false);
+        addOption(edge, OptionsConstants.EDGE_WHEN_AERO_UNIT_CARGO_LOST, false);
+        //endregion Edge
 
         // manei domini
-        IBasicOptionGroup md = addGroup("md", MD_ADVANTAGES); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PAIN_SHUNT, false); // $NON-NLS-1$
-        addOption(md, OptionsConstants.MD_COMM_IMPLANT, false); // $NON-NLS-1$
+        IBasicOptionGroup md = addGroup("md", MD_ADVANTAGES);
+        addOption(md, OptionsConstants.MD_PAIN_SHUNT, false);
+        addOption(md, OptionsConstants.MD_COMM_IMPLANT, false);
         //TODO - -1 bonus when spotting for LRMs and moving through mines.
-        addOption(md, OptionsConstants.MD_BOOST_COMM_IMPLANT, false); // $NON-NLS-1$
+        addOption(md, OptionsConstants.MD_BOOST_COMM_IMPLANT, false);
         //TODO - -1 bonus when spotting for LRMs and moving through mines. 
-        addOption(md, OptionsConstants.MD_CYBER_IMP_AUDIO, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_CYBER_IMP_VISUAL, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_CYBER_IMP_LASER, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_MM_IMPLANTS, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_ENH_MM_IMPLANTS, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_FILTRATION, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_GAS_EFFUSER_PHERO, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_GAS_EFFUSER_TOXIN, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_DERMAL_ARMOR, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_DERMAL_CAMO_ARMOR, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_TSM_IMPLANT, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_TRIPLE_CORE_PROCESSOR, false); //$NON-NLS-1$  
-        addOption(md, OptionsConstants.MD_VDNI, false); // $NON-NLS-1$
-        addOption(md, OptionsConstants.MD_BVDNI, false); // $NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PROTO_DNI, false); // $NON-NLS-1$
+        addOption(md, OptionsConstants.MD_CYBER_IMP_AUDIO, false);
+        addOption(md, OptionsConstants.MD_CYBER_IMP_VISUAL, false);
+        addOption(md, OptionsConstants.MD_CYBER_IMP_LASER, false);
+        addOption(md, OptionsConstants.MD_MM_IMPLANTS, false);
+        addOption(md, OptionsConstants.MD_ENH_MM_IMPLANTS, false);
+        addOption(md, OptionsConstants.MD_FILTRATION, false);
+        addOption(md, OptionsConstants.MD_GAS_EFFUSER_PHERO, false);
+        addOption(md, OptionsConstants.MD_GAS_EFFUSER_TOXIN, false);
+        addOption(md, OptionsConstants.MD_DERMAL_ARMOR, false);
+        addOption(md, OptionsConstants.MD_DERMAL_CAMO_ARMOR, false);
+        addOption(md, OptionsConstants.MD_TSM_IMPLANT, false);
+        addOption(md, OptionsConstants.MD_TRIPLE_CORE_PROCESSOR, false);
+        addOption(md, OptionsConstants.MD_VDNI, false);
+        addOption(md, OptionsConstants.MD_BVDNI, false);
+        addOption(md, OptionsConstants.MD_PROTO_DNI, false);
         //Prosthetic Limbs (not MD Exclusive)
-        addOption(md, OptionsConstants.MD_PL_ENHANCED, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PL_IENHANCED, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PL_EXTRA_LIMBS, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PL_TAIL, false); //$NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PL_MASC, false); // NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PL_GLIDER, false); // NON-NLS-1$
-        addOption(md, OptionsConstants.MD_PL_FLIGHT, false); // NON-NLS-1$
-        addOption(md, OptionsConstants.MD_SUICIDE_IMPLANTS, false);// NON-NLS-1$ 
+        addOption(md, OptionsConstants.MD_PL_ENHANCED, false);
+        addOption(md, OptionsConstants.MD_PL_IENHANCED, false);
+        addOption(md, OptionsConstants.MD_PL_EXTRA_LIMBS, false);
+        addOption(md, OptionsConstants.MD_PL_TAIL, false);
+        addOption(md, OptionsConstants.MD_PL_MASC, false);
+        addOption(md, OptionsConstants.MD_PL_GLIDER, false);
+        addOption(md, OptionsConstants.MD_PL_FLIGHT, false);
+        addOption(md, OptionsConstants.MD_SUICIDE_IMPLANTS, false);
         
         //TODO - Prototype DNI IO pg 83
     }
@@ -190,12 +175,12 @@ public class PilotOptions extends AbstractOptions {
     }
 
     private static class PilotOptionsInfo extends AbstractOptionsInfo {
-        private static boolean initliazed = false;
+        private static boolean initialized = false;
         private static AbstractOptionsInfo instance = new PilotOptionsInfo();
 
         public static AbstractOptionsInfo getInstance() {
-            if (!initliazed) {
-                initliazed = true;
+            if (!initialized) {
+                initialized = true;
                 // Create a new dummy PilotOptions; ensures values initialized
                 // Otherwise, could have issues when loading saved games
                 new PilotOptions();
@@ -204,7 +189,7 @@ public class PilotOptions extends AbstractOptions {
         }
 
         protected PilotOptionsInfo() {
-            super("PilotOptionsInfo"); //$NON-NLS-1$
+            super("PilotOptionsInfo");
         }
     }
 }

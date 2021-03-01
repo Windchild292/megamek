@@ -1,15 +1,15 @@
 /*
  * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common.options;
 
@@ -225,53 +225,53 @@ public class OptionsConstants {
     public static final String UNOFF_SENSOR_GEEK = "sensor_geek"; // $NON-NLS$
     public static final String UNOFF_SMALL_PILOT = "small_pilot"; // $NON-NLS$
 
-    
-      //EDGE 
-    public static final String EDGE = "edge"; //$NON-NLS$ 
+    //region Edge
+    public static final String EDGE = "edge";
     //different edge triggers
     //Mech Triggers
-    public static final String EDGE_WHEN_HEADHIT= "edge_when_headhit"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_TAC= "edge_when_tac"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_KO= "edge_when_ko"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_EXPLOSION= "edge_when_explosion"; //$NON-NLS$ 
-    public static final String EDGE_WHEN_MASC_FAILS= "edge_when_masc_fails"; //$NON-NLS$
+    public static final String EDGE_WHEN_HEADHIT = "edge_when_headhit";
+    public static final String EDGE_WHEN_TAC = "edge_when_tac";
+    public static final String EDGE_WHEN_KO = "edge_when_ko";
+    public static final String EDGE_WHEN_EXPLOSION = "edge_when_explosion";
+    public static final String EDGE_WHEN_MASC_FAILS = "edge_when_masc_fails";
     //Aero Triggers
-    public static final String EDGE_WHEN_AERO_ALT_LOSS= "edge_when_aero_alt_loss"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_EXPLOSION= "edge_when_aero_explosion"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_KO= "edge_when_aero_ko"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_LUCKY_CRIT= "edge_when_aero_lucky_crit"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_NUKE_CRIT= "edge_when_aero_nuke_crit"; //$NON-NLS$
-    public static final String EDGE_WHEN_AERO_UNIT_CARGO_LOST= "edge_when_aero_unit_cargo_lost"; //$NON-NLS$
+    public static final String EDGE_WHEN_AERO_ALT_LOSS = "edge_when_aero_alt_loss";
+    public static final String EDGE_WHEN_AERO_EXPLOSION = "edge_when_aero_explosion";
+    public static final String EDGE_WHEN_AERO_KO = "edge_when_aero_ko";
+    public static final String EDGE_WHEN_AERO_LUCKY_CRIT = "edge_when_aero_lucky_crit";
+    public static final String EDGE_WHEN_AERO_NUKE_CRIT = "edge_when_aero_nuke_crit";
+    public static final String EDGE_WHEN_AERO_UNIT_CARGO_LOST = "edge_when_aero_unit_cargo_lost";
+    //endregion Edge
 
-    // Manei Domini
-    public static final String MD_PAIN_SHUNT = "artificial_pain_shunt"; // $NON-NLS$
-    public static final String MD_VDNI = "vdni"; // $NON-NLS$
-    public static final String MD_BVDNI = "bvdni"; // $NON-NLS$
-    public static final String MD_PL_ENHANCED = "pl_enhanced"; // $NON-NLS$
-    public static final String MD_PL_IENHANCED = "pl_ienhanced"; // $NON-NLS$
-    public static final String MD_PL_MASC = "pl_masc"; // $NON-NLS$
-    public static final String MD_PL_EXTRA_LIMBS = "pl_extra_limbs"; // $NON-NLS$
-    public static final String MD_PL_TAIL = "pl_tail"; // $NON-NLS$
-    public static final String MD_PL_GLIDER = "pl_glider"; // $NON-NLS$
-    public static final String MD_PL_FLIGHT = "pl_flight"; // $NON-NLS$
-    public static final String MD_CYBER_IMP_AUDIO = "cyber_imp_audio"; // $NON-NLS$
-    public static final String MD_CYBER_IMP_VISUAL = "cyber_imp_visual"; // $NON-NLS$
-    public static final String MD_CYBER_IMP_LASER = "cyber_imp_laser"; // $NON-NLS$
-    public static final String MD_MM_IMPLANTS = "mm_implants"; // $NON-NLS$
-    public static final String MD_ENH_MM_IMPLANTS = "enh_mm_implants"; // $NON-NLS$    
-    public static final String MD_COMM_IMPLANT = "comm_implant"; // $NON-NLS$
-    public static final String MD_BOOST_COMM_IMPLANT = "boost_comm_implant"; // $NON-NLS$
-    public static final String MD_DERMAL_ARMOR = "dermal_armor"; // $NON-NLS$
-    public static final String MD_TSM_IMPLANT = "tsm_implant"; // $NON-NLS$
-    public static final String MD_FILTRATION = "filtration_implants"; // $NON-NLS$
-    public static final String MD_GAS_EFFUSER_PHERO = "gas_effuser_pheromone"; // $NON-NLS$
-    public static final String MD_GAS_EFFUSER_TOXIN = "gas_effuser_toxin"; // $NON-NLS$
-    public static final String MD_DERMAL_CAMO_ARMOR = "dermal_camo_armor"; // $NON-NLS$   
-    public static final String MD_TRIPLE_CORE_PROCESSOR = "triple_core_processor"; // $NON-NLS$    
-    public static final String MD_SUICIDE_IMPLANTS = "suicide_implants"; // $NON-NLS$  
-    public static final String MD_PROTO_DNI = "proto_dni"; // $NON-NLS$ 
-    
-    
+    //region Manei Domini
+    public static final String MD_PAIN_SHUNT = "artificial_pain_shunt";
+    public static final String MD_VDNI = "vdni";
+    public static final String MD_BVDNI = "bvdni";
+    public static final String MD_PL_ENHANCED = "pl_enhanced";
+    public static final String MD_PL_IENHANCED = "pl_ienhanced";
+    public static final String MD_PL_MASC = "pl_masc";
+    public static final String MD_PL_EXTRA_LIMBS = "pl_extra_limbs";
+    public static final String MD_PL_TAIL = "pl_tail";
+    public static final String MD_PL_GLIDER = "pl_glider";
+    public static final String MD_PL_FLIGHT = "pl_flight";
+    public static final String MD_CYBER_IMP_AUDIO = "cyber_imp_audio";
+    public static final String MD_CYBER_IMP_VISUAL = "cyber_imp_visual";
+    public static final String MD_CYBER_IMP_LASER = "cyber_imp_laser";
+    public static final String MD_MM_IMPLANTS = "mm_implants";
+    public static final String MD_ENH_MM_IMPLANTS = "enh_mm_implants";
+    public static final String MD_COMM_IMPLANT = "comm_implant";
+    public static final String MD_BOOST_COMM_IMPLANT = "boost_comm_implant";
+    public static final String MD_DERMAL_ARMOR = "dermal_armor";
+    public static final String MD_TSM_IMPLANT = "tsm_implant";
+    public static final String MD_FILTRATION = "filtration_implants";
+    public static final String MD_GAS_EFFUSER_PHERO = "gas_effuser_pheromone";
+    public static final String MD_GAS_EFFUSER_TOXIN = "gas_effuser_toxin";
+    public static final String MD_DERMAL_CAMO_ARMOR = "dermal_camo_armor";
+    public static final String MD_TRIPLE_CORE_PROCESSOR = "triple_core_processor";
+    public static final String MD_SUICIDE_IMPLANTS = "suicide_implants";
+    public static final String MD_PROTO_DNI = "proto_dni";
+    //endregion Manei Domini
+
     //GAME OPTIONS TO BE MOVED.
     public static final String BASE_FRIENDLY_FIRE= "friendly_fire";  //$NON-NLS$
     public static final String BASE_TURN_TIMER = "turn_timer"; //$NON-NLS$
