@@ -14,9 +14,14 @@
  */
 package megamek.common;
 
+import megamek.MegaMek;
+import megamek.common.annotations.Nullable;
+import megamek.common.constants.MMConstants;
+import megamek.common.enums.ReportType;
+
 import java.io.Serializable;
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -54,19 +59,17 @@ import java.util.Vector;
  * <code>getText</code> method was called:
  * <p> " Crusader (Bob) does 6 damage to the tank."
  *
+ * Note: some fields are marked transient because they are only used by the
+ * server (or only the client). This shaves a few bytes off the packet size,
+ * helping the dial-up people :)
+ *
  * @author Ryan McConnell (oscarmm)
- * @version $Revision$
- * @since 0.30
  */
 public class Report implements Serializable {
-    /*
-     * Note: some fields are marked transient because they are only used by the
-     * server (or only the client). This shaves a few bytes off the packet size,
-     * helping the dial-up people :)
-     */
-
+    //region Variable Declarations
     private static final long serialVersionUID = -5586008091586682078L;
-        
+
+    //region Constants
     private static final int MESSAGE_NONE = -1;
     
     /** Report Type: visible to all players. */
@@ -102,189 +105,363 @@ public class Report implements Serializable {
 
     /** Number of spaces to use per indentation level. */
     private static final int DEFAULT_INDENTATION = 4;
-    
+    //endregion Constants
+
     /** Required - associates this object with its text. */
-    public int messageId = Report.MESSAGE_NONE;
+    public int messageId;
     
     /** The number of spaces this report should be indented. */
-    private int indentation = 0;
+    private int indentation;
 
     /**
      * The number of newlines to add at the end of this report. Defaults to one.
      */
-    public int newlines = 1;
+    public int newlines;
 
     /** The data values to fill in the report with. */
-    private Vector<String> tagData = new Vector<String>();
+    private Vector<String> tagData;
 
     /** How to translate the tagData or not at all. */
-    private String tagTranslate = null;
+    private String tagTranslate;
 
     /**
      * How this report is handled when double-blind play is in effect. See
-     * constants below for more details.
+     * constants above for more details.
      */
-    public transient int type = Report.HIDDEN;
+    public transient int type;
 
     /**
      * The entity this report concerns, if applicable. If this is left blank,
      * then the report will be considered <code>public</code>.
      */
-    public transient int subject = Entity.NONE;
+    public transient int subject;
     
     /**
      * The player this report concerns, if applicable. This should be filled in
      * if this report is not public and still does not belong to a specific
      * visible entity
      */
-    public transient int player = IPlayer.PLAYER_NONE;
+    public transient int player;
 
     /**
      * This hash table will store the tagData Vector indexes that are supposed
      * to be obscured before sending to clients. This only applies when the
      * report type is "obscured".
      */
-    private Hashtable<Integer, Boolean> obscuredIndexes = 
-            new Hashtable<Integer, Boolean>();
+    private Map<Integer, Boolean> obscuredIndexes;
 
     /**
      * Vector to store the player names of those who received an obscured
      * version of this report. Used to reconstruct individual client's reports
      * from the master copy stored by the server.
      */
-    private Vector<String> obscuredRecipients = new Vector<String>();
+    private Vector<String> obscuredRecipients;
 
     /** Keep track of what data we have already substituted for tags. */
-    private transient int tagCounter = 0;
+    private transient int tagCounter;
 
     /** bool for determining when code should be used to show image. */
-    private transient boolean showImage = false;
+    private transient boolean showImage;
 
     /** string to add to reports to show sprites **/
-    private String imageCode = "";
+    private String imageCode;
+    //endregion Variable Declarations
 
+    //region Constructors
     /**
-     * Default constructor, note that using this means the
-     * <code>messageId</code> field must be explicitly set.
+     * Default constructor, note that using this means the <code>messageId</code> field must be
+     * explicitly set.
      */
     public Report() {
+        this(MESSAGE_NONE);
     }
 
-    /**
-     * Create a new report associated with the given report text.
-     *
-     * @param id the int value of the report from <i>report-messages.properties
-     * </i>
-     */
-    public Report(int id) {
-        messageId = id;
+    public Report(final int id) {
+        this(id, ReportType.HIDDEN);
     }
 
-    /**
-     * Create a new report associated with the given report text and having the
-     * given type.
-     *
-     * @param id the int value of the report from <i>report-messages.properties
-     *  </i>
-     * @param type the constant specifying the visibility of the report (PUBLIC,
-     *            OBSCURED, or HIDDEN)
-     */
-    public Report(int id, int type) {
-        messageId = id;
-        this.type = type;
+    public Report(final int id, final ReportType type) {
+        this(id, Entity.NONE, type);
+    }
+
+    public Report(final int id, final int subject, final ReportType type) {
+        this(id, subject, 1, type);
+    }
+
+    public Report(final int id, final int subject, final int newlines) {
+        this(id, subject, newlines, ReportType.HIDDEN);
+    }
+
+    //region int... data
+    public Report(final int id, final ReportType type, final int... data) {
+        this(id, type, true, data);
+    }
+
+    public Report(final int id, final ReportType type, final boolean obscure, final int... data) {
+        this(id, Entity.NONE, type, obscure, data);
+    }
+
+    public Report(final int id, final int subject, final ReportType type, final int... data) {
+        this(id, subject, type, true, data);
+    }
+
+    public Report(final int id, final int subject, final ReportType type, final boolean obscure,
+                  final int... data) {
+        this(id, subject, 1, type, obscure, data);
+    }
+
+    public Report(final int id, final int subject, final int newlines, final ReportType type,
+                  final int... data) {
+        this(id, subject, newlines, type, true, data);
+    }
+
+    public Report(final int id, final int subject, final int newlines, final ReportType type,
+                  final boolean obscure, final int... data) {
+        this(id, subject, newlines, type);
+        add(obscure, data);
+    }
+    //endregion int... data
+
+    //region String... data
+    public Report(final int id, final ReportType type, final String... data) {
+        this(id, type, true, data);
+    }
+
+    public Report(final int id, final ReportType type, final boolean obscure, final String... data) {
+        this(id, Entity.NONE, type, obscure, data);
+    }
+
+    public Report(final int id, final int subject, final ReportType type, final String... data) {
+        this(id, subject, type, true, data);
+    }
+
+    public Report(final int id, final int subject, final ReportType type, final boolean obscure,
+                  final String... data) {
+        this(id, subject, 1, type, obscure, data);
+    }
+
+    public Report(final int id, final int subject, final int newlines, final ReportType type,
+                  final String... data) {
+        this(id, subject, newlines, type, true, data);
+    }
+
+    public Report(final int id, final int subject, final int newlines, final ReportType type,
+                  final boolean obscure, final String... data) {
+        this(id, subject, newlines, type);
+        add(obscure, data);
+    }
+    //endregion String... data
+
+    public Report(final int id, final int subject, final int newlines, final ReportType type) {
+        this(id, subject, newlines, type.ordinal());
+    }
+
+    public Report(final int id, final int subject, final int newlines, final int type) {
+        setMessageId(id);
+        setIndentation(0);
+        setNewlines(newlines);
+        setTagData(new Vector<>());
+        setTagTranslate(null);
+        setType(type);
+        setSubject(subject);
+        setPlayer(IPlayer.PLAYER_NONE);
+        setObscuredIndexes(new Hashtable<>());
+        setObscuredRecipients(new Vector<>());
+        setTagCounter(0);
+        setShowImage(false);
+        setImageCode("");
     }
 
     /**
      * Create a new report which is an exact copy of the given report.
      *
-     * @param r the report to be copied
+     * @param report the report to be copied
      */
-    @SuppressWarnings("unchecked")
-    public Report(Report r) {
-        messageId = r.messageId;
-        indentation = r.indentation;
-        newlines = r.newlines;
-        tagData = (Vector<String>) r.tagData.clone();
-        tagTranslate = r.tagTranslate;
-        type = r.type;
-        subject = r.subject;
-        obscuredIndexes = (Hashtable<Integer, Boolean>) r.obscuredIndexes
-                .clone();
-        obscuredRecipients = (Vector<String>) r.obscuredRecipients.clone();
-        tagCounter = r.tagCounter;
+    @SuppressWarnings(value = "unchecked")
+    public Report(final Report report) {
+        setMessageId(report.getMessageId());
+        setIndentation(report.getIndentation());
+        setNewlines(report.getNewlines());
+        setTagData((Vector<String>) report.getTagData().clone());
+        setTagTranslate(report.getTagTranslate());
+        setType(report.getType());
+        setSubject(report.getSubject());
+        setObscuredIndexes((Map<Integer, Boolean>) ((Hashtable<Integer, Boolean>) report.getObscuredIndexes()).clone());
+        setObscuredRecipients((Vector<String>) report.getObscuredRecipients().clone());
+        setTagCounter(report.getTagCounter());
+        setShowImage(report.isShowImage());
+        setImageCode(report.getImageCode());
+    }
+
+    @Deprecated
+    public Report(final int id, final int type) {
+        this(id, Entity.NONE, 1, type);
+    }
+    //endregion Constructors
+
+    //region Getters/Setters
+    public int getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(final int messageId) {
+        this.messageId = messageId;
+    }
+
+    public int getIndentation() {
+        return indentation;
+    }
+
+    public void setIndentation(final int indentation) {
+        this.indentation = indentation;
+    }
+
+    public int getNewlines() {
+        return newlines;
+    }
+
+    public void setNewlines(final int newlines) {
+        this.newlines = newlines;
+    }
+
+    public Vector<String> getTagData() {
+        return tagData;
+    }
+
+    public void setTagData(final Vector<String> tagData) {
+        this.tagData = tagData;
+    }
+
+    public String getTagTranslate() {
+        return tagTranslate;
+    }
+
+    public void setTagTranslate(final String tagTranslate) {
+        this.tagTranslate = tagTranslate;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public ReportType getTypeEnum() {
+        return ReportType.values()[getType()];
+    }
+
+    public void setType(final ReportType type) {
+        setType(type.ordinal());
+    }
+
+    public void setType(final int type) {
+        this.type = type;
+    }
+
+
+    public int getSubject() {
+        return subject;
+    }
+
+    public void setSubject(final int subject) {
+        this.subject = subject;
+    }
+
+    public int getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(final int player) {
+        this.player = player;
+    }
+
+    public Map<Integer, Boolean> getObscuredIndexes() {
+        return obscuredIndexes;
+    }
+
+    public void setObscuredIndexes(final Map<Integer, Boolean> obscuredIndexes) {
+        this.obscuredIndexes = obscuredIndexes;
+    }
+
+    public Vector<String> getObscuredRecipients() {
+        return obscuredRecipients;
+    }
+
+    public void setObscuredRecipients(final Vector<String> obscuredRecipients) {
+        this.obscuredRecipients = obscuredRecipients;
+    }
+
+    public int getTagCounter() {
+        return tagCounter;
+    }
+
+    public void setTagCounter(int tagCounter) {
+        this.tagCounter = tagCounter;
+    }
+
+    public boolean isShowImage() {
+        return showImage;
+    }
+
+    public void setShowImage(final boolean showImage){
+        this.showImage = showImage;
+    }
+
+    public String getImageCode() {
+        return imageCode;
+    }
+
+    public void setImageCode(String imageCode) {
+        this.imageCode = imageCode;
+    }
+    //endregion Getters/Setters
+
+    /**
+     * Adds the given int(s) to the list of data as obscured
+     * @param data the int(s) to be substituted
+     */
+    public void add(final int... data) {
+        add(true, data);
     }
 
     /**
-     * Add the given int to the list of data that will be substituted for the
-     * &lt;data&gt; tags in the report. The order in which items are added must
-     * match the order of the tags in the report text.
+     * Add the given int(s) to the list of data that will be substituted for the <data> tags in the
+     * report, and market it as double-blind sensitive if <tag>obscure</tag> is true.
+     * The order in which items are added must match the order of the tags in the report text.
      *
+     * @param obscure boolean indicating whether the data is double-blind sensitive
      * @param data the int to be substituted
      */
-    public void add(int data) {
-        add(data, true);
-    }
-
-    /**
-     * Add the given int to the list of data that will be substituted for the
-     * &lt;data&gt; tags in the report, and mark it as double-blind sensitive
-     * information if <code>obscure</code> is true. The order in which items
-     * are added must match the order of the tags in the report text.
-     *
-     * @param data the int to be substituted
-     * @param obscure boolean indicating whether the data is double-blind
-     *            sensitive
-     */
-    public void add(int data, boolean obscure) {
-        if (obscure) {
-            obscuredIndexes.put(Integer.valueOf(tagData.size()),
-                    Boolean.valueOf(true));
+    public void add(final boolean obscure, final int... data) {
+        for (final int dataPoint : data) {
+            if (obscure) {
+                obscuredIndexes.put(tagData.size(), true);
+            }
+            tagData.addElement(String.valueOf(dataPoint));
         }
-        tagData.addElement(String.valueOf(data));
     }
 
     /**
-     * Add the given String to the list of data that will be substituted for the
-     * &lt;data&gt; tags in the report. The order in which items are added must
-     * match the order of the tags in the report text.
-     *
-     * @param data the String to be substituted
+     * Adds the given String(s) to the list of data as obscured
+     * @param data the String(s) to be substituted
      */
-    public void add(String data) {
-        add(data, true);
-        tagTranslate = null;
+    public void add(final String... data) {
+        add(true, data);
     }
 
     /**
-     * Add the given string to the list of data that will be substituted for the
-     * &lt;data&gt; tags in the report. The order in which items are added must
-     * match the order of the tags in the report text. The second string
-     * argument sets the translation flag to the string value.
+     * Add the given String(s) to the list of data that will be substituted for the <data> tags in
+     * the report, and market it as double-blind sensitive if <tag>obscure</tag> is true.
+     * The order in which items are added must match the order of the tags in the report text.
      *
-     * @param data the String to be substituted
-     * @param translate the common Resource Bundle to be used for translation
+     * @param obscure boolean indicating whether the data is double-blind sensitive
+     * @param data the String(s) to be substituted
      */
-    public void add(String data, String translate) {
-        add(data, true);
-        tagTranslate = translate;
-    }
-
-    /**
-     * Add the given String to the list of data that will be substituted for the
-     * &lt;data&gt; tags in the report, and mark it as double-blind sensitive
-     * information if <code>obscure</code> is true. The order in which items
-     * are added must match the order of the tags in the report text.
-     *
-     * @param data the String to be substituted
-     * @param obscure boolean indicating whether the data is double-blind
-     *            sensitive
-     */
-    public void add(String data, boolean obscure) {
-        if (obscure) {
-            obscuredIndexes.put(Integer.valueOf(tagData.size()),
-                    Boolean.valueOf(true));
+    public void add(final boolean obscure, final String... data) {
+        for (final String dataPoint : data) {
+            if (obscure) {
+                obscuredIndexes.put(tagData.size(), true);
+            }
+            tagData.addElement(dataPoint);
         }
-        tagData.addElement(data);
     }
 
     /**
@@ -310,21 +487,14 @@ public class Report implements Serializable {
      */
     public void addDesc(Entity entity) {
         if (entity != null) {
-            if ((indentation <= Report.DEFAULT_INDENTATION) || showImage) {
+            if (showImage || (indentation <= MMConstants.DEFAULT_SPACE_INDENTATION)) {
                 imageCode = "<span id='" + entity.getId() + "'></span>";
             }
-            add("<font color='0xffffff'><a href=\"#entity:" + entity.getId()
-                    + "\">" + entity.getShortName() + "</a></font>", true);
+            add(true, "<font color='0xffffff'><a href=\"#entity:" + entity.getId()
+                    + "\">" + entity.getShortName() + "</a></font>");
             add("<B><font color='" + entity.getOwner().getColour().getHexString(0x00F0F0F0) + "'>"
                     + entity.getOwner().getName() + "</font></B>");
         }
-    }
-
-    /**
-     * Manually Toggle if the report should show an image of the entity
-    */
-    public void setShowImage(boolean showImage){
-        this.showImage = showImage;
     }
 
     /**
@@ -338,10 +508,7 @@ public class Report implements Serializable {
      * @return true if the data value was marked obscured
      */
     public boolean isValueObscured(int index) {
-        if (obscuredIndexes.get(Integer.valueOf(index)) == null) {
-            return false;
-        }
-        return true;
+        return obscuredIndexes.get(index) != null;
     }
 
     /**
@@ -398,23 +565,19 @@ public class Report implements Serializable {
                 // Each common Resource Bundle is found below
                 if (tagTranslate.equals("Messages")) {
                     return Messages.getString(value);
-                // Others ifs will be here.
                 }
             }
             return value;
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Error: Report#getText --> Array Index out of "
-                    + "Bounds Exception (index: " + index
-                    + ") for a report with ID " + messageId
-                    + ".  Maybe Report#add wasn't called enough "
-                    + "times for the amount of tags in the message?");
+            MegaMek.getLogger().error("Array Index out of Bounds Exception (index: "
+                    + index + ") for a report with ID " + messageId
+                    + ".  Maybe Report::add wasn't called enough times for the amount of tags in the message?", e);
             return "[Reporting Error: see megameklog.txt for details]";
         }
     }
 
     /**
-     * Get the report in its final form, with all the necessary substitutions
-     * made.
+     * Get the report in its final form, with all the necessary substitutions made.
      *
      * @return a String with the final report
      */
@@ -427,10 +590,8 @@ public class Report implements Serializable {
 
         if (raw == null) {
             // Should we handle this better? Check alternate language files?
-            System.out.println("Error: No message found for ID "
-                    + messageId);
-            text.append("[Reporting Error for message ID ").append(
-                    messageId).append("]");
+            MegaMek.getLogger().error("No message found for ID " + messageId);
+            text.append("[Reporting Error for message ID ").append(messageId).append("]");
         } else {
             int i = 0;
             int mark = 0;
@@ -444,12 +605,10 @@ public class Report implements Serializable {
                         i++;
                         continue;
                     }
-                    // copy the preceeding characters into the buffer
-                    text.append(raw.substring(mark, i));
+                    // copy the preceding characters into the buffer
+                    text.append(raw, mark, i);
                     if (raw.substring(i + 1, endTagIdx).equals("data")) {
                         text.append(getTag());
-                        // System.out.println("Report-->getText(): " +
-                        // this.tagData.elementAt(this.tagCounter));
                         tagCounter++;
                     } else if (raw.substring(i + 1, endTagIdx).equals("list")) {
                         for (int j = tagCounter; j < tagData.size(); j++) {
@@ -458,8 +617,7 @@ public class Report implements Serializable {
                         text.setLength(text.length() - 2); // trim last comma
                     } else if (raw.substring(i + 1, endTagIdx).startsWith(
                             "msg:")) {
-                        boolean selector = Boolean.valueOf(getTag())
-                                .booleanValue();
+                        boolean selector = Boolean.parseBoolean(getTag());
                         if (selector) {
                             text.append(ReportMessages.getString(raw.substring(
                                     i + 5, raw.indexOf(',', i))));
@@ -491,11 +649,11 @@ public class Report implements Serializable {
             }
             text.append(raw.substring(mark));
             handleIndentation(text);
-            text.append(getNewlines());
+            text.append(MMConstants.DEFAULT_NEWLINE.repeat(getNewlines()));
         }
         tagCounter = 0;
         // debugReport
-        if (type == Report.TESTING) {
+        if (getTypeEnum().isTesting()) {
             Report.mark(text);
         }
         return text.toString();
@@ -506,29 +664,10 @@ public class Report implements Serializable {
             return;
         }
         int i = 0;
-        while (sb.substring(i, i+4).equals("\n")) {
-            i+=4;
-            if (i == sb.length()) {
-                continue;
-            }
+        while (sb.substring(i, i + 4).equals("\n")) {
+            i += 4;
         }
-        sb.insert(i, getSpaces());
-    }
-
-    private String getSpaces() {
-        StringBuffer spaces = new StringBuffer();
-        for (int i = 0; i < indentation; i++) {
-            spaces.append("&nbsp;");
-        }
-        return spaces.toString();
-    }
-
-    private String getNewlines() {
-        StringBuffer sbNewlines = new StringBuffer();
-        for (int i = 0; i < newlines; i++) {
-            sbNewlines.append("\n");
-        }
-        return sbNewlines.toString();
+        sb.insert(i, "&nbsp".repeat(getIndentation()));
     }
 
     /**
@@ -539,10 +678,8 @@ public class Report implements Serializable {
     public static void addNewline(Vector<Report> v) {
         try {
             v.elementAt(v.size() - 1).newlines++;
-        }
-        catch (ArrayIndexOutOfBoundsException ex) {
-            System.err.println("Report.addNewline failed, array index out " +
-                    "of bounds");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            MegaMek.getLogger().error("Report.addNewline failed, array index out of bounds", e);
         }
     }
 
@@ -579,52 +716,30 @@ public class Report implements Serializable {
         return false;
     }
 
-    /**
-     * Useful for debugging purposes.
-     *
-     * @return a String of the form "Report(messageId=n)"
-     */
-    @Override
-    public String toString() {
-        String val = new String();
-        val = "Report(messageId=";
-        val += messageId;
-        val += ")";
-        return val;
-    }
-
-    /**
-     * DEBUG method - do not use
-     */
-    // debugReport method
-    public void markForTesting() {
-        type = Report.TESTING;
-    }
-
-    // debugReport method
-    private static StringBuffer mark(StringBuffer sb) {
+    private static void mark(final StringBuffer sb) {
         sb.insert(0, "<hidden>");
         int i = sb.length() - 1;
         while (sb.charAt(i) == '\n') {
             i--;
-            if (i == 0) {
-                continue;
-            }
         }
         sb.insert(i + 1, "</hidden>");
-        return sb;
     }
 
-    public static void indentAll(Vector<Report> vDesc, int amount) {
-        // Just avoid an error condition.
-        if (vDesc == null) {
+    public static void indentAll(final @Nullable Vector<Report> reports, final int indent) {
+        if (reports == null) {
             return;
         }
 
-        Enumeration<Report> x = vDesc.elements();
-        while (x.hasMoreElements()) {
-            Report r = x.nextElement();
-            r.indent(amount);
+        for (Report report : reports) {
+            report.indent(indent);
         }
+    }
+
+    /**
+     * @return a String of the form "Report(messageId=n)"
+     */
+    @Override
+    public String toString() {
+        return "Report(messageId=" + messageId + ")";
     }
 }
