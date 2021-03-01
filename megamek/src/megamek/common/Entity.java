@@ -50,6 +50,8 @@ import megamek.common.actions.PushAttackAction;
 import megamek.common.actions.TeleMissileAttackAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.crew.enums.EdgeStyle;
+import megamek.common.enums.ReportType;
 import megamek.common.event.GameEntityChangeEvent;
 import megamek.common.icons.Camouflage;
 import megamek.common.options.GameOptions;
@@ -14061,208 +14063,154 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     }
 
     /**
-     * This function cheks for masc failure.
+     * This function checks for masc failure.
      *
-     * @param md         the movement path.
-     * @param vDesc      the description off the masc failure. used as output.
-     * @param vCriticals contains tuple of intiger and critical slot. used as output.
-     * @return true if there was a masc failure.
+     * @param movePath  the movement path
+     * @param reports   an Output vector containing the the description off the MASC check.
+     * @param criticals an Output map between the integer location and a list of critical slots.
+     * @return true if there was a masc failure
      */
-    public boolean checkForMASCFailure(MovePath md, Vector<Report> vDesc,
-                                       HashMap<Integer, List<CriticalSlot>> vCriticals) {
-        if (md.hasActiveMASC()) {
-            boolean bFailure = false;
-
-            // If usedMASC is already set, then we've already checked MASC
-            // this turn. If we succeded before, return false.
-            // If we failed before, the MASC was destroyed, and we wouldn't
-            // have gotten here (hasActiveMASC would return false)
-            if (!usedMASC) {
-                Mounted masc = getMASC();
-                Mounted superCharger = getSuperCharger();
-                bFailure = doMASCCheckFor(masc, vDesc, vCriticals);
-                boolean bSuperChargeFailure = doMASCCheckFor(superCharger,
-                                                             vDesc, vCriticals);
-                usedMASC = true;
+    public boolean checkForMASCFailure(final MovePath movePath, final Vector<Report> reports,
+                                       final Map<Integer, List<CriticalSlot>> criticals) {
+        if (movePath.hasActiveMASC()) {
+            // If usedMASC is already set, then we've already checked MASC this turn. If we
+            // succeeded before, return false. If we failed before, the MASC was destroyed, and we
+            // wouldn't have gotten here (hasActiveMASC would return false)
+            if (!isMASCUsed()) {
+                setMASCUsed(true);
+                boolean bFailure = doMASCCheckFor(getMASC(), reports, criticals);
+                boolean bSuperChargeFailure = doMASCCheckFor(getSuperCharger(), reports, criticals);
                 return bFailure || bSuperChargeFailure;
             }
         }
+
         return false;
     }
 
     /**
      * check one masc system for failure
      *
-     * @param masc
-     * @param vDesc
-     * @param vCriticals
-     * @return
+     * @param masc      the MASC part, or null if there isn't one
+     * @param reports   an Output vector containing the the description off the MASC check.
+     * @param criticals an Output map between the integer location and a list of critical slots.
+     * @return true if there was a masc failure
      */
-    private boolean doMASCCheckFor(Mounted masc, Vector<Report> vDesc,
-                                   HashMap<Integer, List<CriticalSlot>> vCriticals) {
-        if ((masc != null) && masc.curMode().equals("Armed")) {
-            boolean bFailure = false;
-            int nRoll = Compute.d6(2);
-            if (masc.getType().hasSubType(MiscType.S_SUPERCHARGER)
+    private boolean doMASCCheckFor(final @Nullable Mounted masc, final Vector<Report> reports,
+                                   final Map<Integer, List<CriticalSlot>> criticals) {
+        if ((masc == null) || !masc.curMode().equals("Armed")) {
+            return false;
+        }
+
+        setMASCUsed(true);
+
+        Report report = new Report(2365, getId(), ReportType.HIDDEN, masc.getName());
+        report.addDesc(this);
+        reports.addElement(report);
+
+        final int mascTarget = getMASCTarget();
+        final int rollModifier = (masc.getType().hasSubType(MiscType.S_SUPERCHARGER)
                 && (((this instanceof Mech) && ((Mech) this).isIndustrial())
-                    || (this instanceof SupportTank) || (this instanceof SupportVTOL))) {
-                nRoll -= 1;
-            }
-            usedMASC = true;
-            Report r = new Report(2365);
-            r.subject = getId();
-            r.addDesc(this);
-            r.add(masc.getName());
-            vDesc.addElement(r);
-            r = new Report(2370);
-            r.subject = getId();
-            r.indent();
-            r.add(getMASCTarget());
-            r.add(nRoll);
+                || (this instanceof SupportTank) || (this instanceof SupportVTOL))) ? -1 : 0;
+        final boolean success = getCrew().getEdge().doMASCRoll(EdgeStyle.A_TIME_OF_WAR, reports,
+                this, mascTarget, rollModifier);
+        if (!success) {
+            if (masc.getType().hasSubType(MiscType.S_SUPERCHARGER)) {
+                // Do the damage - engine criticals
+                int hits;
+                int roll = Compute.d6(2);
+                reports.addElement(new Report(6310, getId(), 0, ReportType.HIDDEN, roll));
+                if (roll <= 7) {
+                    hits = 0;
+                    report = new Report(6005, getId(), 0);
+                } else if (roll <= 9) {
+                    hits = 1;
+                    report = new Report(6315, getId(), 0);
+                } else if (roll <= 11) {
+                    hits = 2;
+                    report = new Report(6320, getId(), 0);
+                } else { // roll == 12
+                    hits = 3;
+                    report = new Report(6325, getId(), 0);
+                }
+                reports.addElement(report);
 
-            if (nRoll < getMASCTarget()) {
-                // uh oh
-                bFailure = true;
-                r.choose(false);
-                vDesc.addElement(r);
-
-                if (((MiscType) (masc.getType()))
-                        .hasSubType(MiscType.S_SUPERCHARGER)) {
-                    // do the damage - engine crits
-                    int hits = 0;
-                    int roll = Compute.d6(2);
-                    r = new Report(6310);
-                    r.subject = getId();
-                    r.add(roll);
-                    r.newlines = 0;
-                    vDesc.addElement(r);
-                    if (roll <= 7) {
-                        // no effect
-                        r = new Report(6005);
-                        r.subject = getId();
-                        r.newlines = 0;
-                        vDesc.addElement(r);
-                    } else if ((roll >= 8) && (roll <= 9)) {
-                        hits = 1;
-                        r = new Report(6315);
-                        r.subject = getId();
-                        r.newlines = 0;
-                        vDesc.addElement(r);
-                    } else if ((roll >= 10) && (roll <= 11)) {
-                        hits = 2;
-                        r = new Report(6320);
-                        r.subject = getId();
-                        r.newlines = 0;
-                        vDesc.addElement(r);
-                    } else if (roll == 12) {
-                        hits = 3;
-                        r = new Report(6325);
-                        r.subject = getId();
-                        r.newlines = 0;
-                        vDesc.addElement(r);
-                    }
-                    if (this instanceof Mech) {
-                        vCriticals.put(Mech.LOC_CT,
-                                       new LinkedList<CriticalSlot>());
-                        for (int i = 0; (i < 12) && (hits > 0); i++) {
-                            CriticalSlot cs = getCritical(Mech.LOC_CT, i);
-                            if ((cs.getType() == CriticalSlot.TYPE_SYSTEM)
-                                && (cs.getIndex() == Mech.SYSTEM_ENGINE)
-                                && cs.isHittable()) {
-                                vCriticals.get(Mech.LOC_CT)
-                                          .add(cs);
-                                hits--;
-                            }
-                        }
-                    } else {
-                        // this must be a Tank
-                        Tank tank = (Tank) this;
-                        boolean vtolStabilizerHit = (this instanceof VTOL)
-                                                    && tank.isStabiliserHit(VTOL.LOC_ROTOR);
-                        boolean minorMovementDamage = tank
-                                .hasMinorMovementDamage();
-                        boolean moderateMovementDamage = tank
-                                .hasModerateMovementDamage();
-                        boolean heavyMovementDamage = tank
-                                .hasHeavyMovementDamage();
-                        vCriticals.put(Tank.LOC_BODY, new LinkedList<>());
-                        vCriticals.put(-1, new LinkedList<>());
-                        if (tank instanceof VTOL) {
-                            vCriticals.put(VTOL.LOC_ROTOR, new LinkedList<>());
-                        }
-                        for (int i = 0; i < hits; i++) {
-                            if (tank instanceof VTOL) {
-                                if (vtolStabilizerHit) {
-                                    vCriticals.get(Tank.LOC_BODY).add(new CriticalSlot(
-                                                      CriticalSlot.TYPE_SYSTEM,
-                                                      Tank.CRIT_ENGINE));
-                                } else {
-                                    vCriticals
-                                            .get(VTOL.LOC_ROTOR).add(new CriticalSlot(
-                                                    CriticalSlot.TYPE_SYSTEM,
-                                                    VTOL.CRIT_FLIGHT_STABILIZER));
-                                    vtolStabilizerHit = true;
-                                }
-                            } else {
-                                if (heavyMovementDamage) {
-                                    vCriticals.get(Tank.LOC_BODY).add(new CriticalSlot(
-                                                      CriticalSlot.TYPE_SYSTEM,
-                                                      Tank.CRIT_ENGINE));
-                                } else if (moderateMovementDamage) {
-                                    // HACK: we abuse the criticalslot item to
-                                    // signify the calling function to deal
-                                    // movement damage
-                                    vCriticals
-                                            .get(-1).add(new CriticalSlot(
-                                                    CriticalSlot.TYPE_SYSTEM, 3));
-                                    heavyMovementDamage = true;
-                                } else if (minorMovementDamage) {
-                                    // HACK: we abuse the criticalslot item to
-                                    // signify the calling function to deal
-                                    // movement damage
-                                    vCriticals
-                                            .get(-1).add(new CriticalSlot(
-                                                    CriticalSlot.TYPE_SYSTEM, 2));
-                                    moderateMovementDamage = true;
-                                } else {
-                                    // HACK: we abuse the criticalslot item to
-                                    // signify the calling function to deal
-                                    // movement damage
-                                    vCriticals
-                                            .get(-1).add(new CriticalSlot(
-                                                    CriticalSlot.TYPE_SYSTEM, 1));
-                                    minorMovementDamage = true;
-                                }
-                            }
+                if (this instanceof Mech) {
+                    criticals.put(Mech.LOC_CT, new LinkedList<>());
+                    for (int i = 0; (i < 12) && (hits > 0); i++) {
+                        CriticalSlot cs = getCritical(Mech.LOC_CT, i);
+                        if ((cs.getType() == CriticalSlot.TYPE_SYSTEM)
+                                && (cs.getIndex() == Mech.SYSTEM_ENGINE) && cs.isHittable()) {
+                            criticals.get(Mech.LOC_CT).add(cs);
+                            hits--;
                         }
                     }
-
                 } else {
-                    // do the damage.
-                    // random crit on each leg, but MASC is not destroyed
-                    for (int loc = 0; loc < locations(); loc++) {
-                        if (locationIsLeg(loc)
-                            && (getHittableCriticals(loc) > 0)) {
-                            CriticalSlot slot = null;
-                            do {
-                                int slotIndex = Compute
-                                        .randomInt(getNumberOfCriticals(loc));
-                                slot = getCritical(loc, slotIndex);
-                            } while ((slot == null) || !slot.isHittable());
-                            vCriticals.put(loc, new LinkedList<>());
-                            vCriticals.get(loc).add(slot);
+                    // this must be a Tank
+                    final Tank tank = (Tank) this;
+                    boolean vtolStabilizerHit = (this instanceof VTOL) && tank.isStabiliserHit(VTOL.LOC_ROTOR);
+                    boolean minorMovementDamage = tank.hasMinorMovementDamage();
+                    boolean moderateMovementDamage = tank.hasModerateMovementDamage();
+                    boolean heavyMovementDamage = tank.hasHeavyMovementDamage();
+                    criticals.put(Tank.LOC_BODY, new LinkedList<>());
+                    criticals.put(-1, new LinkedList<>());
+                    if (tank instanceof VTOL) {
+                        criticals.put(VTOL.LOC_ROTOR, new LinkedList<>());
+                    }
+                    for (int i = 0; i < hits; i++) {
+                        if (tank instanceof VTOL) {
+                            if (vtolStabilizerHit) {
+                                criticals.get(Tank.LOC_BODY).add(new CriticalSlot(
+                                        CriticalSlot.TYPE_SYSTEM, Tank.CRIT_ENGINE));
+                            } else {
+                                criticals.get(VTOL.LOC_ROTOR).add(new CriticalSlot(
+                                        CriticalSlot.TYPE_SYSTEM, VTOL.CRIT_FLIGHT_STABILIZER));
+                                vtolStabilizerHit = true;
+                            }
+                        } else {
+                            if (heavyMovementDamage) {
+                                criticals.get(Tank.LOC_BODY).add(new CriticalSlot(
+                                        CriticalSlot.TYPE_SYSTEM, Tank.CRIT_ENGINE));
+                            } else if (moderateMovementDamage) {
+                                // HACK: we abuse the criticalslot item to
+                                // signify the calling function to deal
+                                // movement damage
+                                criticals.get(-1).add(new CriticalSlot(CriticalSlot.TYPE_SYSTEM, 3));
+                                heavyMovementDamage = true;
+                            } else if (minorMovementDamage) {
+                                // HACK: we abuse the criticalslot item to
+                                // signify the calling function to deal
+                                // movement damage
+                                criticals.get(-1).add(new CriticalSlot(CriticalSlot.TYPE_SYSTEM, 2));
+                                moderateMovementDamage = true;
+                            } else {
+                                // HACK: we abuse the criticalslot item to
+                                // signify the calling function to deal
+                                // movement damage
+                                criticals.get(-1).add(new CriticalSlot(CriticalSlot.TYPE_SYSTEM, 1));
+                                minorMovementDamage = true;
+                            }
                         }
                     }
                 }
-                // failed a PSR, check for stalling
-                doCheckEngineStallRoll(vDesc);
             } else {
-                r.choose(true);
-                vDesc.addElement(r);
+                // Do the damage. Random critical on each leg, but MASC is not destroyed
+                for (int location = 0; location < locations(); location++) {
+                    if (locationIsLeg(location) && (getHittableCriticals(location) > 0)) {
+                        CriticalSlot slot;
+                        do {
+                            int slotIndex = Compute.randomInt(getNumberOfCriticals(location));
+                            slot = getCritical(location, slotIndex);
+                        } while ((slot == null) || !slot.isHittable());
+                        criticals.put(location, new LinkedList<>());
+                        criticals.get(location).add(slot);
+                    }
+                }
             }
-            return bFailure;
+            // failed a PSR, check for stalling
+            doCheckEngineStallRoll(reports);
         }
-        return false;
+
+        return success;
     }
 
     /**
