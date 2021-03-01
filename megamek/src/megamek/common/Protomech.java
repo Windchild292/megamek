@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import megamek.common.enums.ReportType;
 import megamek.common.preference.PreferenceManager;
 
 /**
@@ -1726,21 +1727,17 @@ public class Protomech extends Entity {
 
     @Override
     public Vector<Report> victoryReport() {
-        Vector<Report> vDesc = new Vector<Report>();
+        Vector<Report> vDesc = new Vector<>();
 
-        Report r = new Report(7025);
-        r.type = Report.PUBLIC;
+        Report r = new Report(7025, ReportType.PUBLIC);
         r.addDesc(this);
         vDesc.addElement(r);
 
-        r = new Report(7030);
-        r.type = Report.PUBLIC;
+        r = new Report(7030, ReportType.PUBLIC);
         r.newlines = 0;
         vDesc.addElement(r);
         vDesc.addAll(getCrew().getDescVector(true));
-        r = new Report(7070, Report.PUBLIC);
-        r.add(getKillNumber());
-        vDesc.addElement(r);
+        vDesc.addElement(new Report(7070, ReportType.PUBLIC, getKillNumber()));
 
         if (isDestroyed()) {
             Entity killer = game.getEntity(killerId);
@@ -1748,10 +1745,10 @@ public class Protomech extends Entity {
                 killer = game.getOutOfGameEntity(killerId);
             }
             if (killer != null) {
-                r = new Report(7072, Report.PUBLIC);
+                r = new Report(7072, ReportType.PUBLIC);
                 r.addDesc(killer);
             } else {
-                r = new Report(7073, Report.PUBLIC);
+                r = new Report(7073, ReportType.PUBLIC);
             }
             vDesc.addElement(r);
         }

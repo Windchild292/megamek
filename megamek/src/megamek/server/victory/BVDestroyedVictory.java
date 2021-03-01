@@ -19,6 +19,7 @@ import java.util.Map;
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.common.enums.ReportType;
 
 /**
  * implementation which will match when a certain percentage of all enemy BV is
@@ -54,7 +55,7 @@ public class BVDestroyedVictory extends AbstractBVVictory {
             eibv = getEnemyInitialBV(game, player);
 
             if (eibv != 0 && (ebv * 100) / eibv <= 100 - destroyedPercent) {
-                Report r = new Report(7105, Report.PUBLIC);
+                Report r = new Report(7105, ReportType.PUBLIC);
                 victory = true;
                 if (team == IPlayer.TEAM_NONE) {
                     r.add(player.getName());

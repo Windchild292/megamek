@@ -711,7 +711,7 @@ public class MissileWeaponHandler extends AmmoWeaponHandler {
             r.addDesc(entityTarget);
         } else {
             r.messageId = 3120;
-            r.add(target.getDisplayName(), true);
+            r.add(target.getDisplayName());
         }
         vPhaseReport.addElement(r);
         // check for nemesis

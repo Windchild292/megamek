@@ -511,7 +511,7 @@ public class CLIATMHandler extends ATMHandler {
                 r.addDesc(entityTarget);
             } else {
                 r.messageId = 3120;
-                r.add(target.getDisplayName(), true);
+                r.add(target.getDisplayName());
             }
             vPhaseReport.addElement(r);
             if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {
@@ -638,7 +638,7 @@ public class CLIATMHandler extends ATMHandler {
                 r.addDesc(entityTarget);
             } else {
                 r.messageId = 3120;
-                r.add(target.getDisplayName(), true);
+                r.add(target.getDisplayName());
             }
             vPhaseReport.addElement(r);
             // check for nemesis

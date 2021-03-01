@@ -93,7 +93,7 @@ public class LRMSwarmHandler extends LRMHandler {
             entityTarget.addTargetedBySwarm(ae.getId(), waa.getWeaponId());
         } else {
             r.messageId = 3120;
-            r.add(target.getDisplayName(), true);
+            r.add(target.getDisplayName());
         }
         vPhaseReport.addElement(r);
         if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {

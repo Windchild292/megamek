@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import megamek.MegaMek;
+import megamek.common.enums.ReportType;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.bayweapons.BayWeapon;
 import megamek.common.weapons.ppc.PPCWeapon;
@@ -2706,10 +2707,9 @@ public class Aero extends Entity implements IAero, IBomber {
 
     @Override
     public Vector<Report> victoryReport() {
-        Vector<Report> vDesc = new Vector<Report>();
+        Vector<Report> vDesc = new Vector<>();
 
-        Report r = new Report(7025);
-        r.type = Report.PUBLIC;
+        Report r = new Report(7025, ReportType.PUBLIC);
         r.addDesc(this);
         vDesc.addElement(r);
 
@@ -2721,13 +2721,11 @@ public class Aero extends Entity implements IAero, IBomber {
         } else {
             r = new Report(7030);
         }
-        r.type = Report.PUBLIC;
+        r.setType(ReportType.PUBLIC);
         r.newlines = 0;
         vDesc.addElement(r);
         vDesc.addAll(getCrew().getDescVector(false));
-        r = new Report(7070, Report.PUBLIC);
-        r.add(getKillNumber());
-        vDesc.addElement(r);
+        vDesc.addElement(new Report(7070, ReportType.PUBLIC, getKillNumber()));
 
         if (isDestroyed()) {
             Entity killer = game.getEntity(killerId);
@@ -2735,18 +2733,15 @@ public class Aero extends Entity implements IAero, IBomber {
                 killer = game.getOutOfGameEntity(killerId);
             }
             if (killer != null) {
-                r = new Report(7072, Report.PUBLIC);
+                r = new Report(7072, ReportType.PUBLIC);
                 r.addDesc(killer);
             } else {
-                if (this instanceof FighterSquadron) {
-                    r = new Report(7076, Report.PUBLIC);
-                } else {
-                    r = new Report(7073, Report.PUBLIC);
-                }
+                r = new Report((this instanceof FighterSquadron) ? 7076 : 7073, ReportType.PUBLIC);
+
             }
             vDesc.addElement(r);
         } else if (getCrew().isEjected()) {
-            r = new Report(7074, Report.PUBLIC);
+            r = new Report(7074, ReportType.PUBLIC);
             vDesc.addElement(r);
         }
         r.newlines = 2;

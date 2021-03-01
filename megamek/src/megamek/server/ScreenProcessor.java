@@ -23,6 +23,7 @@ import megamek.common.IGame;
 import megamek.common.IHex;
 import megamek.common.Report;
 import megamek.common.Terrains;
+import megamek.common.enums.ReportType;
 
 public class ScreenProcessor extends DynamicTerrainProcessor {
 
@@ -76,18 +77,14 @@ public class ScreenProcessor extends DynamicTerrainProcessor {
         debugTime("resolve screen 1", true);
 
         for (int currentXCoord = 0; currentXCoord < width; currentXCoord++ ) {
-
             for (int currentYCoord = 0; currentYCoord < height; currentYCoord++) {
                 Coords currentCoords = new Coords(currentXCoord, currentYCoord);
                 IHex currentHex = board.getHex(currentXCoord, currentYCoord);
 
                 // check for existence of screen
                 if (currentHex.containsTerrain(Terrains.SCREEN)){
-
-                    if(Compute.d6(2)>6) {
-                        Report r = new Report(9075, Report.PUBLIC);
-                        r.add(currentCoords.getBoardNum());
-                        vPhaseReport.addElement(r);
+                    if (Compute.d6(2) > 6) {
+                        vPhaseReport.addElement(new Report(9075, ReportType.PUBLIC, currentCoords.getBoardNum()));
 
                         currentHex.removeTerrain(Terrains.SCREEN);
                         server.getHexUpdateSet().add(currentCoords);
@@ -98,5 +95,4 @@ public class ScreenProcessor extends DynamicTerrainProcessor {
         }
         debugTime("resolve screen 1 end", true);
     }
-
 }

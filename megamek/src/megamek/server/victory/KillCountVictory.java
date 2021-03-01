@@ -23,6 +23,7 @@ import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Player;
 import megamek.common.Report;
+import megamek.common.enums.ReportType;
 
 /**
  * Implements a kill count victory condition.  Victory is achieved if a team (or
@@ -71,7 +72,7 @@ public class KillCountVictory implements IVictoryConditions, Serializable {
         }
         
         if (killCount >= killCondition){
-            Report r = new Report(7106, Report.PUBLIC);
+            Report r = new Report(7106, ReportType.PUBLIC);
             victory = true;
             if (teamHasHighestKills) {
                 r.add("Team " + highestKillsId);

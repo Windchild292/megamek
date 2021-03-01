@@ -16,6 +16,9 @@
 
 package megamek.common;
 
+import megamek.MegaMek;
+import megamek.common.enums.ReportType;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -454,21 +457,19 @@ public class Building implements Serializable {
         return basementCollapsed.get(coords);
     }
 
-    public void collapseBasement(Coords coords, IBoard board,
-            Vector<Report> vPhaseReport) {
+    public void collapseBasement(Coords coords, IBoard board, Vector<Report> vPhaseReport) {
         if ((basement.get(coords) == BasementType.NONE) || (basement.get(coords) == BasementType.ONE_DEEP_NORMALINFONLY)) {
-            System.err.println("hex has no basement to collapse");
+            MegaMek.getLogger().error("Hex has no basement to collapse");
+            return;
+        }  else if (basementCollapsed.get(coords)) {
+            MegaMek.getLogger().error("Hex has basement that already collapsed");
             return;
         }
-        if (basementCollapsed.get(coords)) {
-            System.err.println("hex has basement that already collapsed");
-            return;
-        }
-        Report r = new Report(2112, Report.PUBLIC);
+        Report r = new Report(2112, ReportType.PUBLIC);
         r.add(getName());
         r.add(coords.getBoardNum());
         vPhaseReport.add(r);
-        System.err.println("basement " + basement + "is collapsing, hex:"
+        MegaMek.getLogger().info("basement " + basement + "is collapsing, hex:"
                 + coords.toString() + " set terrain!");
         board.getHex(coords).addTerrain(Terrains.getTerrainFactory().createTerrain(
                 Terrains.BLDG_BASE_COLLAPSED, 1));
@@ -485,7 +486,7 @@ public class Building implements Serializable {
     public boolean rollBasement(Coords coords, IBoard board, Vector<Report> vPhaseReport) {
         if (basement.get(coords) == BasementType.UNKNOWN) {
             IHex hex = board.getHex(coords);
-            Report r = new Report(2111, Report.PUBLIC);
+            Report r = new Report(2111, ReportType.PUBLIC);
             r.add(getName());
             r.add(coords.getBoardNum());
             int basementRoll = Compute.d6(2);

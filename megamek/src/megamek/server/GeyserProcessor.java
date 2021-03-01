@@ -25,6 +25,7 @@ import megamek.common.IHex;
 import megamek.common.ITerrainFactory;
 import megamek.common.Report;
 import megamek.common.Terrains;
+import megamek.common.enums.ReportType;
 
 /**
  * This class allows for dynamic Geysers to be added to maps which will go off
@@ -47,7 +48,7 @@ public class GeyserProcessor extends DynamicTerrainProcessor {
     public void doEndPhaseChanges(Vector<Report> vPhaseReport) {
         // 1st time, find geysers on board
         if (geysers == null || server.getGame().getRoundCount() == 1) {
-            geysers = new Vector<GeyserInfo>();
+            geysers = new Vector<>();
             findGeysers();
         }
 
@@ -60,29 +61,22 @@ public class GeyserProcessor extends DynamicTerrainProcessor {
             } else {
                 IHex hex = server.getGame().getBoard().getHex(g.position);
                 if (hex.terrainLevel(Terrains.GEYSER) == 2) {
-                    r = new Report(5275, Report.PUBLIC);
-                    r.add(g.position.getBoardNum());
-                    vPhaseReport.add(r);
+                    vPhaseReport.add(new Report(5275, ReportType.PUBLIC, g.position.getBoardNum()));
                     hex.removeTerrain(Terrains.GEYSER);
                     hex.addTerrain(tf.createTerrain(Terrains.GEYSER, 1));
                     server.getHexUpdateSet().add(g.position);
                 } else if (Compute.d6() == 1) {
                     if (hex.terrainLevel(Terrains.GEYSER) == 3) {
-                        r = new Report(5285, Report.PUBLIC);
-                        r.add(g.position.getBoardNum());
-                        vPhaseReport.add(r);
+                        vPhaseReport.add(new Report(5285, ReportType.PUBLIC, g.position.getBoardNum()));
                         hex.removeAllTerrains();
                         hex.addTerrain(tf.createTerrain(Terrains.MAGMA, 2));
                         server.getHexUpdateSet().add(g.position);
                         gs.remove();
-                        for (Entity e : server.getGame().getEntitiesVector(
-                                g.position)) {
+                        for (Entity e : server.getGame().getEntitiesVector(g.position)) {
                             server.doMagmaDamage(e, true);
                         }
                     } else {
-                        r = new Report(5280, Report.PUBLIC);
-                        r.add(g.position.getBoardNum());
-                        vPhaseReport.add(r);
+                        vPhaseReport.add(new Report(5280, ReportType.PUBLIC, g.position.getBoardNum()));
                         hex.removeTerrain(Terrains.GEYSER);
                         hex.addTerrain(tf.createTerrain(Terrains.GEYSER, 2));
                         server.getHexUpdateSet().add(g.position);

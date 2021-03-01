@@ -2,15 +2,15 @@
  * MegaMek -
  * Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.server;
 
@@ -26,14 +26,13 @@ import megamek.common.ITerrain;
 import megamek.common.ITerrainFactory;
 import megamek.common.Report;
 import megamek.common.Terrains;
+import megamek.common.enums.ReportType;
 
 /**
- * This is for simulating the vertically moving walls in the Solaris 7
- * colloseum.
+ * This is for simulating the vertically moving walls in the Solaris 7 coliseum.
  */
 public class ElevatorProcessor extends DynamicTerrainProcessor {
-
-    private ElevatorInfo elevators[] = null;
+    private ElevatorInfo[] elevators = null;
 
     public ElevatorProcessor(Server server) {
         super(server);
@@ -54,12 +53,10 @@ public class ElevatorProcessor extends DynamicTerrainProcessor {
         if (elevators[roll].positions.size() == 0)
             return;
 
-        Report r = new Report(5290, Report.PUBLIC);
-        vPhaseReport.add(r);
+        vPhaseReport.add(new Report(5290, ReportType.PUBLIC));
 
         ITerrainFactory tf = Terrains.getTerrainFactory();
-        for (Iterator<Coords> i = elevators[roll].positions.iterator(); i
-                .hasNext();) {
+        for (Iterator<Coords> i = elevators[roll].positions.iterator(); i.hasNext();) {
             Coords c = i.next();
             IHex hex = server.getGame().getBoard().getHex(c);
             ITerrain terr = hex.getTerrain(Terrains.ELEVATOR);
@@ -71,8 +68,7 @@ public class ElevatorProcessor extends DynamicTerrainProcessor {
             int elevation = hex.getLevel();
             hex.setLevel(terr.getLevel());
             hex.removeTerrain(Terrains.ELEVATOR);
-            hex.addTerrain(tf.createTerrain(Terrains.ELEVATOR, elevation, true,
-                    terr.getExits()));
+            hex.addTerrain(tf.createTerrain(Terrains.ELEVATOR, elevation, true, terr.getExits()));
             server.getHexUpdateSet().add(c);
         }
     }
@@ -85,8 +81,7 @@ public class ElevatorProcessor extends DynamicTerrainProcessor {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 if (b.getHex(x, y).containsTerrain(Terrains.ELEVATOR)) {
-                    exits = b.getHex(x, y).getTerrain(Terrains.ELEVATOR)
-                            .getExits();
+                    exits = b.getHex(x, y).getTerrain(Terrains.ELEVATOR).getExits();
                     // add the elevator to each list it belongs in.
                     // exits are abused to hold which d6 roll(s) move this
                     // elevator
@@ -102,6 +97,6 @@ public class ElevatorProcessor extends DynamicTerrainProcessor {
     }
 
     private class ElevatorInfo {
-        ArrayList<Coords> positions = new ArrayList<Coords>();
+        ArrayList<Coords> positions = new ArrayList<>();
     }
 }

@@ -131,7 +131,7 @@ public class ArtilleryBayWeaponIndirectHomingHandler extends
             r.addDesc(entityTarget);
         } else {
             r.messageId = 3126;
-            r.add(target.getDisplayName(), true);
+            r.add(target.getDisplayName());
         }
         vPhaseReport.addElement(r);
         if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {

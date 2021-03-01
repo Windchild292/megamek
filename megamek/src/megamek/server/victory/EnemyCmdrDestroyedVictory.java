@@ -20,6 +20,7 @@ import java.util.Map;
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.common.enums.ReportType;
 
 /**
  * implements "enemy commander destroyed"
@@ -59,17 +60,15 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
             }
             // all enemy commanders are dead
             if (killedAll) {
+                Report r = new Report(7110, ReportType.PUBLIC);
                 if (team == IPlayer.TEAM_NONE) {
-                    Report r = new Report(7110, Report.PUBLIC);
                     r.add(player.getName());
                     vr.addPlayerScore(player.getId(), 1);
-                    vr.addReport(r);
                 } else {
-                    Report r = new Report(7110, Report.PUBLIC);
                     r.add("Team " + team);
                     vr.addTeamScore(team, 1);
-                    vr.addReport(r);
                 }
+                vr.addReport(r);
                 victory = true;
             }
         }

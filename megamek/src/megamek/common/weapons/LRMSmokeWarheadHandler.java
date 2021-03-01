@@ -23,6 +23,7 @@ import megamek.common.IGame;
 import megamek.common.Report;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.ReportType;
 import megamek.server.Server;
 import megamek.server.SmokeCloud;
 
@@ -65,8 +66,8 @@ public class LRMSmokeWarheadHandler extends LRMHandler {
 
         if (!bMissed) {
             Report r = new Report(3190);
-            r.subject = subjectId;
-            r.player = ae.getOwnerId();
+            r.setSubject(subjectId);
+            r.setPlayer(ae.getOwnerId());
             r.add(coords.getBoardNum());
             vPhaseReport.addElement(r);
         } else {
@@ -75,14 +76,12 @@ public class LRMSmokeWarheadHandler extends LRMHandler {
             if (game.getBoard().contains(coords)) {
                 // misses and scatters to another hex
                 Report r = new Report(3195);
-                r.subject = subjectId;
+                r.setSubject(subjectId);
                 r.add(coords.getBoardNum());
                 vPhaseReport.addElement(r);
             } else {
                 // misses and scatters off-board
-                Report r = new Report(3200);
-                r.subject = subjectId;
-                vPhaseReport.addElement(r);
+                vPhaseReport.addElement(new Report(3200, subjectId));
                 return !bMissed;
             }
         }

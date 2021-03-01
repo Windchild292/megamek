@@ -24,6 +24,7 @@ import megamek.common.ITerrainFactory;
 import megamek.common.PlanetaryConditions;
 import megamek.common.Report;
 import megamek.common.Terrains;
+import megamek.common.enums.ReportType;
 
 /**
  * Cycle through hexes on a map and make any necessary adjustments based on weather
@@ -141,16 +142,16 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
             }
         }
 
-        if(lightSnow) {
-            Report r = new Report(5505, Report.PUBLIC);
+        if (lightSnow) {
+            Report r = new Report(5505, ReportType.PUBLIC);
             vPhaseReport.addElement(r);
         }
-        if(deepSnow) {
-            Report r = new Report(5510, Report.PUBLIC);
+        if (deepSnow) {
+            Report r = new Report(5510, ReportType.PUBLIC);
             vPhaseReport.addElement(r);
         }
-        if(ice) {
-            Report r = new Report(5515, Report.PUBLIC);
+        if (ice) {
+            Report r = new Report(5515, ReportType.PUBLIC);
             vPhaseReport.addElement(r);
         }
 

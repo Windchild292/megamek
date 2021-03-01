@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import megamek.common.enums.ReportType;
 import megamek.common.util.CrewSkillSummaryUtil;
 
 /**
@@ -273,19 +274,15 @@ public class LAMPilot extends Crew {
         Vector<Report> vDesc = new Vector<>();
         Report r;
 
-        r = new Report();
-        r.type = Report.PUBLIC;
-        r.add(getName(0));
+        r = new Report(7045, ReportType.PUBLIC, getName(0));
         if (getSlotCount() > 1) {
             r.add(" (" + getCrewType().getRoleName(0) + ")");
         }
-        r.messageId = 7045;
         r.add(getGunneryMech() + "/" + getGunneryAero());
         r.add(getPilotingMech() + "/" + getPilotingAero());
 
         if (getHits(0) > 0 || isUnconscious(0) || isDead(0)) {
-            Report r2 = new Report();
-            r2.type = Report.PUBLIC;
+            Report r2 = new Report(ReportType.PUBLIC);
             if (getHits(0) > 0) {
                 r2.messageId = 7055;
                 r2.add(getHits(0));

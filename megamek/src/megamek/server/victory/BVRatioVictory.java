@@ -19,6 +19,7 @@ import java.util.Map;
 import megamek.common.IGame;
 import megamek.common.IPlayer;
 import megamek.common.Report;
+import megamek.common.enums.ReportType;
 
 /**
  * implements bv-ratio victory checking ratio is defined as
@@ -60,7 +61,7 @@ public class BVRatioVictory extends AbstractBVVictory {
             // eibv=getEnemyInitialBV(game,player);
 
             if (ebv == 0 || (100 * fbv) / ebv >= ratio) {
-                Report r = new Report(7100, Report.PUBLIC);
+                Report r = new Report(7100, ReportType.PUBLIC);
                 victory = true;
                 if (team == IPlayer.TEAM_NONE) {
                     r.add(player.getName());

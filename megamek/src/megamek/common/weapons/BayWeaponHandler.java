@@ -175,7 +175,7 @@ public class BayWeaponHandler extends WeaponHandler {
             r.addDesc(entityTarget);
         } else {
             r.messageId = 3120;
-            r.add(target.getDisplayName(), true);
+            r.add(target.getDisplayName());
         }
 
         vPhaseReport.addElement(r);
@@ -392,7 +392,7 @@ public class BayWeaponHandler extends WeaponHandler {
             r.addDesc(entityTarget);
         } else {
             r.messageId = 3120;
-            r.add(target.getDisplayName(), true);
+            r.add(target.getDisplayName());
         }
         vPhaseReport.addElement(r);
         
@@ -608,7 +608,7 @@ public class BayWeaponHandler extends WeaponHandler {
                                 r.addDesc(entityTarget);
                             } else {
                                 r.messageId = 3120;
-                                r.add(target.getDisplayName(), true);
+                                r.add(target.getDisplayName());
                             }
                             vPhaseReport.add(replaceReport, r);
                         }

@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import megamek.client.generator.RandomGenderGenerator;
 import megamek.common.enums.Gender;
+import megamek.common.enums.ReportType;
 import megamek.common.icons.AbstractIcon;
 import megamek.common.icons.Portrait;
 import megamek.common.options.IOption;
@@ -934,8 +935,7 @@ public class Crew implements Serializable {
             if (missing[i]) {
                 continue;
             }
-            r = new Report();
-            r.type = Report.PUBLIC;
+            r = new Report(ReportType.PUBLIC);
             r.add(name[i]);
             if (getSlotCount() > 1) {
                 r.add(" (" + crewType.getRoleName(i) + ")");
@@ -950,8 +950,7 @@ public class Crew implements Serializable {
             }
 
             if ((hits[i] > 0) || isUnconscious(i) || isDead(i)) {
-                Report r2 = new Report();
-                r2.type = Report.PUBLIC;
+                Report r2 = new Report(ReportType.PUBLIC);
                 if (hits[i] > 0) {
                     r2.messageId = 7055;
                     r2.add(hits[i]);

@@ -45,6 +45,7 @@ import megamek.common.TargetRoll;
 import megamek.common.Terrains;
 import megamek.common.ToHitData;
 import megamek.common.VTOL;
+import megamek.common.enums.ReportType;
 import megamek.server.Server;
 import megamek.server.Server.DamageType;
 
@@ -687,17 +688,13 @@ public class AreaEffectHelper {
     public static void doNuclearExplosion(Entity entity, Coords coords, int nukeType, Vector<Report> vPhaseReport, Server server) {
         NukeStats nukeStats = getNukeStats(nukeType);
                 
-        if(nukeStats == null) {
-            Report r = new Report(9998);
-            r.add(nukeType);
-            vPhaseReport.add(r);
+        if (nukeStats == null) {
+            vPhaseReport.add(new Report(9998, ReportType.HIDDEN, nukeType));
             return;
         }
         
-        Report r = new Report(1215, Report.PUBLIC);
-
+        Report r = new Report(1215, ReportType.PUBLIC, "offboard");
         r.indent();
-        r.add("offboard");
         vPhaseReport.add(r);
         
         // crater radius is crater depth x2 as per Server.doNuclearExplosion
@@ -705,7 +702,7 @@ public class AreaEffectHelper {
         int blastDistance = entity.getPosition().distance(coords);
         
         // if the entity is in the crater radius, bye
-        if(blastDistance < craterRadius) {
+        if (blastDistance < craterRadius) {
             vPhaseReport.addAll(server.destroyEntity(entity, "nuclear explosion proximity", false, false));
             // Kill the crew
             entity.getCrew().setDoomed(true);
@@ -715,7 +712,7 @@ public class AreaEffectHelper {
         
         // calculate the damage to the entity based on the range to the nuke
         int damageToEntity = nukeStats.baseDamage - (blastDistance * nukeStats.degradation);
-        if(damageToEntity < 0) {
+        if (damageToEntity < 0) {
             return;
         } else {
             applyExplosionClusterDamageToEntity(entity, damageToEntity, 5, coords, vPhaseReport, server);
@@ -725,7 +722,7 @@ public class AreaEffectHelper {
         // Apply secondary effects against the entity if it's within the secondary blast radius
         // Since the effects are unit-dependent, we'll just define it in the
         // entity. 
-        if(!entity.isDestroyed() && (blastDistance <= nukeStats.secondaryRadius)) {
+        if (!entity.isDestroyed() && (blastDistance <= nukeStats.secondaryRadius)) {
             server.applySecondaryNuclearEffects(entity, coords, vPhaseReport);
         }
         

@@ -1,15 +1,15 @@
-/**
+/*
  * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
  * 
- *  This program is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU General Public License as published by the Free 
- *  Software Foundation; either version 2 of the License, or (at your option) 
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  * 
- *  This program is distributed in the hope that it will be useful, but 
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common.weapons;
 
@@ -23,16 +23,13 @@ import megamek.common.IGame;
 import megamek.common.Report;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.ReportType;
 import megamek.server.Server;
 
 /**
  * @author Sebastian Brocks
  */
 public class LRMScatterableHandler extends MissileWeaponHandler {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = -3661776853552779877L;
 
     /**
@@ -64,20 +61,14 @@ public class LRMScatterableHandler extends MissileWeaponHandler {
                 || amType == AmmoType.M_THUNDER_AUGMENTED
                 || amType == AmmoType.M_THUNDER_INFERNO
                 || amType == AmmoType.M_THUNDER_VIBRABOMB;
-        int whoReport = Report.PUBLIC;
-        // only report to player if mine delivery
-        if (mineDelivery) {
-            whoReport = Report.HIDDEN;
-        }
+        ReportType whoReport = mineDelivery ? ReportType.HIDDEN : ReportType.PUBLIC;
         int density = atype.getRackSize();
         if (amType == AmmoType.M_THUNDER_AUGMENTED) {
             density = density / 2 + density % 2;
         }
         if (!bMissed) {
-            Report r = new Report(3190, whoReport);
-            r.subject = subjectId;
-            r.player = ae.getOwnerId();
-            r.add(coords.getBoardNum());
+            Report r = new Report(3190, subjectId, whoReport, coords.getBoardNum());
+            r.setPlayer(ae.getOwnerId());
             vPhaseReport.addElement(r);
         } else {
             // Per TacOps errata 3.4, thunder munitions scatter like artillery,
@@ -88,26 +79,21 @@ public class LRMScatterableHandler extends MissileWeaponHandler {
                 density -= 5;
                 // If density drops to 0 or less, we're done here.
                 if (density <= 0) {
-                    Report r = new Report(3198, whoReport);
-                    r.subject = subjectId;
-                    r.player = ae.getOwnerId();
+                    Report r = new Report(3198, subjectId, whoReport);
+                    r.setPlayer(ae.getOwnerId());
                     vPhaseReport.addElement(r);
                     return true;
                 }
             }
             if (game.getBoard().contains(coords)) {
                 // misses and scatters to another hex
-                int reportNr = mineDelivery ? 3197 : 3195;
-                Report r = new Report(reportNr, whoReport);
-                r.subject = subjectId;
-                r.player = ae.getOwnerId();
-                r.add(coords.getBoardNum());
+                Report r = new Report(mineDelivery ? 3197 : 3195, subjectId, whoReport, coords.getBoardNum());
+                r.setPlayer(ae.getOwnerId());
                 vPhaseReport.addElement(r);
             } else {
                 // misses and scatters off-board
-                Report r = new Report(3200);
-                r.subject = subjectId;
-                r.player = ae.getOwnerId();
+                Report r = new Report(3200, subjectId);
+                r.setPlayer(ae.getOwnerId());
                 vPhaseReport.addElement(r);
                 return true;
             }

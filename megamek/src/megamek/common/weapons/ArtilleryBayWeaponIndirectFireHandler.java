@@ -298,10 +298,10 @@ public class ArtilleryBayWeaponIndirectFireHandler extends AmmoBayWeaponHandler 
         if (wtype != null) {
             r.add(wtype.getName());
         } else {
-            r.add("Error: From Nowhwere");
+            r.add("Error: From Nowhere");
         }
 
-        r.add(target.getDisplayName(), true);
+        r.add(target.getDisplayName());
         vPhaseReport.addElement(r);
         if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {
             r = new Report(3135);

@@ -88,7 +88,7 @@ public class SRMInfernoHandler extends SRMHandler {
             r.addDesc(entityTarget);
         } else {
             r.messageId = 3120;
-            r.add(target.getDisplayName(), true);
+            r.add(target.getDisplayName());
         }
         vPhaseReport.addElement(r);
         if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {

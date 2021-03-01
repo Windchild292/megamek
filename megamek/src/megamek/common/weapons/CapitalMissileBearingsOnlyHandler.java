@@ -186,7 +186,7 @@ public class CapitalMissileBearingsOnlyHandler extends AmmoBayWeaponHandler {
         if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {
             r = new Report (3123);
             r.subject = subjectId;
-            r.add(" " + target.getPosition(), true);
+            r.add(" " + target.getPosition());
             vPhaseReport.addElement(r);
         } else {        
             r = new Report(3119);
@@ -361,7 +361,7 @@ public class CapitalMissileBearingsOnlyHandler extends AmmoBayWeaponHandler {
                                     r.addDesc(entityTarget);
                                 } else {
                                     r.messageId = 3120;
-                                    r.add(target.getDisplayName(), true);
+                                    r.add(target.getDisplayName());
                                 }
                                 vPhaseReport.add(replaceReport, r);
                             }

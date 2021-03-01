@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import megamek.MegaMek;
+import megamek.common.enums.ReportType;
 import megamek.common.options.OptionsConstants;
 import megamek.common.verifier.SupportVeeStructure;
 import megamek.common.verifier.TestEntity;
@@ -2146,21 +2147,17 @@ public class Tank extends Entity {
 
     @Override
     public Vector<Report> victoryReport() {
-        Vector<Report> vDesc = new Vector<Report>();
+        Vector<Report> vDesc = new Vector<>();
 
-        Report r = new Report(7025);
-        r.type = Report.PUBLIC;
+        Report r = new Report(7025, ReportType.PUBLIC);
         r.addDesc(this);
         vDesc.addElement(r);
 
-        r = new Report(7035);
-        r.type = Report.PUBLIC;
+        r = new Report(7035, ReportType.PUBLIC);
         r.newlines = 0;
         vDesc.addElement(r);
         vDesc.addAll(getCrew().getDescVector(false));
-        r = new Report(7070, Report.PUBLIC);
-        r.add(getKillNumber());
-        vDesc.addElement(r);
+        vDesc.addElement(new Report(7070, ReportType.PUBLIC, getKillNumber()));
 
         if (isDestroyed()) {
             Entity killer = game.getEntity(killerId);
@@ -2168,14 +2165,14 @@ public class Tank extends Entity {
                 killer = game.getOutOfGameEntity(killerId);
             }
             if (killer != null) {
-                r = new Report(7072, Report.PUBLIC);
+                r = new Report(7072, ReportType.PUBLIC);
                 r.addDesc(killer);
             } else {
-                r = new Report(7073, Report.PUBLIC);
+                r = new Report(7073, ReportType.PUBLIC);
             }
             vDesc.addElement(r);
         } else if (getCrew().isEjected()) {
-            r = new Report(7071, Report.PUBLIC);
+            r = new Report(7071, ReportType.PUBLIC);
             vDesc.addElement(r);
         }
         r.newlines = 2;

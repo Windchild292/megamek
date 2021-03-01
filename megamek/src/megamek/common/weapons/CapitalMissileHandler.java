@@ -97,7 +97,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
                 r.addDesc(entityTarget);
             } else {
                 r.messageId = 3120;
-                r.add(target.getDisplayName(), true);
+                r.add(target.getDisplayName());
             }
             vPhaseReport.addElement(r);
 
@@ -169,7 +169,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
         if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {
             r = new Report (3135);
             r.subject = subjectId;
-            r.add(" " + target.getPosition(), true);
+            r.add(" " + target.getPosition());
             vPhaseReport.addElement(r);
             return false;
         } else if (toHit.getValue() == TargetRoll.AUTOMATIC_FAIL) {

@@ -71,7 +71,7 @@ public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
         r.subject = subjectId;
         r.add(wtype.getName());
         r.messageId = 3120;
-        r.add(target.getDisplayName(), true);
+        r.add(target.getDisplayName());
         vPhaseReport.addElement(r);
         if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {
             r = new Report(3135);
