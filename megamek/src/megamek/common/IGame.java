@@ -154,38 +154,23 @@ public interface IGame {
     }
 
     // New accessors for external game id
-    abstract int getExternalGameId();
+    int getExternalGameId();
 
-    abstract void setExternalGameId(int value);
-
-    /**
-     * @return the currently active context-object for victorycondition
-     *         checking. This should be a mutable object and it will be modified
-     *         by the victory condition checkers. whoever saves the game state
-     *         when doing saves, is also responsible of saving this state. at
-     *         the start of the game this should be initialized to an empty
-     *         hashmap
-     */
-    abstract HashMap<String, Object> getVictoryContext();
-
-    /**
-     * set the game victory state.
-     */
-    abstract void setVictoryContext(HashMap<String, Object> ctx);
+    void setExternalGameId(int value);
 
     /**
      * Adds the specified game listener to receive board events from this Game.
      *
      * @param listener the game listener.
      */
-    abstract void addGameListener(GameListener listener);
+    void addGameListener(GameListener listener);
 
     /**
      * Removes the specified game listener.
      *
      * @param listener the game listener.
      */
-    abstract void removeGameListener(GameListener listener);
+    void removeGameListener(GameListener listener);
 
     /**
      * Returns all the GameListeners.
@@ -1460,8 +1445,6 @@ public interface IGame {
      * drift with wind. (called at end of turn)
      */
     abstract Vector<Report> ageFlares();
-
-    abstract boolean gameTimerIsExpired();
 
     /**
      * use victoryfactory to generate a new victorycondition checker provided

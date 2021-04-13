@@ -185,10 +185,12 @@ public class Game implements Serializable, IGame {
     }
 
     // Added public accessors for external game id
+    @Override
     public int getExternalGameId() {
         return externalGameId;
     }
 
+    @Override
     public void setExternalGameId(int value) {
         externalGameId = value;
     }
@@ -2805,6 +2807,7 @@ public class Game implements Serializable, IGame {
      *
      * @param victoryTeam New value of property victoryTeam.
      */
+    @Override
     public void setVictoryTeam(int victoryTeam) {
         this.victoryTeam = victoryTeam;
     }
@@ -2813,6 +2816,7 @@ public class Game implements Serializable, IGame {
      * Returns true if the specified player is either the victor, or is on the
      * winning team. Best to call during PHASE_VICTORY.
      */
+    @Override
     public boolean isPlayerVictor(IPlayer player) {
         if (player.getTeam() == IPlayer.TEAM_NONE) {
             return player.getId() == victoryPlayerId;
@@ -2820,17 +2824,10 @@ public class Game implements Serializable, IGame {
         return player.getTeam() == victoryTeam;
     }
 
-    public HashMap<String, Object> getVictoryContext() {
-        return victoryContext;
-    }
-
-    public void setVictoryContext(HashMap<String, Object> ctx) {
-        victoryContext = ctx;
-    }
-
     /**
      * Shortcut to isPlayerVictor(Player player)
      */
+    @Override
     public boolean isPlayerVictor(int playerId) {
         return isPlayerVictor(getPlayer(playerId));
     }
@@ -3099,6 +3096,7 @@ public class Game implements Serializable, IGame {
      *
      * @param listener the game listener.
      */
+    @Override
     public void addGameListener(GameListener listener) {
         // Since gameListeners is transient, it could be null
         if (gameListeners == null) {
@@ -3112,6 +3110,7 @@ public class Game implements Serializable, IGame {
      *
      * @param listener the game listener.
      */
+    @Override
     public void removeGameListener(GameListener listener) {
         // Since gameListeners is transient, it could be null
         if (gameListeners == null) {
@@ -3371,21 +3370,19 @@ public class Game implements Serializable, IGame {
         return reports;
     }
 
-    public boolean gameTimerIsExpired() {
-        return ((getOptions().booleanOption(OptionsConstants.VICTORY_USE_GAME_TURN_LIMIT)) && (getRoundCount() == getOptions()
-                .intOption(OptionsConstants.VICTORY_GAME_TURN_LIMIT)));
-    }
-
+    @Override
     public void createVictoryConditions() {
         victory = new Victory(getOptions());
     }
 
+    @Override
     public Victory getVictory() {
         return victory;
     }
 
     // a shortcut function for determining whether vectored movement is
     // applicable
+    @Override
     public boolean useVectorMove() {
         return getOptions().booleanOption(OptionsConstants.ADVAERORULES_ADVANCED_MOVEMENT)
                && board.inSpace();
@@ -3394,6 +3391,7 @@ public class Game implements Serializable, IGame {
     /**
      * Adds a pending Control roll to the list for this phase.
      */
+    @Override
     public void addControlRoll(PilotingRollData control) {
         controlRolls.addElement(control);
     }
@@ -3401,6 +3399,7 @@ public class Game implements Serializable, IGame {
     /**
      * Returns an Enumeration of pending Control rolls.
      */
+    @Override
     public Enumeration<PilotingRollData> getControlRolls() {
         return controlRolls.elements();
     }

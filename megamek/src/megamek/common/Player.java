@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Vector;
 
 import megamek.client.ui.swing.util.PlayerColour;
+import megamek.common.annotations.Nullable;
 import megamek.common.event.GamePlayerChangeEvent;
 import megamek.common.icons.Camouflage;
 import megamek.common.options.OptionsConstants;
@@ -209,6 +210,13 @@ public final class Player extends TurnOrdered implements IPlayer {
     }
 
     @Override
+    public @Nullable Team getTeamObject() {
+        // Temporary, this will be renamed to IPlayer::getTeam
+        // while IPlayer::getTeam is renamed to IPlayer::getTeamId
+        return game.getTeamForPlayer(this);
+    }
+
+    @Override
     public void setTeam(int team) {
         this.team = team;
     }
@@ -267,7 +275,7 @@ public final class Player extends TurnOrdered implements IPlayer {
             setSeeAll(false);
         }
         if (game != null && game.getTeamForPlayer(this) != null) {
-            game.getTeamForPlayer(this).cacheObversverStatus();
+            game.getTeamForPlayer(this).cacheObserverStatus();
         }
     }
 

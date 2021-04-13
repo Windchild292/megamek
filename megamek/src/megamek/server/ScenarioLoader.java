@@ -403,7 +403,6 @@ public class ScenarioLoader {
         // Read the external game id from the scenario file
         g.setExternalGameId(parseExternalGameId(p));
 
-        g.setVictoryContext(new HashMap<>());
         g.createVictoryConditions();
 
         return g;

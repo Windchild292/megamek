@@ -2597,7 +2597,6 @@ public class Server implements Runnable {
                 // transmit the board to everybody
                 send(createBoardPacket());
                 game.setupRoundDeployment();
-                game.setVictoryContext(new HashMap<>());
                 game.createVictoryConditions();
                 // some entities may need to be checked and updated
                 checkEntityExchange();
@@ -3275,7 +3274,7 @@ public class Server implements Runnable {
      * add some reports to reporting
      */
     public boolean victory() {
-        VictoryResult vr = game.getVictory().checkForVictory(game, game.getVictoryContext());
+        VictoryResult vr = game.getVictory().checkForVictory(game);
         for (Report r : vr.getReports()) {
             addReport(r);
         }
