@@ -204,7 +204,6 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
     private StartingPositionDialog startingPositionDialog;
     private PlayerListDialog playerListDialog;
     private RandomArmyDialog randomArmyDialog;
-    private RandomSkillDialog randomSkillDialog;
     private PlanetaryConditionsDialog conditionsDialog;
     /**
      * Save and Open dialogs for MegaMek Unit List (mul) files.
@@ -582,7 +581,6 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
         }
         mechSelectorDialog = new MegaMekUnitSelectorDialog(this, unitLoadingDialog);
         randomArmyDialog = new RandomArmyDialog(this);
-        randomSkillDialog = new RandomSkillDialog(this);
         new Thread(mechSelectorDialog, "Mech Selector Dialog").start();
         frame.setVisible(true);
     }
@@ -2272,10 +2270,6 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
 
     public RandomArmyDialog getRandomArmyDialog() {
         return randomArmyDialog;
-    }
-
-    public RandomSkillDialog getRandomSkillDialog() {
-        return randomSkillDialog;
     }
 
     public RandomNameDialog getRandomNameDialog() {

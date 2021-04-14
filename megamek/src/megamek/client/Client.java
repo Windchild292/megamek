@@ -3,17 +3,16 @@
  * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client;
 
 import java.awt.*;
@@ -28,13 +27,13 @@ import java.util.zip.GZIPInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-
 import com.thoughtworks.xstream.XStream;
 
 import megamek.MegaMek;
 import megamek.client.commands.*;
-import megamek.client.generator.RandomSkillsGenerator;
 import megamek.client.generator.RandomUnitGenerator;
+import megamek.client.generator.skillGenerators.AbstractSkillGenerator;
+import megamek.client.generator.skillGenerators.ModifiedConstantSkillGenerator;
 import megamek.client.ui.IClientCommandHandler;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.boardview.BoardView1;
@@ -71,7 +70,7 @@ import megamek.common.util.StringUtil;
 import megamek.server.SmokeCloud;
 
 /**
- * This class is instanciated for each client and for each bot running on that
+ * This class is instantiated for each client and for each bot running on that
  * client. non-local clients are not also instantiated on the local server.
  */
 public class Client implements IClientCommandHandler {
@@ -100,14 +99,14 @@ public class Client implements IClientCommandHandler {
     public String roundReport;
 
     // random generatorsI
-    private RandomSkillsGenerator rsg;
+    private AbstractSkillGenerator skillGenerator;
     // And close client events!
-    private Vector<CloseClientListener> closeClientListeners = new Vector<CloseClientListener>();
+    private Vector<CloseClientListener> closeClientListeners = new Vector<>();
 
     // we might want to keep a game log...
     private GameLog log;
 
-    private Set<BoardDimensions> availableSizes = new TreeSet<BoardDimensions>();
+    private Set<BoardDimensions> availableSizes = new TreeSet<>();
 
     private Vector<Coords> artilleryAutoHitHexes = null;
 
@@ -115,7 +114,7 @@ public class Client implements IClientCommandHandler {
 
     private final UnitNameTracker unitNameTracker = new UnitNameTracker();
 
-    public Map<String, Client> bots = new TreeMap<String, Client>(StringUtil.stringComparator());
+    public Map<String, Client> bots = new TreeMap<>(StringUtil.stringComparator());
 
     //Hashtable for storing image tags containing base64Text src
     private Hashtable<Integer, String> imgCache;
@@ -162,11 +161,7 @@ public class Client implements IClientCommandHandler {
             // Instead, if we will have the event dispatch thread handle it,
             // by using SwingUtilities.invokeLater
             // Not running this on the AWT EDT can lead to dead-lock
-            Runnable handlePacketEvent = new Runnable() {
-                public void run() {
-                    Client.this.disconnected();
-                }
-            };
+            Runnable handlePacketEvent = Client.this::disconnected;
             SwingUtilities.invokeLater(handlePacketEvent);
         }
 
@@ -180,11 +175,7 @@ public class Client implements IClientCommandHandler {
             // Client.handlePacket should play well with the AWT event queue,
             // but nothing appears to really be designed to be thread safe, so
             // this is a reasonable hack for now
-            Runnable handlePacketEvent = new Runnable() {
-                public void run() {
-                    handlePacket(e.getPacket());
-                }
-            };
+            Runnable handlePacketEvent = () -> handlePacket(e.getPacket());
             SwingUtilities.invokeLater(handlePacketEvent);
         }
 
@@ -225,7 +216,7 @@ public class Client implements IClientCommandHandler {
             commandsHash.put(direction.toLowerCase(), tileCommand);
         }
 
-        rsg = new RandomSkillsGenerator();
+        setSkillGenerator(new ModifiedConstantSkillGenerator());
     }
 
     public int getLocalPlayerNumber() {
@@ -1712,6 +1703,7 @@ public class Client implements IClientCommandHandler {
     /**
      * Returns the command associated with the specified name
      */
+    @Override
     public ClientCommand getCommand(String commandName) {
         return commandsHash.get(commandName);
     }
@@ -1721,12 +1713,17 @@ public class Client implements IClientCommandHandler {
      *
      * @see megamek.client.ui.IClientCommandHandler#getAllCommandNames()
      */
+    @Override
     public Enumeration<String> getAllCommandNames() {
         return commandsHash.keys();
     }
 
-    public RandomSkillsGenerator getRandomSkillsGenerator() {
-        return rsg;
+    public AbstractSkillGenerator getSkillGenerator() {
+        return skillGenerator;
+    }
+
+    public void setSkillGenerator(final AbstractSkillGenerator skillGenerator) {
+        this.skillGenerator = skillGenerator;
     }
 
     public Set<BoardDimensions> getAvailableMapSizes() {
