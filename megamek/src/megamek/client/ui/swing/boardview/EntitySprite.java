@@ -35,6 +35,7 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.EntityWreckHelper;
 import megamek.common.*;
+import megamek.common.enums.CardinalDirection;
 
 /**
  * Sprite for an entity. Changes whenever the entity changes. Consists of an
@@ -138,7 +139,7 @@ class EntitySprite extends Sprite {
         
         int face = (entity.isCommander() && !onlyDetectedBySensors()) ? 
                 Font.ITALIC : Font.PLAIN;
-        labelFont = new Font("SansSerif", face, (int)(10*Math.max(bv.scale,0.9))); //$NON-NLS-1$
+        labelFont = new Font("SansSerif", face, (int)(10*Math.max(bv.scale,0.9)));
         
         // Check the hexes in directions 2,5,1,4 if they are free of entities
         // and place the label in the direction of the first free hex
@@ -148,24 +149,24 @@ class EntitySprite extends Sprite {
                 bv.getFontMetrics(labelFont).getAscent()+2);
         
         Coords position = entity.getPosition();
-        if (bv.game.getEntitiesVector(position.translated("SE"), true).isEmpty()) {
-            labelRect.setLocation((int)(bv.hex_size.width*0.55), (int)(0.75*bv.hex_size.height));
+        if (bv.game.getEntitiesVector(position.translated(CardinalDirection.SOUTHEAST), true).isEmpty()) {
+            labelRect.setLocation((int) (bv.hex_size.width * 0.55), (int) (0.75 * bv.hex_size.height));
             labelPos = Positioning.RIGHT;
-        } else if (bv.game.getEntitiesVector(position.translated("NW"), true).isEmpty()) {
-            labelRect.setLocation((int)(bv.hex_size.width*0.45)-labelRect.width, 
-                    (int)(0.25*bv.hex_size.height)-labelRect.height);
+        } else if (bv.game.getEntitiesVector(position.translated(CardinalDirection.NORTHWEST), true).isEmpty()) {
+            labelRect.setLocation((int) (bv.hex_size.width * 0.45) - labelRect.width,
+                    (int) (0.25 * bv.hex_size.height) - labelRect.height);
             labelPos = Positioning.LEFT;
-        } else if (bv.game.getEntitiesVector(position.translated("NE"), true).isEmpty()) {
-            labelRect.setLocation((int)(bv.hex_size.width*0.55), 
-                    (int)(0.25*bv.hex_size.height)-labelRect.height);
+        } else if (bv.game.getEntitiesVector(position.translated(CardinalDirection.NORTHEAST), true).isEmpty()) {
+            labelRect.setLocation((int) (bv.hex_size.width * 0.55),
+                    (int) (0.25 * bv.hex_size.height) - labelRect.height);
             labelPos = Positioning.RIGHT;
-        } else if (bv.game.getEntitiesVector(position.translated("SW"), true).isEmpty()) {
-            labelRect.setLocation((int)(bv.hex_size.width*0.45)-labelRect.width, 
-                    (int)(0.75*bv.hex_size.height));
+        } else if (bv.game.getEntitiesVector(position.translated(CardinalDirection.SOUTHWEST), true).isEmpty()) {
+            labelRect.setLocation((int) (bv.hex_size.width * 0.45) - labelRect.width,
+                    (int) (0.75 * bv.hex_size.height));
             labelPos = Positioning.LEFT;
         } else {
-            labelRect.setLocation(bv.hex_size.width/2-labelRect.width/2, 
-                    (int)(0.75*bv.hex_size.height));
+            labelRect.setLocation(bv.hex_size.width / 2 - labelRect.width / 2,
+                    (int) (0.75 * bv.hex_size.height));
             labelPos = Positioning.RIGHT;
         } 
 

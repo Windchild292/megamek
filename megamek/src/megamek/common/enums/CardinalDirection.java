@@ -24,34 +24,43 @@ import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
 
-public enum WindDirection {
+/**
+ * This enum contains the six cardinal directions when working with hexes, plus a randomization value.
+ */
+public enum CardinalDirection {
     //region Enum Declarations
-    NORTH("WindDirection.NORTH.text", "WindDirection.NORTH.toolTipText"),
-    NORTHEAST("WindDirection.NORTHEAST.text", "WindDirection.NORTHEAST.toolTipText"),
-    SOUTHEAST("WindDirection.SOUTHEAST.text", "WindDirection.SOUTHEAST.toolTipText"),
-    SOUTH("WindDirection.SOUTH.text", "WindDirection.SOUTH.toolTipText"),
-    SOUTHWEST("WindDirection.SOUTHWEST.text", "WindDirection.SOUTHWEST.toolTipText"),
-    NORTHWEST("WindDirection.NORTHWEST.text", "WindDirection.NORTHWEST.toolTipText"),
-    RANDOMIZE("WindDirection.RANDOMIZE.text", "WindDirection.RANDOMIZE.toolTipText");
+    NORTH("CardinalDirection.NORTH.text", "CardinalDirection.NORTH.toolTipText", "CardinalDirection.NORTH.abbreviation"),
+    NORTHEAST("CardinalDirection.NORTHEAST.text", "CardinalDirection.NORTHEAST.toolTipText", "CardinalDirection.NORTHEAST.abbreviation"),
+    SOUTHEAST("CardinalDirection.SOUTHEAST.text", "CardinalDirection.SOUTHEAST.toolTipText", "CardinalDirection.SOUTHEAST.abbreviation"),
+    SOUTH("CardinalDirection.SOUTH.text", "CardinalDirection.SOUTH.toolTipText", "CardinalDirection.SOUTH.abbreviation"),
+    SOUTHWEST("CardinalDirection.SOUTHWEST.text", "CardinalDirection.SOUTHWEST.toolTipText", "CardinalDirection.SOUTHWEST.abbreviation"),
+    NORTHWEST("CardinalDirection.NORTHWEST.text", "CardinalDirection.NORTHWEST.toolTipText", "CardinalDirection.NORTHWEST.abbreviation"),
+    RANDOMIZE("CardinalDirection.RANDOMIZE.text", "CardinalDirection.RANDOMIZE.toolTipText", "CardinalDirection.RANDOMIZE.abbreviation");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
     private final String toolTipText;
+    private final String abbreviation;
 
     private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    WindDirection(final String name, final String toolTipText) {
+    CardinalDirection(final String name, final String toolTipText, final String abbreviation) {
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
+        this.abbreviation = resources.getString(abbreviation);
     }
     //endregion Constructors
 
     //region Getters
     public String getToolTipText() {
         return toolTipText;
+    }
+
+    public String getAbbreviation() {
+        return abbreviation;
     }
     //endregion Getters
 
@@ -86,19 +95,28 @@ public enum WindDirection {
     //endregion Boolean Comparisons
 
     /**
-     * @return an unbiased random wind direction, which will not be randomize
+     * @return an unbiased random direction, which will not be randomize
      */
-    public static WindDirection getRandomDirection() {
-        final WindDirection[] windDirections = values();
-        return windDirections[Compute.randomInt(windDirections.length - 1)];
+    public static CardinalDirection getRandomDirection() {
+        final CardinalDirection[] CardinalDirections = values();
+        return CardinalDirections[Compute.randomInt(CardinalDirections.length - 1)];
+    }
+
+    /**
+     * @param rotations positive to rotate clockwise, negative to rotate counterclockwise
+     * @return the rotated direction
+     */
+    public CardinalDirection rotate(final int rotations) {
+        final CardinalDirection[] CardinalDirections = values();
+        return CardinalDirections[(ordinal() + rotations) % (CardinalDirections.length - 1)];
     }
 
     //region File I/O
     /**
      * @param text the string to parse
-     * @return the WindDirection, or RANDOMIZE if there is an error in parsing
+     * @return the CardinalDirection, or RANDOMIZE if there is an error in parsing
      */
-    public static WindDirection parseFromString(final String text) {
+    public static CardinalDirection parseFromString(final String text) {
         try {
             return valueOf(text);
         } catch (Exception ignored) {
@@ -128,7 +146,30 @@ public enum WindDirection {
 
         }
 
-        MegaMek.getLogger().error("Unable to parse " + text + " into an WindDirection. Returning RANDOMIZE.");
+        try {
+            switch (text) {
+                case "N":
+                    return NORTH;
+                case "NE":
+                    return NORTHEAST;
+                case "SE":
+                    return SOUTHEAST;
+                case "S":
+                    return SOUTH;
+                case "SW":
+                    return SOUTHWEST;
+                case "NW":
+                    return NORTHWEST;
+                case "R":
+                    return RANDOMIZE;
+                default:
+                    break;
+            }
+        } catch (Exception ignored) {
+
+        }
+
+        MegaMek.getLogger().error("Unable to parse " + text + " into an CardinalDirection. Returning RANDOMIZE.");
 
         return RANDOMIZE;
     }

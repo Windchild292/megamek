@@ -210,7 +210,7 @@ public class TripodMech extends Mech {
         wmp = Math.max(wmp - getCargoMpReduction(this), 0);
         if (null != game) {
             int weatherMod = game.getPlanetaryConditions()
-                                 .getMovementMods(this);
+                                 .getMovementModifiers(this);
             if (weatherMod != 0) {
                 wmp = Math.max(wmp + weatherMod, 0);
             }

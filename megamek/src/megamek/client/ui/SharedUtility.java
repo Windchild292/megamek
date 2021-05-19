@@ -296,8 +296,6 @@ public class SharedUtility {
             rollTarget = entity.checkRubbleMove(step, overallMoveType, curHex,
                     lastPos, curPos, isLastStep, isPavementStep);
             checkNag(rollTarget, nagReport, psrList);
-            
-            
 
             int lightPenalty = entity.getGame().getPlanetaryConditions().getLight().getPilotingPenalty();
             if (lightPenalty > 0) {

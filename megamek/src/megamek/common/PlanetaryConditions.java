@@ -1,28 +1,35 @@
 /*
- * MegaMek -
  * Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
  * Copyright (C) 2018-2021 - The MegaMek Team. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.common;
 
+import megamek.MegaMek;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.AtmosphericPressure;
 import megamek.common.enums.Fog;
 import megamek.common.enums.Light;
 import megamek.common.enums.Weather;
 import megamek.common.enums.Wind;
-import megamek.common.enums.WindDirection;
+import megamek.common.enums.CardinalDirection;
+import megamek.utils.MegaMekXmlUtil;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import java.io.PrintWriter;
 import java.io.Serializable;
 
 /**
@@ -33,194 +40,199 @@ public class PlanetaryConditions implements Serializable {
     //region Variable Declarations
     private static final long serialVersionUID = 6838624193286089781L;
 
-    //set up the specific conditions
-    private Light light = Light.DAY;
-    private Weather weather = Weather.CLEAR;
-    private Weather oldWeather = Weather.CLEAR;
-    private Wind windStrength = Wind.CALM;
-    private WindDirection windDirection = WindDirection.RANDOMIZE;
-    private boolean shiftingWindDirection = false;
-    private boolean shiftingWindStrength = false;
-    private boolean isSleeting = false;
-    private AtmosphericPressure atmosphere = AtmosphericPressure.STANDARD;
-    private Fog fog = Fog.NONE;
-    private int temperature = 25;
-    private int oldTemperature = 25;
-    private float gravity = (float) 1.0;
-    private boolean emi = false;
-    private boolean terrainAffected = true; // Can weather alter the terrain (add snow, mud, etc.)
-    private Wind minimumWindStrength = Wind.CALM;
-    private Wind maximumWindStrength = Wind.TORNADO_F4;
+    // Atmosphere
+    private AtmosphericPressure atmosphere;
 
-    //misc
-    private boolean sandBlowing = false;
-    private boolean sandstorm = false;
-    private boolean runOnce = false;
+    // Gravity
+    private float gravity;
+
+    // Temperature
+    private double temperature;
+    private double oldTemperature;
+
+    // Light
+    private Light light;
+
+    // Wind
+    private Wind windStrength;
+    private boolean shiftingWindStrength;
+    private Wind minimumWindStrength;
+    private Wind maximumWindStrength;
+    private CardinalDirection windDirection;
+    private boolean shiftingWindDirection;
+
+    // Weather
+    private Weather weather;
+    private Weather oldWeather;
+    private boolean sleeting;
+    private boolean sandBlowing;
+    private boolean sandstorm;
+
+    // Fog
+    private Fog fog;
+
+    // Misc
+    private boolean emi; // Electro-Magnetic Interference
+    private boolean terrainAffected; // Can weather alter the terrain (add snow, mud, etc.)
+    private boolean runOnce;
     //endregion Variable Declarations
 
     //region Constructors
     public PlanetaryConditions() {
+        // Atmosphere
+        setAtmosphere(AtmosphericPressure.STANDARD);
 
+        // Gravity
+        setGravity(1.0f);
+
+        // Temperature
+        setTemperature(25.0);
+        setOldTemperature(25.0);
+
+        // Light
+        setLight(Light.DAY);
+
+        // Wind
+        setWindStrength(Wind.CALM);
+        setShiftingWindStrength(false);
+        setMinimumWindStrength(Wind.CALM);
+        setMaximumWindStrength(Wind.TORNADO_F4);
+        setWindDirection(CardinalDirection.RANDOMIZE);
+        setShiftingWindDirection(false);
+
+        // Weather
+        setWeather(Weather.CLEAR);
+        setOldWeather(Weather.CLEAR);
+        setSleeting(false);
+        setSandBlowing(false);
+        setSandstorm(false);
+
+        // Fog
+        setFog(Fog.NONE);
+
+        // Misc
+        setEMI(false);
+        setTerrainAffected(true);
+        setRunOnce(false);
     }
 
-    /** Creates new PlanetaryConditions that is a duplicate of another */
-    public PlanetaryConditions(PlanetaryConditions other) {
-        setLight(other.getLight());
-        setWeather(other.getWeather());
-        // OldWeather?
-        setWindStrength(other.getWindStrength());
-        setWindDirection(other.getWindDirection());
-        setShiftingWindDirection(other.shiftingWindDirection());
-        setShiftingWindStrength(other.shiftingWindStrength());
-        // isSleeting?
+    public PlanetaryConditions(final PlanetaryConditions other) {
+        // Atmosphere
         setAtmosphere(other.getAtmosphere());
-        setFog(other.getFog());
-        setTemperature(other.getTemperature());
-        // OldTemperature?
+
+        // Gravity
         setGravity(other.getGravity());
-        setEMI(other.hasEMI());
-        setTerrainAffected(other.isTerrainAffected());
+
+        // Temperature
+        setTemperature(other.getTemperature());
+        setOldTemperature(other.getOldTemperature());
+
+        // Light
+        setLight(other.getLight());
+
+        // Wind
+        setWindStrength(other.getWindStrength());
+        setShiftingWindStrength(other.isShiftingWindStrength());
         setMinimumWindStrength(other.getMinimumWindStrength());
         setMaximumWindStrength(other.getMaximumWindStrength());
+        setWindDirection(other.getWindDirection());
+        setShiftingWindDirection(other.isShiftingWindDirection());
+
+        // Weather
+        setWeather(other.getWeather());
+        setOldWeather(other.getOldWeather());
+        setSleeting(other.isSleeting());
         setSandBlowing(other.isSandBlowing());
-        // Sandstorm?
-        setRunOnce(other.getRunOnce());
+        setSandstorm(other.isSandstorm());
+
+        // Fog
+        setFog(other.getFog());
+
+        // Misc
+        setEMI(other.isEMI());
+        setTerrainAffected(other.isTerrainAffected());
+        setRunOnce(other.isRunOnce());
     }
     //endregion Constructors
 
     //region Getters/Setters
-    public Light getLight() {
-        return light;
-    }
-
-    public void setLight(Light light) {
-        this.light = light;
-    }
-
-    public Weather getWeather() {
-        return weather;
-    }
-
-    public void setWeather(Weather weather) {
-        this.weather = weather;
-    }
-
-    public Weather getOldWeather() {
-        return oldWeather;
-    }
-
-    public void setOldWeather(Weather oldWeather) {
-        this.oldWeather = oldWeather;
-    }
-
-    public Wind getWindStrength() {
-        return windStrength;
-    }
-
-    public void setWindStrength(Wind windStrength) {
-        this.windStrength = windStrength;
-    }
-
-    public WindDirection getWindDirection() {
-        return windDirection;
-    }
-
-    public void setWindDirection(WindDirection windDirection) {
-        this.windDirection = windDirection;
-    }
-
-    public boolean shiftingWindDirection() {
-        return shiftingWindDirection;
-    }
-
-    public void setShiftingWindDirection(boolean shiftingWindDirection) {
-        this.shiftingWindDirection = shiftingWindDirection;
-    }
-
-    public boolean shiftingWindStrength() {
-        return shiftingWindStrength;
-    }
-
-    public void setShiftingWindStrength(boolean shiftingWindStrength) {
-        this.shiftingWindStrength = shiftingWindStrength;
-    }
-
-    public boolean isSleeting() {
-        return isSleeting;
-    }
-
-    public void setIsSleeting(boolean isSleeting) {
-        this.isSleeting = isSleeting;
-    }
-
+    //region Atmosphere
     public AtmosphericPressure getAtmosphere() {
         return atmosphere;
     }
 
-    public void setAtmosphere(AtmosphericPressure atmosphere) {
+    public void setAtmosphere(final AtmosphericPressure atmosphere) {
         this.atmosphere = atmosphere;
     }
+    //endregion Atmosphere
 
-    public Fog getFog() {
-        return fog;
-    }
-
-    public void setFog(Fog fog) {
-        this.fog = fog;
-    }
-
-    public int getTemperature() {
-        return temperature;
-    }
-
-    public static String getTemperatureDisplayableName(final int temp) {
-        return isExtremeTemperature(temp)
-                ? String.format("%d (%s)", temp, Messages.getString((temp > 0)
-                        ? "ExtremeHeat.text" : "ExtremeCold.text"))
-                : String.valueOf(temp);
-    }
-
-    public void setTemperature(int temperature) {
-        this.temperature = temperature;
-    }
-
-    public int getOldTemperature() {
-        return oldTemperature;
-    }
-
-    public void setOldTemperature(int oldTemperature) {
-        this.oldTemperature = oldTemperature;
-    }
-
+    //region Gravity
     public float getGravity() {
         return gravity;
     }
 
-    public void setGravity(float gravity) {
+    public void setGravity(final float gravity) {
         this.gravity = gravity;
     }
+    //endregion Gravity
 
-    public boolean hasEMI() {
-        return emi;
+    //region Temperature
+    public double getTemperature() {
+        return temperature;
     }
 
-    public void setEMI(boolean emi) {
-        this.emi = emi;
+    public static String getTemperatureDisplayableName(final double temperature) {
+        return isExtremeTemperature(temperature)
+                ? String.format("%.1f (%s)", temperature, Messages.getString(
+                (temperature > 0) ? "ExtremeHeat.text" : "ExtremeCold.text"))
+                : String.valueOf(temperature);
     }
 
-    public boolean isTerrainAffected() {
-        return terrainAffected;
+    public void setTemperature(final double temperature) {
+        this.temperature = temperature;
     }
 
-    public void setTerrainAffected(boolean terrainAffected) {
-        this.terrainAffected = terrainAffected;
+    public double getOldTemperature() {
+        return oldTemperature;
+    }
+
+    public void setOldTemperature(final double oldTemperature) {
+        this.oldTemperature = oldTemperature;
+    }
+    //endregion Temperature
+
+    //region Light
+    public Light getLight() {
+        return light;
+    }
+
+    public void setLight(final Light light) {
+        this.light = light;
+    }
+    //endregion Light
+
+    //region Wind
+    public Wind getWindStrength() {
+        return windStrength;
+    }
+
+    public void setWindStrength(final Wind windStrength) {
+        this.windStrength = windStrength;
+    }
+
+    public boolean isShiftingWindStrength() {
+        return shiftingWindStrength;
+    }
+
+    public void setShiftingWindStrength(final boolean shiftingWindStrength) {
+        this.shiftingWindStrength = shiftingWindStrength;
     }
 
     public Wind getMinimumWindStrength() {
         return minimumWindStrength;
     }
 
-    public void setMinimumWindStrength(Wind minimumWindStrength) {
+    public void setMinimumWindStrength(final Wind minimumWindStrength) {
         this.minimumWindStrength = minimumWindStrength;
     }
 
@@ -228,23 +240,57 @@ public class PlanetaryConditions implements Serializable {
         return maximumWindStrength;
     }
 
-    public void setMaximumWindStrength(Wind maximumWindStrength) {
+    public void setMaximumWindStrength(final Wind maximumWindStrength) {
         this.maximumWindStrength = maximumWindStrength;
     }
 
-    public boolean getRunOnce() {
-        return runOnce;
+    public CardinalDirection getWindDirection() {
+        return windDirection;
     }
 
-    public void setRunOnce(boolean runOnce) {
-        this.runOnce = runOnce;
+    public void setWindDirection(final CardinalDirection windDirection) {
+        this.windDirection = windDirection;
+    }
+
+    public boolean isShiftingWindDirection() {
+        return shiftingWindDirection;
+    }
+
+    public void setShiftingWindDirection(final boolean shiftingWindDirection) {
+        this.shiftingWindDirection = shiftingWindDirection;
+    }
+    //endregion Wind
+
+    //region Weather
+    public Weather getWeather() {
+        return weather;
+    }
+
+    public void setWeather(final Weather weather) {
+        this.weather = weather;
+    }
+
+    public Weather getOldWeather() {
+        return oldWeather;
+    }
+
+    public void setOldWeather(final Weather oldWeather) {
+        this.oldWeather = oldWeather;
+    }
+
+    public boolean isSleeting() {
+        return sleeting;
+    }
+
+    public void setSleeting(final boolean sleeting) {
+        this.sleeting = sleeting;
     }
 
     public boolean isSandBlowing() {
         return sandBlowing;
     }
 
-    public void setSandBlowing(boolean sandBlowing) {
+    public void setSandBlowing(final boolean sandBlowing) {
         this.sandBlowing = sandBlowing;
     }
 
@@ -252,21 +298,59 @@ public class PlanetaryConditions implements Serializable {
         return sandstorm;
     }
 
+    @Deprecated
     public void setSandstorm() {
         if (isSandBlowing() && !getWindStrength().isModerateGaleOrStronger()) {
             setWindStrength(Wind.MODERATE_GALE);
-            setSandstormDirect(true);
+            setSandstorm(true);
         }
     }
 
-    private void setSandstormDirect(final boolean sandstorm) {
+    public void setSandstorm(final boolean sandstorm) {
         this.sandstorm = sandstorm;
     }
+    //endregion Weather
+
+    //region Fog
+    public Fog getFog() {
+        return fog;
+    }
+
+    public void setFog(final Fog fog) {
+        this.fog = fog;
+    }
+    //endregion Fog
+
+    //region Misc
+    public boolean isEMI() {
+        return emi;
+    }
+
+    public void setEMI(final boolean emi) {
+        this.emi = emi;
+    }
+
+    public boolean isTerrainAffected() {
+        return terrainAffected;
+    }
+
+    public void setTerrainAffected(final boolean terrainAffected) {
+        this.terrainAffected = terrainAffected;
+    }
+
+    public boolean isRunOnce() {
+        return runOnce;
+    }
+
+    public void setRunOnce(final boolean runOnce) {
+        this.runOnce = runOnce;
+    }
+    //endregion Misc
     //endregion Getters/Setters
 
     //region Boolean Comparison Methods
-    public static boolean isExtremeTemperature(int temperature) {
-        return (temperature > 50) || (temperature < -30);
+    public static boolean isExtremeTemperature(final double temperature) {
+        return (temperature > 50.0) || (temperature < -30.0);
     }
 
     public boolean isExtremeTemperature() {
@@ -274,47 +358,51 @@ public class PlanetaryConditions implements Serializable {
     }
     //endregion Boolean Comparison Methods
 
-    @Override
-    public Object clone() {
-        return new PlanetaryConditions(this);
-    }
-
     /**
      * gravity penalties to PSRs
      * According to email from TPTB, you apply a penalty for every 0.5 gravities above or below 1 (rounding up)
      */
     public int getGravityPilotingPenalty() {
-        return (int) Math.floor(Math.abs(gravity - 1.0) / 0.5);
+        return (int) Math.floor(Math.abs(getGravity() - 1.0) / 0.5);
     }
 
     public void determineWind() {
         if (getWindDirection().isRandomize()) {
             // Initial wind direction. If using level 2 rules, this
             // will be the wind direction for the whole battle.
-            windDirection = Compute.d6(1) - 1;
-        } else if (shiftingWindDirection()) {
+            setWindDirection(CardinalDirection.getRandomDirection());
+        } else if (isShiftingWindDirection()) {
             // Wind direction changes on a roll of 1 or 6
             switch (Compute.d6()) {
                 case 1: // rotate clockwise
-                    windDirection = (windDirection + 1) % 6;
+                    setWindDirection(getWindDirection().rotate(1));
                     break;
                 case 6: // rotate counter-clockwise
-                    windDirection = (windDirection + 5) % 6;
+                    setWindDirection(getWindDirection().rotate(-1));
+                    break;
+                default:
+                    break;
             }
         }
 
-        if (shiftingWindStrength()) {
+        if (isShiftingWindStrength()) {
             // Wind strength changes on a roll of 1 or 6
             switch (Compute.d6()) {
                 case 1: // weaker
-                    windStrength = Math.max(minWindStrength, --windStrength);
-                    doSleetCheck();
-                    doSandStormCheck();
+                    if (getWindStrength().ordinal() > getMinimumWindStrength().ordinal()) {
+                        setWindStrength(Wind.values()[getWindStrength().ordinal() - 1]);
+                        doSleetCheck();
+                        doSandstormCheck();
+                    }
                     break;
                 case 6: // stronger
-                    windStrength = Math.min(maxWindStrength, ++windStrength);
-                    doSleetCheck();
-                    doSandStormCheck();
+                    if (getWindStrength().ordinal() < getMaximumWindStrength().ordinal()) {
+                        setWindStrength(Wind.values()[getWindStrength().ordinal() + 1]);
+                        doSleetCheck();
+                        doSandstormCheck();
+                    }
+                    break;
+                default:
                     break;
             }
         }
@@ -328,116 +416,54 @@ public class PlanetaryConditions implements Serializable {
     }
 
     /**
-     * modifiers for fire ignition
+     * The total planetary condition modifier for fire ignition
      */
-    public int getIgniteModifiers() {
-        int mod;
+    public int getIgnitionModifier() {
+        int modifier = getWeather().getIgnitionModifier() + getWindStrength().getIgnitionModifier();
 
-        switch (getWeather()) {
-            case LIGHT_RAIN:
-            case MODERATE_RAIN:
-                mod = 1;
-                break;
-            case HEAVY_RAIN:
-            case DOWNPOUR:
-            case LIGHT_SNOW:
-            case MODERATE_SNOW:
-            case GUSTING_RAIN:
-            case SNOW_FLURRIES:
-                mod = 2;
-                break;
-            case HEAVY_SNOW:
-            case BLIZZARD:
-            case LIGHT_HAIL:
-            case HEAVY_HAIL:
-                mod = 3;
-                break;
-            default:
-                mod = 0;
-                break;
+        if (getTemperature() > 30.0) {
+            modifier -= getTemperatureDifference(30.0,-30.0);
+        } else if (getTemperature() < 30.0) {
+            modifier += getTemperatureDifference(30.0, -30.0);
         }
 
-        if (getWindStrength().isLightGale() || getWindStrength().isModerateGale()) {
-            mod += 2;
-        }
-
-        if (getWindStrength().isStrongGale() || getWindStrength().isStorm() || getWeather().isIceStorm()) {
-            mod += 4;
-        }
-
-        if (getTemperature() > 30) {
-            mod -= getTemperatureDifference(30,-30);
-        } else if (getTemperature() < 30) {
-            mod += getTemperatureDifference(30, -30);
-        }
-
-        return mod;
+        return modifier;
     }
 
     /**
      * Do a roll for these weather conditions putting out fire
-     * return boolean
+     * @return true if the fire is put out, otherwise false
      */
-    public boolean putOutFire() {
-        int roll = Compute.d6(2);
-        switch (getWeather()) {
-            case LIGHT_HAIL:
-            case LIGHT_RAIN:
-            case LIGHT_SNOW:
-                roll = roll + 1;
-                break;
-            case HEAVY_HAIL:
-            case MODERATE_RAIN:
-            case MODERATE_SNOW:
-            case SNOW_FLURRIES:
-                roll = roll + 2;
-                break;
-            case HEAVY_RAIN:
-            case GUSTING_RAIN:
-            case HEAVY_SNOW:
-            case BLIZZARD:
-                roll = roll + 3;
-                break;
-            case DOWNPOUR:
-                roll = roll + 4;
-                break;
-            default:
-                roll = -1;
-                break;
-        }
-
-        return roll > 10;
+    public boolean extinguishFire() {
+        return (Compute.d6(2) + getWeather().getExtinguishModifier()) > 10;
     }
 
     /**
      * Returns how much higher or lower than a given range, divided by
      * ten, rounded up, the temperature is
      */
-
-    public int getTemperatureDifference(int high, int low) {
+    public int getTemperatureDifference(double high, double low) {
         int i = 0;
-        //if the low is more than the high, reverse
+        // if the low is more than the high, reverse
         if (low > high) {
-            int tempLow = low;
+            var temp = low;
             low = high;
-            high = tempLow;
-
+            high = temp;
         }
 
         if (getTemperature() < low) {
             do {
                 i++;
-            } while ((getTemperature() + (i * 10)) < low);
+            } while ((getTemperature() + (i * 10.0)) < low);
         } else if (!((getTemperature() >= low) && (getTemperature() <= high))) {
             do {
                 i++;
-            } while ((getTemperature() - (i * 10)) > high);
+            } while ((getTemperature() - (i * 10.0)) > high);
         }
         return i;
     }
 
     /**
-     *
      * @return a <code>String</code> with the reason why you cannot start a fire here
      */
     public String cannotStartFire() {
@@ -452,10 +478,10 @@ public class PlanetaryConditions implements Serializable {
 
     /**
      * Planetary conditions on movement, except for gravity
-     * @param en - the entity in question
+     * @param entity - the entity in question
      * @return an <code>int</code> with the modifier to movement
      */
-    public int getMovementMods(Entity en) {
+    public int getMovementModifiers(final Entity entity) {
         int mod = 0;
 
         // weather mods are calculated based on conditional effects ie extreme temperatures, wind
@@ -463,27 +489,27 @@ public class PlanetaryConditions implements Serializable {
         // wind mods
         switch (getWindStrength()) {
             case LIGHT_GALE:
-                if (!(en instanceof BattleArmor)
-                        && ((en.getMovementMode() == EntityMovementMode.INF_LEG)
-                        || (en.getMovementMode() == EntityMovementMode.INF_JUMP))) {
+                if (!(entity instanceof BattleArmor)
+                        && ((entity.getMovementMode() == EntityMovementMode.INF_LEG)
+                        || (entity.getMovementMode() == EntityMovementMode.INF_JUMP))) {
                     mod -= 1;
                 }
                 break;
             case MODERATE_GALE:
-                if (en.isConventionalInfantry()) {
+                if (entity.isConventionalInfantry()) {
                     mod -= 1;
                 }
                 break;
             case STRONG_GALE:
             case STORM:
-                if (en instanceof BattleArmor) {
+                if (entity instanceof BattleArmor) {
                     mod -= 1;
-                } else if (en instanceof Infantry) {
+                } else if (entity instanceof Infantry) {
                     mod -= 2;
                 }
                 break;
             case TORNADO_F13:
-                mod -= en.isAirborne() ? 1 : 2;
+                mod -= entity.isAirborne() ? 1 : 2;
                 break;
             default:
                 break;
@@ -492,17 +518,17 @@ public class PlanetaryConditions implements Serializable {
         // atmospheric pressure mods
         switch (getAtmosphere()) {
             case THIN:
-                if ((en.getMovementMode() == EntityMovementMode.HOVER)
-                        || (en.getMovementMode() == EntityMovementMode.WIGE)
-                        || (en.getMovementMode() == EntityMovementMode.VTOL)) {
+                if ((entity.getMovementMode() == EntityMovementMode.HOVER)
+                        || (entity.getMovementMode() == EntityMovementMode.WIGE)
+                        || (entity.getMovementMode() == EntityMovementMode.VTOL)) {
                     mod -= 2;
                 }
                 break;
             case HIGH:
             case VERY_HIGH:
-                if ((en.getMovementMode() == EntityMovementMode.HOVER)
-                        || (en.getMovementMode() == EntityMovementMode.WIGE)
-                        || (en.getMovementMode() == EntityMovementMode.VTOL)) {
+                if ((entity.getMovementMode() == EntityMovementMode.HOVER)
+                        || (entity.getMovementMode() == EntityMovementMode.WIGE)
+                        || (entity.getMovementMode() == EntityMovementMode.VTOL)) {
                     mod += 1;
                 }
                 break;
@@ -511,8 +537,8 @@ public class PlanetaryConditions implements Serializable {
         }
 
         // temperature difference
-        if ((en instanceof Tank) || ((en instanceof Infantry) && !((Infantry) en).isXCT())
-                || (en instanceof Protomech)) {
+        if ((entity instanceof Tank) || ((entity instanceof Infantry) && !((Infantry) entity).isXCT())
+                || (entity instanceof Protomech)) {
             mod -= Math.abs(getTemperatureDifference(50, -30));
         }
 
@@ -545,46 +571,43 @@ public class PlanetaryConditions implements Serializable {
 
     /**
      * visual range based on conditions
-     *
      */
-    public int getVisualRange(Entity en, boolean targetIlluminated) {
-
-        boolean Spotlight = false;
-
-        boolean isMechVee = false;
+    public int getVisualRange(Entity entity, boolean targetIlluminated) {
+        boolean Spotlight;
+        boolean isMechVee;
         boolean isLargeCraft = false;
         boolean isAero = false;
 
-        //Needed for MekWars for Maximum Visual Range.
-        if ( en == null ) {
+        // Needed for MekWars for Maximum Visual Range.
+        if (entity == null) {
             isMechVee = true;
             Spotlight = targetIlluminated;
-        }else {
-            Spotlight = en.isUsingSearchlight();
-            isMechVee = (en instanceof Mech && !en.isAero()) || (en instanceof Tank);
-            isLargeCraft = (en instanceof Dropship) || (en instanceof Jumpship);
-            isAero = (en.isAero()) && !isLargeCraft;
+        } else {
+            Spotlight = entity.isUsingSearchlight();
+            isMechVee = ((entity instanceof Mech) && !entity.isAero()) || (entity instanceof Tank);
+            isLargeCraft = (entity instanceof Dropship) || (entity instanceof Jumpship);
+            isAero = entity.isAero() && !isLargeCraft;
         }
-        //anything else is infantry
+        // Anything else is infantry
 
-        //Beyond altitude 9, Aeros can't see. No need to repeat this test.
-        if (isAero && (en.getAltitude() > 9)) {
+        // Beyond altitude 9, Aeros can't see. No need to repeat this test.
+        if (isAero && (entity.getAltitude() > 9)) {
             return 0;
         }
 
-        //New rulings per v3.02 errata. Spotlights are easier, yay!
-        //Illuminated?  Flat 45 hex distance
+        // New rulings per v3.02 errata. Spotlights are easier, yay!
+        // Illuminated? Flat 45 hex distance
         if (targetIlluminated && !getLight().isDay()) {
             return 45;
         } else if (Spotlight && !getLight().isDay()) {
-            //Using a searchlight?  Flat 30 hex range
+            //Using a searchlight? Flat 30 hex range
             if (isMechVee || isAero || isLargeCraft) {
                 return 30;
             }
-            //Except infantry/handheld, 10 hexes
+            // Except infantry/handheld, 10 hexes
             return 10;
         } else if (getLight().isPitchBlack()) {
-            if (isMechVee || (isAero && (en.getAltitude() < 2))) {
+            if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 3;
             } else if (isAero) {
                 return 5;
@@ -594,7 +617,7 @@ public class PlanetaryConditions implements Serializable {
                 return 1;
             }
         } else if (getLight().isMoonless() || getFog().isHeavy()) {
-            if (isMechVee || (isAero && (en.getAltitude() < 2))) {
+            if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 5;
             } else if (isAero) {
                 return 10;
@@ -603,15 +626,11 @@ public class PlanetaryConditions implements Serializable {
             } else {
                 return 2;
             }
-        } else if ((weatherConditions == WE_HEAVY_HAIL)
-                || (weatherConditions == WE_SLEET)
-                || (weatherConditions == WE_HEAVY_SNOW)
-                || (blowingSand && getWindStrength().isModerateGaleOrStronger())
-                || (lightConditions == L_FULL_MOON)
-                || (weatherConditions == WE_GUSTING_RAIN)
-                || (weatherConditions == WE_ICE_STORM)
-                || (weatherConditions == WE_DOWNPOUR)) {
-            if (isMechVee || (isAero && (en.getAltitude() < 2))) {
+        } else if (getWeather().isHeavyHail() || getWeather().isSleet() || getWeather().isHeavySnow()
+                || (isSandBlowing() && getWindStrength().isModerateGaleOrStronger())
+                || getLight().isFullMoon() || getWeather().isGustingRain() || getWeather().isIceStorm()
+                || getWeather().isDownpour()) {
+            if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 10;
             } else if (isAero) {
                 return 20;
@@ -622,7 +641,7 @@ public class PlanetaryConditions implements Serializable {
             }
         } else if (getLight().isDusk() || getWeather().isHeavyRain() || getWeather().isSnowFlurries()
                 || (getWeather().isModerateSnow() && getWindStrength().isModerateGaleOrStronger())) {
-            if (isMechVee || (isAero && (en.getAltitude() < 2))) {
+            if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 15;
             } else if (isAero) {
                 return 30;
@@ -632,7 +651,7 @@ public class PlanetaryConditions implements Serializable {
                 return 8;
             }
         } else if (getWeather().isModerateSnow() || getWeather().isModerateRain()) {
-            if (isMechVee || (isAero && (en.getAltitude() < 2))) {
+            if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 20;
             } else if (isAero) {
                 return 50;
@@ -641,12 +660,9 @@ public class PlanetaryConditions implements Serializable {
             } else {
                 return 10;
             }
-        } else if ((lightConditions > L_DAY)
-                || (weatherConditions == WE_LIGHT_SNOW)
-                || (weatherConditions == WE_LIGHT_RAIN)
-                || (weatherConditions == WE_LIGHT_HAIL)
-                || (fog == FOG_LIGHT)) {
-            if (isMechVee || (isAero && (en.getAltitude() < 2))) {
+        } else if (!getLight().isDay() || getWeather().isLightSnow() || getWeather().isLightRain()
+                || getWeather().isLightHail() || getFog().isLight()) {
+            if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 30;
             } else if (isAero) {
                 return 60;
@@ -656,7 +672,7 @@ public class PlanetaryConditions implements Serializable {
                 return 15;
             }
         } else {
-            if (isMechVee || (isAero && (en.getAltitude() < 2))) {
+            if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 60;
             } else if (isAero) {
                 return 120;
@@ -688,7 +704,7 @@ public class PlanetaryConditions implements Serializable {
         return !getFog().isNone() || getLight().isNight();
     }
 
-    public void alterConditions(PlanetaryConditions conditions) {
+    public void alterConditions(final PlanetaryConditions conditions) {
         lightConditions = conditions.lightConditions;
         weatherConditions = conditions.weatherConditions;
         windStrength = conditions.windStrength;
@@ -706,51 +722,54 @@ public class PlanetaryConditions implements Serializable {
         blowingSand = conditions.blowingSand;
         runOnce = conditions.runOnce;
 
-        if (!runOnce) {
-            setTempFromWeather();
+        if (!isRunOnce()) {
+            setTemperatureFromWeather();
             setWindFromWeather();
-            setSandStorm();
-            runOnce = true;
+            setSandstorm();
+            setRunOnce(true);
         }
-
     }
 
-    private void setTempFromWeather() {
-        switch (weatherConditions) {
-            case WE_SLEET:
-            case WE_LIGHT_SNOW:
-                temperature = -40;
+    private void setTemperatureFromWeather() {
+        switch (getWeather()) {
+            case SLEET:
+            case LIGHT_SNOW:
+                setTemperature(-40.0);
                 break;
-            case WE_MOD_SNOW:
-            case WE_SNOW_FLURRIES:
-            case WE_HEAVY_SNOW:
-                temperature = -50;
+            case MODERATE_SNOW:
+            case SNOW_FLURRIES:
+            case HEAVY_SNOW:
+                setTemperature(-50.0);
                 break;
-            case WE_ICE_STORM:
-                temperature = -60;
+            case ICE_STORM:
+                setTemperature(-60.0);
+                break;
+            default:
                 break;
         }
     }
 
     private void setWindFromWeather() {
-        switch (weatherConditions) {
-            case WE_SLEET:
-                setSleet(true);
+        switch (getWeather()) {
+            case SLEET:
+                setSleeting(true);
                 break;
-            case WE_ICE_STORM:
-            case WE_SNOW_FLURRIES:
-                windStrength = WI_MOD_GALE;
-                shiftWindStrength = false;
+            case ICE_STORM:
+            case SNOW_FLURRIES:
+                setWindStrength(Wind.MODERATE_GALE);
+                setShiftingWindStrength(false);
                 break;
-            case WE_GUSTING_RAIN:
-                windStrength = WI_STRONG_GALE;
-                shiftWindStrength = false;
+            case GUSTING_RAIN:
+                setWindStrength(Wind.STRONG_GALE);
+                setShiftingWindStrength(false);
+                break;
+            default:
                 break;
         }
     }
 
     private void doSleetCheck() {
-        if (isSleeting && windStrength < WI_MOD_GALE) {
+        if (sleeting && windStrength < WI_MOD_GALE) {
             setSleet(false);
             weatherConditions = WE_NONE;
             oldWeatherConditions = WE_SLEET;
@@ -761,9 +780,7 @@ public class PlanetaryConditions implements Serializable {
             shiftWindStrength = false;
             windStrength = WI_MOD_GALE;
         }
-        if ((oldWeatherConditions == WE_SLEET)
-                && (windStrength == WI_MOD_GALE)
-                && !isSleeting() ) {
+        if ((oldWeatherConditions == WE_SLEET) && (windStrength == WI_MOD_GALE) && !isSleeting()) {
             setSleet(true);
             temperature = oldTemperature;
             oldWeatherConditions = WE_NONE;
@@ -772,7 +789,7 @@ public class PlanetaryConditions implements Serializable {
         }
     }
 
-    private void doSandStormCheck() {
+    private void doSandstormCheck() {
         if (blowingSand && windStrength < WI_MOD_GALE) {
             sandStorm = blowingSand;
             blowingSand = false;
@@ -781,5 +798,166 @@ public class PlanetaryConditions implements Serializable {
             sandStorm = blowingSand;
             blowingSand = true;
         }
+    }
+
+    //region File I/O
+    public void writeToXML(final PrintWriter pw, int indent) {
+        MegaMekXmlUtil.writeSimpleXMLOpenIndentedLine(pw, indent++, "planetaryConditions");
+        //region Atmosphere
+        if (!getAtmosphere().isStandard()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "atmosphere", getAtmosphere().name());
+        }
+        //endregion Atmosphere
+
+        //region Gravity
+        if (getGravity() != 1.0f) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "gravity", getGravity());
+        }
+        //endregion Gravity
+
+        //region Temperature
+        MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "temperature", getTemperature());
+        if (getOldTemperature() != getTemperature()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "oldTemperature", getOldTemperature());
+        }
+        //endregion Temperature
+
+        //region Light
+        if (!getLight().isDay()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "light", getLight().name());
+        }
+        //endregion Light
+
+        //region Wind
+        if (!getWindStrength().isCalm()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "windStrength", getWindStrength().name());
+        }
+
+        if (isShiftingWindStrength()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "windDirection", isShiftingWindStrength());
+        }
+
+        if (!getMinimumWindStrength().isCalm()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "minimumWindStrength", getMinimumWindStrength().name());
+        }
+
+        if (!getMaximumWindStrength().isTornadoF4()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "maximumWindStrength", getMaximumWindStrength().name());
+        }
+
+        if (!getWindDirection().isRandomize()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "windDirection", getWindDirection().name());
+        }
+
+        if (isShiftingWindDirection()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "shiftingWindDirection", isShiftingWindDirection());
+        }
+        //endregion Wind
+
+        //region Fog
+        if (!getFog().isNone()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "fog", getFog().name());
+        }
+        //endregion Fog
+
+        //region Misc
+        if (isEMI()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "emi", isEMI());
+        }
+
+        if (!isTerrainAffected()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "terrainAffected", isTerrainAffected());
+        }
+
+        if (isRunOnce()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "runOnce", isRunOnce());
+        }
+        //endregion Misc
+        MegaMekXmlUtil.writeSimpleXMLCloseIndentedLine(pw, --indent, "planetaryConditions");
+    }
+
+    public static @Nullable PlanetaryConditions generateInstanceFromXML(final NodeList nl) {
+        final PlanetaryConditions planetaryConditions = new PlanetaryConditions();
+
+        try {
+            for (int x = 0; x < nl.getLength(); x++) {
+                final Node wn = nl.item(x);
+                switch (wn.getNodeName()) {
+                    case "atmosphere":
+                        planetaryConditions.setAtmosphere(AtmosphericPressure.valueOf(wn.getTextContent().trim()));
+                        break;
+                    case "gravity":
+                        planetaryConditions.setGravity(Float.parseFloat(wn.getTextContent().trim()));
+                        break;
+                    case "temperature":
+                        planetaryConditions.setTemperature(Double.parseDouble(wn.getTextContent().trim()));
+                        break;
+                    case "oldTemperature":
+                        planetaryConditions.setOldTemperature(Double.parseDouble(wn.getTextContent().trim()));
+                        break;
+                    case "light":
+                        planetaryConditions.setLight(Light.valueOf(wn.getTextContent().trim()));
+                        break;
+                    case "windStrength":
+                        planetaryConditions.setWindStrength(Wind.parseFromString(wn.getTextContent().trim()));
+                        break;
+                    case "shiftingWindStrength":
+                        planetaryConditions.setShiftingWindStrength(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "minimumWindStrength":
+                        planetaryConditions.setMinimumWindStrength(Wind.parseFromString(wn.getTextContent().trim()));
+                        break;
+                    case "maximumWindStrength":
+                        planetaryConditions.setMaximumWindStrength(Wind.parseFromString(wn.getTextContent().trim()));
+                        break;
+                    case "windDirection":
+                        planetaryConditions.setWindDirection(CardinalDirection.parseFromString(wn.getTextContent().trim()));
+                        break;
+                    case "shiftingWindDirection":
+                        planetaryConditions.setShiftingWindDirection(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "weather":
+                        planetaryConditions.setWeather(Weather.valueOf(wn.getTextContent().trim()));
+                        break;
+                    case "oldWeather":
+                        planetaryConditions.setOldWeather(Weather.valueOf(wn.getTextContent().trim()));
+                        break;
+                    case "sleeting":
+                        planetaryConditions.setSleeting(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "sandBlowing":
+                        planetaryConditions.setSandBlowing(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "sandstorm":
+                        planetaryConditions.setSandstorm(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "fog":
+                        planetaryConditions.setFog(Fog.valueOf(wn.getTextContent().trim()));
+                        break;
+                    case "emi":
+                        planetaryConditions.setEMI(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "terrainAffected":
+                        planetaryConditions.setTerrainAffected(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "runOnce":
+                        planetaryConditions.setRunOnce(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            MegaMek.getLogger().error(e);
+            return null;
+        }
+
+        return planetaryConditions;
+    }
+    //endregion File I/O
+
+    @Override
+    public Object clone() {
+        return new PlanetaryConditions(this);
     }
 }

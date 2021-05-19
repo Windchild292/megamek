@@ -37,6 +37,7 @@ import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.AttackAction;
 import megamek.common.actions.EntityAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.CardinalDirection;
 import megamek.common.event.GameBoardChangeEvent;
 import megamek.common.event.GameBoardNewEvent;
 import megamek.common.event.GameEndEvent;
@@ -64,9 +65,6 @@ import megamek.server.victory.Victory;
  * keep it synched.
  */
 public class Game implements Serializable, IGame {
-    /**
-     *
-     */
     private static final long serialVersionUID = 8376320092671792532L;
 
     /**
@@ -3319,8 +3317,9 @@ public class Game implements Serializable, IGame {
      * Age the flare list and remove any which have burnt out Artillery flares
      * drift with wind. (called at end of turn)
      */
+    @Override
     public Vector<Report> ageFlares() {
-        Vector<Report> reports = new Vector<Report>();
+        Vector<Report> reports = new Vector<>();
         Report r;
         for (int i = flares.size() - 1; i >= 0; i--) {
             Flare flare = flares.elementAt(i);
@@ -3331,31 +3330,29 @@ public class Game implements Serializable, IGame {
             if ((flare.flags & Flare.F_IGNITED) != 0) {
                 flare.turnsToBurn--;
                 if ((flare.flags & Flare.F_DRIFTING) != 0) {
-                    int dir = planetaryConditions.getWindDirection();
-                    int str = planetaryConditions.getWindStrength();
-
-                    // strength 1 and 2: drift 1 hex
-                    // strength 3: drift 2 hexes
-                    // strength 4: drift 3 hexes
-                    // for each above strenght 4 (storm), drift one more
-                    if (str > 0) {
-                        flare.position = flare.position.translated(dir);
-                        if (str > 2) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        if (str > 3) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        if (str > 4) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        if (str > 5) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        r = new Report(5236);
-                        r.add(flare.position.getBoardNum());
-                        r.newlines = 0;
-                        reports.addElement(r);
+                    // No drift if the wind is calm, drift one hex for Moderate/Light Gales,
+                    // and one more for each wind strength increase above a Moderate Gale.
+                    final CardinalDirection direction = planetaryConditions.getWindDirection();
+                    switch (planetaryConditions.getWindStrength()) { // Purposeful fallthrough
+                        case TORNADO_F4:
+                            flare.position = flare.position.translated(direction);
+                        case TORNADO_F13:
+                            flare.position = flare.position.translated(direction);
+                        case STORM:
+                            flare.position = flare.position.translated(direction);
+                        case STRONG_GALE:
+                            flare.position = flare.position.translated(direction);
+                        case MODERATE_GALE:
+                        case LIGHT_GALE:
+                            flare.position = flare.position.translated(direction);
+                            r = new Report(5236);
+                            r.add(flare.position.getBoardNum());
+                            r.newlines = 0;
+                            reports.addElement(r);
+                            break;
+                        case CALM:
+                        default:
+                            break;
                     }
                 }
             } else {

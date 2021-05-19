@@ -2760,7 +2760,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         mp = Math.max(mp - getCargoMpReduction(this), 0);
         if (null != game) {
             int weatherMod = game.getPlanetaryConditions()
-                                 .getMovementMods(this);
+                                 .getMovementModifiers(this);
             if (weatherMod != 0) {
                 mp = Math.max(mp + weatherMod, 0);
             }
@@ -5384,7 +5384,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                         || type.hasFlag(MiscType.F_WATCHDOG)) {
                         toReturn = 3;
                     }
-                    if (game.getPlanetaryConditions().hasEMI()) {
+                    if (game.getPlanetaryConditions().isEMI()) {
                         return toReturn * 2;
                     }
                     return toReturn;
@@ -5416,7 +5416,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     }
 
     public boolean hasBAP(boolean checkECM) {
-        if (((game != null) && game.getPlanetaryConditions().hasEMI())
+        if (((game != null) && game.getPlanetaryConditions().isEMI())
             || isShutDown()) {
             return false;
         }
@@ -5466,7 +5466,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * <code>Entity.NONE</code> if no BAP is active.
      */
     public int getBAPRange() {
-        if (game.getPlanetaryConditions().hasEMI() || isShutDown()) {
+        if (game.getPlanetaryConditions().isEMI() || isShutDown()) {
             return Entity.NONE;
         }
         // check for Manei Domini implants
@@ -6371,10 +6371,8 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
 
         // for dropping troops, check to see if they are going to land
         // this turn, if so, then set their assault drop status to true
-        if (isAirborne()
-            && !isAero()
-            && (getAltitude() <= game.getPlanetaryConditions()
-                                     .getDropRate())) {
+        if (isAirborne() && !isAero()
+                && (getAltitude() <= game.getPlanetaryConditions().getDropRate())) {
             setAssaultDropInProgress(true);
         }
 
@@ -7537,7 +7535,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                         || (((movementMode == EntityMovementMode.HOVER)
                                 || (movementMode == EntityMovementMode.WIGE))
                                 && (game.getPlanetaryConditions().getWeather().isHeavySnow()
-                                        || game.getPlanetaryConditions().getWindStrength().isStormOrGreater())))
+                                        || game.getPlanetaryConditions().getWindStrength().isStormOrStronger())))
                 && (prevFacing != curFacing) && !lastPos.equals(curPos)) {
             roll.append(new PilotingRollData(getId(),
                     getMovementBeforeSkidPSRModifier(distance),

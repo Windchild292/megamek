@@ -8910,10 +8910,9 @@ public class Server implements Runnable {
                     if (checkCrash(entity, entity.getPosition(), entity.getAltitude())) {
                         addReport(processCrash(entity, 0, entity.getPosition()));
                     }
-                } else if (entity instanceof EscapePods && entity.isAirborne() && md.getFinalVelocity() < 2) {
-                    //Atmospheric Escape Pods that drop below velocity 2 lose altitude as dropping units
-                    entity.setAltitude(entity.getAltitude()
-                            - game.getPlanetaryConditions().getDropRate());
+                } else if ((entity instanceof EscapePods) && entity.isAirborne() && (md.getFinalVelocity() < 2)) {
+                    // Atmospheric Escape Pods that drop below velocity 2 lose altitude as dropping units
+                    entity.setAltitude(entity.getAltitude() - game.getPlanetaryConditions().getDropRate());
                     r = new Report(6676);
                     r.subject = entity.getId();
                     r.addDesc(entity);
@@ -14895,7 +14894,7 @@ public class Server implements Runnable {
         }
 
         // add in any modifiers for planetary conditions
-        int weatherMod = game.getPlanetaryConditions().getIgniteModifiers();
+        int weatherMod = game.getPlanetaryConditions().getIgnitionModifier();
         if (weatherMod != 0) {
             nTargetRoll.addModifier(weatherMod, "conditions");
         }
@@ -34067,7 +34066,7 @@ public class Server implements Runnable {
                 || game.getPlanetaryConditions().getWeather().isDownpour()
                 || game.getPlanetaryConditions().getWindStrength().isStrongGale()) {
             rollTarget.addModifier(2, "Bad Weather");
-        } else if (game.getPlanetaryConditions().getWindStrength().isStormOrGreater()
+        } else if (game.getPlanetaryConditions().getWindStrength().isStormOrStronger()
                 || (game.getPlanetaryConditions().getWeather().isHeavySnow()
                         && game.getPlanetaryConditions().getWindStrength().isStrongGale())) {
             rollTarget.addModifier(3, "Really Bad Weather");

@@ -54,7 +54,6 @@ import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
 
 import static megamek.client.ui.swing.util.UIUtil.*;
-import static megamek.common.PlanetaryConditions.*;
 
 /**
  * A dialog that allows for customization of planetary conditions
@@ -301,11 +300,11 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         comAtmosphere.setSelectedIndex(conditions.getAtmosphere());
         comFog.setSelectedIndex(conditions.getFog());
         chkBlowingSands.setSelected(conditions.isSandBlowing());
-        chkShiftWindDir.setSelected(conditions.shiftingWindDirection());
-        chkShiftWindStr.setSelected(conditions.shiftingWindStrength());
+        chkShiftWindDir.setSelected(conditions.isShiftingWindDirection());
+        chkShiftWindStr.setSelected(conditions.isShiftingWindStrength());
         fldTemp.setText(Integer.toString(conditions.getTemperature()));
         fldGrav.setText(Float.toString(conditions.getGravity()));
-        chkEMI.setSelected(conditions.hasEMI());
+        chkEMI.setSelected(conditions.isEMI());
         chkTerrainAffected.setSelected(conditions.isTerrainAffected());
         addListeners();
         refreshWindShift();

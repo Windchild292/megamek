@@ -115,8 +115,7 @@ public enum Light {
                 divisor = 10.0;
                 break;
             default:
-                divisor = 10000.0;
-                break;
+                return 0;
         }
         return (-1 * (int) Math.floor(heat / divisor));
     }

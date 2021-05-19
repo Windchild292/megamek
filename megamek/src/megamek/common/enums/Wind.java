@@ -88,10 +88,14 @@ public enum Wind {
     }
 
     public boolean isModerateGaleOrStronger() {
-        return !isCalm() && !isLightGale();
+        return isModerateGale() || isStrongGaleOrStronger();
     }
 
-    public boolean isStormOrGreater() {
+    public boolean isStrongGaleOrStronger() {
+        return isStrongGale() || isStormOrStronger();
+    }
+
+    public boolean isStormOrStronger() {
         return isStorm() || isTornado();
     }
 
@@ -136,6 +140,22 @@ public enum Wind {
         }
 
         return 0;
+    }
+
+    /**
+     * @return the ignition modifier from the current weather
+     */
+    public int getIgnitionModifier() {
+        switch (this) {
+            case LIGHT_GALE:
+            case MODERATE_GALE:
+                return 2;
+            case STRONG_GALE:
+            case STORM:
+                return 4;
+            default:
+                return 0;
+        }
     }
 
     //region File I/O

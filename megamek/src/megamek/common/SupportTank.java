@@ -288,7 +288,7 @@ public class SupportTank extends Tank {
         mp = Math.max(0, mp - getCargoMpReduction(this));
         if (null != game) {
             int weatherMod = game.getPlanetaryConditions()
-                    .getMovementMods(this);
+                    .getMovementModifiers(this);
             if (weatherMod != 0) {
                 mp = Math.max(mp + weatherMod, 0);
             }

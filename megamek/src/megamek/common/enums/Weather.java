@@ -165,6 +165,57 @@ public enum Weather {
         }
     }
 
+    /**
+     * @return the ignition modifier from the current weather
+     */
+    public int getIgnitionModifier() {
+        switch (this) {
+            case LIGHT_RAIN:
+            case MODERATE_RAIN:
+                return 1;
+            case HEAVY_RAIN:
+            case DOWNPOUR:
+            case LIGHT_SNOW:
+            case MODERATE_SNOW:
+            case GUSTING_RAIN:
+            case SNOW_FLURRIES:
+                return 2;
+            case HEAVY_SNOW:
+            case LIGHT_HAIL:
+            case HEAVY_HAIL:
+                return 3;
+            case ICE_STORM:
+                return 4;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * @return the modifier to extinguish a fire from the current weather
+     */
+    public int getExtinguishModifier() {
+        switch (this) {
+            case LIGHT_HAIL:
+            case LIGHT_RAIN:
+            case LIGHT_SNOW:
+                return 1;
+            case HEAVY_HAIL:
+            case MODERATE_RAIN:
+            case MODERATE_SNOW:
+            case SNOW_FLURRIES:
+                return 2;
+            case HEAVY_RAIN:
+            case GUSTING_RAIN:
+            case HEAVY_SNOW:
+                return 3;
+            case DOWNPOUR:
+                return 4;
+            default:
+                return -1;
+        }
+    }
+
     //region File I/O
     /**
      * @param text the string to parse

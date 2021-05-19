@@ -400,7 +400,7 @@ public class LandAirMech extends BipedMech implements IAero, IBomber {
         }
         int j = getJumpMP();
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }

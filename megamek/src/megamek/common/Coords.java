@@ -19,8 +19,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
+
+import megamek.MegaMek;
 import megamek.client.bot.princess.BotGeometry.HexLine;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.CardinalDirection;
 
 /**
  * Coords stores x and y values. Since these are hexes, coordinates with odd x
@@ -67,39 +70,35 @@ public class Coords implements Serializable {
     }
 
     /**
+     * Returns the coordinate 1 unit in the specified direction
+     */
+    public Coords translated(final CardinalDirection direction) {
+        return translated(direction, 1);
+    }
+
+    public Coords translated(final String direction) {
+        try {
+            return translated(CardinalDirection.parseFromString(direction));
+        } catch (Exception e) {
+            MegaMek.getLogger().error("Illegal direction passed of " + direction
+                    + ", translating a random direction", e);
+            return translated(CardinalDirection.RANDOMIZE);
+        }
+    }
+
+    /**
      * Returns the coordinate the given distance away in the
      * specified direction dir.
      */
     public Coords translated(int dir, int distance) {
-        int newx = xInDir(dir, distance);
-        int newy = yInDir(dir, distance);
-        return new Coords(newx, newy);
+        return translated(CardinalDirection.values()[dir], distance);
     }
 
-    public Coords translated(String dir) {
-        int intDir = 0;
-
-        try {
-            intDir = Integer.parseInt(dir);
-        } catch (NumberFormatException nfe) {
-            if (dir.equalsIgnoreCase("N")) {
-                intDir = 0;
-            } else if (dir.equalsIgnoreCase("NE")) {
-                intDir = 1;
-            } else if (dir.equalsIgnoreCase("SE")) {
-                intDir = 2;
-            } else if (dir.equalsIgnoreCase("S")) {
-                intDir = 3;
-            } else if (dir.equalsIgnoreCase("SW")) {
-                intDir = 4;
-            } else if (dir.equalsIgnoreCase("NW")) {
-                intDir = 5;
-            }
-        }
-
-        return translated(intDir);
+    public Coords translated(CardinalDirection direction, final int distance) {
+        direction = direction.isRandomize() ? CardinalDirection.getRandomDirection() : direction;
+        return new Coords(xInDir(direction, distance), yInDir(direction, distance));
     }
-    
+
     // The instance methods xInDir etc. make for convenient calls
     // while the static xInDir etc. can be called to avoid Coords construction
 
@@ -108,49 +107,35 @@ public class Coords implements Serializable {
         return xInDir(x, y, dir, 1);
     }
 
-    /** Returns the x value of the Coords the given distance in the direction dir. */
-    public static int xInDir(int x, int y, int dir, int distance) {
-        switch (dir) {
-            case 1:
-            case 2:
-                return x + distance;
-            case 4:
-            case 5:
-                return x - distance;
-            default:
-                return x;
-        }
-    }
-
-    /** Returns the y value of the adjacent Coords in the direction dir. */
-    public static int yInDir(int x, int y, int dir) {
-        return yInDir(x, y, dir, 1);
-    }
-
-    /** Returns the x value of the Coords the given distance in the direction dir. */
-    public static int yInDir(int x, int y, int dir, int distance) {
-        switch (dir) {
-            case 0:
-                return y - distance;
-            case 1:
-            case 5:
-                return y - ((distance + 1 - (x & 1)) / 2);
-            case 2:
-            case 4:
-                return y + ((distance + (x & 1)) / 2);
-            default:
-                return y + distance;
-        }
-    }
-    
     /** Returns the x value of the adjacent Coords in the direction dir. */
     public int xInDir(int dir) {
         return Coords.xInDir(x, y, dir, 1);
     }
 
     /** Returns the x value of the Coords the given distance in the direction dir. */
-    public int xInDir(int dir, int distance) {
-        return Coords.xInDir(x, y, dir, distance);
+    public int xInDir(final CardinalDirection direction, final int distance) {
+        return Coords.xInDir(x, y, direction, distance);
+    }
+
+    private static int xInDir(final int x, final int y, final int direction, final int distance) {
+        return xInDir(x, y, CardinalDirection.values()[direction], distance);
+    }
+
+    /** Returns the x value of the Coords the given distance in the direction dir. */
+    public static int xInDir(final int x, final int y, final CardinalDirection direction,
+                             final int distance) {
+        switch (direction) {
+            case NORTHEAST:
+            case SOUTHEAST:
+                return x + distance;
+            case SOUTHWEST:
+            case NORTHWEST:
+                return x - distance;
+            case NORTH:
+            case SOUTH:
+            default:
+                return x;
+        }
     }
     
     /** Returns the y value of the adjacent Coords in the direction dir. */
@@ -159,8 +144,35 @@ public class Coords implements Serializable {
     }
 
     /** Returns the y value of the Coords the given distance in the direction dir. */
-    public int yInDir(int dir, int distance) {
-        return Coords.yInDir(x, y, dir, distance);    
+    public int yInDir(final CardinalDirection direction, final int distance) {
+        return Coords.yInDir(x, y, direction, distance);
+    }
+
+    /** Returns the y value of the adjacent Coords in the direction dir. */
+    public static int yInDir(int x, int y, int dir) {
+        return yInDir(x, y, dir, 1);
+    }
+
+    public static int yInDir(final int x, final int y, final int direction, final int distance) {
+        return yInDir(x, y, CardinalDirection.values()[direction], distance);
+    }
+
+    /** Returns the x value of the Coords the given distance in the direction dir. */
+    public static int yInDir(final int x, final int y, final CardinalDirection direction,
+                             final int distance) {
+        switch (direction) {
+            case NORTH:
+                return y - distance;
+            case NORTHEAST:
+            case NORTHWEST:
+                return y - ((distance + 1 - (x & 1)) / 2);
+            case SOUTHEAST:
+            case SOUTHWEST:
+                return y + ((distance + (x & 1)) / 2);
+            case SOUTH:
+            default:
+                return y + distance;
+        }
     }
 
     /**
@@ -187,7 +199,7 @@ public class Coords implements Serializable {
      * 0 if the coordinates are equal
      */
     public int approximateDirection(Coords second, int initialDirection, int previousDirection) {
-        if(this.equals(second)) {
+        if (this.equals(second)) {
             return 0;
         }
         
@@ -196,7 +208,7 @@ public class Coords implements Serializable {
         HexLine startLine = new HexLine(this, direction);
         int directionIncrement = 0;
         int pointJudgement = startLine.judgePoint(second);
-        if(pointJudgement == 0) {
+        if (pointJudgement == 0) {
             // we are either directly above or below
             switch(direction) {
             case 0:

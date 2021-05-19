@@ -224,7 +224,7 @@ public class Protomech extends Entity {
         int j;
         if (null != game) {
             int weatherMod = game.getPlanetaryConditions()
-                    .getMovementMods(this);
+                    .getMovementModifiers(this);
             if (weatherMod != 0) {
                 wmp = Math.max(wmp + weatherMod, 0);
             }

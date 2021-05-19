@@ -440,7 +440,7 @@ public class Infantry extends Entity {
             mp = Math.min(mp, 1);
         }
         if(null != game) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if(weatherMod != 0) {
                 mp = Math.max(mp + weatherMod, 0);
             }

@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import megamek.common.IGame.Phase;
+import megamek.common.enums.AtmosphericPressure;
 import megamek.common.options.OptionsConstants;
 
 /**
@@ -215,10 +216,9 @@ public class FighterSquadron extends Aero {
         }
 
         // add in atmospheric effects later
-        int atmoCond = game.getPlanetaryConditions().getAtmosphere();
-        if (!(game.getBoard().inSpace() || atmoCond == PlanetaryConditions.ATMO_VACUUM)) {
+        AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphere();
+        if (!(game.getBoard().inSpace() || atmosphere.isVacuum())) {
             prd.addModifier(+2, "Atmospheric operations");
-
             prd.addModifier(-1, "fighter/small craft");
         }
 
