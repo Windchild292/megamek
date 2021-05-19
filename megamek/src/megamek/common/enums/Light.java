@@ -35,11 +35,11 @@ public enum Light {
     //region Variable Declarations
     private final String name;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    Light(String name) {
+    Light(final String name) {
         this.name = resources.getString(name);
     }
     //endregion Constructors

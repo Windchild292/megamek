@@ -1,22 +1,28 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur
- * (bmazur@sev.org)
+ * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of MegaMek.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.client.ui.swing;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1233,29 +1239,32 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void removeLastStep() {
         cmd.removeLastStep();
-        if (cmd.length() == 0) {
+        final Entity entity = ce();
+        if (entity == null) {
+            MegaMek.getLogger().warning("Cannot process removeLastStep for a null entity.");
+            return;
+        } else if (cmd.length() == 0) {
             clear();
-            if ((gear == MovementDisplay.GEAR_JUMP) && 
-                    (!cmd.isJumping())) {
+            if ((gear == MovementDisplay.GEAR_JUMP) && !cmd.isJumping()) {
                 cmd.addStep(MoveStepType.START_JUMP);
-            } else if (ce().isConvertingNow()) {
+            } else if (entity.isConvertingNow()) {
                 cmd.addStep(MoveStepType.CONVERT_MODE);
             }
         } else {
-            clientgui.bv.drawMovementData(ce(), cmd);
-            clientgui.bv.setWeaponFieldofFire(ce(), cmd);
+            // clear board cursors
+            clientgui.getBoardView().select(cmd.getFinalCoords());
+            clientgui.getBoardView().cursor(cmd.getFinalCoords());
+            clientgui.getBoardView().drawMovementData(entity, cmd);
+            clientgui.bv.setWeaponFieldofFire(entity, cmd);
 
             // Set the button's label to "Done"
             // if the entire move is impossible.
             MovePath possible = cmd.clone();
             possible.clipToPossible();
             if (possible.length() == 0) {
-                butDone.setText("<html><b>"
-                                + Messages.getString("MovementDisplay.Done")
-                                + "</b></html>"); //$NON-NLS-1$
+                butDone.setText("<html><b>" + Messages.getString("MovementDisplay.Done") + "</b></html>");
             }
         }
-        
         updateButtons();
     }
 
@@ -1516,14 +1525,14 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             }
         }
         
-        if ((ce() instanceof Infantry) && ((Infantry)ce()).hasMicrolite()
-        		&& (ce().isAirborneVTOLorWIGE() || (ce().getElevation() != cmd.getFinalElevation()))
-        		&& !cmd.contains(MoveStepType.FORWARDS)
-        		&& cmd.getFinalElevation() > 0
-        		&& ce().getGame().getBoard().getHex(cmd.getFinalCoords())
-    				.terrainLevel(Terrains.BLDG_ELEV) < cmd.getFinalElevation()
-				&& ce().getGame().getBoard().getHex(cmd.getFinalCoords())
-        			.terrainLevel(Terrains.BRIDGE_ELEV) < cmd.getFinalElevation()) {
+        if ((ce() instanceof Infantry) && ((Infantry) ce()).hasMicrolite()
+                && (ce().isAirborneVTOLorWIGE() || (ce().getElevation() != cmd.getFinalElevation()))
+                && !cmd.contains(MoveStepType.FORWARDS)
+                && cmd.getFinalElevation() > 0
+                && ce().getGame().getBoard().getHex(cmd.getFinalCoords())
+                    .terrainLevel(Terrains.BLDG_ELEV) < cmd.getFinalElevation()
+                && ce().getGame().getBoard().getHex(cmd.getFinalCoords())
+                    .terrainLevel(Terrains.BRIDGE_ELEV) < cmd.getFinalElevation()) {
             String title = Messages
                     .getString("MovementDisplay.MicroliteMove.title"); //$NON-NLS-1$
             String body = Messages
@@ -1738,18 +1747,18 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         // ignore buttons other than 1
         if (!clientgui.getClient().isMyTurn()
-            || ((b.getModifiers() & InputEvent.BUTTON1_MASK) == 0)) {
+            || ((b.getButton() != MouseEvent.BUTTON1))) {
             return;
         }
         // control pressed means a line of sight check.
         // added ALT_MASK by kenn
-        if (((b.getModifiers() & InputEvent.CTRL_MASK) != 0)
-            || ((b.getModifiers() & InputEvent.ALT_MASK) != 0)) {
+        if (((b.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0)
+            || ((b.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0)) {
             return;
         }
         // check for shifty goodness
-        if (shiftheld != ((b.getModifiers() & InputEvent.SHIFT_MASK) != 0)) {
-            shiftheld = (b.getModifiers() & InputEvent.SHIFT_MASK) != 0;
+        if (shiftheld != ((b.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0)) {
+            shiftheld = (b.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0;
         }
         Coords currPosition = cmd != null ? cmd.getFinalCoords()
                                           : ce != null ? ce.getPosition() : null;
@@ -1951,40 +1960,24 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 if ((target == null) || target.equals(ce)) {
                     clientgui.doAlertDialog(
                             Messages.getString("MovementDisplay.CantDFA"),
-                            Messages.getString("MovementDisplay.NoTarget")); //$NON-NLS-1$ //$NON-NLS-2$
+                            Messages.getString("MovementDisplay.NoTarget"));
                     clear();
                     computeMovementEnvelope(ce);
                     return;
                 }
 
                 // check if it's a valid DFA
-                ToHitData toHit = DfaAttackAction.toHit(clientgui.getClient()
-                                                                 .getGame(), cen, target, cmd);
+                ToHitData toHit = DfaAttackAction.toHit(clientgui.getClient().getGame(), cen, target, cmd);
                 if (toHit.getValue() != TargetRoll.IMPOSSIBLE) {
                     // if yes, ask them if they want to DFA
-                    if (clientgui
-                            .doYesNoDialog(
-                                    Messages.getString(
-                                            "MovementDisplay.DFADialog.title",
-                                            new Object[] { target
-                                                    .getDisplayName() }), //$NON-NLS-1$
-                                    Messages.getString(
-                                            "MovementDisplay.DFADialog.message", new Object[] {//$NON-NLS-1$
-                                                    toHit.getValueAsString(),
-                                                    Double.valueOf(
-                                                            Compute.oddsAbove(toHit
-                                                                    .getValue())),
-                                                    toHit.getDesc(),
-                                                    Integer.valueOf(
-                                                            DfaAttackAction
-                                                                    .getDamageFor(
-                                                                            ce,
-                                                                            (target instanceof Infantry)
-                                                                                    && !(target instanceof BattleArmor))),
-                                                    toHit.getTableDesc(),
-                                                    Integer.valueOf(
-                                                            DfaAttackAction
-                                                                    .getDamageTakenBy(ce)) }))) {
+                    if (clientgui.doYesNoDialog(
+                            Messages.getString("MovementDisplay.DFADialog.title",
+                                    target.getDisplayName()),
+                            Messages.getString("MovementDisplay.DFADialog.message",
+                                    toHit.getValueAsString(), Compute.oddsAbove(toHit.getValue()),
+                                    toHit.getDesc(),
+                                    DfaAttackAction.getDamageFor(ce, target.isConventionalInfantry()),
+                                    toHit.getTableDesc(), DfaAttackAction.getDamageTakenBy(ce)))) {
                         // if they answer yes, DFA the target
                         cmd.getLastStep().setTarget(target);
                         ready();
@@ -1995,13 +1988,11 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     return;
                 }
                 // if not valid, tell why
-                clientgui.doAlertDialog(
-                        Messages.getString("MovementDisplay.CantDFA"), //$NON-NLS-1$
-                        toHit.getDesc());
+                clientgui.doAlertDialog(Messages.getString("MovementDisplay.CantDFA"), toHit.getDesc());
                 clear();
                 return;
             }
-            butDone.setText("<html><b>" + Messages.getString("MovementDisplay.Move") + "</b></html>"); //$NON-NLS-1$
+            butDone.setText("<html><b>" + Messages.getString("MovementDisplay.Move") + "</b></html>");
             updateProneButtons();
             updateRACButton();
             updateSearchlightButton();
@@ -2131,12 +2122,12 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void updateSearchlightButton() {
         final Entity ce = ce();
-        if (null == ce) {
-            return;
+        if (ce != null) {
+            final boolean isNight = clientgui.getClient().getGame().getPlanetaryConditions().getLight().isNight();
+            setSearchlightEnabled(
+                    isNight && ce.hasSearchlight() && !cmd.contains(MoveStepType.SEARCHLIGHT),
+                    ce.isUsingSearchlight());
         }
-        setSearchlightEnabled(
-                ce.hasSpotlight() && !cmd.contains(MoveStepType.SEARCHLIGHT),
-                ce().isUsingSpotlight());
     }
 
     private synchronized void updateElevationButtons() {
@@ -2785,9 +2776,9 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             mpUsed = cmd.getMpUsed();
         }
         if (!ce.isAirborne()
-            && (mpUsed <= Math.ceil((ce.getWalkMP() / 2.0)))
-            && (Compute.getMountableUnits(ce, pos, elev,
-                                          game).size() > 0)) {
+                && (mpUsed <= Math.ceil((ce.getWalkMP() / 2.0)))
+                && !Compute.getMountableUnits(ce, pos,
+                    elev + game.getBoard().getHex(pos).surface(), game).isEmpty()) {
             setMountEnabled(true);
         }
 
@@ -2900,11 +2891,10 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             elev += hex.getLevel();
         }
 
-        ArrayList<Entity> mountableUnits = Compute.getMountableUnits(ce, pos,
-                                                                     elev, clientgui.getClient().getGame());
+        List<Entity> mountableUnits = Compute.getMountableUnits(ce, pos, elev, clientgui.getClient().getGame());
 
         // Handle error condition.
-        if (mountableUnits.size() == 0) {
+        if (mountableUnits.isEmpty()) {
             System.err.println("MovementDisplay#getMountedUnit() " +
                                "called without mountable units."); //$NON-NLS-1$
         }
@@ -3641,7 +3631,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     continue;
                 }
                 int numChoices = choiceDialog.getChoices().length;
-                if ((numChoices > (doors * 2))
+                if ((numChoices > currentBay.getSafeLaunchRate())
                     && GUIPreferences.getInstance().getNagForLaunchDoors()) {
                     int aerosPerDoor = numChoices / doors;
                     int remainder = numChoices % doors;
@@ -4157,7 +4147,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         // Convert the choices into a List of targets.
         ArrayList<Targetable> targets = new ArrayList<Targetable>();
         for (Entity ent : game.getEntitiesVector(pos)) {
-            if (!ce.equals(ent)) {
+            if ((ce == null) || !ce.equals(ent)) {
                 targets.add(ent);
             }
         }
@@ -4231,7 +4221,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             Report r = new Report(9500);
             r.subject = ce().getId();
             r.add(ce().getDisplayName());
-            r.add(psr.getValue());
+            r.add(psr);
             r.add(ctrlroll);
             r.newlines = 0;
             r.indent(1);
@@ -5248,11 +5238,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         } else if (actionCmd.equals(MoveCommand.MOVE_ENVELOPE.getCmd())) {
             computeMovementEnvelope(clientgui.mechD.getCurrentEntity());
         } else if (actionCmd.equals(MoveCommand.MOVE_TRAITOR.getCmd())) {
-            // Set up variables we need
-            // We use a vector instead of enumeration here so we can grab the
-            // size
-            Vector<IPlayer> players = clientgui.getClient().getGame()
-                    .getPlayersVector();
+            var players = clientgui.getClient().getGame().getPlayersVector();
             Integer[] playerIds = new Integer[players.size() - 1];
             String[] playerNames = new String[players.size() - 1];
             String[] options = new String[players.size() - 1];
@@ -5260,52 +5246,44 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
             // Loop through the players vector and fill in the arrays
             int idx = 0;
-            for (int i = 0; i < players.size(); i++) {
-                IPlayer p = players.get(i);
-                // If this is us, we skip it since we can't transfer to
-                // ourselves
-                if (p.getName().equals(
-                        clientgui.getClient().getLocalPlayer().getName())) {
+            for (var player : players) {
+                if (player.getName().equals(clientgui.getClient().getLocalPlayer().getName())
+                        || (player.getTeam() == IPlayer.TEAM_UNASSIGNED)) {
                     continue;
                 }
-                playerIds[idx] = p.getId();
-                playerNames[idx] = p.getName();
-                options[idx] = p.getName() + " (ID: " + p.getId() + ")";
+                playerIds[idx] = player.getId();
+                playerNames[idx] = player.getName();
+                options[idx] = player.getName() + " (ID: " + player.getId() + ")";
                 idx++;
+            }
+            
+            // No players available?
+            if (idx == 0) {
+                JOptionPane.showMessageDialog(clientgui.getFrame(), 
+                        "No players available. Units cannot be traitored to players "
+                        + "that aren't assigned to a team.");
+                return;
             }
 
             // Dialog for choosing which player to transfer to
-            String option = (String) JOptionPane
-                    .showInputDialog(
-                            clientgui.getFrame(),
+            String option = (String) JOptionPane.showInputDialog(clientgui.getFrame(),
                             "Choose the player to gain ownership of this unit when it turns traitor",
                             "Traitor", JOptionPane.QUESTION_MESSAGE, null,
                             options, options[0]);
 
             // Verify that we have a valid option...
             if (option != null) {
-                // Now that we've selected a player, correctly associate the ID
-                // and name
+                // Now that we've selected a player, correctly associate the ID and name
                 int id = playerIds[Arrays.asList(options).indexOf(option)];
-                String name = playerNames[Arrays.asList(options)
-                        .indexOf(option)];
+                String name = playerNames[Arrays.asList(options).indexOf(option)];
 
                 // And now we perform the actual transfer
-                int confirm = JOptionPane
-                        .showConfirmDialog(
+                int confirm = JOptionPane.showConfirmDialog(
                                 clientgui.getFrame(),
-                                e.getDisplayName()
-                                        + " will switch to "
-                                        + name
-                                        + "'s side at the end of this turn. Are you "
-                                        + "sure?", "Confirm",
+                                e.getDisplayName() + " will switch to " + name
+                                        + "'s side at the end of this turn. Are you sure?", 
+                                "Confirm",
                                 JOptionPane.YES_NO_OPTION);
-                /*
-                 * JOptionPane.showMessageDialog( clientgui.getFrame(),
-                 * e.getDisplayName() + " will switch to " + name +
-                 * "'s side at the end of this turn.", "ERROR: Can't Switch",
-                 * JOptionPane.INFORMATION_MESSAGE);
-                 */
                 if (confirm == JOptionPane.YES_OPTION) {
                     e.setTraitorId(id);
                     clientgui.getClient().sendUpdateEntity(e);

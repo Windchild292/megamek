@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import megamek.MegaMek;
+import megamek.common.enums.AtmosphericPressure;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.bayweapons.BayWeapon;
 import megamek.common.weapons.ppc.PPCWeapon;
@@ -2652,17 +2653,17 @@ public class Aero extends Entity implements IAero, IBomber {
             prd.addModifier(vmod, "Velocity greater than 2x safe thrust");
         }
 
-        int atmoCond = game.getPlanetaryConditions().getAtmosphere();
+        final AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphere();
         // add in atmospheric effects later
-        if (!(game.getBoard().inSpace() || (atmoCond == PlanetaryConditions.ATMO_VACUUM)) && isAirborne()) {
+        if (!(game.getBoard().inSpace() || atmosphere.isVacuum()) && isAirborne()) {
             prd.addModifier(+2, "Atmospheric operations");
 
             // check type
             if (this instanceof Dropship) {
                 if (isSpheroid()) {
-                    prd.addModifier(+1, "spheroid dropship");
+                    prd.addModifier(+1, "Spheroid DropShip");
                 } else {
-                    prd.addModifier(0, "aerodyne dropship");
+                    prd.addModifier(0, "Aerodyne DropShip");
                 }
             } else {
                 prd.addModifier(-1, "fighter/small craft");
@@ -2685,7 +2686,8 @@ public class Aero extends Entity implements IAero, IBomber {
 
         // Small/torso-mounted cockpit penalty?
         if ((getCockpitType() == Aero.COCKPIT_SMALL)
-                && !hasAbility(OptionsConstants.MD_BVDNI)) {
+                && !hasAbility(OptionsConstants.MD_BVDNI)
+                && !hasAbility(OptionsConstants.UNOFF_SMALL_PILOT)) {
             prd.addModifier(1, "Small Cockpit");
         }
 
@@ -3262,7 +3264,6 @@ public class Aero extends Entity implements IAero, IBomber {
     public TargetRoll getStealthModifier(int range, Entity ae) {
         TargetRoll result = null;
 
-        boolean isInfantry = (ae instanceof Infantry) && !(ae instanceof BattleArmor);
         // Stealth or null sig must be active.
         if (!isStealthActive()) {
             result = new TargetRoll(0, "stealth not active");
@@ -3273,14 +3274,14 @@ public class Aero extends Entity implements IAero, IBomber {
             switch (range) {
             case RangeType.RANGE_MINIMUM:
             case RangeType.RANGE_SHORT:
-                if (!isInfantry) {
+                if (!ae.isConventionalInfantry()) {
                     result = new TargetRoll(0, "stealth");
                 } else {
                     result = new TargetRoll(0, "infantry ignore stealth");
                 }
                 break;
             case RangeType.RANGE_MEDIUM:
-                if (!isInfantry) {
+                if (!ae.isConventionalInfantry()) {
                     result = new TargetRoll(1, "stealth");
                 } else {
                     result = new TargetRoll(0, "infantry ignore stealth");
@@ -3289,7 +3290,7 @@ public class Aero extends Entity implements IAero, IBomber {
             case RangeType.RANGE_LONG:
             case RangeType.RANGE_EXTREME:
             case RangeType.RANGE_LOS:
-                if (!isInfantry) {
+                if (!ae.isConventionalInfantry()) {
                     result = new TargetRoll(2, "stealth");
                 } else {
                     result = new TargetRoll(0, "infantry ignore stealth");
@@ -4102,22 +4103,15 @@ public class Aero extends Entity implements IAero, IBomber {
         // per a recent ruling on the official forums, aero units can't spot
         // for indirect LRM fire, unless they have a recon cam, an infrared or
         // hyperspec imager, or a high-res imager and it's not night
-        if (!isAirborne() || hasWorkingMisc(MiscType.F_RECON_CAMERA) || hasWorkingMisc(MiscType.F_INFRARED_IMAGER)
+        return !isAirborne() || hasWorkingMisc(MiscType.F_RECON_CAMERA) || hasWorkingMisc(MiscType.F_INFRARED_IMAGER)
                 || hasWorkingMisc(MiscType.F_HYPERSPECTRAL_IMAGER)
-                || (hasWorkingMisc(MiscType.F_HIRES_IMAGER)
-                        && ((game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DAY)
-                                || (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DUSK)))) {
-            return true;
-        } else {
-            return false;
-        }
+                || (hasWorkingMisc(MiscType.F_HIRES_IMAGER) && !game.getPlanetaryConditions().getLight().isNight());
     }
 
     // Damage a fighter that was part of a squadron when splitting it. Per
     // StratOps pg. 32 & 34
     @Override
     public void doDisbandDamage() {
-
         int dealt = 0;
 
         // Check for critical threshold and if so damage all armor on one facing

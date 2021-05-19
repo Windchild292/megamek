@@ -37,10 +37,10 @@ public enum Weather {
     SNOW_FLURRIES("Weather.SNOW_FLURRIES.text"),
     HEAVY_SNOW("Weather.HEAVY_SNOW.text"),
     SLEET("Weather.SLEET.text"),
-    BLIZZARD("Weather.BLIZZARD.text"),
     ICE_STORM("Weather.ICE_STORM.text"),
     LIGHT_HAIL("Weather.LIGHT_HAIL.text"),
-    HEAVY_HAIL("Weather.HEAVY_HAIL.text");
+    HEAVY_HAIL("Weather.HEAVY_HAIL.text"),
+    LIGHTNING_STORM("Weather.LIGHTNING_STORM.text");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -100,10 +100,6 @@ public enum Weather {
         return this == SLEET;
     }
 
-    public boolean isBlizzard() {
-        return this == BLIZZARD;
-    }
-
     public boolean isIceStorm() {
         return this == ICE_STORM;
     }
@@ -114,6 +110,11 @@ public enum Weather {
 
     public boolean isHeavyHail() {
         return this == HEAVY_HAIL;
+    }
+
+    public boolean requiresLowTemperature() {
+        return isLightSnow() || isModerateSnow() || isSnowFlurries() || isHeavySnow() || isSleet()
+                || isIceStorm() || isLightHail() || isHeavyHail();
     }
     //endregion Boolean Comparisons
 
@@ -133,7 +134,6 @@ public enum Weather {
             case SLEET:
             case GUSTING_RAIN:
             case SNOW_FLURRIES:
-            case BLIZZARD:
                 return 1;
             case DOWNPOUR:
                 return 2;
@@ -150,7 +150,6 @@ public enum Weather {
             case HEAVY_RAIN:
             case HEAVY_SNOW:
             case GUSTING_RAIN:
-            case BLIZZARD:
                 return 1;
             case DOWNPOUR:
                 return 2;
@@ -173,6 +172,8 @@ public enum Weather {
 
         try {
             switch (Integer.parseInt(text)) {
+                case 0:
+                    return CLEAR;
                 case 1:
                     return LIGHT_RAIN;
                 case 2:
@@ -193,17 +194,12 @@ public enum Weather {
                     return HEAVY_SNOW;
                 case 10:
                     return SLEET;
-                case 11:
-                    return BLIZZARD;
                 case 12:
                     return ICE_STORM;
                 case 13:
                     return LIGHT_HAIL;
                 case 14:
                     return HEAVY_HAIL;
-                case 0:
-                default:
-                    return CLEAR;
             }
         } catch (Exception ignored) {
 

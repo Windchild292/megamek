@@ -41,7 +41,7 @@ public enum Wind {
     //region Variable Declarations
     private final String name;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors

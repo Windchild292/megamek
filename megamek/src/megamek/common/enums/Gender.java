@@ -41,7 +41,7 @@ public enum Gender {
     private final boolean internal;
     private final String displayName;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors

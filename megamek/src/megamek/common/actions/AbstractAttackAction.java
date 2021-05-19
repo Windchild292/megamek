@@ -13,19 +13,19 @@
  */
 package megamek.common.actions;
 
-import java.util.Enumeration;
-
+import megamek.client.Client;
 import megamek.common.AmmoType;
-import megamek.common.BattleArmor;
 import megamek.common.Entity;
 import megamek.common.Game;
 import megamek.common.IGame;
-import megamek.common.Infantry;
 import megamek.common.Mech;
 import megamek.common.Mounted;
 import megamek.common.Targetable;
 import megamek.common.ToHitData;
+import megamek.common.annotations.Nullable;
 import megamek.common.options.OptionsConstants;
+
+import java.util.Enumeration;
 
 /**
  * Abstract superclass for any action where an entity is attacking another
@@ -69,8 +69,8 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         this.targetId = targetId;
     }
 
-    public Targetable getTarget(IGame g) {
-        return g.getTarget(getTargetType(), getTargetId());
+    public @Nullable Targetable getTarget(final IGame game) {
+        return game.getTarget(getTargetType(), getTargetId());
     }
 
     /**
@@ -139,11 +139,11 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
             }
         }
         // Searchlights reduce the penalty to zero (or 1 for pitch-black) 
-        //  (except for dusk/dawn)
+        // (except for dusk/dawn)
         int searchlightMod = Math.min(3, night_modifier);
         if ((te != null) && game.getPlanetaryConditions().getLight().isNight()
-                && (te.isUsingSpotlight() || illuminated)) {
-            if (te.isUsingSpotlight()) {
+                && (te.isUsingSearchlight() || illuminated)) {
+            if (te.isUsingSearchlight()) {
                 toHit.addModifier(-searchlightMod, "target using searchlight");
                 night_modifier = night_modifier - searchlightMod;
             } else if (illuminated) {
@@ -223,8 +223,8 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         }
 
         //now check for general hit bonuses for heat
-        if ((te != null) && !((attacker instanceof Infantry) && !(attacker instanceof BattleArmor))) {
-            int heatBonus = game.getPlanetaryConditions().getLight().getHeatBonus(te.heat);
+        if ((te != null) && !attacker.isConventionalInfantry()) {
+            final int heatBonus = game.getPlanetaryConditions().getLight().getHeatBonus(te.heat);
             if (heatBonus < 0) {
                 toHit.addModifier(heatBonus, "target excess heat at night");
             }
@@ -238,4 +238,8 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         return toHit;
     }
 
+    @Override
+    public String toDisplayableString(Client client) {
+        return "attacking " + getTarget(client.getGame()).getDisplayName();
+    }
 }
