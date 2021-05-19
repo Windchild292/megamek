@@ -149,7 +149,7 @@ public class AreaEffectHelper {
         IGame game = attacker.getGame();
         // sanity check: if this attack is happening in vacuum through very thin atmo, add that to the phase report and terminate early 
         final boolean notEnoughAtmo = game.getBoard().inSpace()
-                || game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum();
+                || game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum();
         
         if (notEnoughAtmo) {
             Report r = new Report(9986);
@@ -160,7 +160,7 @@ public class AreaEffectHelper {
             return;
         }
         
-        final boolean thinAtmo = game.getPlanetaryConditions().getAtmosphere().isThin();
+        final boolean thinAtmo = game.getPlanetaryConditions().getAtmosphericPressure().isThin();
         int blastRadius = getFuelAirBlastRadiusIndex(ordnanceType.getInternalName());
         
         if (thinAtmo) {
@@ -204,7 +204,7 @@ public class AreaEffectHelper {
         IGame game = attacker.getGame();
         // sanity check: if this attack is happening in vacuum through very thin atmo, add that to the phase report and terminate early 
         boolean notEnoughAtmo = game.getBoard().inSpace() ||
-                game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum();
+                game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum();
         
         if (notEnoughAtmo) {
             Report r = new Report(9986);
@@ -215,7 +215,7 @@ public class AreaEffectHelper {
             return;
         }
         
-        boolean thinAtmo = game.getPlanetaryConditions().getAtmosphere().isThin();
+        boolean thinAtmo = game.getPlanetaryConditions().getAtmosphericPressure().isThin();
         int blastRadius = getFuelAirBlastRadiusIndex(ordnanceType.getInternalName());
         
         if (thinAtmo) {

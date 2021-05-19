@@ -21,7 +21,6 @@ import megamek.common.IBoard;
 import megamek.common.IGame;
 import megamek.common.IHex;
 import megamek.common.Mounted;
-import megamek.common.PlanetaryConditions;
 import megamek.common.Report;
 import megamek.common.Terrains;
 import megamek.common.ToHitData;
@@ -58,7 +57,7 @@ public class HVACWeaponHandler extends ACWeaponHandler {
     public boolean handle(IGame.Phase phase, Vector<Report> vPhaseReport) {
 
         if (game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_START_FIRE)
-                && !game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
+                && !game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
             int rear = (ae.getFacing() + 3 + (weapon.isMechTurretMounted() ? weapon
                     .getFacing() : 0)) % 6;
             Coords src = ae.getPosition();

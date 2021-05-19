@@ -995,7 +995,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             setEjectEnabled(true);
             // no turning for spheroids in atmosphere
             if ((((IAero) ce()).isSpheroid() || clientgui.getClient().getGame()
-                    .getPlanetaryConditions().getAtmosphere().isTraceOrVacuum())
+                    .getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())
                     && !clientgui.getClient().getGame().getBoard().inSpace()) {
                 setTurnEnabled(false);
             }
@@ -4120,7 +4120,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         IAero a = (IAero) ce;
         if (!clientgui.getClient().getGame().getBoard().inSpace()) {
             if (a.isSpheroid()
-                    || clientgui.getClient().getGame().getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
+                    || clientgui.getClient().getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
                 getBtn(MoveCommand.MOVE_ACC).setEnabled(false);
                 getBtn(MoveCommand.MOVE_DEC).setEnabled(false);
                 getBtn(MoveCommand.MOVE_ACCN).setEnabled(false);
@@ -4941,7 +4941,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     && (cmd.getLastStep().getNDown() == 1)
                     && (cmd.getLastStep().getVelocity() < 12)
                     && !(((IAero) ce).isSpheroid() || clientgui.getClient()
-                            .getGame().getPlanetaryConditions().getAtmosphere().isTraceOrVacuum())) {
+                            .getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())) {
                 cmd.addStep(MoveStepType.ACC, true);
             }
             cmd.addStep(MoveStepType.DOWN);

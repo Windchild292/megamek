@@ -4021,7 +4021,7 @@ public class MoveStep implements Serializable {
             return false;
         }
         // are we airborne in non-vacuum?
-        return en.isAirborne() && !game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum();
+        return en.isAirborne() && !game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum();
     }
 
     /**

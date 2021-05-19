@@ -11896,7 +11896,7 @@ public class Server implements Runnable {
             if ((entity instanceof Mech) && !entity.isProne()
                 && (hex.terrainLevel(Terrains.WATER) <= partialWaterLevel)) {
                 for (int loop = 0; loop < entity.locations(); loop++) {
-                    if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()
+                    if (game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()
                             || ((entity.getEntityType() & Entity.ETYPE_AERO) == 0 && entity.isSpaceborne())) {
                         entity.setLocationStatus(loop, ILocationExposureStatus.VACUUM);
                     } else {
@@ -11925,7 +11925,7 @@ public class Server implements Runnable {
             }
         } else {
             for (int loop = 0; loop < entity.locations(); loop++) {
-                if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()
+                if (game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()
                         || ((entity.getEntityType() & Entity.ETYPE_AERO) == 0 && entity.isSpaceborne())) {
                     entity.setLocationStatus(loop, ILocationExposureStatus.VACUUM);
                 } else {
@@ -13159,7 +13159,7 @@ public class Server implements Runnable {
                 // all spheroid craft should have velocity of zero in atmosphere
                 // regardless of what was entered
                 IAero a = (IAero) entity;
-                if (a.isSpheroid() || game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
+                if (a.isSpheroid() || game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
                     a.setCurrentVelocity(0);
                     a.setNextVelocity(0);
                 }
@@ -20641,7 +20641,7 @@ public class Server implements Runnable {
             if ((((entity.getElevation() < 0) && ((curHex
                     .terrainLevel(Terrains.WATER) > 1) || ((curHex
                     .terrainLevel(Terrains.WATER) == 1) && entity.isProne())))
-                    || game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum())
+                    || game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())
                     && (entity.getHitCriticals(CriticalSlot.TYPE_SYSTEM,
                             Mech.SYSTEM_LIFE_SUPPORT, Mech.LOC_HEAD) > 0)) {
                 Report r = new Report(6020);
@@ -22050,7 +22050,7 @@ public class Server implements Runnable {
 
         // Is the infantry in vacuum?
         if ((isPlatoon || isBattleArmor) && !te.isDestroyed() && !te.isDoomed()
-            && game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
+            && game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
             // PBI. Double damage.
             damage *= 2;
             r = new Report(6041);
@@ -27403,7 +27403,7 @@ public class Server implements Runnable {
             // if this is a vacuum check and we are in trace atmosphere then
             // adjust target
             if ((entity.getLocationStatus(loc) == ILocationExposureStatus.VACUUM)
-                    && game.getPlanetaryConditions().getAtmosphere().isTrace()) {
+                    && game.getPlanetaryConditions().getAtmosphericPressure().isTrace()) {
                 target = 12;
             }
             // if this is a surface naval vessel and the attack is not from
@@ -34054,11 +34054,11 @@ public class Server implements Runnable {
         
             //Vacuum shouldn't apply to ASF ejection since they're designed for it, but the rules don't specify
             //High and low pressures make more sense to apply to all
-            if (game.getPlanetaryConditions().getAtmosphere().isVacuum()) {
+            if (game.getPlanetaryConditions().getAtmosphericPressure().isVacuum()) {
                 rollTarget.addModifier(3, "Vacuum");
-            } else if (game.getPlanetaryConditions().getAtmosphere().isVeryHigh()) {
+            } else if (game.getPlanetaryConditions().getAtmosphericPressure().isVeryHigh()) {
                 rollTarget.addModifier(2, "Very High Atmosphere Pressure");
-            } else if (game.getPlanetaryConditions().getAtmosphere().isTrace()) {
+            } else if (game.getPlanetaryConditions().getAtmosphericPressure().isTrace()) {
                 rollTarget.addModifier(2, "Trace atmosphere");
             }
         }
@@ -34159,7 +34159,7 @@ public class Server implements Runnable {
             r.indent(3);
             vDesc.addElement(r);
             // Don't make ill-equipped pilots abandon into vacuum
-            if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum() && !entity.isAero()) {
+            if (game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum() && !entity.isAero()) {
                 return vDesc;
             }
 
@@ -34201,7 +34201,7 @@ public class Server implements Runnable {
         else if (game.getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_VEHICLES_CAN_EJECT)
                  && (entity instanceof Tank)) {
             // Don't make them abandon into vacuum
-            if (game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()) {
+            if (game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
                 return vDesc;
             }
             EjectedCrew crew = new EjectedCrew(entity);

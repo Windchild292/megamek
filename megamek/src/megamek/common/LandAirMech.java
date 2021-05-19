@@ -741,7 +741,7 @@ public class LandAirMech extends BipedMech implements IAero, IBomber {
                 roll.addModifier(vmod, "Velocity greater than 2x safe thrust");
             }
 
-            final AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphere();
+            final AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphericPressure();
             // add in atmospheric effects later
             if (!(game.getBoard().inSpace() || atmosphere.isVacuum()) && isAirborne()) {
                 roll.addModifier(+1, "Atmospheric operations");

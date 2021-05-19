@@ -2461,7 +2461,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     public boolean isOnAtmosphericGroundMap() {
         // doesn't make sense in english, but "atmospheric" map actually
         // covers maps that are within a planet's gravity well
-        return (!getGame().getPlanetaryConditions().getAtmosphere().isTraceOrVacuum()
+        return (!getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()
                 && (getGame().getBoard().onGround() || getGame().getBoard().inAtmosphere()));
     }
 

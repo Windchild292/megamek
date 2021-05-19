@@ -428,7 +428,7 @@ public class Protomech extends Entity {
         }
         if (hasWorkingMisc(MiscType.F_PARTIAL_WING)) {
             jump += ((game == null) ? AtmosphericPressure.STANDARD
-                    : game.getPlanetaryConditions().getAtmosphere()).getPartialWingJumpBonus(this);
+                    : game.getPlanetaryConditions().getAtmosphericPressure()).getPartialWingJumpBonus(this);
         }
 
         return gravity ? Math.min(applyGravityEffectsOnMP(jump), jump) : jump;

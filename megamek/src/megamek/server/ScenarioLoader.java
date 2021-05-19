@@ -466,7 +466,7 @@ public class ScenarioLoader {
         }
         
         if (p.containsKey(PARAM_PLANETCOND_ATMOS)) {
-            g.getPlanetaryConditions().setAtmosphere(AtmosphericPressure.parseFromString(p.getString(PARAM_PLANETCOND_ATMOS)));
+            g.getPlanetaryConditions().setAtmosphericPressure(AtmosphericPressure.parseFromString(p.getString(PARAM_PLANETCOND_ATMOS)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_LIGHT)) {

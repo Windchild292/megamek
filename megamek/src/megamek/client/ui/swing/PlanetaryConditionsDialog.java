@@ -269,7 +269,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         comWindFrom.setSelectedItem(conditions.getMinimumWindStrength());
         comWindTo.setSelectedItem(conditions.getMaximumWindStrength());
         comWindDirection.setSelectedItem(conditions.getWindDirection());
-        comAtmosphere.setSelectedItem(conditions.getAtmosphere());
+        comAtmosphere.setSelectedItem(conditions.getAtmosphericPressure());
         comFog.setSelectedItem(conditions.getFog());
         chkBlowingSands.setSelected(conditions.isSandBlowing());
         chkShiftWindDir.setSelected(conditions.isShiftingWindDirection());
@@ -292,7 +292,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         conditions.setWindStrength(comWind.getSelectedItem());
         conditions.setWindDirection(comWindDirection.getSelectedItem());
         refreshWindRange();
-        conditions.setAtmosphere(comAtmosphere.getSelectedItem());
+        conditions.setAtmosphericPressure(comAtmosphere.getSelectedItem());
         conditions.setFog(comFog.getSelectedItem());
         conditions.setSandBlowing(chkBlowingSands.isSelected());
         conditions.setShiftingWindDirection(chkShiftWindDir.isSelected());

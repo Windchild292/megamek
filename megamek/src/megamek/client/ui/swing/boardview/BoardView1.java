@@ -128,7 +128,6 @@ import megamek.common.Mounted;
 import megamek.common.MovePath;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.MoveStep;
-import megamek.common.PlanetaryConditions;
 import megamek.common.QuadMech;
 import megamek.common.SpecialHexDisplay;
 import megamek.common.TargetRoll;
@@ -1612,7 +1611,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
         Graphics2D g = shadowMap.createGraphics();
 
-        if (game.getPlanetaryConditions().getLight().isMoonless()
+        if (game.getPlanetaryConditions().getLight().isMoonlessNight()
                 || game.getPlanetaryConditions().getLight().isPitchBlack()) {
             lightDirection = new double[] { 0, 0 };
         } else if (game.getPlanetaryConditions().getLight().isDusk()) {

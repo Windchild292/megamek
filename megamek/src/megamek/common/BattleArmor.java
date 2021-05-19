@@ -527,7 +527,7 @@ public class BattleArmor extends Infantry {
         // partial wing gives extra MP in atmosphere
         if ((mp > 0)
                 && hasWorkingMisc(MiscType.F_PARTIAL_WING)
-                && ((game == null) || !game.getPlanetaryConditions().getAtmosphere().isTraceOrVacuum())) {
+                && ((game == null) || !game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())) {
             mp++;
         }
         if ((mp > 0) && hasWorkingMisc(MiscType.F_JUMP_BOOSTER)) {

@@ -19,7 +19,9 @@ package megamek.common;
 
 import megamek.MegaMek;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.Atmosphere;
 import megamek.common.enums.AtmosphericPressure;
+import megamek.common.enums.Earthquake;
 import megamek.common.enums.Fog;
 import megamek.common.enums.Light;
 import megamek.common.enums.Weather;
@@ -35,15 +37,23 @@ import java.io.Serializable;
 import java.util.ResourceBundle;
 
 /**
- * This class will hold all the information on planetary conditions and a variety of helper functions
- * for those conditions
+ * This class will hold all the information on planetary conditions and a variety of helper
+ * functions for those conditions
+ *
+ * Unimplemented:
+ *      Earthquake (TO:AR 53)
+ *      Meteor Showers (TO:AR 54)
+ *      All of Atmosphere (TO:AR 54)
+ *      Light: Glare, Solar Flare (TO:AR 56)
+ *      Weather: Lightning Storm (TO:AR 57)
  */
 public class PlanetaryConditions implements Serializable {
     //region Variable Declarations
     private static final long serialVersionUID = 6838624193286089781L;
 
     // Atmosphere
-    private AtmosphericPressure atmosphere;
+    private Atmosphere atmosphere;
+    private AtmosphericPressure atmosphericPressure;
 
     // Gravity
     private float gravity;
@@ -74,7 +84,10 @@ public class PlanetaryConditions implements Serializable {
     private Fog fog;
 
     // Misc
-    private boolean emi; // Electro-Magnetic Interference
+    private Earthquake earthquake;
+    private boolean emi; // Electromagnetic Interference
+    private boolean meteorShower;
+    private int meteorCount;
     private boolean terrainAffected; // Can weather alter the terrain (add snow, mud, etc.)
     private boolean runOnce;
 
@@ -84,7 +97,8 @@ public class PlanetaryConditions implements Serializable {
     //region Constructors
     public PlanetaryConditions() {
         // Atmosphere
-        setAtmosphere(AtmosphericPressure.STANDARD);
+        setAtmosphere(Atmosphere.BREATHABLE);
+        setAtmosphericPressure(AtmosphericPressure.STANDARD);
 
         // Gravity
         setGravity(1.0f);
@@ -115,7 +129,10 @@ public class PlanetaryConditions implements Serializable {
         setFog(Fog.NONE);
 
         // Misc
+        setEarthquake(Earthquake.NONE);
         setEMI(false);
+        setMeteorShower(false);
+        setMeteorCount(0);
         setTerrainAffected(true);
         setRunOnce(false);
     }
@@ -123,6 +140,7 @@ public class PlanetaryConditions implements Serializable {
     public PlanetaryConditions(final PlanetaryConditions conditions) {
         // Atmosphere
         setAtmosphere(conditions.getAtmosphere());
+        setAtmosphericPressure(conditions.getAtmosphericPressure());
 
         // Gravity
         setGravity(conditions.getGravity());
@@ -153,7 +171,10 @@ public class PlanetaryConditions implements Serializable {
         setFog(conditions.getFog());
 
         // Misc
+        setEarthquake(conditions.getEarthquake());
         setEMI(conditions.isEMI());
+        setMeteorShower(conditions.isMeteorShower());
+        setMeteorCount(conditions.getMeteorCount());
         setTerrainAffected(conditions.isTerrainAffected());
         setRunOnce(conditions.isRunOnce());
     }
@@ -161,12 +182,20 @@ public class PlanetaryConditions implements Serializable {
 
     //region Getters/Setters
     //region Atmosphere
-    public AtmosphericPressure getAtmosphere() {
+    public Atmosphere getAtmosphere() {
         return atmosphere;
     }
 
-    public void setAtmosphere(final AtmosphericPressure atmosphere) {
+    public void setAtmosphere(final Atmosphere atmosphere) {
         this.atmosphere = atmosphere;
+    }
+
+    public AtmosphericPressure getAtmosphericPressure() {
+        return atmosphericPressure;
+    }
+
+    public void setAtmosphericPressure(final AtmosphericPressure atmosphericPressure) {
+        this.atmosphericPressure = atmosphericPressure;
     }
     //endregion Atmosphere
 
@@ -318,12 +347,36 @@ public class PlanetaryConditions implements Serializable {
     //endregion Fog
 
     //region Misc
+    public Earthquake getEarthquake() {
+        return earthquake;
+    }
+
+    public void setEarthquake(final Earthquake earthquake) {
+        this.earthquake = earthquake;
+    }
+
     public boolean isEMI() {
         return emi;
     }
 
     public void setEMI(final boolean emi) {
         this.emi = emi;
+    }
+
+    public boolean isMeteorShower() {
+        return meteorShower;
+    }
+
+    public void setMeteorShower(final boolean meteorShower) {
+        this.meteorShower = meteorShower;
+    }
+
+    public int getMeteorCount() {
+        return meteorCount;
+    }
+
+    public void setMeteorCount(final int meteorCount) {
+        this.meteorCount = meteorCount;
     }
 
     public boolean isTerrainAffected() {
@@ -404,9 +457,9 @@ public class PlanetaryConditions implements Serializable {
         }
 
         //atmospheric pressure may limit wind strength
-        if (getAtmosphere().isTrace() && getWindStrength().isTornado()) {
+        if (getAtmosphericPressure().isTrace() && getWindStrength().isTornado()) {
             setWindStrength(Wind.STORM);
-        } else if (getAtmosphere().isThin() && getWindStrength().isTornadoF4()) {
+        } else if (getAtmosphericPressure().isThin() && getWindStrength().isTornadoF4()) {
             setWindStrength(Wind.TORNADO_F13);
         }
     }
@@ -463,7 +516,7 @@ public class PlanetaryConditions implements Serializable {
      * @return a <code>String</code> with the reason why you cannot start a fire here
      */
     public String cannotStartFire() {
-        if (getAtmosphere().isTraceOrVacuum()) {
+        if (getAtmosphericPressure().isTraceOrVacuum()) {
             return "atmosphere too thin";
         } else if (getWindStrength().isTornado()) {
             return "a tornado";
@@ -512,7 +565,7 @@ public class PlanetaryConditions implements Serializable {
         }
 
         // atmospheric pressure mods
-        switch (getAtmosphere()) {
+        switch (getAtmosphericPressure()) {
             case THIN:
                 if ((entity.getMovementMode() == EntityMovementMode.HOVER)
                         || (entity.getMovementMode() == EntityMovementMode.WIGE)
@@ -546,7 +599,7 @@ public class PlanetaryConditions implements Serializable {
      * @return a string given the reason for being doomed, null if not doomed
      */
     public @Nullable String whyDoomed(final IGame game, final Entity entity) {
-        if (getAtmosphere().isTraceOrVacuum() && entity.doomedInVacuum()) {
+        if (getAtmosphericPressure().isTraceOrVacuum() && entity.doomedInVacuum()) {
             return "vacuum";
         } else if (getWindStrength().isTornadoF4() && !(entity instanceof Mech)) {
             return "tornado";
@@ -612,7 +665,7 @@ public class PlanetaryConditions implements Serializable {
             } else {
                 return 1;
             }
-        } else if (getLight().isMoonless() || getFog().isHeavy()) {
+        } else if (getLight().isMoonlessNight() || getFog().isHeavy()) {
             if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 5;
             } else if (isAero) {
@@ -682,7 +735,7 @@ public class PlanetaryConditions implements Serializable {
 
     public int getDropRate() {
         // Atmospheric pressure mods
-        switch (getAtmosphere()) {
+        switch (getAtmosphericPressure()) {
             case TRACE:
                 return 8;
             case THIN:
@@ -703,6 +756,7 @@ public class PlanetaryConditions implements Serializable {
     public void alterConditions(final PlanetaryConditions conditions) {
         // Atmosphere
         setAtmosphere(conditions.getAtmosphere());
+        setAtmosphericPressure(conditions.getAtmosphericPressure());
 
         // Gravity
         setGravity(conditions.getGravity());
@@ -733,7 +787,10 @@ public class PlanetaryConditions implements Serializable {
         setFog(conditions.getFog());
 
         // Misc
+        setEarthquake(conditions.getEarthquake());
         setEMI(conditions.isEMI());
+        setMeteorShower(conditions.isMeteorShower());
+        setMeteorCount(conditions.getMeteorCount());
         setTerrainAffected(conditions.isTerrainAffected());
         setRunOnce(conditions.isRunOnce());
 
@@ -827,8 +884,12 @@ public class PlanetaryConditions implements Serializable {
     public void writeToXML(final PrintWriter pw, int indent) {
         MegaMekXmlUtil.writeSimpleXMLOpenIndentedLine(pw, indent++, "planetaryConditions");
         //region Atmosphere
-        if (!getAtmosphere().isStandard()) {
+        if (!getAtmosphere().isBreathable()) {
             MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "atmosphere", getAtmosphere().name());
+        }
+
+        if (!getAtmosphericPressure().isStandard()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "atmosphericPressure", getAtmosphericPressure().name());
         }
         //endregion Atmosphere
 
@@ -884,8 +945,17 @@ public class PlanetaryConditions implements Serializable {
         //endregion Fog
 
         //region Misc
+        if (!getEarthquake().isNone()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "earthquake", getEarthquake().name());
+        }
+
         if (isEMI()) {
             MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "emi", isEMI());
+        }
+
+        if (isMeteorShower()) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "meteorShower", isMeteorShower());
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "meteorCount", getMeteorCount());
         }
 
         if (!isTerrainAffected()) {
@@ -906,21 +976,37 @@ public class PlanetaryConditions implements Serializable {
             for (int x = 0; x < nl.getLength(); x++) {
                 final Node wn = nl.item(x);
                 switch (wn.getNodeName()) {
+                    //region Atmosphere
                     case "atmosphere":
-                        planetaryConditions.setAtmosphere(AtmosphericPressure.valueOf(wn.getTextContent().trim()));
+                        planetaryConditions.setAtmosphere(Atmosphere.valueOf(wn.getTextContent().trim()));
                         break;
+                    case "atmosphericPressure":
+                        planetaryConditions.setAtmosphericPressure(AtmosphericPressure.valueOf(wn.getTextContent().trim()));
+                        break;
+                    //endregion Atmosphere
+
+                    //region Gravity
                     case "gravity":
                         planetaryConditions.setGravity(Float.parseFloat(wn.getTextContent().trim()));
                         break;
+                    //endregion Gravity
+
+                    //region Temperature
                     case "temperature":
                         planetaryConditions.setTemperature(Double.parseDouble(wn.getTextContent().trim()));
                         break;
                     case "oldTemperature":
                         planetaryConditions.setOldTemperature(Double.parseDouble(wn.getTextContent().trim()));
                         break;
+                    //endregion Temperature
+
+                    //region Light
                     case "light":
                         planetaryConditions.setLight(Light.valueOf(wn.getTextContent().trim()));
                         break;
+                    //endregion Light
+
+                    //region Wind
                     case "windStrength":
                         planetaryConditions.setWindStrength(Wind.parseFromString(wn.getTextContent().trim()));
                         break;
@@ -939,6 +1025,9 @@ public class PlanetaryConditions implements Serializable {
                     case "shiftingWindDirection":
                         planetaryConditions.setShiftingWindDirection(Boolean.parseBoolean(wn.getTextContent().trim()));
                         break;
+                    //endregion Wind
+
+                    //region Weather
                     case "weather":
                         planetaryConditions.setWeather(Weather.valueOf(wn.getTextContent().trim()));
                         break;
@@ -954,11 +1043,26 @@ public class PlanetaryConditions implements Serializable {
                     case "sandstorm":
                         planetaryConditions.setSandstorm(Boolean.parseBoolean(wn.getTextContent().trim()));
                         break;
+                    //endregion Weather
+
+                    //region Fog
                     case "fog":
                         planetaryConditions.setFog(Fog.valueOf(wn.getTextContent().trim()));
                         break;
+                    //endregion Fog
+
+                    //region Misc
+                    case "earthquake":
+                        planetaryConditions.setEarthquake(Earthquake.valueOf(wn.getTextContent().trim()));
+                        break;
                     case "emi":
                         planetaryConditions.setEMI(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "meteorShower":
+                        planetaryConditions.setMeteorShower(Boolean.parseBoolean(wn.getTextContent().trim()));
+                        break;
+                    case "meteorCount":
+                        planetaryConditions.setMeteorCount(Integer.parseInt(wn.getTextContent().trim()));
                         break;
                     case "terrainAffected":
                         planetaryConditions.setTerrainAffected(Boolean.parseBoolean(wn.getTextContent().trim()));
@@ -966,6 +1070,8 @@ public class PlanetaryConditions implements Serializable {
                     case "runOnce":
                         planetaryConditions.setRunOnce(Boolean.parseBoolean(wn.getTextContent().trim()));
                         break;
+                    //endregion Misc
+
                     default:
                         break;
                 }

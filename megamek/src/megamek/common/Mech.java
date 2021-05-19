@@ -1281,7 +1281,7 @@ public abstract class Mech extends Entity {
      */
     public int getPartialWingJumpBonus(Mounted mount) {
         int bonus = (game == null) ? ((getWeightClass() > EntityWeightClass.WEIGHT_MEDIUM) ? 1 : 2)
-                : game.getPlanetaryConditions().getAtmosphere().getPartialWingJumpBonus(this);
+                : game.getPlanetaryConditions().getAtmosphericPressure().getPartialWingJumpBonus(this);
 
         // subtract jumping bonus for damaged criticals
         bonus -= getBadCriticals(CriticalSlot.TYPE_EQUIPMENT, getEquipmentNum(mount), Mech.LOC_RT);
@@ -1296,7 +1296,7 @@ public abstract class Mech extends Entity {
      * @return the heat capacity bonus provided by the wing
      */
     private int getPartialWingHeatBonus() {
-        return (game == null) ? 3 : game.getPlanetaryConditions().getAtmosphere().getPartialWingHeatBonus();
+        return (game == null) ? 3 : game.getPlanetaryConditions().getAtmosphericPressure().getPartialWingHeatBonus();
     }
 
     /**

@@ -19,16 +19,20 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
+import megamek.common.Compute;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
 
 public enum Light {
     //region Enum Declarations
+    SOLAR_FLARE("Light.SOLAR_FLARE.text", "Light.SOLAR_FLARE.toolTipText"),
+    GLARE("Light.GLARE.text", "Light.GLARE.toolTipText"),
+    DAWN("Light.DAWN.text", "Light.DAWN.toolTipText"),
     DAY("Light.DAY.text", "Light.DAY.toolTipText"),
     DUSK("Light.DUSK.text", "Light.DUSK.toolTipText"),
     FULL_MOON("Light.FULL_MOON.text", "Light.FULL_MOON.toolTipText"),
-    MOONLESS("Light.MOONLESS.text", "Light.MOONLESS.toolTipText"),
+    MOONLESS_NIGHT("Light.MOONLESS_NIGHT.text", "Light.MOONLESS_NIGHT.toolTipText"),
     PITCH_BLACK("Light.PITCH_BLACK.text", "Light.PITCH_BLACK.toolTipText");
     //endregion Enum Declarations
 
@@ -53,6 +57,18 @@ public enum Light {
     //endregion Getters
 
     //region Boolean Comparisons
+    public boolean isSolarFlare() {
+        return this == SOLAR_FLARE;
+    }
+
+    public boolean isGlare() {
+        return this == GLARE;
+    }
+
+    public boolean isDawn() {
+        return this == DAWN;
+    }
+
     public boolean isDay() {
         return this == DAY;
     }
@@ -65,16 +81,32 @@ public enum Light {
         return this == FULL_MOON;
     }
 
-    public boolean isMoonless() {
-        return this == MOONLESS;
+    public boolean isMoonlessNight() {
+        return this == MOONLESS_NIGHT;
     }
 
     public boolean isPitchBlack() {
         return this == PITCH_BLACK;
     }
 
+    public boolean isDawnOrDusk() {
+        return isDawn() || isDusk();
+    }
+
+    public boolean isDawnDayOrDusk() {
+        return isDay() || isDawn() || isDusk();
+    }
+
+    public boolean isGlareOrFullMoonNight() {
+        return isGlare() || isFullMoon();
+    }
+
+    public boolean isSolarFlareOrMoonlessNight() {
+        return isSolarFlare() || isMoonlessNight();
+    }
+
     public boolean isNight() {
-        return isFullMoon() || isMoonless() || isPitchBlack();
+        return isFullMoon() || isMoonlessNight() || isPitchBlack();
     }
     //endregion Boolean Comparisons
 
@@ -87,7 +119,7 @@ public enum Light {
                 return 1;
             case FULL_MOON:
                 return 2;
-            case MOONLESS:
+            case MOONLESS_NIGHT:
                 return weapon ? 3 : 1;
             case PITCH_BLACK:
                 return weapon ? 4 : 2;
@@ -108,7 +140,7 @@ public enum Light {
             case FULL_MOON:
                 divisor = 20.0;
                 break;
-            case MOONLESS:
+            case MOONLESS_NIGHT:
                 divisor = 15.0;
                 break;
             case PITCH_BLACK:
@@ -125,7 +157,7 @@ public enum Light {
      */
     public int getPilotingPenalty() {
         switch (this) {
-            case MOONLESS:
+            case MOONLESS_NIGHT:
                 return 1;
             case PITCH_BLACK:
                 return 2;
@@ -151,11 +183,11 @@ public enum Light {
                 case 0:
                     return DAY;
                 case 1:
-                    return DUSK;
+                    return (Compute.randomInt(2) == 1) ? DUSK : DAWN;
                 case 2:
                     return FULL_MOON;
                 case 3:
-                    return MOONLESS;
+                    return MOONLESS_NIGHT;
                 case 4:
                     return PITCH_BLACK;
                 default:

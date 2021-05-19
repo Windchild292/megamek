@@ -21,7 +21,7 @@ public class PlanetaryConditionsTest {
         // Trace atmosphere - Entity doomed in vacuum/trace atmosphere
 
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setAtmosphere(AtmosphericPressure.TRACE);
+        planetaryConditions.setAtmosphericPressure(AtmosphericPressure.TRACE);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
         mockEntity = mock(Infantry.class);
         when(mockEntity.doomedInVacuum()).thenReturn(true);
@@ -31,7 +31,7 @@ public class PlanetaryConditionsTest {
         // Trace atmosphere - Entity not doomed in vacuum/trace atmosphere
 
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setAtmosphere(AtmosphericPressure.TRACE);
+        planetaryConditions.setAtmosphericPressure(AtmosphericPressure.TRACE);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
         mockEntity = mock(Infantry.class);
         when(mockEntity.doomedInVacuum()).thenReturn(false);

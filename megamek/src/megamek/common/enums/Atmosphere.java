@@ -1,0 +1,145 @@
+/*
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
+ *
+ * This file is part of MegaMek.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
+ */
+package megamek.common.enums;
+
+import megamek.MegaMek;
+import megamek.common.util.EncodeControl;
+
+import java.util.ResourceBundle;
+
+public enum Atmosphere {
+    //region Enum Declarations
+    NONE("Atmosphere.NONE.text", "Atmosphere.NONE.toolTipText"),
+    TAINTED_CAUSTIC("Atmosphere.TAINTED_CAUSTIC.text", "Atmosphere.TAINTED_CAUSTIC.toolTipText"),
+    TAINTED_RADIOLOGICAL("Atmosphere.TAINTED_RADIOLOGICAL.text", "Atmosphere.TAINTED_RADIOLOGICAL.toolTipText"),
+    TAINTED_POISONOUS("Atmosphere.TAINTED_POISONOUS.text", "Atmosphere.TAINTED_POISONOUS.toolTipText"),
+    TAINTED_FLAMMABLE("Atmosphere.TAINTED_FLAMMABLE.text", "Atmosphere.TAINTED_FLAMMABLE.toolTipText"),
+    TOXIC_CAUSTIC("Atmosphere.TOXIC_CAUSTIC.text", "Atmosphere.TOXIC_CAUSTIC.toolTipText"),
+    TOXIC_RADIOLOGICAL("Atmosphere.TOXIC_RADIOLOGICAL.text", "Atmosphere.TOXIC_RADIOLOGICAL.toolTipText"),
+    TOXIC_POISONOUS("Atmosphere.TOXIC_POISONOUS.text", "Atmosphere.TOXIC_POISONOUS.toolTipText"),
+    TOXIC_FLAMMABLE("Atmosphere.TOXIC_FLAMMABLE.text", "Atmosphere.TOXIC_FLAMMABLE.toolTipText"),
+    BREATHABLE("Atmosphere.BREATHABLE.text", "Atmosphere.BREATHABLE.toolTipText");
+    //endregion Enum Declarations
+
+    //region Variable Declarations
+    private final String name;
+    private final String toolTipText;
+
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
+    //endregion Variable Declarations
+
+    //region Constructors
+    Atmosphere(final String name, final String toolTipText) {
+        this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
+    }
+    //endregion Constructors
+
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+    //endregion Getters
+
+    //region Boolean Comparisons
+    public boolean isNone() {
+        return this == NONE;
+    }
+
+    public boolean isTaintedCaustic() {
+        return this == TAINTED_CAUSTIC;
+    }
+
+    public boolean isTaintedRadiological() {
+        return this == TAINTED_RADIOLOGICAL;
+    }
+
+    public boolean isTaintedPoisonous() {
+        return this == TAINTED_POISONOUS;
+    }
+
+    public boolean isTaintedFlammable() {
+        return this == TAINTED_FLAMMABLE;
+    }
+
+    public boolean isToxicCaustic() {
+        return this == TOXIC_CAUSTIC;
+    }
+
+    public boolean isToxicRadiological() {
+        return this == TOXIC_RADIOLOGICAL;
+    }
+
+    public boolean isToxicPoisonous() {
+        return this == TOXIC_POISONOUS;
+    }
+
+    public boolean isToxicFlammable() {
+        return this == TOXIC_FLAMMABLE;
+    }
+
+    public boolean isBreathable() {
+        return this == BREATHABLE;
+    }
+    //endregion Boolean Comparisons
+
+    //region File I/O
+    /**
+     * @param text the string to parse
+     * @return the Atmosphere, or BREATHABLE if there is an error in parsing
+     */
+    public static Atmosphere parseFromString(final String text) {
+        try {
+            return valueOf(text);
+        } catch (Exception ignored) {
+
+        }
+
+        try {
+            switch (Integer.parseInt(text)) {
+                case 0:
+                    return VACUUM;
+                case 1:
+                    return TRACE;
+                case 2:
+                    return THIN;
+                case 3:
+                    return STANDARD;
+                case 4:
+                    return HIGH;
+                case 5:
+                    return VERY_HIGH;
+                default:
+                    break;
+            }
+        } catch (Exception ignored) {
+
+        }
+
+        MegaMek.getLogger().error("Unable to parse " + text + " into an Atmosphere. Returning STANDARD.");
+
+        return BREATHABLE;
+    }
+    //endregion File I/O
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}

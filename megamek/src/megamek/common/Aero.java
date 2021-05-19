@@ -2653,7 +2653,7 @@ public class Aero extends Entity implements IAero, IBomber {
             prd.addModifier(vmod, "Velocity greater than 2x safe thrust");
         }
 
-        final AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphere();
+        final AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphericPressure();
         // add in atmospheric effects later
         if (!(game.getBoard().inSpace() || atmosphere.isVacuum()) && isAirborne()) {
             prd.addModifier(+2, "Atmospheric operations");

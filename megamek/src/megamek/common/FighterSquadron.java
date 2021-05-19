@@ -216,7 +216,7 @@ public class FighterSquadron extends Aero {
         }
 
         // add in atmospheric effects later
-        AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphere();
+        AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphericPressure();
         if (!(game.getBoard().inSpace() || atmosphere.isVacuum())) {
             prd.addModifier(+2, "Atmospheric operations");
             prd.addModifier(-1, "fighter/small craft");
