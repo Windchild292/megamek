@@ -17,6 +17,7 @@ package megamek.server;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import megamek.common.Coords;
 
@@ -47,7 +48,7 @@ public class SmokeCloud implements Serializable{
         this.smokeLevel = level;
     }
     
-    public SmokeCloud(ArrayList<Coords> coords, int level, int duration){
+    public SmokeCloud(List<Coords> coords, int level, int duration){
         this.smokeDuration = duration;
         this.smokeLevel = level;
         this.smokeHexList.addAll(coords);

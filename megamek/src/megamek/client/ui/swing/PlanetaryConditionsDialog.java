@@ -13,11 +13,6 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
-/*
- * PlanetaryConditionsDialog.java
- */
-
 package megamek.client.ui.swing;
 
 import java.awt.BorderLayout;
@@ -60,7 +55,6 @@ import static megamek.client.ui.swing.util.UIUtil.*;
  *
  * @author Jay Lawson
  * @author Simon
- * @version
  */
 public class PlanetaryConditionsDialog extends ClientDialog {
 

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import megamek.MegaMek;
+import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.InfantryAttack;
 import megamek.common.weapons.infantry.InfantryWeapon;
@@ -509,8 +510,8 @@ public class BattleArmor extends Infantry {
             return 0;
         }
         if (null != game) {
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if (windCond >= PlanetaryConditions.WI_STORM) {
+            final Wind wind = game.getPlanetaryConditions().getWindStrength();
+            if (wind.isStormOrStronger()) {
                 return 0;
             }
         }

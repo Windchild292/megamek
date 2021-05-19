@@ -1280,108 +1280,23 @@ public abstract class Mech extends Entity {
      * @return The Jump MP bonus conferred by the wing
      */
     public int getPartialWingJumpBonus(Mounted mount) {
-        int bonus = 0;
-        if (game != null) {
-            if ((getWeightClass() <= EntityWeightClass.WEIGHT_MEDIUM)) {
-                switch (game.getPlanetaryConditions().getAtmosphere()) {
-                    case PlanetaryConditions.ATMO_VACUUM:
-                        bonus = 0;
-                        break;
-                    case PlanetaryConditions.ATMO_TRACE:
-                        bonus = 0;
-                        break;
-                    case PlanetaryConditions.ATMO_THIN:
-                        bonus = 1;
-                        break;
-                    case PlanetaryConditions.ATMO_STANDARD:
-                        bonus = 2;
-                        break;
-                    case PlanetaryConditions.ATMO_HIGH:
-                        bonus = 2;
-                        break;
-
-                    case PlanetaryConditions.ATMO_VHIGH:
-                        bonus = 3;
-                        break;
-                    default:
-                        bonus = 2;
-                }
-            } else {
-                switch (game.getPlanetaryConditions().getAtmosphere()) {
-                    case PlanetaryConditions.ATMO_VACUUM:
-                        bonus = 0;
-                        break;
-                    case PlanetaryConditions.ATMO_TRACE:
-                        bonus = 0;
-                        break;
-                    case PlanetaryConditions.ATMO_THIN:
-                        bonus = 0;
-                        break;
-                    case PlanetaryConditions.ATMO_STANDARD:
-                        bonus = 1;
-                        break;
-                    case PlanetaryConditions.ATMO_HIGH:
-                        bonus = 2;
-                        break;
-                    case PlanetaryConditions.ATMO_VHIGH:
-                        bonus = 2;
-                        break;
-                    default:
-                        bonus = 1;
-                }
-            }
-        } else {
-            if ((getWeightClass() <= EntityWeightClass.WEIGHT_MEDIUM)) {
-                bonus = 2;
-            } else {
-                bonus = 1;
-            }
-        }
+        int bonus = (game == null) ? ((getWeightClass() > EntityWeightClass.WEIGHT_MEDIUM) ? 1 : 2)
+                : game.getPlanetaryConditions().getAtmosphere().getPartialWingJumpBonus(this);
 
         // subtract jumping bonus for damaged criticals
-        bonus -= getBadCriticals(CriticalSlot.TYPE_EQUIPMENT,
-                getEquipmentNum(mount), Mech.LOC_RT);
-        bonus -= getBadCriticals(CriticalSlot.TYPE_EQUIPMENT,
-                getEquipmentNum(mount), Mech.LOC_LT);
+        bonus -= getBadCriticals(CriticalSlot.TYPE_EQUIPMENT, getEquipmentNum(mount), Mech.LOC_RT);
+        bonus -= getBadCriticals(CriticalSlot.TYPE_EQUIPMENT, getEquipmentNum(mount), Mech.LOC_LT);
 
-        return bonus > 0 ? bonus : 0;
+        return Math.max(bonus, 0);
     }
 
     /**
-     * Gives the heat capacity bonus conferred by a mech partial wing.
+     * Gives the heat capacity bonus conferred by a 'Mech partial wing.
      *
      * @return the heat capacity bonus provided by the wing
      */
     private int getPartialWingHeatBonus() {
-        int bonus = 0;
-        if (game != null) {
-            switch (game.getPlanetaryConditions().getAtmosphere()) {
-                case PlanetaryConditions.ATMO_VACUUM:
-                    bonus = 0;
-                    break;
-                case PlanetaryConditions.ATMO_TRACE:
-                    bonus = 1;
-                    break;
-                case PlanetaryConditions.ATMO_THIN:
-                    bonus = 2;
-                    break;
-                case PlanetaryConditions.ATMO_STANDARD:
-                    bonus = 3;
-                    break;
-                case PlanetaryConditions.ATMO_HIGH:
-                    bonus = 3;
-                    break;
-                case PlanetaryConditions.ATMO_VHIGH:
-                    bonus = 3;
-                    break;
-                default:
-                    bonus = 3;
-            }
-        } else {
-            bonus = 3;
-        }
-
-        return bonus;
+        return (game == null) ? 3 : game.getPlanetaryConditions().getAtmosphere().getPartialWingHeatBonus();
     }
 
     /**

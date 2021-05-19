@@ -19,6 +19,10 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
+import megamek.common.Entity;
+import megamek.common.EntityWeightClass;
+import megamek.common.Mech;
+import megamek.common.Protomech;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
@@ -82,6 +86,72 @@ public enum AtmosphericPressure {
         return isTrace() || isVacuum();
     }
     //endregion Boolean Comparisons
+
+    public int getPartialWingJumpBonus(final Entity entity) {
+        if (entity instanceof Mech) {
+            if (entity.getWeightClass() > EntityWeightClass.WEIGHT_MEDIUM) {
+                switch (this) {
+                    case VACUUM:
+                    case TRACE:
+                    case THIN:
+                        return 0;
+                    case HIGH:
+                    case VERY_HIGH:
+                        return 2;
+                    case STANDARD:
+                    default:
+                        return 1;
+                }
+            } else {
+                switch (this) {
+                    case THIN:
+                        return 1;
+                    case STANDARD:
+                    case HIGH:
+                        return 2;
+                    case VERY_HIGH:
+                        return 3;
+                    case VACUUM:
+                    case TRACE:
+                    default:
+                        return 0;
+                }
+            }
+        } else if (entity instanceof Protomech) {
+            switch (this) {
+                case TRACE:
+                    return 1;
+                case THIN:
+                case STANDARD:
+                    return 2;
+                case HIGH:
+                case VERY_HIGH:
+                    return 3;
+                default:
+                    return 0;
+            }
+        } else {
+            MegaMek.getLogger().error("Illegal entity type of " + entity.getClass()
+                    + " for partial wing jump modifier, returning 0");
+            return 0;
+        }
+    }
+
+    public int getPartialWingHeatBonus() {
+        switch (this) {
+            case VACUUM:
+                return 0;
+            case TRACE:
+                return 1;
+            case THIN:
+                return 2;
+            case STANDARD:
+            case HIGH:
+            case VERY_HIGH:
+            default:
+                return 3;
+        }
+    }
 
     //region File I/O
     /**

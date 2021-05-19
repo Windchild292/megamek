@@ -18,15 +18,13 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import megamek.common.enums.AtmosphericPressure;
 import megamek.common.preference.PreferenceManager;
 
 /**
- * Protomechs. Level 2 Clan equipment.
+ * ProtoMechs. Level 2 Clan equipment.
  */
 public class Protomech extends Entity {
-    /**
-     *
-     */
     private static final long serialVersionUID = -1376410042751538158L;
 
     public static final int NUM_PMECH_LOCATIONS = 7;
@@ -39,7 +37,7 @@ public class Protomech extends Entity {
 
     // Crew damage caused so far by crits to this location.
     // Needed for location destruction pilot damage.
-    private int pilotDamageTaken[] = { 0, 0, 0, 0, 0, 0, 0 };
+    private int[] pilotDamageTaken = { 0, 0, 0, 0, 0, 0, 0 };
 
     /**
      * Not every Protomech has a main gun. N.B. Regardless of the value set
@@ -83,7 +81,7 @@ public class Protomech extends Entity {
 
     public static final int[] POSSIBLE_PILOT_DAMAGE = { 0, 1, 3, 1, 1, 1, 0 };
 
-    public static final String systemNames[] = { "Arm", "Leg", "Head", "Torso" };
+    public static final String[] systemNames = { "Arm", "Leg", "Head", "Torso" };
 
     // For grapple attacks
     private int grappled_id = Entity.NONE;
@@ -429,32 +427,11 @@ public class Protomech extends Entity {
                 break;
         }
         if (hasWorkingMisc(MiscType.F_PARTIAL_WING)) {
-            int atmo = PlanetaryConditions.ATMO_STANDARD;
-            if (game != null) {
-                atmo = game.getPlanetaryConditions().getAtmosphere();
-            }
-            switch (atmo) {
-                case PlanetaryConditions.ATMO_VHIGH:
-                case PlanetaryConditions.ATMO_HIGH:
-                    jump += 3;
-                    break;
-                case PlanetaryConditions.ATMO_STANDARD:
-                case PlanetaryConditions.ATMO_THIN:
-                    jump += 2;
-                    break;
-                case PlanetaryConditions.ATMO_TRACE:
-                    jump += 1;
-                    break;
-            }
+            jump += ((game == null) ? AtmosphericPressure.STANDARD
+                    : game.getPlanetaryConditions().getAtmosphere()).getPartialWingJumpBonus(this);
         }
-        if (!gravity) {
-            return jump;
-        } else {
-            if (applyGravityEffectsOnMP(jump) > jump) {
-                return jump;
-            }
-            return applyGravityEffectsOnMP(jump);
-        }
+
+        return gravity ? Math.min(applyGravityEffectsOnMP(jump), jump) : jump;
     }
 
     public int getJumpJets() {

@@ -87,6 +87,10 @@ public enum Wind {
         return this == TORNADO_F4;
     }
 
+    public boolean isCalmOrLightGale() {
+        return isCalm() || isLightGale();
+    }
+
     public boolean isModerateGaleOrStronger() {
         return isModerateGale() || isStrongGaleOrStronger();
     }

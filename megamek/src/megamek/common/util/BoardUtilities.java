@@ -13,16 +13,7 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common.util;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 
 import megamek.client.bot.princess.CardinalEdge;
 import megamek.common.Board;
@@ -36,15 +27,22 @@ import megamek.common.ITerrain;
 import megamek.common.ITerrainFactory;
 import megamek.common.MapSettings;
 import megamek.common.OffBoardDirection;
-import megamek.common.PlanetaryConditions;
 import megamek.common.Terrains;
 import megamek.common.enums.Weather;
 import megamek.common.enums.Wind;
 import megamek.common.util.generator.ElevationGenerator;
 import megamek.common.util.generator.SimplexGenerator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+
 public class BoardUtilities {
-    private static List<ElevationGenerator> elevationGenerators = new ArrayList<ElevationGenerator>();
+    private static List<ElevationGenerator> elevationGenerators = new ArrayList<>();
     static {
         // TODO: make this externally accessible via registerElevationGenerator()
         elevationGenerators.add(new SimplexGenerator());
@@ -137,7 +135,7 @@ public class BoardUtilities {
      * @param mapSettings The parameters for random board creation.
      */
     public static IBoard generateRandom(MapSettings mapSettings) {
-        int elevationMap[][] = new int[mapSettings.getBoardWidth()][mapSettings
+        int[][] elevationMap = new int[mapSettings.getBoardWidth()][mapSettings
                 .getBoardHeight()];
         double sizeScale = (double) (mapSettings.getBoardWidth() * mapSettings
                 .getBoardHeight())
@@ -1062,7 +1060,7 @@ public class BoardUtilities {
     /*
      * adjust the board based on weather conditions
      */
-    public static void addWeatherConditions(IBoard board, Weather weatherCond, Wind windCond) {
+    public static void addWeatherConditions(IBoard board, Weather weather, Wind wind) {
         ITerrainFactory tf = Terrains.getTerrainFactory();
 
         for (int x = 0; x < board.getWidth(); x++) {
@@ -1070,60 +1068,58 @@ public class BoardUtilities {
                 Coords c = new Coords(x, y);
                 IHex hex = board.getHex(c);
 
-                //moderate rain - mud in clear hexes, depth 0 water, and dirt roads (not implemented yet)
-                if(weatherCond == PlanetaryConditions.WE_MOD_RAIN) {
-                    if((hex.terrainsPresent() == 0) || (hex.containsTerrain(Terrains.WATER) && (hex.depth() == 0))) {
+                // Moderate rain - mud in clear hexes, depth 0 water, and dirt roads (not implemented yet)
+                if (weather.isModerateRain()) {
+                    if ((hex.terrainsPresent() == 0) || (hex.containsTerrain(Terrains.WATER)
+                            && (hex.depth() == 0))) {
                         hex.addTerrain(tf.createTerrain(Terrains.MUD, 1));
-                        if(hex.containsTerrain(Terrains.WATER)) {
+                        if (hex.containsTerrain(Terrains.WATER)) {
                             hex.removeTerrain(Terrains.WATER);
                         }
                     }
                 }
 
-                //heavy rain - mud in all hexes except buildings, depth 1+ water, and non-dirt roads
-                //rapids in all depth 1+ water
-                if ((weatherCond == PlanetaryConditions.WE_HEAVY_RAIN)
-                        || (weatherCond == PlanetaryConditions.WE_GUSTING_RAIN)) {
-                    if(hex.containsTerrain(Terrains.WATER) && !hex.containsTerrain(Terrains.RAPIDS) && (hex.depth() > 0)) {
+                // Heavy rain - mud in all hexes except buildings, depth 1+ water, and non-dirt roads
+                // rapids in all depth 1+ water
+                if (weather.isHeavyRain() || weather.isGustingRain()) {
+                    if (hex.containsTerrain(Terrains.WATER) && !hex.containsTerrain(Terrains.RAPIDS)
+                            && (hex.depth() > 0)) {
                         hex.addTerrain(tf.createTerrain(Terrains.RAPIDS, 1));
-                    }
-                    else if(!hex.containsTerrain(Terrains.BUILDING)
+                    } else if (!hex.containsTerrain(Terrains.BUILDING)
                             && !hex.containsTerrain(Terrains.PAVEMENT)
                             && !hex.containsTerrain(Terrains.ROAD)) {
                         hex.addTerrain(tf.createTerrain(Terrains.MUD, 1));
-                        if(hex.containsTerrain(Terrains.WATER)) {
+                        if (hex.containsTerrain(Terrains.WATER)) {
                             hex.removeTerrain(Terrains.WATER);
                         }
                     }
                 }
 
-                //torrential downpour - mud in all hexes except buildings, depth 1+ water, and non-dirt roads
-                //torrent in all depth 1+ water, swamps in all depth 0 water hexes
-                if(weatherCond == PlanetaryConditions.WE_DOWNPOUR) {
-                    if(hex.containsTerrain(Terrains.WATER) && !(hex.terrainLevel(Terrains.RAPIDS) > 1) && (hex.depth() > 0)) {
+                // Torrential downpour - mud in all hexes except buildings, depth 1+ water, and non-dirt roads
+                // torrent in all depth 1+ water, swamps in all depth 0 water hexes
+                if (weather.isDownpour()) {
+                    if (hex.containsTerrain(Terrains.WATER) && !(hex.terrainLevel(Terrains.RAPIDS) > 1)
+                            && (hex.depth() > 0)) {
                         hex.addTerrain(tf.createTerrain(Terrains.RAPIDS, 2));
-                    }
-                    else if(hex.containsTerrain(Terrains.WATER)) {
+                    } else if (hex.containsTerrain(Terrains.WATER)) {
                         hex.addTerrain(tf.createTerrain(Terrains.SWAMP, 1));
                         hex.removeTerrain(Terrains.WATER);
-                    }
-                    else if(!hex.containsTerrain(Terrains.BUILDING)
+                    } else if (!hex.containsTerrain(Terrains.BUILDING)
                             && !hex.containsTerrain(Terrains.PAVEMENT)
                             && !hex.containsTerrain(Terrains.ROAD)) {
                         hex.addTerrain(tf.createTerrain(Terrains.MUD, 1));
                     }
                 }
 
-                //check for rapids/torrents created by wind
-                if((windCond > PlanetaryConditions.WI_MOD_GALE)
-                        && hex.containsTerrain(Terrains.WATER) && (hex.depth() > 0)) {
-
-                    if(windCond > PlanetaryConditions.WI_STORM) {
-                        if(!(hex.terrainLevel(Terrains.RAPIDS) > 1)) {
+                // Check for rapids/torrents created by wind
+                if (wind.isStrongGaleOrStronger() && hex.containsTerrain(Terrains.WATER)
+                        && (hex.depth() > 0)) {
+                    if (wind.isTornado()) {
+                        if (!(hex.terrainLevel(Terrains.RAPIDS) > 1)) {
                             hex.addTerrain(tf.createTerrain(Terrains.RAPIDS, 2));
                         }
                     } else {
-                        if(!hex.containsTerrain(Terrains.RAPIDS)) {
+                        if (!hex.containsTerrain(Terrains.RAPIDS)) {
                             hex.addTerrain(tf.createTerrain(Terrains.RAPIDS, 1));
                         }
                     }
@@ -1144,8 +1140,8 @@ public class BoardUtilities {
      * @param elevationMap here is the result stored
      */
     public static void generateElevation(int hilliness, int width, int height,
-            int range, int invertProb, int invertNegative,
-            int elevationMap[][], int algorithm) {
+                                         int range, int invertProb, int invertNegative,
+                                         int[][] elevationMap, int algorithm) {
         int minLevel = 0;
         int maxLevel = range;
         boolean invert = (Compute.randomInt(100) < invertProb);
@@ -1170,7 +1166,7 @@ public class BoardUtilities {
                 break;
             default:
                 // Non-hardcoded generators, if we have any
-                if((algorithm > 2) && (algorithm - 3 < elevationGenerators.size())) {
+                if ((algorithm > 2) && (algorithm - 3 < elevationGenerators.size())) {
                     elevationGenerators.get(algorithm - 3).generate(hilliness, width, height, elevationMap);
                 }
         }
@@ -1657,7 +1653,7 @@ public class BoardUtilities {
         int horizontalDistance = Math.min(distanceToWest, distanceToEast);
         int verticalDistance = Math.min(distanceToNorth, distanceToSouth);
 
-        if(horizontalDistance < verticalDistance) {
+        if (horizontalDistance < verticalDistance) {
             return closerWestThanEast ? CardinalEdge.WEST : CardinalEdge.EAST;
         } else {
             return closerNorthThanSouth ? CardinalEdge.NORTH : CardinalEdge.SOUTH;

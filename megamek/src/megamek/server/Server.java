@@ -63,6 +63,7 @@ import megamek.common.IGame.Phase;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.*;
 import megamek.common.containers.PlayerIDandList;
+import megamek.common.enums.CardinalDirection;
 import megamek.common.enums.Wind;
 import megamek.common.event.GameListener;
 import megamek.common.event.GameVictoryEvent;
@@ -28974,7 +28975,8 @@ public class Server implements Runnable {
      *
      * @param coords The <code>Coords</code> x-coordinate of the hex
      */
-    public void addSmoke(ArrayList<Coords> coords, int windDir, boolean bInferno) {
+    public void addSmoke(final List<Coords> coords, final CardinalDirection direction,
+                         final boolean bInferno) {
         // if a tornado, then no smoke!
         if (game.getPlanetaryConditions().getWindStrength().isTornado()) {
             return;
@@ -35520,7 +35522,7 @@ public class Server implements Runnable {
      * @param level    1=Light 2=Heavy Smoke 3:light LI smoke 4: Heavy LI smoke
      * @param duration duration How long the smoke will last.
      */
-    public void createSmoke(ArrayList<Coords> coords, int level, int duration) {
+    public void createSmoke(List<Coords> coords, int level, int duration) {
         SmokeCloud cloud = new SmokeCloud(coords, level, duration);
         game.addSmokeCloud(cloud);
         sendSmokeCloudAdded(cloud);
