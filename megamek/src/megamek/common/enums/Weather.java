@@ -120,6 +120,10 @@ public enum Weather {
         return this == HEAVY_HAIL;
     }
 
+    public boolean isLightningStorm() {
+        return this == LIGHTNING_STORM;
+    }
+
     public boolean requiresLowTemperature() {
         return isLightSnow() || isModerateSnow() || isSnowFlurries() || isHeavySnow() || isSleet()
                 || isIceStorm() || isLightHail() || isHeavyHail();

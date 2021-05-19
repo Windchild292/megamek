@@ -68,7 +68,13 @@ import megamek.common.TechConstants;
 import megamek.common.ToHitData;
 import megamek.common.WeaponType;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.AtmosphericPressure;
+import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.Fog;
 import megamek.common.enums.Gender;
+import megamek.common.enums.Light;
+import megamek.common.enums.Weather;
+import megamek.common.enums.Wind;
 import megamek.common.icons.Camouflage;
 import megamek.common.loaders.EntityLoadingException;
 import megamek.common.options.IOption;
@@ -456,27 +462,27 @@ public class ScenarioLoader {
         }
         
         if (p.containsKey(PARAM_PLANETCOND_FOG)) {
-            g.getPlanetaryConditions().setFog(Integer.parseInt(p.getString(PARAM_PLANETCOND_FOG)));
+            g.getPlanetaryConditions().setFog(Fog.parseFromString(p.getString(PARAM_PLANETCOND_FOG)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_ATMOS)) {
-            g.getPlanetaryConditions().setAtmosphere(Integer.parseInt(p.getString(PARAM_PLANETCOND_ATMOS)));
+            g.getPlanetaryConditions().setAtmosphere(AtmosphericPressure.parseFromString(p.getString(PARAM_PLANETCOND_ATMOS)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_LIGHT)) {
-            g.getPlanetaryConditions().setLight(Integer.parseInt(p.getString(PARAM_PLANETCOND_LIGHT)));
+            g.getPlanetaryConditions().setLight(Light.parseFromString(p.getString(PARAM_PLANETCOND_LIGHT)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WEATHER)) {
-            g.getPlanetaryConditions().setWeather(Integer.parseInt(p.getString(PARAM_PLANETCOND_WEATHER)));
+            g.getPlanetaryConditions().setWeather(Weather.parseFromString(p.getString(PARAM_PLANETCOND_WEATHER)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WIND)) {
-            g.getPlanetaryConditions().setWindStrength(Integer.parseInt(p.getString(PARAM_PLANETCOND_WIND)));
+            g.getPlanetaryConditions().setWindStrength(Wind.parseFromString(p.getString(PARAM_PLANETCOND_WIND)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WINDDIR)) {
-            g.getPlanetaryConditions().setWindDirection(Integer.parseInt(p.getString(PARAM_PLANETCOND_WINDDIR)));
+            g.getPlanetaryConditions().setWindDirection(CardinalDirection.parseFromString(p.getString(PARAM_PLANETCOND_WINDDIR)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WINDSHIFTINGDIR)) {
@@ -488,11 +494,11 @@ public class ScenarioLoader {
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WINDMIN)) {
-            g.getPlanetaryConditions().setMinWindStrength(Integer.parseInt(p.getString(PARAM_PLANETCOND_WINDMIN)));
+            g.getPlanetaryConditions().setMinimumWindStrength(Wind.parseFromString(p.getString(PARAM_PLANETCOND_WINDMIN)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WINDMAX)) {
-            g.getPlanetaryConditions().setMaxWindStrength(Integer.parseInt(p.getString(PARAM_PLANETCOND_WINDMAX)));
+            g.getPlanetaryConditions().setMaximumWindStrength(Wind.parseFromString(p.getString(PARAM_PLANETCOND_WINDMAX)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_EMI)) {
@@ -504,7 +510,7 @@ public class ScenarioLoader {
         }
         
         if (p.containsKey(PARAM_PLANETCOND_BLOWINGSAND)) {
-            g.getPlanetaryConditions().setBlowingSand(parseBoolean(p, PARAM_PLANETCOND_BLOWINGSAND, false));
+            g.getPlanetaryConditions().setSandBlowing(parseBoolean(p, PARAM_PLANETCOND_BLOWINGSAND, false));
         }
     }
 

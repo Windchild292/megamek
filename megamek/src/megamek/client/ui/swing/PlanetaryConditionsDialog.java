@@ -41,10 +41,16 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import megamek.client.ui.Messages;
+import megamek.client.ui.baseComponents.MMComboBox;
 import megamek.client.ui.swing.dialog.DialogButton;
 import megamek.common.Configuration;
 import megamek.common.PlanetaryConditions;
+import megamek.common.enums.AtmosphericPressure;
+import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.Fog;
+import megamek.common.enums.Light;
 import megamek.common.enums.Weather;
+import megamek.common.enums.Wind;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
 
@@ -94,8 +100,6 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         refreshValues();
         adaptToWeatherAtmo();
     }
-    
-    // PRIVATE
 
     private ClientGUI client;
     private PlanetaryConditions conditions;
@@ -103,21 +107,21 @@ public class PlanetaryConditionsDialog extends ClientDialog {
     private static final int TOOLTIP_WIDTH = 300;
     private static final String PCD = "PlanetaryConditionsDialog.";
     private JLabel labLight = new JLabel(Messages.getString(PCD + "labLight"), SwingConstants.RIGHT); 
-    private JComboBox<String> comLight = new JComboBox<String>();
+    private MMComboBox<Light> comLight = new MMComboBox<>("comLight", Light.values());
     private JLabel labWeather = new TipLabel(Messages.getString(PCD + "labWeather"), SwingConstants.RIGHT, this); 
-    private JComboBox<String> comWeather = new JComboBox<String>();
+    private MMComboBox<Weather> comWeather = new MMComboBox<>("comWeather", Weather.values());
     private JLabel labWind = new TipLabel(Messages.getString(PCD + "labWind"), SwingConstants.RIGHT, this); 
-    private JComboBox<String> comWind = new JComboBox<String>();
+    private MMComboBox<Wind> comWind = new MMComboBox<>("comWind", Wind.values());
     private JLabel labMinWind = new JLabel(Messages.getString(PCD + "labMinWind"), SwingConstants.RIGHT); 
-    private JComboBox<String> comWindFrom = new JComboBox<String>();
+    private MMComboBox<Wind> comWindFrom = new MMComboBox<>("comWindFrom", Wind.values());
     private JLabel labMaxWind = new JLabel(Messages.getString(PCD + "labMaxWind"), SwingConstants.RIGHT); 
-    private JComboBox<String> comWindDirection = new JComboBox<>();
+    private MMComboBox<CardinalDirection> comWindDirection = new MMComboBox<>("comWindDirection", CardinalDirection.values());
     private JLabel labWindDirection = new JLabel(Messages.getString(PCD + "labWindDirection"), SwingConstants.RIGHT);
-    private JComboBox<String> comWindTo = new JComboBox<String>();
+    private MMComboBox<Wind> comWindTo = new MMComboBox<>("comWindTo", Wind.values());
     private JLabel labAtmosphere = new TipLabel(Messages.getString(PCD + "labAtmosphere"), SwingConstants.RIGHT, this); 
-    private JComboBox<String> comFog = new JComboBox<String>();
+    private MMComboBox<Fog> comFog = new MMComboBox<>("comFog", Fog.values());
     private JLabel labFog = new TipLabel(Messages.getString(PCD + "labFog"), SwingConstants.RIGHT, this); 
-    private JComboBox<String> comAtmosphere = new JComboBox<String>();
+    private MMComboBox<AtmosphericPressure> comAtmosphere = new MMComboBox<>("comAtmosphere", AtmosphericPressure.values());
     private JLabel labBlowingSands = new TipLabel(Messages.getString(PCD + "BlowingSands"), SwingConstants.RIGHT, this);
     private JCheckBox chkBlowingSands = new JCheckBox();
     private JLabel labShiftWindDir = new JLabel(Messages.getString(PCD + "shiftWindDir"), SwingConstants.RIGHT);
@@ -149,8 +153,6 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         mainPanel.add(weatherSection());
         mainPanel.add(dynamicSection());
         mainPanel.add(Box.createVerticalGlue());
-        
-        setupCombos();
     }
     
     private JPanel headerSection() {
@@ -202,7 +204,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         panContent.add(chkBlowingSands);
         return result;
     }
-    
+
     private JPanel dynamicSection() {
         JPanel result = new OptionPanel("PlanetaryConditionsDialog.header.dynamic");
         Content panContent = new Content(new GridLayout(4, 2, 10, 5));
@@ -217,7 +219,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         panContent.add(comWindTo);
         return result;
     }
-    
+
     private JPanel buttonPanel() {
         JPanel result = new JPanel(new FlowLayout());
         butOkay.addActionListener(listener);
@@ -225,31 +227,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         result.add(new DialogButton(new CancelAction(this)));
         return result;
     }
-    
-    /** Fills the dialog comboboxes. */
-    private void setupCombos() {
-        for (int i = 0; i < PlanetaryConditions.L_SIZE; i++) {
-            comLight.addItem(PlanetaryConditions.getLightDisplayableName(i));
-        }
-        for (int i = 0; i < PlanetaryConditions.WE_SIZE; i++) {
-            comWeather.addItem(PlanetaryConditions.getWeatherDisplayableName(i));
-        }
-        for (int i = 0; i < PlanetaryConditions.WI_SIZE; i++) {
-            comWind.addItem(PlanetaryConditions.getWindDisplayableName(i));
-            comWindFrom.addItem(PlanetaryConditions.getWindDisplayableName(i));
-            comWindTo.addItem(PlanetaryConditions.getWindDisplayableName(i));
-        }
-        for(int i = 0; i < PlanetaryConditions.DIR_SIZE; i++) {
-            comWindDirection.addItem(PlanetaryConditions.getWindDirDisplayableName(i));
-        }
-        for (int i = 0; i < PlanetaryConditions.ATMO_SIZE; i++) {
-            comAtmosphere.addItem(PlanetaryConditions.getAtmosphereDisplayableName(i));
-        }
-        for (int i = 0; i < PlanetaryConditions.FOG_SIZE; i++) {
-            comFog.addItem(PlanetaryConditions.getFogDisplayableName(i));
-        }
-    }
-    
+
     /** Adds all required listeners for the dialog fields. */
     private void addListeners() {
         comAtmosphere.addActionListener(listener);
@@ -285,18 +263,18 @@ public class PlanetaryConditionsDialog extends ClientDialog {
     /** Updates the dialog fields with values from the stored conditions. */
     private void refreshValues() {
         removeListeners();
-        comLight.setSelectedIndex(conditions.getLight());
-        comWeather.setSelectedIndex(conditions.getWeather());
-        comWind.setSelectedIndex(conditions.getWindStrength());
-        comWindFrom.setSelectedIndex(conditions.getMinWindStrength());
-        comWindTo.setSelectedIndex(conditions.getMaxWindStrength());
-        comWindDirection.setSelectedIndex(conditions.getWindDirection());
-        comAtmosphere.setSelectedIndex(conditions.getAtmosphere());
-        comFog.setSelectedIndex(conditions.getFog());
+        comLight.setSelectedItem(conditions.getLight());
+        comWeather.setSelectedItem(conditions.getWeather());
+        comWind.setSelectedItem(conditions.getWindStrength());
+        comWindFrom.setSelectedItem(conditions.getMinimumWindStrength());
+        comWindTo.setSelectedItem(conditions.getMaximumWindStrength());
+        comWindDirection.setSelectedItem(conditions.getWindDirection());
+        comAtmosphere.setSelectedItem(conditions.getAtmosphere());
+        comFog.setSelectedItem(conditions.getFog());
         chkBlowingSands.setSelected(conditions.isSandBlowing());
         chkShiftWindDir.setSelected(conditions.isShiftingWindDirection());
         chkShiftWindStr.setSelected(conditions.isShiftingWindStrength());
-        fldTemp.setText(Integer.toString(conditions.getTemperature()));
+        fldTemp.setText(Double.toString(conditions.getTemperature()));
         fldGrav.setText(Float.toString(conditions.getGravity()));
         chkEMI.setSelected(conditions.isEMI());
         chkTerrainAffected.setSelected(conditions.isTerrainAffected());
@@ -309,17 +287,17 @@ public class PlanetaryConditionsDialog extends ClientDialog {
      */
     private void setConditions() {
         // make the changes to the planetary conditions
-        conditions.setLight(comLight.getSelectedIndex());
-        conditions.setWeather(comWeather.getSelectedIndex());
-        conditions.setWindStrength(comWind.getSelectedIndex());
-        conditions.setWindDirection(comWindDirection.getSelectedIndex());
+        conditions.setLight(comLight.getSelectedItem());
+        conditions.setWeather(comWeather.getSelectedItem());
+        conditions.setWindStrength(comWind.getSelectedItem());
+        conditions.setWindDirection(comWindDirection.getSelectedItem());
         refreshWindRange();
-        conditions.setAtmosphere(comAtmosphere.getSelectedIndex());
-        conditions.setFog(comFog.getSelectedIndex());
-        conditions.setBlowingSand(chkBlowingSands.isSelected());
+        conditions.setAtmosphere(comAtmosphere.getSelectedItem());
+        conditions.setFog(comFog.getSelectedItem());
+        conditions.setSandBlowing(chkBlowingSands.isSelected());
         conditions.setShiftingWindDirection(chkShiftWindDir.isSelected());
         conditions.setShiftingWindStrength(chkShiftWindStr.isSelected());
-        conditions.setTemperature(Integer.parseInt(fldTemp.getText()));
+        conditions.setTemperature(Double.parseDouble(fldTemp.getText()));
         conditions.setGravity(Float.parseFloat(fldGrav.getText()));
         conditions.setEMI(chkEMI.isSelected());
         conditions.setTerrainAffected(chkTerrainAffected.isSelected());
@@ -336,15 +314,16 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         StringBuilder windTip = new StringBuilder();
         StringBuilder atmoTip = new StringBuilder();
         StringBuilder sandTip = new StringBuilder();
-        final Weather weather = comWeather.getSelectedIndex();
-        int temp = 0;
-        float grav = (float) 1.0;
+        final Weather weather = comWeather.getSelectedItem();
+        double temp = 0;
+        float grav = 1.0f;
         try {
-            temp = Integer.parseInt(fldTemp.getText());
+            temp = Double.parseDouble(fldTemp.getText());
         } catch (NumberFormatException er) {
             tempTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.integer"));
         }
-        if ((temp > 200) || (temp < -200)) {
+
+        if ((temp > 200.0) || (temp < -200.0)) {
             tempTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.tempRange"));
         }
         
@@ -355,7 +334,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         // were fixed to -40 °C, the text of the rules saying "cannot be used with temp of 30 °C 
         // or more" would be unnecessary. With the current rules handling, temp has to be set to 
         // the necessary values. Therefore the following check for 30 °C is not needed.
-        //        if (temp >= 30 && weather.requiresLowTemperature()) {
+        //        if ((temp >= 30.0) && weather.requiresLowTemperature()) {
         //            tempValid = false;
         //            wthrValid = false;
         //            tempTip.append("The Temperature cannot be 30 °C or more in snowy weather.<BR>");
@@ -367,49 +346,47 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         } catch (NumberFormatException er) {
             gravTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.number"));
         }
-        if ((grav < 0.1) || (grav > 10.0)) {
+        if ((grav < 0.1f) || (grav > 10.0f)) {
             gravTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.gravRange"));
         }
-        
-        int wind = comWind.getSelectedIndex();
-        int atmo = comAtmosphere.getSelectedIndex();
-        
-        if ((chkBlowingSands.isSelected()) && (wind < WI_MOD_GALE) 
+
+        Wind wind = comWind.getSelectedItem();
+        AtmosphericPressure atmo = comAtmosphere.getSelectedItem();
+
+        if ((chkBlowingSands.isSelected()) && wind.isCalmOrLightGale()
                 && (!chkShiftWindStr.isSelected() 
-                        || (conditions.getMinWindStrength() > WI_MOD_GALE) 
-                        || (conditions.getMaxWindStrength() < WI_MOD_GALE))) {
+                        || conditions.getMinimumWindStrength().isStrongGaleOrStronger()
+                        || conditions.getMaximumWindStrength().isCalmOrLightGale())) {
             windTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.sandsLost"));
             sandTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.sandsLost"));
         }
 
-        if ((atmo == ATMO_TRACE) && (wind == WI_LIGHT_GALE)) {
+        if (atmo.isTrace() && wind.isLightGale()) {
             atmoTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.traceLightGale"));
             windTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.traceLightGale"));
         }
         
         // The following temperature checks are not exactly what the rules demand, but see the comment above.
-        if (((weather == WE_LIGHT_SNOW) || (weather == WE_SLEET)
-                || (weather == WE_LIGHT_HAIL) || (weather == WE_HEAVY_HAIL))
-                && (temp > -40)) {
+        if ((weather.isLightSnow() || weather.isSleet() || weather.isLightHail() || weather.isHeavyHail())
+                && (temp > -40.0)) {
             tempTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.lightSnowTemp"));
             wthrTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.lightSnowTemp"));
         }
         
-        if (((weather == WE_HEAVY_SNOW) || (weather == WE_MOD_SNOW)
-                || (weather == WE_SNOW_FLURRIES))
-                && (temp > -50)) {
+        if ((weather.isHeavySnow() || weather.isModerateSnow() || weather.isSnowFlurries())
+                && (temp > -50.0)) {
             tempTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.modSnowTemp"));
             wthrTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.modSnowTemp"));
         }
         
-        if ((weather == WE_ICE_STORM) && (temp > -60)) {
+        if (weather.isIceStorm() && (temp > -60.0)) {
             tempTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.iceStormTemp"));
             wthrTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.iceStormTemp"));
         }
         
         if (chkShiftWindStr.isSelected()) {
-            if ((comWind.getSelectedIndex() < conditions.getMinWindStrength()) 
-                    || (comWind.getSelectedIndex() > conditions.getMaxWindStrength())) {
+            if ((comWind.getSelectedIndex() < conditions.getMinimumWindStrength().ordinal())
+                    || (comWind.getSelectedIndex() > conditions.getMaximumWindStrength().ordinal())) {
                 windTip.append(Messages.getString("PlanetaryConditionsDialog.invalid.windRange"));
             }
         }
@@ -445,38 +422,40 @@ public class PlanetaryConditionsDialog extends ClientDialog {
      * weather to none.
      */
     private void adaptToWeatherAtmo() {
-        boolean isVacuum = comAtmosphere.getSelectedIndex() == ATMO_VACUUM;
-        boolean isTraceThin = comAtmosphere.getSelectedIndex() == ATMO_THIN 
-                | comAtmosphere.getSelectedIndex() == ATMO_TRACE;
+        boolean isVacuum = comAtmosphere.getSelectedItem().isVacuum();
+        boolean isTraceThin = comAtmosphere.getSelectedItem().isTrace()
+                || comAtmosphere.getSelectedItem().isThin();
         boolean isDense = !isVacuum && !isTraceThin;
-        int weather = comWeather.getSelectedIndex();
-        boolean specificWind = (weather == WE_SNOW_FLURRIES) || (weather == WE_ICE_STORM) 
-                || (weather == WE_GUSTING_RAIN) || (weather == WE_LIGHTNING_STORM);
+        final Weather weather = comWeather.getSelectedItem();
+        boolean specificWind = weather.isSnowFlurries() || weather.isIceStorm()
+                || weather.isGustingRain() || weather.isLightningStorm();
               
         removeListeners();
         if (isTraceThin) {
-            comWeather.setSelectedIndex(PlanetaryConditions.WE_NONE);
-            comFog.setSelectedIndex(PlanetaryConditions.FOG_NONE);
-        }
-        if (isVacuum) {
-            comWind.setSelectedIndex(PlanetaryConditions.WI_NONE);
+            comWeather.setSelectedItem(Weather.CLEAR);
+            comFog.setSelectedItem(Fog.NONE);
+        } else if (isVacuum) {
+            comWind.setSelectedItem(Wind.CALM);
             chkBlowingSands.setSelected(false);
             chkShiftWindDir.setSelected(false);
             chkShiftWindStr.setSelected(false);
-            comWind.setSelectedIndex(WI_NONE);
-            comWeather.setSelectedIndex(WE_NONE);
-            comFog.setSelectedIndex(FOG_NONE);
+            comWeather.setSelectedItem(Weather.CLEAR);
+            comFog.setSelectedItem(Fog.NONE);
         }
+
         if (specificWind) {
             chkShiftWindStr.setSelected(false);
             switch (weather) {
-            case WE_LIGHTNING_STORM:
-            case WE_SNOW_FLURRIES:
-            case WE_ICE_STORM:
-                comWind.setSelectedIndex(WI_MOD_GALE);
-                break;
-            case WE_GUSTING_RAIN:
-                comWind.setSelectedIndex(WI_STRONG_GALE);
+                case LIGHTNING_STORM:
+                case SNOW_FLURRIES:
+                case ICE_STORM:
+                    comWind.setSelectedItem(Wind.MODERATE_GALE);
+                    break;
+                case GUSTING_RAIN:
+                    comWind.setSelectedItem(Wind.STRONG_GALE);
+                    break;
+                default:
+                    break;
             }
         }
         addListeners();
@@ -499,22 +478,25 @@ public class PlanetaryConditionsDialog extends ClientDialog {
     
     /** Sets the temperature to at most -40, -50 or -60 for snow conditions. */
     private void adaptTemperature() {
-        int weather = comWeather.getSelectedIndex();
-        int maxTemp = 200;
-        switch (weather) {
-        case WE_LIGHT_SNOW:
-        case WE_SLEET:
-        case WE_LIGHT_HAIL:
-        case WE_HEAVY_HAIL:
-            maxTemp = -40;
-            break;
-        case WE_HEAVY_SNOW:
-        case WE_MOD_SNOW:
-        case WE_SNOW_FLURRIES:
-            maxTemp = -50;
-            break;
-        case WE_ICE_STORM:
-            maxTemp = -60;
+        final double maxTemp;
+        switch (comWeather.getSelectedItem()) {
+            case LIGHT_SNOW:
+            case SLEET:
+            case LIGHT_HAIL:
+            case HEAVY_HAIL:
+                maxTemp = -40.0;
+                break;
+            case HEAVY_SNOW:
+            case MODERATE_SNOW:
+            case SNOW_FLURRIES:
+                maxTemp = -50.0;
+                break;
+            case ICE_STORM:
+                maxTemp = -60.0;
+                break;
+            default:
+                maxTemp = 200.0;
+                break;
         }
         setMaximumTemperature(maxTemp);
     }
@@ -522,7 +504,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
     /** Sets the wind to at least moderate gale if Blowing Sands is activated. */
     private void adaptWindToBlowingSands() {
         if (chkBlowingSands.isSelected()) {
-            setMinimumWind(WI_MOD_GALE);
+            setMinimumWind(Wind.MODERATE_GALE);
         }
     }
     
@@ -535,25 +517,26 @@ public class PlanetaryConditionsDialog extends ClientDialog {
     }
     
     /** Sets wind strength to Moderate Gale if it is less than that. */
-    private void setMinimumWind(int minWind) {
-        if (comWind.getSelectedIndex() < minWind) {
+    private void setMinimumWind(Wind minWind) {
+        if (comWind.getSelectedIndex() < minWind.ordinal()) {
             removeListeners();
-            comWind.setSelectedIndex(minWind);
+            comWind.setSelectedItem(minWind);
             addListeners();
         }
     }
     
     /** Sets the temperature to the given value if it is higher than that. */
-    private void setMaximumTemperature(int maxTemp) {
-        int currentTemp;
+    private void setMaximumTemperature(double maxTemp) {
+        double currentTemp;
         try {
-            currentTemp = Integer.parseInt(fldTemp.getText());
+            currentTemp = Double.parseDouble(fldTemp.getText());
         } catch (NumberFormatException er) {
-            currentTemp = 200;
+            currentTemp = 200.0;
         }
+
         if (currentTemp > maxTemp) {
             removeListeners();
-            fldTemp.setText(Integer.toString(maxTemp));
+            fldTemp.setText(Double.toString(maxTemp));
             addListeners();
         }
     }
@@ -599,10 +582,11 @@ public class PlanetaryConditionsDialog extends ClientDialog {
      * closer border of that range.
      */
     private void refreshWindRange() {
+        final Wind[] windConditions = Wind.values();
         int min = Math.min(comWindFrom.getSelectedIndex(), comWindTo.getSelectedIndex());
         int max = Math.max(comWindFrom.getSelectedIndex(), comWindTo.getSelectedIndex());
-        conditions.setMinWindStrength(min);
-        conditions.setMaxWindStrength(max);
+        conditions.setMinimumWindStrength(windConditions[min]);
+        conditions.setMaximumWindStrength(windConditions[max]);
         removeListeners();
         if (comWind.getSelectedIndex() < min) {
             comWind.setSelectedIndex(min);
@@ -615,7 +599,6 @@ public class PlanetaryConditionsDialog extends ClientDialog {
 
     /** validate the entries whenever something is selected or focus changes. */
     FocusListener focusListener = new FocusListener() {
-        
         @Override
         public void focusLost(FocusEvent e) {
             butOkay.setEnabled(validateEntries());
@@ -631,5 +614,4 @@ public class PlanetaryConditionsDialog extends ClientDialog {
         String result = "<P WIDTH=" + scaleForGUI(TOOLTIP_WIDTH) + " style=padding:5>" + text;
         return scaleStringForGUI(result);
     }
-
 }
