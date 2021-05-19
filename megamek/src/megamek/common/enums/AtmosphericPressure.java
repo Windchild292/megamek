@@ -25,25 +25,33 @@ import java.util.ResourceBundle;
 
 public enum AtmosphericPressure {
     //region Enum Declarations
-    VACUUM("AtmosphericPressure.VACUUM.text"),
-    TRACE("AtmosphericPressure.TRACE.text"),
-    THIN("AtmosphericPressure.THIN.text"),
-    STANDARD("AtmosphericPressure.STANDARD.text"),
-    HIGH("AtmosphericPressure.HIGH.text"),
-    VERY_HIGH("AtmosphericPressure.VERY_HIGH.text");
+    VACUUM("AtmosphericPressure.VACUUM.text", "AtmosphericPressure.VACUUM.toolTipText"),
+    TRACE("AtmosphericPressure.TRACE.text", "AtmosphericPressure.TRACE.toolTipText"),
+    THIN("AtmosphericPressure.THIN.text", "AtmosphericPressure.THIN.toolTipText"),
+    STANDARD("AtmosphericPressure.STANDARD.text", "AtmosphericPressure.STANDARD.toolTipText"),
+    HIGH("AtmosphericPressure.HIGH.text", "AtmosphericPressure.HIGH.toolTipText"),
+    VERY_HIGH("AtmosphericPressure.VERY_HIGH.text", "AtmosphericPressure.VERY_HIGH.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
+    private final String toolTipText;
 
     private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    AtmosphericPressure(String name) {
+    AtmosphericPressure(final String name, final String toolTipText) {
         this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
     }
     //endregion Constructors
+
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+    //endregion Getters
 
     //region Boolean Comparisons
     public boolean isVacuum() {
@@ -80,9 +88,9 @@ public enum AtmosphericPressure {
      * @param text the string to parse
      * @return the AtmosphericPressure, or STANDARD if there is an error in parsing
      */
-    public static AtmosphericPressure parseFromString(String text) {
+    public static AtmosphericPressure parseFromString(final String text) {
         try {
-            valueOf(text);
+            return valueOf(text);
         } catch (Exception ignored) {
 
         }
@@ -95,13 +103,14 @@ public enum AtmosphericPressure {
                     return TRACE;
                 case 2:
                     return THIN;
+                case 3:
+                    return STANDARD;
                 case 4:
                     return HIGH;
                 case 5:
                     return VERY_HIGH;
-                case 3:
                 default:
-                    return STANDARD;
+                    break;
             }
         } catch (Exception ignored) {
 

@@ -25,24 +25,32 @@ import java.util.ResourceBundle;
 
 public enum Light {
     //region Enum Declarations
-    DAY("Light.DAY.text"),
-    DUSK("Light.DUSK.text"),
-    FULL_MOON("Light.FULL_MOON.text"),
-    MOONLESS("Light.MOONLESS.text"),
-    PITCH_BLACK("Light.PITCH_BLACK.text");
+    DAY("Light.DAY.text", "Light.DAY.toolTipText"),
+    DUSK("Light.DUSK.text", "Light.DUSK.toolTipText"),
+    FULL_MOON("Light.FULL_MOON.text", "Light.FULL_MOON.toolTipText"),
+    MOONLESS("Light.MOONLESS.text", "Light.MOONLESS.toolTipText"),
+    PITCH_BLACK("Light.PITCH_BLACK.text", "Light.PITCH_BLACK.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
+    private final String toolTipText;
 
     private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    Light(final String name) {
+    Light(final String name, final String toolTipText) {
         this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
     }
     //endregion Constructors
+
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+    //endregion Getters
 
     //region Boolean Comparisons
     public boolean isDay() {
@@ -73,16 +81,16 @@ public enum Light {
     /**
      * to-hit penalty for light
      */
-    public int getHitPenalty(boolean isWeapon) {
+    public int getHitPenalty(final boolean weapon) {
         switch (this) {
             case DUSK:
                 return 1;
             case FULL_MOON:
                 return 2;
             case MOONLESS:
-                return isWeapon ? 3 : 1;
+                return weapon ? 3 : 1;
             case PITCH_BLACK:
-                return isWeapon ? 4 : 2;
+                return weapon ? 4 : 2;
             default:
                 return 0;
         }
@@ -91,8 +99,8 @@ public enum Light {
     /**
      * heat bonus to hit for being overheated in darkness
      */
-    public int getHeatBonus(int heat) {
-        double divisor;
+    public int getHeatBonus(final int heat) {
+        final double divisor;
         switch (this) {
             case DUSK:
                 divisor = 25.0;
@@ -132,15 +140,17 @@ public enum Light {
      * @param text the string to parse
      * @return the Light, or DAY if there is an error in parsing
      */
-    public static Light parseFromString(String text) {
+    public static Light parseFromString(final String text) {
         try {
-            valueOf(text);
+            return valueOf(text);
         } catch (Exception ignored) {
 
         }
 
         try {
             switch (Integer.parseInt(text)) {
+                case 0:
+                    return DAY;
                 case 1:
                     return DUSK;
                 case 2:
@@ -149,9 +159,8 @@ public enum Light {
                     return MOONLESS;
                 case 4:
                     return PITCH_BLACK;
-                case 0:
                 default:
-                    return DAY;
+                    break;
             }
         } catch (Exception ignored) {
 

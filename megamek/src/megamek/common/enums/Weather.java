@@ -26,34 +26,42 @@ import java.util.ResourceBundle;
 
 public enum Weather {
     //region Enum Declarations
-    CLEAR("Weather.CLEAR.text"),
-    LIGHT_RAIN("Weather.LIGHT_RAIN.text"),
-    MODERATE_RAIN("Weather.MODERATE_RAIN.text"),
-    HEAVY_RAIN("Weather.HEAVY_RAIN.text"),
-    GUSTING_RAIN("Weather.GUSTING_RAIN.text"),
-    DOWNPOUR("Weather.DOWNPOUR.text"),
-    LIGHT_SNOW("Weather.LIGHT_SNOW.text"),
-    MODERATE_SNOW("Weather.MODERATE_SNOW.text"),
-    SNOW_FLURRIES("Weather.SNOW_FLURRIES.text"),
-    HEAVY_SNOW("Weather.HEAVY_SNOW.text"),
-    SLEET("Weather.SLEET.text"),
-    ICE_STORM("Weather.ICE_STORM.text"),
-    LIGHT_HAIL("Weather.LIGHT_HAIL.text"),
-    HEAVY_HAIL("Weather.HEAVY_HAIL.text"),
-    LIGHTNING_STORM("Weather.LIGHTNING_STORM.text");
+    CLEAR("Weather.CLEAR.text", "Weather.CLEAR.toolTipText"),
+    LIGHT_RAIN("Weather.LIGHT_RAIN.text", "Weather.LIGHT_RAIN.toolTipText"),
+    MODERATE_RAIN("Weather.MODERATE_RAIN.text", "Weather.MODERATE_RAIN.toolTipText"),
+    HEAVY_RAIN("Weather.HEAVY_RAIN.text", "Weather.HEAVY_RAIN.toolTipText"),
+    GUSTING_RAIN("Weather.GUSTING_RAIN.text", "Weather.GUSTING_RAIN.toolTipText"),
+    DOWNPOUR("Weather.DOWNPOUR.text", "Weather.DOWNPOUR.toolTipText"),
+    LIGHT_SNOW("Weather.LIGHT_SNOW.text", "Weather.LIGHT_SNOW.toolTipText"),
+    MODERATE_SNOW("Weather.MODERATE_SNOW.text", "Weather.MODERATE_SNOW.toolTipText"),
+    SNOW_FLURRIES("Weather.SNOW_FLURRIES.text", "Weather.SNOW_FLURRIES.toolTipText"),
+    HEAVY_SNOW("Weather.HEAVY_SNOW.text", "Weather.HEAVY_SNOW.toolTipText"),
+    SLEET("Weather.SLEET.text", "Weather.SLEET.toolTipText"),
+    ICE_STORM("Weather.ICE_STORM.text", "Weather.ICE_STORM.toolTipText"),
+    LIGHT_HAIL("Weather.LIGHT_HAIL.text", "Weather.LIGHT_HAIL.toolTipText"),
+    HEAVY_HAIL("Weather.HEAVY_HAIL.text", "Weather.HEAVY_HAIL.toolTipText"),
+    LIGHTNING_STORM("Weather.LIGHTNING_STORM.text", "Weather.LIGHTNING_STORM.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
+    private final String toolTipText;
 
     private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    Weather(String name) {
+    Weather(final String name, final String toolTipText) {
         this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
     }
     //endregion Constructors
+
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+    //endregion Getters
 
     //region Boolean Comparisons
     public boolean isClear() {
@@ -118,15 +126,14 @@ public enum Weather {
     }
     //endregion Boolean Comparisons
 
-
     /**
      * to-hit penalty for weather
      */
-    public int getHitPenalty(Entity en) {
+    public int getHitPenalty(final Entity entity) {
         switch (this) {
             case LIGHT_RAIN:
             case LIGHT_SNOW:
-                return en.isConventionalInfantry() ? 1 : 0;
+                return entity.isConventionalInfantry() ? 1 : 0;
             case MODERATE_RAIN:
             case HEAVY_RAIN:
             case MODERATE_SNOW:
@@ -163,9 +170,9 @@ public enum Weather {
      * @param text the string to parse
      * @return the Weather, or CLEAR if there is an error in parsing
      */
-    public static Weather parseFromString(String text) {
+    public static Weather parseFromString(final String text) {
         try {
-            valueOf(text);
+            return valueOf(text);
         } catch (Exception ignored) {
 
         }
@@ -200,6 +207,8 @@ public enum Weather {
                     return LIGHT_HAIL;
                 case 14:
                     return HEAVY_HAIL;
+                default:
+                    break;
             }
         } catch (Exception ignored) {
 

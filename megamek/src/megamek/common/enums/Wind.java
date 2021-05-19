@@ -29,26 +29,34 @@ import java.util.ResourceBundle;
 
 public enum Wind {
     //region Enum Declarations
-    CALM("Wind.CALM.text"),
-    LIGHT_GALE("Wind.LIGHT_GALE.text"),
-    MODERATE_GALE("Wind.MODERATE_GALE.text"),
-    STRONG_GALE("Wind.STRONG_GALE.text"),
-    STORM("Wind.STORM.text"),
-    TORNADO_F13("Wind.TORNADO_F13.text"),
-    TORNADO_F4("Wind.TORNADO_F4.text");
+    CALM("Wind.CALM.text", "Wind.CALM.toolTipText"),
+    LIGHT_GALE("Wind.LIGHT_GALE.text", "Wind.LIGHT_GALE.toolTipText"),
+    MODERATE_GALE("Wind.MODERATE_GALE.text", "Wind.MODERATE_GALE.toolTipText"),
+    STRONG_GALE("Wind.STRONG_GALE.text", "Wind.STRONG_GALE.toolTipText"),
+    STORM("Wind.STORM.text", "Wind.STORM.toolTipText"),
+    TORNADO_F13("Wind.TORNADO_F13.text", "Wind.TORNADO_F13.toolTipText"),
+    TORNADO_F4("Wind.TORNADO_F4.text", "Wind.TORNADO_F4.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
+    private final String toolTipText;
 
     private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    Wind(String name) {
+    Wind(final String name, final String toolTipText) {
         this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
     }
     //endregion Constructors
+
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+    //endregion Getters
 
     //region Boolean Comparisons
     public boolean isCalm() {
@@ -95,27 +103,27 @@ public enum Wind {
     /**
      * piloting penalty for wind
      */
-    public int getPilotingPenalty(Entity en) {
+    public int getPilotingPenalty(final Entity entity) {
         switch (this) {
             case MODERATE_GALE:
-                if ((en instanceof VTOL) || (en.getMovementMode() == EntityMovementMode.WIGE)) {
+                if ((entity instanceof VTOL) || (entity.getMovementMode() == EntityMovementMode.WIGE)) {
                     return 1;
                 }
                 break;
             case STRONG_GALE:
-                if ((en instanceof VTOL) || (en.getMovementMode() == EntityMovementMode.WIGE)
-                        || (en.getMovementMode() == EntityMovementMode.HOVER)) {
+                if ((entity instanceof VTOL) || (entity.getMovementMode() == EntityMovementMode.WIGE)
+                        || (entity.getMovementMode() == EntityMovementMode.HOVER)) {
                     return 2;
-                } else if ((en instanceof Mech) || (en.isAirborne())) {
+                } else if ((entity instanceof Mech) || (entity.isAirborne())) {
                     return 1;
                 }
                 break;
             case STORM:
-                if ((en instanceof VTOL) || (en instanceof Mech)
-                        || (en.getMovementMode() == EntityMovementMode.WIGE)
-                        || (en.getMovementMode() == EntityMovementMode.HOVER)) {
+                if ((entity instanceof VTOL) || (entity instanceof Mech)
+                        || (entity.getMovementMode() == EntityMovementMode.WIGE)
+                        || (entity.getMovementMode() == EntityMovementMode.HOVER)) {
                     return 3;
-                } else if (en.isAirborne()) {
+                } else if (entity.isAirborne()) {
                     return 2;
                 }
                 break;
@@ -126,8 +134,8 @@ public enum Wind {
             default:
                 break;
         }
-        return 0;
 
+        return 0;
     }
 
     //region File I/O
@@ -135,15 +143,17 @@ public enum Wind {
      * @param text the string to parse
      * @return the Wind, or CALM if there is an error in parsing
      */
-    public static Wind parseFromString(String text) {
+    public static Wind parseFromString(final String text) {
         try {
-            valueOf(text);
+            return valueOf(text);
         } catch (Exception ignored) {
 
         }
 
         try {
             switch (Integer.parseInt(text)) {
+                case 0:
+                    return CALM;
                 case 1:
                     return LIGHT_GALE;
                 case 2:
@@ -156,9 +166,8 @@ public enum Wind {
                     return TORNADO_F13;
                 case 6:
                     return TORNADO_F4;
-                case 0:
                 default:
-                    return CALM;
+                    break;
             }
         } catch (Exception ignored) {
 

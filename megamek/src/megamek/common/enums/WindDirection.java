@@ -19,32 +19,41 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
+import megamek.common.Compute;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
 
 public enum WindDirection {
     //region Enum Declarations
-    NORTH("WindDirection.NORTH.text"),
-    NORTHEAST("WindDirection.NORTHEAST.text"),
-    SOUTHEAST("WindDirection.SOUTHEAST.text"),
-    SOUTH("WindDirection.SOUTH.text"),
-    SOUTHWEST("WindDirection.SOUTHWEST.text"),
-    NORTHWEST("WindDirection.NORTHWEST.text"),
-    RANDOMIZE("WindDirection.RANDOMIZE.text");
+    NORTH("WindDirection.NORTH.text", "WindDirection.NORTH.toolTipText"),
+    NORTHEAST("WindDirection.NORTHEAST.text", "WindDirection.NORTHEAST.toolTipText"),
+    SOUTHEAST("WindDirection.SOUTHEAST.text", "WindDirection.SOUTHEAST.toolTipText"),
+    SOUTH("WindDirection.SOUTH.text", "WindDirection.SOUTH.toolTipText"),
+    SOUTHWEST("WindDirection.SOUTHWEST.text", "WindDirection.SOUTHWEST.toolTipText"),
+    NORTHWEST("WindDirection.NORTHWEST.text", "WindDirection.NORTHWEST.toolTipText"),
+    RANDOMIZE("WindDirection.RANDOMIZE.text", "WindDirection.RANDOMIZE.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
+    private final String toolTipText;
 
     private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    WindDirection(String name) {
+    WindDirection(final String name, final String toolTipText) {
         this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
     }
     //endregion Constructors
+
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+    //endregion Getters
 
     //region Boolean Comparisons
     public boolean isNorth() {
@@ -76,14 +85,22 @@ public enum WindDirection {
     }
     //endregion Boolean Comparisons
 
+    /**
+     * @return an unbiased random wind direction, which will not be randomize
+     */
+    public static WindDirection getRandomDirection() {
+        final WindDirection[] windDirections = values();
+        return windDirections[Compute.randomInt(windDirections.length - 1)];
+    }
+
     //region File I/O
     /**
      * @param text the string to parse
      * @return the WindDirection, or RANDOMIZE if there is an error in parsing
      */
-    public static WindDirection parseFromString(String text) {
+    public static WindDirection parseFromString(final String text) {
         try {
-            valueOf(text);
+            return valueOf(text);
         } catch (Exception ignored) {
 
         }
@@ -103,8 +120,9 @@ public enum WindDirection {
                 case 5:
                     return NORTHWEST;
                 case 6:
-                default:
                     return RANDOMIZE;
+                default:
+                    break;
             }
         } catch (Exception ignored) {
 
