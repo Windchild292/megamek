@@ -19,13 +19,15 @@
 package megamek.common.generators.planetaryConditionsGenerators;
 
 import megamek.common.enums.PlanetaryConditionsGenerationMethod;
+import megamek.common.generators.extendedPlanetaryConditionsGenerators.DisabledExtendedPlanetaryConditionsGenerator;
 import megamek.common.generators.lightGenerators.DisabledLightGenerator;
 import megamek.common.generators.weatherGenerators.DisabledWeatherGenerator;
 
 public class DisabledPlanetaryConditionsGenerator extends AbstractPlanetaryConditionsGenerator {
     //region Constructors
     public DisabledPlanetaryConditionsGenerator() {
-        super(PlanetaryConditionsGenerationMethod.NONE, new DisabledLightGenerator(), new DisabledWeatherGenerator());
+        super(PlanetaryConditionsGenerationMethod.NONE, new DisabledLightGenerator(),
+                new DisabledWeatherGenerator(), new DisabledExtendedPlanetaryConditionsGenerator());
     }
     //endregion Constructors
 }

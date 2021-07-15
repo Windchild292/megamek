@@ -19,13 +19,15 @@
 package megamek.common.generators.planetaryConditionsGenerators;
 
 import megamek.common.enums.PlanetaryConditionsGenerationMethod;
+import megamek.common.generators.extendedPlanetaryConditionsGenerators.DisabledExtendedPlanetaryConditionsGenerator;
 import megamek.common.generators.lightGenerators.AtBLightGenerator;
 import megamek.common.generators.weatherGenerators.AtBWeatherGenerator;
 
 public class AtBPlanetaryConditionsGenerator extends AbstractPlanetaryConditionsGenerator {
     //region Constructors
     public AtBPlanetaryConditionsGenerator() {
-        super(PlanetaryConditionsGenerationMethod.ATB, new AtBLightGenerator(), new AtBWeatherGenerator());
+        super(PlanetaryConditionsGenerationMethod.ATB, new AtBLightGenerator(),
+                new AtBWeatherGenerator(), new DisabledExtendedPlanetaryConditionsGenerator());
     }
     //endregion Constructors
 }

@@ -21,15 +21,17 @@ package megamek.common.enums;
 import megamek.common.generators.weatherGenerators.AbstractWeatherGenerator;
 import megamek.common.generators.weatherGenerators.AtBWeatherGenerator;
 import megamek.common.generators.weatherGenerators.DisabledWeatherGenerator;
+import megamek.common.generators.weatherGenerators.TacOpsWeatherGenerator;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
 
-public enum  WeatherGenerationMethod {
+public enum WeatherGenerationMethod {
     //region Enum Declarations
     NONE("WeatherGenerationMethod.NONE.text", "WeatherGenerationMethod.NONE.toolTipText"),
-    ATB("WeatherGenerationMethod.ATB.text", "WeatherGenerationMethod.ATB.toolTipText");
+    ATB("WeatherGenerationMethod.ATB.text", "WeatherGenerationMethod.ATB.toolTipText"),
+    TACTICAL_OPERATIONS("WeatherGenerationMethod.TACTICAL_OPERATIONS.text", "WeatherGenerationMethod.TACTICAL_OPERATIONS.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -61,12 +63,18 @@ public enum  WeatherGenerationMethod {
     public boolean isAtB() {
         return this == ATB;
     }
+
+    public boolean isTacticalOperations() {
+        return this == TACTICAL_OPERATIONS;
+    }
     //endregion Boolean Comparison Methods
 
     public AbstractWeatherGenerator getGenerator() {
         switch (this) {
             case ATB:
                 return new AtBWeatherGenerator();
+            case TACTICAL_OPERATIONS:
+                return new TacOpsWeatherGenerator();
             case NONE:
             default:
                 return new DisabledWeatherGenerator();

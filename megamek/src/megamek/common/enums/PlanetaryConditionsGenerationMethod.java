@@ -18,9 +18,7 @@
  */
 package megamek.common.enums;
 
-import megamek.common.generators.planetaryConditionsGenerators.AbstractPlanetaryConditionsGenerator;
-import megamek.common.generators.planetaryConditionsGenerators.AtBPlanetaryConditionsGenerator;
-import megamek.common.generators.planetaryConditionsGenerators.DisabledPlanetaryConditionsGenerator;
+import megamek.common.generators.planetaryConditionsGenerators.*;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
@@ -30,7 +28,8 @@ public enum PlanetaryConditionsGenerationMethod {
     //region Enum Declarations
     NONE("PlanetaryConditionsGenerationMethod.NONE.text", "PlanetaryConditionsGenerationMethod.NONE.toolTipText"),
     SPECIFIED("PlanetaryConditionsGenerationMethod.SPECIFIED.text", "PlanetaryConditionsGenerationMethod.SPECIFIED.toolTipText"),
-    ATB("PlanetaryConditionsGenerationMethod.ATB.text", "PlanetaryConditionsGenerationMethod.ATB.toolTipText");
+    ATB("PlanetaryConditionsGenerationMethod.ATB.text", "PlanetaryConditionsGenerationMethod.ATB.toolTipText"),
+    TACTICAL_OPERATIONS("PlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.text", "PlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -59,15 +58,32 @@ public enum PlanetaryConditionsGenerationMethod {
         return this == NONE;
     }
 
+    public boolean isSpecified() {
+        return this == SPECIFIED;
+    }
+
     public boolean isAtB() {
         return this == ATB;
     }
+
+    public boolean isTacticalOperations() {
+        return this == TACTICAL_OPERATIONS;
+    }
     //endregion Boolean Comparison Methods
 
-    public AbstractPlanetaryConditionsGenerator getGenerator() {
+    public AbstractPlanetaryConditionsGenerator getGenerator(final boolean constantPlanetaryValues,
+                                                             final LightGenerationMethod lightGenerationMethod,
+                                                             final WeatherGenerationMethod weatherGenerationMethod,
+                                                             final ExtendedPlanetaryConditionsGenerationMethod extendedPlanetaryConditionsGenerationMethod) {
         switch (this) {
+            case SPECIFIED:
+                return new SpecifiedPlanetaryConditionsGenerator(constantPlanetaryValues,
+                        lightGenerationMethod, weatherGenerationMethod,
+                        extendedPlanetaryConditionsGenerationMethod);
             case ATB:
                 return new AtBPlanetaryConditionsGenerator();
+            case TACTICAL_OPERATIONS:
+                return new TacOpsPlanetaryConditionsGenerator(constantPlanetaryValues);
             case NONE:
             default:
                 return new DisabledPlanetaryConditionsGenerator();

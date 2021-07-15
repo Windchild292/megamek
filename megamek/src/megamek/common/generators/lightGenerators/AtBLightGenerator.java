@@ -40,6 +40,7 @@ public class AtBLightGenerator extends AbstractLightGenerator {
             case 4:
                 conditions.setLight(Light.DAY);
             case 5:
+                conditions.setLight(Light.DAWN);
             case 6:
                 conditions.setLight(Light.DUSK);
             case 7:

@@ -16,34 +16,40 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.common.generators.weatherGenerators;
+package megamek.common.generators.extendedPlanetaryConditionsGenerators;
 
 import megamek.common.PlanetaryConditions;
-import megamek.common.enums.Fog;
-import megamek.common.enums.Weather;
-import megamek.common.enums.WeatherGenerationMethod;
-import megamek.common.enums.Wind;
+import megamek.common.enums.ExtendedPlanetaryConditionsGenerationMethod;
 
-public abstract class AbstractWeatherGenerator {
+public abstract class AbstractExtendedPlanetaryConditionsGenerator {
     //region Variable Declarations
-    private final WeatherGenerationMethod method;
+    private final ExtendedPlanetaryConditionsGenerationMethod method;
+    private final boolean constantPlanetaryValues;
     //endregion Variable Declarations
 
     //region Constructors
-    protected AbstractWeatherGenerator(final WeatherGenerationMethod method) {
+    protected AbstractExtendedPlanetaryConditionsGenerator(
+            final ExtendedPlanetaryConditionsGenerationMethod method,
+            final boolean constantPlanetaryValues) {
         this.method = method;
+        this.constantPlanetaryValues = constantPlanetaryValues;
     }
     //endregion Constructors
 
     //region Getters
-    public WeatherGenerationMethod getMethod() {
+    public ExtendedPlanetaryConditionsGenerationMethod getMethod() {
         return method;
+    }
+
+    public boolean isConstantPlanetaryValues() {
+        return constantPlanetaryValues;
     }
     //endregion Getters
 
     /**
-     * This generates random weather and assigns it to the provided {@link PlanetaryConditions}
-     * @param conditions the {@link PlanetaryConditions} to assign the generated weather to
+     * This generates random extended planetary conditions and assigns them to the provided
+     * {@link PlanetaryConditions}
+     * @param conditions the {@link PlanetaryConditions} to assign the generated conditions to
      */
     public abstract void generate(final PlanetaryConditions conditions);
 }

@@ -18,15 +18,20 @@
  */
 package megamek.common.generators.planetaryConditionsGenerators;
 
+import megamek.common.enums.ExtendedPlanetaryConditionsGenerationMethod;
+import megamek.common.enums.LightGenerationMethod;
 import megamek.common.enums.PlanetaryConditionsGenerationMethod;
-import megamek.common.generators.lightGenerators.AbstractLightGenerator;
-import megamek.common.generators.weatherGenerators.AbstractWeatherGenerator;
+import megamek.common.enums.WeatherGenerationMethod;
 
 public class SpecifiedPlanetaryConditionsGenerator extends AbstractPlanetaryConditionsGenerator {
     //region Constructors
-    protected SpecifiedPlanetaryConditionsGenerator(final AbstractLightGenerator lightGenerator,
-                                                    final AbstractWeatherGenerator weatherGenerator) {
-        super(PlanetaryConditionsGenerationMethod.SPECIFIED, lightGenerator, weatherGenerator);
+    public SpecifiedPlanetaryConditionsGenerator(final boolean constantPlanetaryValues,
+                                                 final LightGenerationMethod lightGenerationMethod,
+                                                 final WeatherGenerationMethod weatherGenerationMethod,
+                                                 final ExtendedPlanetaryConditionsGenerationMethod extendedPlanetaryConditionsGenerationMethod) {
+        super(PlanetaryConditionsGenerationMethod.SPECIFIED, lightGenerationMethod.getGenerator(),
+                weatherGenerationMethod.getGenerator(),
+                extendedPlanetaryConditionsGenerationMethod.getGenerator(constantPlanetaryValues));
     }
     //endregion Constructors
 }

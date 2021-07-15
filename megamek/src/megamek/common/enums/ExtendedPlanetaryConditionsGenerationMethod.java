@@ -18,20 +18,18 @@
  */
 package megamek.common.enums;
 
-import megamek.common.generators.lightGenerators.AbstractLightGenerator;
-import megamek.common.generators.lightGenerators.AtBLightGenerator;
-import megamek.common.generators.lightGenerators.DisabledLightGenerator;
-import megamek.common.generators.lightGenerators.TacOpsLightGenerator;
+import megamek.common.generators.extendedPlanetaryConditionsGenerators.AbstractExtendedPlanetaryConditionsGenerator;
+import megamek.common.generators.extendedPlanetaryConditionsGenerators.DisabledExtendedPlanetaryConditionsGenerator;
+import megamek.common.generators.extendedPlanetaryConditionsGenerators.TacOpsExtendedPlanetaryConditionsGenerator;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
 
-public enum LightGenerationMethod {
+public enum ExtendedPlanetaryConditionsGenerationMethod {
     //region Enum Declarations
-    NONE("LightGenerationMethod.NONE.text", "LightGenerationMethod.NONE.toolTipText"),
-    TACTICAL_OPERATIONS("LightGenerationMethod.TACTICAL_OPERATIONS.text", "LightGenerationMethod.TACTICAL_OPERATIONS.toolTipText"),
-    ATB("LightGenerationMethod.ATB.text", "LightGenerationMethod.ATB.toolTipText");
+    NONE("ExtendedPlanetaryConditionsGenerationMethod.NONE.text", "ExtendedPlanetaryConditionsGenerationMethod.NONE.toolTipText"),
+    TACTICAL_OPERATIONS("ExtendedPlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.text", "ExtendedPlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -43,7 +41,7 @@ public enum LightGenerationMethod {
     //endregion Variable Declarations
 
     //region Constructors
-    LightGenerationMethod(final String name, final String toolTipText) {
+    ExtendedPlanetaryConditionsGenerationMethod(final String name, final String toolTipText) {
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
     }
@@ -63,21 +61,15 @@ public enum LightGenerationMethod {
     public boolean isTacticalOperations() {
         return this == TACTICAL_OPERATIONS;
     }
-
-    public boolean isAtB() {
-        return this == ATB;
-    }
     //endregion Boolean Comparison Methods
 
-    public AbstractLightGenerator getGenerator() {
+    public AbstractExtendedPlanetaryConditionsGenerator getGenerator(final boolean constantPlanetaryValues) {
         switch (this) {
             case TACTICAL_OPERATIONS:
-                return new TacOpsLightGenerator();
-            case ATB:
-                return new AtBLightGenerator();
+                return new TacOpsExtendedPlanetaryConditionsGenerator(constantPlanetaryValues);
             case NONE:
             default:
-                return new DisabledLightGenerator();
+                return new DisabledExtendedPlanetaryConditionsGenerator();
         }
     }
 

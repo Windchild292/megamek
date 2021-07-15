@@ -16,20 +16,36 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.common.generators.weatherGenerators;
+package megamek.common.generators.lightGenerators;
 
+import megamek.common.Compute;
 import megamek.common.PlanetaryConditions;
-import megamek.common.enums.WeatherGenerationMethod;
+import megamek.common.enums.Light;
+import megamek.common.enums.LightGenerationMethod;
 
-public class DisabledWeatherGenerator extends AbstractWeatherGenerator {
+public class TacOpsLightGenerator extends AbstractLightGenerator {
     //region Constructors
-    public DisabledWeatherGenerator() {
-        super(WeatherGenerationMethod.NONE);
+    public TacOpsLightGenerator() {
+        super(LightGenerationMethod.TACTICAL_OPERATIONS);
     }
     //endregion Constructors
 
     @Override
     public void generate(final PlanetaryConditions conditions) {
-
+        switch (Compute.d6()) {
+            case 1:
+                conditions.setLight(Light.PITCH_BLACK);
+            case 2:
+                conditions.setLight(Light.MOONLESS_NIGHT);
+            case 3:
+                conditions.setLight(Light.FULL_MOON);
+            case 4:
+                conditions.setLight((Compute.randomInt(2) == 0) ? Light.DUSK : Light.DAWN);
+            case 5:
+                conditions.setLight(Light.GLARE);
+            case 6:
+                default:
+                conditions.setLight(Light.SOLAR_FLARE);
+        }
     }
 }

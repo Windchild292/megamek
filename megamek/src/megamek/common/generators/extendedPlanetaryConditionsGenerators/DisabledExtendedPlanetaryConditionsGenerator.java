@@ -16,20 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.common.generators.weatherGenerators;
+package megamek.common.generators.extendedPlanetaryConditionsGenerators;
 
 import megamek.common.PlanetaryConditions;
-import megamek.common.enums.WeatherGenerationMethod;
+import megamek.common.enums.ExtendedPlanetaryConditionsGenerationMethod;
 
-public class DisabledWeatherGenerator extends AbstractWeatherGenerator {
+public class DisabledExtendedPlanetaryConditionsGenerator extends AbstractExtendedPlanetaryConditionsGenerator {
     //region Constructors
-    public DisabledWeatherGenerator() {
-        super(WeatherGenerationMethod.NONE);
+    public DisabledExtendedPlanetaryConditionsGenerator() {
+        super(ExtendedPlanetaryConditionsGenerationMethod.NONE, true);
     }
     //endregion Constructors
 
     @Override
-    public void generate(final PlanetaryConditions conditions) {
+    public void generate(final sPlanetaryConditions conditions) {
 
     }
 }

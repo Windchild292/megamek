@@ -20,6 +20,7 @@ package megamek.common.generators.planetaryConditionsGenerators;
 
 import megamek.common.PlanetaryConditions;
 import megamek.common.enums.PlanetaryConditionsGenerationMethod;
+import megamek.common.generators.extendedPlanetaryConditionsGenerators.AbstractExtendedPlanetaryConditionsGenerator;
 import megamek.common.generators.lightGenerators.AbstractLightGenerator;
 import megamek.common.generators.weatherGenerators.AbstractWeatherGenerator;
 
@@ -28,15 +29,18 @@ public abstract class AbstractPlanetaryConditionsGenerator {
     private final PlanetaryConditionsGenerationMethod method;
     private final AbstractLightGenerator lightGenerator;
     private final AbstractWeatherGenerator weatherGenerator;
+    private final AbstractExtendedPlanetaryConditionsGenerator extendedPlanetaryConditionsGenerator;
     //endregion Variable Declarations
 
     //region Constructors
     protected AbstractPlanetaryConditionsGenerator(final PlanetaryConditionsGenerationMethod method,
                                                    final AbstractLightGenerator lightGenerator,
-                                                   final AbstractWeatherGenerator weatherGenerator) {
+                                                   final AbstractWeatherGenerator weatherGenerator,
+                                                   final AbstractExtendedPlanetaryConditionsGenerator extendedPlanetaryConditionsGenerator) {
         this.method = method;
         this.lightGenerator = lightGenerator;
         this.weatherGenerator = weatherGenerator;
+        this.extendedPlanetaryConditionsGenerator = extendedPlanetaryConditionsGenerator;
     }
     //endregion Constructors
 
@@ -51,6 +55,10 @@ public abstract class AbstractPlanetaryConditionsGenerator {
 
     public AbstractWeatherGenerator getWeatherGenerator() {
         return weatherGenerator;
+    }
+
+    public AbstractExtendedPlanetaryConditionsGenerator getExtendedPlanetaryConditionsGenerator() {
+        return extendedPlanetaryConditionsGenerator;
     }
     //endregion Getters
 
@@ -70,5 +78,6 @@ public abstract class AbstractPlanetaryConditionsGenerator {
     public void generate(final PlanetaryConditions conditions) {
         getLightGenerator().generate(conditions);
         getWeatherGenerator().generate(conditions);
+        getExtendedPlanetaryConditionsGenerator().generate(conditions);
     }
 }

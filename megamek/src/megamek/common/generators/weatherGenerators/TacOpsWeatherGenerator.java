@@ -25,110 +25,45 @@ import megamek.common.enums.Weather;
 import megamek.common.enums.WeatherGenerationMethod;
 import megamek.common.enums.Wind;
 
-public class AtBWeatherGenerator extends AbstractWeatherGenerator {
+public class TacOpsWeatherGenerator extends AbstractWeatherGenerator {
     //region Constructors
-    public AtBWeatherGenerator() {
-        super(WeatherGenerationMethod.ATB);
+    public TacOpsWeatherGenerator() {
+        super(WeatherGenerationMethod.TACTICAL_OPERATIONS);
     }
     //endregion Constructors
 
     @Override
     public void generate(final PlanetaryConditions conditions) {
-        // Determine the generation from a shifted table (starting at 0 instead of 1)
-        switch (Compute.randomInt(10)) {
+        switch (Compute.randomInt(4)) {
             case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
+                generateWind(conditions);
                 break;
-            case 5:
+            case 1:
                 generateRain(conditions);
                 break;
-            case 6:
-                generateSnowfall(conditions);
-                break;
-            case 7:
-                generateGale(conditions);
-                break;
-            case 8:
-                generateStorm(conditions);
-                break;
-            case 9:
-            default:
-                generateFog(conditions);
-                break;
-        }
-    }
-
-    private void generateRain(final PlanetaryConditions conditions) {
-        switch (Compute.randomInt(6)) {
-            case 0:
-            case 1:
             case 2:
-                conditions.setWeather(Weather.LIGHT_RAIN);
+                generateSnow(conditions);
                 break;
             case 3:
-            case 4:
-                conditions.setWeather(Weather.MODERATE_RAIN);
-                break;
-            case 5:
             default:
-                conditions.setWeather(Weather.HEAVY_RAIN);
+                generateCombinedWeather(conditions);
                 break;
         }
     }
 
-    private void generateSnowfall(final PlanetaryConditions conditions) {
+    private void generateWind(final PlanetaryConditions conditions) {
         switch (Compute.randomInt(6)) {
             case 0:
-            case 1:
-            case 2:
-                conditions.setWeather(Weather.LIGHT_SNOW);
-                break;
-            case 3:
-            case 4:
-                conditions.setWeather(Weather.MODERATE_SNOW);
-                break;
-            case 5:
-            default:
-                conditions.setWeather(Weather.HEAVY_SNOW);
-                break;
-        }
-    }
-
-
-    private void generateGale(final PlanetaryConditions conditions) {
-        switch (Compute.randomInt(6)) {
-            case 0:
-            case 1:
-            case 2:
                 conditions.setWindStrength(Wind.LIGHT_GALE);
                 break;
-            case 3:
-            case 4:
+            case 1:
                 conditions.setWindStrength(Wind.MODERATE_GALE);
                 break;
-            case 5:
-            default:
+            case 2:
                 conditions.setWindStrength(Wind.STRONG_GALE);
                 break;
-        }
-    }
-
-    private void generateStorm(final PlanetaryConditions conditions) {
-        switch (Compute.randomInt(6)) {
-            case 0:
-                conditions.setWindStrength(Wind.STORM);
-                break;
-            case 1:
-                conditions.setWeather(Weather.DOWNPOUR);
-                break;
-            case 2:
-                conditions.setWeather(Weather.SLEET);
-                break;
             case 3:
-                conditions.setWeather(Weather.ICE_STORM);
+                conditions.setWindStrength(Wind.STORM);
                 break;
             case 4:
                 conditions.setWindStrength(Wind.TORNADO_F13);
@@ -140,18 +75,71 @@ public class AtBWeatherGenerator extends AbstractWeatherGenerator {
         }
     }
 
-    private void generateFog(final PlanetaryConditions conditions) {
+    private void generateRain(final PlanetaryConditions conditions) {
         switch (Compute.randomInt(6)) {
             case 0:
-            case 1:
-            case 2:
-            case 3:
                 conditions.setFog(Fog.LIGHT);
                 break;
+            case 1:
+                conditions.setFog(Fog.HEAVY);
+                break;
+            case 2:
+                conditions.setWeather(Weather.LIGHT_RAIN);
+                break;
+            case 3:
+                conditions.setWeather(Weather.MODERATE_RAIN);
+                break;
             case 4:
+                conditions.setWeather(Weather.HEAVY_RAIN);
+                break;
             case 5:
             default:
-                conditions.setFog(Fog.HEAVY);
+                conditions.setWeather(Weather.DOWNPOUR);
+                break;
+        }
+    }
+
+    private void generateSnow(final PlanetaryConditions conditions) {
+        switch (Compute.randomInt(6)) {
+            case 0:
+                conditions.setWeather(Weather.SLEET);
+                break;
+            case 1:
+                conditions.setWeather(Weather.LIGHT_HAIL);
+                break;
+            case 2:
+                conditions.setWeather(Weather.HEAVY_HAIL);
+                break;
+            case 3:
+                conditions.setWeather(Weather.LIGHT_SNOW);
+                break;
+            case 4:
+                conditions.setWeather(Weather.MODERATE_SNOW);
+                break;
+            case 5:
+            default:
+                conditions.setWeather(Weather.HEAVY_SNOW);
+                break;
+        }
+    }
+
+    private void generateCombinedWeather(final PlanetaryConditions conditions) {
+        switch (Compute.randomInt(5)) {
+            case 0:
+                conditions.setWeather(Weather.GUSTING_RAIN);
+                break;
+            case 1:
+                conditions.setWeather(Weather.SNOW_FLURRIES);
+                break;
+            case 2:
+                conditions.setSandBlowing(true);
+                break;
+            case 3:
+                conditions.setWeather(Weather.ICE_STORM);
+                break;
+            case 4:
+            default:
+                conditions.setWeather(Weather.LIGHTNING_STORM);
                 break;
         }
     }
