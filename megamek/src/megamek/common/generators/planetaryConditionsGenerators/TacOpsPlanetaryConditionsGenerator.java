@@ -49,6 +49,7 @@ public class TacOpsPlanetaryConditionsGenerator extends AbstractPlanetaryConditi
                 case 5:
                 default:
                     getExtendedPlanetaryConditionsGenerator().generate(conditions);
+                    break;
             }
         } else {
             switch (Compute.randomInt(8)) {

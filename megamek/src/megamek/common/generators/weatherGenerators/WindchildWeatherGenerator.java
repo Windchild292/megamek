@@ -16,15 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.common.generators.extendedPlanetaryConditionsGenerators;
+package megamek.common.generators.weatherGenerators;
 
 import megamek.common.PlanetaryConditions;
-import megamek.common.enums.ExtendedPlanetaryConditionsGenerationMethod;
+import megamek.common.enums.WeatherGenerationMethod;
 
-public class DisabledExtendedPlanetaryConditionsGenerator extends AbstractExtendedPlanetaryConditionsGenerator {
+/**
+ * This is a custom weather generation method designed by Windchild, and described in the
+ * WindchildPlanetaryConditionsGenerator Excel File in the Docs Folder.
+ * @author Windchild
+ */
+public class WindchildWeatherGenerator extends AbstractWeatherGenerator {
     //region Constructors
-    public DisabledExtendedPlanetaryConditionsGenerator() {
-        super(ExtendedPlanetaryConditionsGenerationMethod.NONE, true);
+    public WindchildWeatherGenerator() {
+        super(WeatherGenerationMethod.WINDCHILD);
     }
     //endregion Constructors
 

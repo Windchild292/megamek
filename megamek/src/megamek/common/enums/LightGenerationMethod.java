@@ -18,10 +18,7 @@
  */
 package megamek.common.enums;
 
-import megamek.common.generators.lightGenerators.AbstractLightGenerator;
-import megamek.common.generators.lightGenerators.AtBLightGenerator;
-import megamek.common.generators.lightGenerators.DisabledLightGenerator;
-import megamek.common.generators.lightGenerators.TacOpsLightGenerator;
+import megamek.common.generators.lightGenerators.*;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
@@ -30,8 +27,9 @@ import java.util.ResourceBundle;
 public enum LightGenerationMethod {
     //region Enum Declarations
     NONE("LightGenerationMethod.NONE.text", "LightGenerationMethod.NONE.toolTipText"),
+    ATB("LightGenerationMethod.ATB.text", "LightGenerationMethod.ATB.toolTipText"),
     TACTICAL_OPERATIONS("LightGenerationMethod.TACTICAL_OPERATIONS.text", "LightGenerationMethod.TACTICAL_OPERATIONS.toolTipText"),
-    ATB("LightGenerationMethod.ATB.text", "LightGenerationMethod.ATB.toolTipText");
+    WINDCHILD("LightGenerationMethod.WINDCHILD.text", "LightGenerationMethod.WINDCHILD.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -60,21 +58,27 @@ public enum LightGenerationMethod {
         return this == NONE;
     }
 
+    public boolean isAtB() {
+        return this == ATB;
+    }
+
     public boolean isTacticalOperations() {
         return this == TACTICAL_OPERATIONS;
     }
 
-    public boolean isAtB() {
-        return this == ATB;
+    public boolean isWindchild() {
+        return this == WINDCHILD;
     }
     //endregion Boolean Comparison Methods
 
     public AbstractLightGenerator getGenerator() {
         switch (this) {
-            case TACTICAL_OPERATIONS:
-                return new TacOpsLightGenerator();
             case ATB:
                 return new AtBLightGenerator();
+            case TACTICAL_OPERATIONS:
+                return new TacOpsLightGenerator();
+            case WINDCHILD:
+                return new WindchildLightGenerator();
             case NONE:
             default:
                 return new DisabledLightGenerator();

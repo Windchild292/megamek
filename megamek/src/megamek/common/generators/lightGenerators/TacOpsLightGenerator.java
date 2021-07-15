@@ -35,17 +35,23 @@ public class TacOpsLightGenerator extends AbstractLightGenerator {
         switch (Compute.d6()) {
             case 1:
                 conditions.setLight(Light.PITCH_BLACK);
+                break;
             case 2:
                 conditions.setLight(Light.MOONLESS_NIGHT);
+                break;
             case 3:
                 conditions.setLight(Light.FULL_MOON);
+                break;
             case 4:
                 conditions.setLight((Compute.randomInt(2) == 0) ? Light.DUSK : Light.DAWN);
+                break;
             case 5:
                 conditions.setLight(Light.GLARE);
+                break;
             case 6:
-                default:
+            default:
                 conditions.setLight(Light.SOLAR_FLARE);
+                break;
         }
     }
 }

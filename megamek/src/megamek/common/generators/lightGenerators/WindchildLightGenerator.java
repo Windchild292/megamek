@@ -23,20 +23,27 @@ import megamek.common.PlanetaryConditions;
 import megamek.common.enums.Light;
 import megamek.common.enums.LightGenerationMethod;
 
-public class AtBLightGenerator extends AbstractLightGenerator {
+/**
+ * This is a custom light generation method designed by Windchild, and described in the
+ * WindchildPlanetaryConditionsGenerator Excel File in the Docs Folder.
+ * @author Windchild
+ */
+public class WindchildLightGenerator extends AbstractLightGenerator {
     //region Constructors
-    public AtBLightGenerator() {
-        super(LightGenerationMethod.ATB);
+    public WindchildLightGenerator() {
+        super(LightGenerationMethod.WINDCHILD);
     }
     //endregion Constructors
 
     @Override
     public void generate(final PlanetaryConditions conditions) {
-        switch (Compute.randomInt(10)) {
-            case 0:
-            case 1:
+        switch (Compute.d6(2)) {
             case 2:
+                conditions.setLight(Light.SOLAR_FLARE);
+                break;
             case 3:
+                conditions.setLight(Light.GLARE);
+                break;
             case 4:
                 conditions.setLight(Light.DAY);
                 break;
@@ -44,15 +51,20 @@ public class AtBLightGenerator extends AbstractLightGenerator {
                 conditions.setLight(Light.DAWN);
                 break;
             case 6:
-                conditions.setLight(Light.DUSK);
-                break;
             case 7:
-                conditions.setLight(Light.FULL_MOON);
-                break;
             case 8:
-                conditions.setLight(Light.MOONLESS_NIGHT);
+                conditions.setLight(Light.DAY);
                 break;
             case 9:
+                conditions.setLight(Light.DUSK);
+                break;
+            case 10:
+                conditions.setLight(Light.FULL_MOON);
+                break;
+            case 11:
+                conditions.setLight(Light.MOONLESS_NIGHT);
+                break;
+            case 12:
             default:
                 conditions.setLight(Light.PITCH_BLACK);
                 break;

@@ -21,6 +21,7 @@ package megamek.common.enums;
 import megamek.common.generators.extendedPlanetaryConditionsGenerators.AbstractExtendedPlanetaryConditionsGenerator;
 import megamek.common.generators.extendedPlanetaryConditionsGenerators.DisabledExtendedPlanetaryConditionsGenerator;
 import megamek.common.generators.extendedPlanetaryConditionsGenerators.TacOpsExtendedPlanetaryConditionsGenerator;
+import megamek.common.generators.extendedPlanetaryConditionsGenerators.WindchildExtendedPlanetaryConditionsGenerator;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
@@ -29,7 +30,8 @@ import java.util.ResourceBundle;
 public enum ExtendedPlanetaryConditionsGenerationMethod {
     //region Enum Declarations
     NONE("ExtendedPlanetaryConditionsGenerationMethod.NONE.text", "ExtendedPlanetaryConditionsGenerationMethod.NONE.toolTipText"),
-    TACTICAL_OPERATIONS("ExtendedPlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.text", "ExtendedPlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.toolTipText");
+    TACTICAL_OPERATIONS("ExtendedPlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.text", "ExtendedPlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.toolTipText"),
+    WINDCHILD("ExtendedPlanetaryConditionsGenerationMethod.WINDCHILD.text", "ExtendedPlanetaryConditionsGenerationMethod.WINDCHILD.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -67,6 +69,8 @@ public enum ExtendedPlanetaryConditionsGenerationMethod {
         switch (this) {
             case TACTICAL_OPERATIONS:
                 return new TacOpsExtendedPlanetaryConditionsGenerator(constantPlanetaryValues);
+            case WINDCHILD:
+                return new WindchildExtendedPlanetaryConditionsGenerator(constantPlanetaryValues);
             case NONE:
             default:
                 return new DisabledExtendedPlanetaryConditionsGenerator();

@@ -3205,7 +3205,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
         switch (game.getPlanetaryConditions().getLight()) {
             case FULL_MOON:
-            case MOONLESS:
+            case MOONLESS_NIGHT:
                 rd = rd / 4; // 1/4 red
                 gr = gr / 4; // 1/4 green
                 bl = bl / 2; // half blue

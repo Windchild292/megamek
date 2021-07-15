@@ -2966,7 +2966,7 @@ public class MoveStep implements Serializable {
                 case FULL_MOON:
                     mp += 1;
                     break;
-                case MOONLESS:
+                case MOONLESS_NIGHT:
                     mp += 2;
                     break;
                 case PITCH_BLACK:

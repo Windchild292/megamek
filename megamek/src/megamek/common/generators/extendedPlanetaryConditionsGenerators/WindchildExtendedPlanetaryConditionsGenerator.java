@@ -21,10 +21,15 @@ package megamek.common.generators.extendedPlanetaryConditionsGenerators;
 import megamek.common.PlanetaryConditions;
 import megamek.common.enums.ExtendedPlanetaryConditionsGenerationMethod;
 
-public class DisabledExtendedPlanetaryConditionsGenerator extends AbstractExtendedPlanetaryConditionsGenerator {
+/**
+ * This is a custom planetary conditions generation method designed by Windchild, and described in
+ * the WindchildPlanetaryConditionsGenerator Excel File in the Docs Folder.
+ * @author Windchild
+ */
+public class WindchildExtendedPlanetaryConditionsGenerator extends AbstractExtendedPlanetaryConditionsGenerator {
     //region Constructors
-    public DisabledExtendedPlanetaryConditionsGenerator() {
-        super(ExtendedPlanetaryConditionsGenerationMethod.NONE, true);
+    public WindchildExtendedPlanetaryConditionsGenerator(final boolean constantPlanetaryValues) {
+        super(ExtendedPlanetaryConditionsGenerationMethod.WINDCHILD, constantPlanetaryValues);
     }
     //endregion Constructors
 
