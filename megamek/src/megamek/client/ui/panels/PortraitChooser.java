@@ -23,7 +23,7 @@ import megamek.client.ui.trees.PortraitChooserTree;
 import megamek.common.annotations.Nullable;
 import megamek.common.icons.AbstractIcon;
 import megamek.common.icons.Portrait;
-import megamek.common.util.fileUtils.DirectoryItems;
+import megamek.common.util.fileUtils.AbstractDirectory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ public class PortraitChooser extends AbstractIconChooser {
     //endregion Constructors
 
     @Override
-    protected DirectoryItems getDirectory() {
+    protected @Nullable AbstractDirectory getDirectory() {
         return MMStaticDirectoryManager.getPortraits();
     }
 
