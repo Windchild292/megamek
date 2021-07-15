@@ -76,23 +76,38 @@ public class TacOpsExtendedPlanetaryConditionsGenerator extends AbstractExtended
     }
 
     private void generateHostile(final PlanetaryConditions conditions) {
-        switch (Compute.randomInt(5)) {
-            case 0:
-                conditions.setMeteorShower(true);
-                break;
-            case 1:
-                conditions.setEarthquakeMagnitude(Compute.randomInt(5) + 1);
-                break;
-            case 2:
-                generateAtmosphericPressure(conditions);
-                break;
-            case 3:
-                generateTaintedToxicAtmosphere(conditions);
-                break;
-            case 4:
-            default:
-                conditions.setEMI(true);
-                break;
+        if (isConstantPlanetaryValues()) {
+            switch (Compute.randomInt(3)) {
+                case 0:
+                    conditions.setMeteorShower(true);
+                    break;
+                case 1:
+                    conditions.setEarthquakeMagnitude(Compute.randomInt(5) + 1);
+                    break;
+                case 4:
+                default:
+                    conditions.setEMI(true);
+                    break;
+            }
+        } else {
+            switch (Compute.randomInt(5)) {
+                case 0:
+                    conditions.setMeteorShower(true);
+                    break;
+                case 1:
+                    conditions.setEarthquakeMagnitude(Compute.randomInt(5) + 1);
+                    break;
+                case 2:
+                    generateAtmosphericPressure(conditions);
+                    break;
+                case 3:
+                    generateTaintedToxicAtmosphere(conditions);
+                    break;
+                case 4:
+                default:
+                    conditions.setEMI(true);
+                    break;
+            }
         }
     }
 
