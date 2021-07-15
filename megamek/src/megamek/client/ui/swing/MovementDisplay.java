@@ -993,7 +993,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             setEjectEnabled(true);
             // no turning for spheroids in atmosphere
             if ((((IAero) ce()).isSpheroid() || clientgui.getClient().getGame()
-                    .getPlanetaryConditions().isVacuum())
+                    .getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())
                     && !clientgui.getClient().getGame().getBoard().inSpace()) {
                 setTurnEnabled(false);
             }
@@ -2121,7 +2121,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
     private void updateSearchlightButton() {
         final Entity ce = ce();
         if (ce != null) {
-            boolean isNight = clientgui.getClient().getGame().getPlanetaryConditions().isSearchlightEffective();
+            final boolean isNight = clientgui.getClient().getGame().getPlanetaryConditions().getLight().isNight();
             setSearchlightEnabled(
                     isNight && ce.hasSearchlight() && !cmd.contains(MoveStepType.SEARCHLIGHT),
                     ce.isUsingSearchlight());
@@ -4119,8 +4119,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         IAero a = (IAero) ce;
         if (!clientgui.getClient().getGame().getBoard().inSpace()) {
             if (a.isSpheroid()
-                || clientgui.getClient().getGame().getPlanetaryConditions()
-                            .isVacuum()) {
+                    || clientgui.getClient().getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
                 getBtn(MoveCommand.MOVE_ACC).setEnabled(false);
                 getBtn(MoveCommand.MOVE_DEC).setEnabled(false);
                 getBtn(MoveCommand.MOVE_ACCN).setEnabled(false);
@@ -4938,7 +4937,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     && (cmd.getLastStep().getNDown() == 1)
                     && (cmd.getLastStep().getVelocity() < 12)
                     && !(((IAero) ce).isSpheroid() || clientgui.getClient()
-                            .getGame().getPlanetaryConditions().isVacuum())) {
+                            .getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())) {
                 cmd.addStep(MoveStepType.ACC, true);
             }
             cmd.addStep(MoveStepType.DOWN);

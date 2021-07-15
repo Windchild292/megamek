@@ -12,16 +12,7 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common.pathfinder;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import megamek.client.bot.princess.AeroPathUtil;
 import megamek.common.Building;
@@ -33,8 +24,15 @@ import megamek.common.IBoard;
 import megamek.common.IGame;
 import megamek.common.MovePath;
 import megamek.common.MovePath.MoveStepType;
-import megamek.common.PlanetaryConditions;
 import megamek.common.Terrains;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Handles the generation of ground-based move paths that contain information relating to the destruction 
@@ -66,27 +64,24 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
         // if we're calculating a jump path and the entity has jump mp and can jump, start off with a jump
         // if we're trying to calc a jump path and the entity does not have jump mp, we're done
         if (jump && (startPath.getCachedEntityState().getJumpMPWithTerrain() > 0) &&
-                !entity.isProne() && !entity.isHullDown() && 
-                (entity.getGame().getPlanetaryConditions().getWindStrength() != PlanetaryConditions.WI_TORNADO_F4)) {
+                !entity.isProne() && !entity.isHullDown() &&
+                !entity.getGame().getPlanetaryConditions().getWindStrength().isTornadoF4()) {
             startPath.addStep(MoveStepType.START_JUMP);
         // if we specified a jump path, but can't actually jump
         } else if (jump) {
             return null;
         // can't "climb into" anything while jumping
-        } else { 
-            if(entity.hasETypeFlag(Entity.ETYPE_INFANTRY)) {
-                startPath.addStep(MoveStepType.CLIMB_MODE_OFF);
-            } else {
-                startPath.addStep(MoveStepType.CLIMB_MODE_ON);
-            }
+        } else {
+            startPath.addStep(entity.hasETypeFlag(Entity.ETYPE_INFANTRY)
+                    ? MoveStepType.CLIMB_MODE_OFF : MoveStepType.CLIMB_MODE_ON);
         }
         
         // if we're on the ground, let's try to get up first before moving 
-        if(entity.isProne() || entity.isHullDown()) {
+        if (entity.isProne() || entity.isHullDown()) {
             startPath.addStep(MoveStepType.GET_UP);
             
             // if we can't even get up, no need to do anything else
-            if(!startPath.isMoveLegal()) {
+            if (!startPath.isMoveLegal()) {
                 return null;
             }
         }
@@ -108,12 +103,12 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
         shortestPathsToCoords.put(startPath.getFinalCoords(), startPath);
         BulldozerMovePath bestPath = null;
 
-        while(!candidates.isEmpty()) {
+        while (!candidates.isEmpty()) {
             BulldozerMovePath currentPath = candidates.pollFirst();
             
             candidates.addAll(generateChildNodes(currentPath, shortestPathsToCoords, clusterTracker, closest));      
             
-            if(destinationCoords.contains(currentPath.getFinalCoords()) &&
+            if (destinationCoords.contains(currentPath.getFinalCoords()) &&
                     ((bestPath == null) || (movePathComparator.compare(bestPath, currentPath) > 0))) {
                 bestPath = currentPath;
                 maximumCost = bestPath.getMpUsed() + bestPath.getLevelingCost();
@@ -131,17 +126,17 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
         Coords bestCoords = null;
         int bestDistance = Integer.MAX_VALUE;
         
-        for(Coords coords : destinationRegion) {
-            if(!entity.getGame().getBoard().contains(coords)) {
+        for (Coords coords : destinationRegion) {
+            if (!entity.getGame().getBoard().contains(coords)) {
                 continue;
             }
             
             int levelingCost = BulldozerMovePath.calculateLevelingCost(coords, entity);
             boolean canLevel = levelingCost > BulldozerMovePath.CANNOT_LEVEL;
             
-            if(!entity.isLocationProhibited(coords) || canLevel) {
+            if (!entity.isLocationProhibited(coords) || canLevel) {
                 int distance = coords.distance(entity.getPosition()) + (canLevel ? levelingCost : 0);
-                if(distance < bestDistance) {
+                if (distance < bestDistance) {
                     bestDistance = distance;
                     bestCoords = coords;
                 }
@@ -163,11 +158,11 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
         List<BulldozerMovePath> children = new ArrayList<>();
 
         // there are six possible children of a move path, defined in AeroPathUtil.TURNS
-        for(List<MoveStepType> turns : AeroPathUtil.TURNS) {
+        for (List<MoveStepType> turns : AeroPathUtil.TURNS) {
             BulldozerMovePath childPath = (BulldozerMovePath) parentPath.clone();
             
             // apply the list of turn steps
-            for(MoveStepType stepType : turns) {
+            for (MoveStepType stepType : turns) {
                 childPath.addStep(stepType);
             }
             

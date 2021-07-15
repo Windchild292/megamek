@@ -237,8 +237,7 @@ public class GAAttack extends GA {
             overheat += attacker.entity.getEngineCritHeat();
         }
         // ... or ambient temperature
-        overheat += game.getPlanetaryConditions().getTemperatureDifference(50,
-                -30);
+        overheat += game.getPlanetaryConditions().getTemperatureDifference(50.0, -30.0);
         if ((attacker.entity.heat > 0) && (overheat < 0)) {
             // always perfer smaller heat numbers
             total_utility -= (attacker.bv / 1000) * overheat;

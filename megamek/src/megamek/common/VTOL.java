@@ -588,7 +588,7 @@ public class VTOL extends Tank implements IBomber {
         j = Math.max(0, j - motiveDamage);
         j = Math.max(0, j - getCargoMpReduction(this));
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }

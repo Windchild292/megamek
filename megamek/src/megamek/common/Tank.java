@@ -269,7 +269,7 @@ public class Tank extends Entity {
         j = Math.max(0, j - getCargoMpReduction(this));
         if (null != game) {
             int weatherMod = game.getPlanetaryConditions()
-                    .getMovementMods(this);
+                    .getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }

@@ -13,15 +13,11 @@
  */
 package megamek.common;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import megamek.MegaMek;
+import megamek.common.enums.AtmosphericPressure;
 import megamek.common.options.OptionsConstants;
+
+import java.util.*;
 
 public class LandAirMech extends BipedMech implements IAero, IBomber {
     private static final long serialVersionUID = -8118673802295814548L;
@@ -397,7 +393,7 @@ public class LandAirMech extends BipedMech implements IAero, IBomber {
         }
         int j = getJumpMP();
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }
@@ -741,15 +737,16 @@ public class LandAirMech extends BipedMech implements IAero, IBomber {
                 roll.addModifier(vmod, "Velocity greater than 2x safe thrust");
             }
 
-            int atmoCond = game.getPlanetaryConditions().getAtmosphere();
+            final AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphericPressure();
             // add in atmospheric effects later
-            if (!(game.getBoard().inSpace() || (atmoCond == PlanetaryConditions.ATMO_VACUUM)) && isAirborne()) {
+            if (!(game.getBoard().inSpace() || atmosphere.isVacuum()) && isAirborne()) {
                 roll.addModifier(+1, "Atmospheric operations");
             }
 
             if (hasQuirk(OptionsConstants.QUIRK_POS_ATMO_FLYER) && !game.getBoard().inSpace()) {
                 roll.addModifier(-1, "atmospheric flyer");
             }
+
             if (hasQuirk(OptionsConstants.QUIRK_NEG_ATMO_INSTABILITY) && !game.getBoard().inSpace()) {
                 roll.addModifier(+1, "atmospheric flight instability");
             }
@@ -2075,9 +2072,7 @@ public class LandAirMech extends BipedMech implements IAero, IBomber {
         if (getConversionMode() == CONV_MODE_FIGHTER) {
             return !isAirborne() || hasWorkingMisc(MiscType.F_RECON_CAMERA)
                     || hasWorkingMisc(MiscType.F_INFRARED_IMAGER) || hasWorkingMisc(MiscType.F_HYPERSPECTRAL_IMAGER)
-                    || (hasWorkingMisc(MiscType.F_HIRES_IMAGER)
-                            && ((game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DAY)
-                                    || (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DUSK)));
+                    || (hasWorkingMisc(MiscType.F_HIRES_IMAGER) && !game.getPlanetaryConditions().getLight().isNight());
         } else {
             return super.canSpot();
         }

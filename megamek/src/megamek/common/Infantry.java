@@ -27,6 +27,7 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import megamek.MegaMek;
+import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.infantry.InfantryWeapon;
 
@@ -440,7 +441,7 @@ public class Infantry extends Entity {
             mp = Math.min(mp, 1);
         }
         if(null != game) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if(weatherMod != 0) {
                 mp = Math.max(mp + weatherMod, 0);
             }
@@ -499,12 +500,11 @@ public class Infantry extends Entity {
             mp = applyGravityEffectsOnMP(mp);
         }
         int windP = 0;
-        if(null != game) {
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if(windCond == PlanetaryConditions.WI_MOD_GALE) {
+        if (null != game) {
+            final Wind wind = game.getPlanetaryConditions().getWindStrength();
+            if (wind.isModerateGale()) {
                 windP++;
-            }
-            if(windCond >= PlanetaryConditions.WI_STRONG_GALE) {
+            } else if (wind.isStrongGaleOrStronger()) {
                 return 0;
             }
         }

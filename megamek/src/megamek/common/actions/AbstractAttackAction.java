@@ -20,7 +20,6 @@ import megamek.common.Game;
 import megamek.common.IGame;
 import megamek.common.Mech;
 import megamek.common.Mounted;
-import megamek.common.PlanetaryConditions;
 import megamek.common.Targetable;
 import megamek.common.ToHitData;
 import megamek.common.annotations.Nullable;
@@ -50,18 +49,22 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         this.targetId = targetId;
     }
 
+    @Override
     public int getTargetType() {
         return targetType;
     }
 
+    @Override
     public int getTargetId() {
         return targetId;
     }
 
+    @Override
     public void setTargetType(int targetType) {
         this.targetType = targetType;
     }
 
+    @Override
     public void setTargetId(int targetId) {
         this.targetId = targetId;
     }
@@ -96,9 +99,9 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
      * used by the toHit of derived classes atype may be null if not using an
      * ammo based weapon
      */
-    public static ToHitData nightModifiers(IGame game, Targetable target,
-            AmmoType atype, Entity attacker, boolean isWeapon) {
-        ToHitData toHit = null;
+    public static ToHitData nightModifiers(IGame game, Targetable target, AmmoType atype,
+                                           Entity attacker, boolean isWeapon) {
+        ToHitData toHit;
 
         Entity te = null;
         if (target.getTargetType() == Targetable.TYPE_ENTITY) {
@@ -106,19 +109,15 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         }
         toHit = new ToHitData();
 
-        int lightCond = game.getPlanetaryConditions().getLight();
-        if(lightCond == PlanetaryConditions.L_DAY) {
+        if (game.getPlanetaryConditions().getLight().isDay()) {
             //not nighttime so just return
             return toHit;
         }
 
         // The base night penalty
         int hexIllumLvl = game.isPositionIlluminated(target.getPosition());
-        int night_modifier = 0;
-        night_modifier = game.getPlanetaryConditions().getLightHitPenalty(
-                isWeapon);
-        toHit.addModifier(night_modifier, game.getPlanetaryConditions()
-                .getLightDisplayableName());
+        int night_modifier = game.getPlanetaryConditions().getLight().getHitPenalty(isWeapon);
+        toHit.addModifier(night_modifier, game.getPlanetaryConditions().getLight().toString());
 
         boolean illuminated = false;
         if (te != null) {
@@ -140,9 +139,9 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
             }
         }
         // Searchlights reduce the penalty to zero (or 1 for pitch-black) 
-        //  (except for dusk/dawn)
+        // (except for dusk/dawn)
         int searchlightMod = Math.min(3, night_modifier);
-        if ((te != null) && (lightCond > PlanetaryConditions.L_DUSK)
+        if ((te != null) && game.getPlanetaryConditions().getLight().isNight()
                 && (te.isUsingSearchlight() || illuminated)) {
             if (te.isUsingSearchlight()) {
                 toHit.addModifier(-searchlightMod, "target using searchlight");
@@ -164,41 +163,34 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         else if (hexIllumLvl == Game.ILLUMINATED_FLARE) {
             toHit.addModifier(-night_modifier, "target illuminated by flare");
             night_modifier = 0;
-        }
-        else if (hexIllumLvl == Game.ILLUMINATED_FIRE) {
+        } else if (hexIllumLvl == Game.ILLUMINATED_FIRE) {
             int fireMod = Math.min(2, night_modifier);
             toHit.addModifier(-fireMod, "target illuminated by fire");
             night_modifier -= fireMod;
-        } 
-        else if (hexIllumLvl == Game.ILLUMINATED_LIGHT) {
+        } else if (hexIllumLvl == Game.ILLUMINATED_LIGHT) {
             toHit.addModifier(-searchlightMod,
                     "target illuminated by searchlight");
             night_modifier -= searchlightMod;
-        }
-        // Certain ammunitions reduce the penalty
-        else if (atype != null) {
+        } else if (atype != null) {
+            // Certain ammunition reduce the penalty
             if (((atype.getAmmoType() == AmmoType.T_AC) 
                     || (atype.getAmmoType() == AmmoType.T_LAC)
                     || (atype.getAmmoType() == AmmoType.T_AC_IMP)
                     || (atype.getAmmoType() == AmmoType.T_PAC))
                     && ((atype.getMunitionType() == AmmoType.M_INCENDIARY_AC) 
-                            || (atype.getMunitionType() 
-                                    == AmmoType.M_TRACER))) {
+                            || (atype.getMunitionType() == AmmoType.M_TRACER))) {
                 toHit.addModifier(-1, "incendiary/tracer ammo");
                 night_modifier--;
             }
         }
         // Laser heatsinks
-        if ((night_modifier > 0) && (te != null) && (te instanceof Mech)
-                && ((Mech) te).hasLaserHeatSinks()) {
+        if ((night_modifier > 0) && (te instanceof Mech) && ((Mech) te).hasLaserHeatSinks()) {
             boolean lhsused = false;
             if (te.heat > 0) {
-                toHit.addModifier(-night_modifier,
-                        "target overheated with laser heatsinks");
+                toHit.addModifier(-night_modifier, "target overheated with laser heatsinks");
                 night_modifier = 0;
-            }
-            // actions that generate heat give a -1 modifier
-            else if ((te.heatBuildup > 0) || te.isStealthActive()) {
+            } else if ((te.heatBuildup > 0) || te.isStealthActive()) {
+                // actions that generate heat give a -1 modifier
                 lhsused = true;
             } else {
                 // Unfortunately, we can't just check weapons fired by the
@@ -230,16 +222,15 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
             }
         }
 
-
         //now check for general hit bonuses for heat
         if ((te != null) && !attacker.isConventionalInfantry()) {
-            int heatBonus = game.getPlanetaryConditions().getLightHeatBonus(te.heat);
+            final int heatBonus = game.getPlanetaryConditions().getLight().getHeatBonus(te.heat);
             if (heatBonus < 0) {
                 toHit.addModifier(heatBonus, "target excess heat at night");
             }
         }
 
-        if ((toHit.getValue() > 0) && (null != attacker.getCrew())
+        if ((toHit.getValue() > 0) && (attacker.getCrew() != null)
                 && attacker.hasAbility(OptionsConstants.UNOFF_BLIND_FIGHTER)) {
             toHit.addModifier(-1, "blind fighter");
         }

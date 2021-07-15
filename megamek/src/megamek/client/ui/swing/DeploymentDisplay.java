@@ -287,10 +287,10 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
         }
 
         // Check nag for doomed planetary conditions
-        String reason = game.getPlanetaryConditions().whyDoomed(en, game);
+        String reason = game.getPlanetaryConditions().whyDoomed(game, en);
         if ((reason != null) && GUIPreferences.getInstance().getNagForDoomed()) {
             String title = Messages.getString("DeploymentDisplay.ConfirmDoomed.title"); 
-            String body = Messages.getString("DeploymentDisplay.ConfirmDoomed.message", new Object[] {reason}); 
+            String body = Messages.getString("DeploymentDisplay.ConfirmDoomed.message", reason);
             ConfirmDialog response = clientgui.doYesNoBotherDialog(title, body);
             if (!response.getShowAgain()) {
                 GUIPreferences.getInstance().setNagForDoomed(false);
