@@ -63,7 +63,7 @@ import megamek.common.IGame.Phase;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.*;
 import megamek.common.containers.PlayerIDandList;
-import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.HexCardinalDirection;
 import megamek.common.enums.Wind;
 import megamek.common.event.GameListener;
 import megamek.common.event.GameVictoryEvent;
@@ -28956,7 +28956,7 @@ public class Server implements Runnable {
      *
      * @param coords The <code>Coords</code> x-coordinate of the hex
      */
-    public void addSmoke(final List<Coords> coords, final CardinalDirection direction,
+    public void addSmoke(final List<Coords> coords, final HexCardinalDirection direction,
                          final boolean bInferno) {
         // if a tornado, then no smoke!
         if (game.getPlanetaryConditions().getWindStrength().isTornado()) {

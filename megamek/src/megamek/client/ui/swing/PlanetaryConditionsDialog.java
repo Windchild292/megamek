@@ -46,7 +46,7 @@ import megamek.client.ui.swing.dialog.DialogButton;
 import megamek.common.Configuration;
 import megamek.common.PlanetaryConditions;
 import megamek.common.enums.AtmosphericPressure;
-import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.HexCardinalDirection;
 import megamek.common.enums.Fog;
 import megamek.common.enums.Light;
 import megamek.common.enums.Weather;
@@ -115,7 +115,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
     private JLabel labMinWind = new JLabel(Messages.getString(PCD + "labMinWind"), SwingConstants.RIGHT); 
     private MMComboBox<Wind> comWindFrom = new MMComboBox<>("comWindFrom", Wind.values());
     private JLabel labMaxWind = new JLabel(Messages.getString(PCD + "labMaxWind"), SwingConstants.RIGHT); 
-    private MMComboBox<CardinalDirection> comWindDirection = new MMComboBox<>("comWindDirection", CardinalDirection.values());
+    private MMComboBox<HexCardinalDirection> comWindDirection = new MMComboBox<>("comWindDirection", HexCardinalDirection.values());
     private JLabel labWindDirection = new JLabel(Messages.getString(PCD + "labWindDirection"), SwingConstants.RIGHT);
     private MMComboBox<Wind> comWindTo = new MMComboBox<>("comWindTo", Wind.values());
     private JLabel labAtmosphere = new TipLabel(Messages.getString(PCD + "labAtmosphere"), SwingConstants.RIGHT, this); 

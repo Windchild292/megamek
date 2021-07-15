@@ -69,7 +69,7 @@ import megamek.common.ToHitData;
 import megamek.common.WeaponType;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.AtmosphericPressure;
-import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.HexCardinalDirection;
 import megamek.common.enums.Fog;
 import megamek.common.enums.Gender;
 import megamek.common.enums.Light;
@@ -482,7 +482,7 @@ public class ScenarioLoader {
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WINDDIR)) {
-            g.getPlanetaryConditions().setWindDirection(CardinalDirection.parseFromString(p.getString(PARAM_PLANETCOND_WINDDIR)));
+            g.getPlanetaryConditions().setWindDirection(HexCardinalDirection.parseFromString(p.getString(PARAM_PLANETCOND_WINDDIR)));
         }
         
         if (p.containsKey(PARAM_PLANETCOND_WINDSHIFTINGDIR)) {

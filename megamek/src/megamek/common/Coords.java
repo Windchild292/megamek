@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlElement;
 import megamek.MegaMek;
 import megamek.client.bot.princess.BotGeometry.HexLine;
 import megamek.common.annotations.Nullable;
-import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.HexCardinalDirection;
 
 /**
  * Coords stores x and y values. Since these are hexes, coordinates with odd x
@@ -72,17 +72,17 @@ public class Coords implements Serializable {
     /**
      * Returns the coordinate 1 unit in the specified direction
      */
-    public Coords translated(final CardinalDirection direction) {
+    public Coords translated(final HexCardinalDirection direction) {
         return translated(direction, 1);
     }
 
     public Coords translated(final String direction) {
         try {
-            return translated(CardinalDirection.parseFromString(direction));
+            return translated(HexCardinalDirection.parseFromString(direction));
         } catch (Exception e) {
             MegaMek.getLogger().error("Illegal direction passed of " + direction
                     + ", translating a random direction", e);
-            return translated(CardinalDirection.RANDOMIZE);
+            return translated(HexCardinalDirection.RANDOMIZE);
         }
     }
 
@@ -91,11 +91,11 @@ public class Coords implements Serializable {
      * specified direction dir.
      */
     public Coords translated(int dir, int distance) {
-        return translated(CardinalDirection.values()[dir], distance);
+        return translated(HexCardinalDirection.values()[dir], distance);
     }
 
-    public Coords translated(CardinalDirection direction, final int distance) {
-        direction = direction.isRandomize() ? CardinalDirection.getRandomDirection() : direction;
+    public Coords translated(HexCardinalDirection direction, final int distance) {
+        direction = direction.isRandomize() ? HexCardinalDirection.getRandomDirection() : direction;
         return new Coords(xInDir(direction, distance), yInDir(direction, distance));
     }
 
@@ -113,16 +113,16 @@ public class Coords implements Serializable {
     }
 
     /** Returns the x value of the Coords the given distance in the direction dir. */
-    public int xInDir(final CardinalDirection direction, final int distance) {
+    public int xInDir(final HexCardinalDirection direction, final int distance) {
         return Coords.xInDir(x, y, direction, distance);
     }
 
     private static int xInDir(final int x, final int y, final int direction, final int distance) {
-        return xInDir(x, y, CardinalDirection.values()[direction], distance);
+        return xInDir(x, y, HexCardinalDirection.values()[direction], distance);
     }
 
     /** Returns the x value of the Coords the given distance in the direction dir. */
-    public static int xInDir(final int x, final int y, final CardinalDirection direction,
+    public static int xInDir(final int x, final int y, final HexCardinalDirection direction,
                              final int distance) {
         switch (direction) {
             case NORTHEAST:
@@ -144,7 +144,7 @@ public class Coords implements Serializable {
     }
 
     /** Returns the y value of the Coords the given distance in the direction dir. */
-    public int yInDir(final CardinalDirection direction, final int distance) {
+    public int yInDir(final HexCardinalDirection direction, final int distance) {
         return Coords.yInDir(x, y, direction, distance);
     }
 
@@ -154,11 +154,11 @@ public class Coords implements Serializable {
     }
 
     public static int yInDir(final int x, final int y, final int direction, final int distance) {
-        return yInDir(x, y, CardinalDirection.values()[direction], distance);
+        return yInDir(x, y, HexCardinalDirection.values()[direction], distance);
     }
 
     /** Returns the x value of the Coords the given distance in the direction dir. */
-    public static int yInDir(final int x, final int y, final CardinalDirection direction,
+    public static int yInDir(final int x, final int y, final HexCardinalDirection direction,
                              final int distance) {
         switch (direction) {
             case NORTH:

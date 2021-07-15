@@ -25,7 +25,7 @@ import megamek.common.IHex;
 import megamek.common.Report;
 import megamek.common.TargetRoll;
 import megamek.common.Terrains;
-import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.HexCardinalDirection;
 import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
 
@@ -65,7 +65,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
         IBoard board = game.getBoard();
         int width = board.getWidth();
         int height = board.getHeight();
-        final CardinalDirection windDirection = game.getPlanetaryConditions().getWindDirection();
+        final HexCardinalDirection windDirection = game.getPlanetaryConditions().getWindDirection();
         final Wind windStrength = game.getPlanetaryConditions().getWindStrength();
         Report r;
 
@@ -227,7 +227,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
     /**
      * Spreads the fire around the specified coordinates.
      */
-    public void spreadFire(int x, int y, CardinalDirection direction, Wind wind) {
+    public void spreadFire(int x, int y, HexCardinalDirection direction, Wind wind) {
         Coords src = new Coords(x, y);
         Coords nextCoords = src.translated(direction);
 
@@ -305,7 +305,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
      */
     private void resolveSmoke() {
         IBoard board = game.getBoard();
-        final CardinalDirection direction = game.getPlanetaryConditions().getWindDirection();
+        final HexCardinalDirection direction = game.getPlanetaryConditions().getWindDirection();
         Wind wind = game.getPlanetaryConditions().getWindStrength();
         //if the breeze option is turned on, then treat wind strength like light gale if none
         if (wind.isCalm() && game.getOptions().booleanOption(OptionsConstants.BASE_BREEZE)) {
@@ -376,7 +376,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
      * @param wind the wind pushing the smoke
      * @return the drifted smoke's new coordinates
      */
-    public Coords driftAddSmoke(Coords coords, CardinalDirection direction, Wind wind) {
+    public Coords driftAddSmoke(Coords coords, HexCardinalDirection direction, Wind wind) {
         return driftAddSmoke(coords, direction, wind, 0);
     }
 
@@ -391,7 +391,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
      * @param directionChanges How many times the smoke has tried to change directions to get around an obsticle.
      * @return the new coordinates for the smoke
      */
-    public Coords driftAddSmoke(final Coords src, final CardinalDirection direction,
+    public Coords driftAddSmoke(final Coords src, final HexCardinalDirection direction,
                                 final Wind wind, int directionChanges) {
         Coords nextCoords = src.translated(direction);
         IBoard board = game.getBoard();
@@ -438,7 +438,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
 
         // stronger wind causes smoke to drift farther
         if (wind.isStrongGaleOrStronger()) {
-            return driftAddSmoke(nextCoords, CardinalDirection.values()[directionChanges],
+            return driftAddSmoke(nextCoords, HexCardinalDirection.values()[directionChanges],
                     Wind.values()[wind.ordinal() - 1]);
         }
 

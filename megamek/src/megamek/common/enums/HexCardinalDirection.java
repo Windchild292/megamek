@@ -27,15 +27,15 @@ import java.util.ResourceBundle;
 /**
  * This enum contains the six cardinal directions when working with hexes, plus a randomization value.
  */
-public enum CardinalDirection {
+public enum HexCardinalDirection {
     //region Enum Declarations
-    NORTH("CardinalDirection.NORTH.text", "CardinalDirection.NORTH.toolTipText", "CardinalDirection.NORTH.abbreviation"),
-    NORTHEAST("CardinalDirection.NORTHEAST.text", "CardinalDirection.NORTHEAST.toolTipText", "CardinalDirection.NORTHEAST.abbreviation"),
-    SOUTHEAST("CardinalDirection.SOUTHEAST.text", "CardinalDirection.SOUTHEAST.toolTipText", "CardinalDirection.SOUTHEAST.abbreviation"),
-    SOUTH("CardinalDirection.SOUTH.text", "CardinalDirection.SOUTH.toolTipText", "CardinalDirection.SOUTH.abbreviation"),
-    SOUTHWEST("CardinalDirection.SOUTHWEST.text", "CardinalDirection.SOUTHWEST.toolTipText", "CardinalDirection.SOUTHWEST.abbreviation"),
-    NORTHWEST("CardinalDirection.NORTHWEST.text", "CardinalDirection.NORTHWEST.toolTipText", "CardinalDirection.NORTHWEST.abbreviation"),
-    RANDOMIZE("CardinalDirection.RANDOMIZE.text", "CardinalDirection.RANDOMIZE.toolTipText", "CardinalDirection.RANDOMIZE.abbreviation");
+    NORTH("HexCardinalDirection.NORTH.text", "HexCardinalDirection.NORTH.toolTipText", "HexCardinalDirection.NORTH.abbreviation"),
+    NORTHEAST("HexCardinalDirection.NORTHEAST.text", "HexCardinalDirection.NORTHEAST.toolTipText", "HexCardinalDirection.NORTHEAST.abbreviation"),
+    SOUTHEAST("HexCardinalDirection.SOUTHEAST.text", "HexCardinalDirection.SOUTHEAST.toolTipText", "HexCardinalDirection.SOUTHEAST.abbreviation"),
+    SOUTH("HexCardinalDirection.SOUTH.text", "HexCardinalDirection.SOUTH.toolTipText", "HexCardinalDirection.SOUTH.abbreviation"),
+    SOUTHWEST("HexCardinalDirection.SOUTHWEST.text", "HexCardinalDirection.SOUTHWEST.toolTipText", "HexCardinalDirection.SOUTHWEST.abbreviation"),
+    NORTHWEST("HexCardinalDirection.NORTHWEST.text", "HexCardinalDirection.NORTHWEST.toolTipText", "HexCardinalDirection.NORTHWEST.abbreviation"),
+    RANDOMIZE("HexCardinalDirection.RANDOMIZE.text", "HexCardinalDirection.RANDOMIZE.toolTipText", "HexCardinalDirection.RANDOMIZE.abbreviation");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -47,7 +47,7 @@ public enum CardinalDirection {
     //endregion Variable Declarations
 
     //region Constructors
-    CardinalDirection(final String name, final String toolTipText, final String abbreviation) {
+    HexCardinalDirection(final String name, final String toolTipText, final String abbreviation) {
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
         this.abbreviation = resources.getString(abbreviation);
@@ -97,8 +97,8 @@ public enum CardinalDirection {
     /**
      * @return an unbiased random direction, which will not be randomize
      */
-    public static CardinalDirection getRandomDirection() {
-        final CardinalDirection[] CardinalDirections = values();
+    public static HexCardinalDirection getRandomDirection() {
+        final HexCardinalDirection[] CardinalDirections = values();
         return CardinalDirections[Compute.randomInt(CardinalDirections.length - 1)];
     }
 
@@ -106,17 +106,17 @@ public enum CardinalDirection {
      * @param rotations positive to rotate clockwise, negative to rotate counterclockwise
      * @return the rotated direction
      */
-    public CardinalDirection rotate(final int rotations) {
-        final CardinalDirection[] CardinalDirections = values();
+    public HexCardinalDirection rotate(final int rotations) {
+        final HexCardinalDirection[] CardinalDirections = values();
         return CardinalDirections[(ordinal() + rotations) % (CardinalDirections.length - 1)];
     }
 
     //region File I/O
     /**
      * @param text the string to parse
-     * @return the CardinalDirection, or RANDOMIZE if there is an error in parsing
+     * @return the HexCardinalDirection, or RANDOMIZE if there is an error in parsing
      */
-    public static CardinalDirection parseFromString(final String text) {
+    public static HexCardinalDirection parseFromString(final String text) {
         try {
             return valueOf(text);
         } catch (Exception ignored) {
@@ -169,7 +169,7 @@ public enum CardinalDirection {
 
         }
 
-        MegaMek.getLogger().error("Unable to parse " + text + " into an CardinalDirection. Returning RANDOMIZE.");
+        MegaMek.getLogger().error("Unable to parse " + text + " into a HexCardinalDirection. Returning RANDOMIZE.");
 
         return RANDOMIZE;
     }

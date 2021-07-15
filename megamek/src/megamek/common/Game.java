@@ -37,7 +37,7 @@ import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.AttackAction;
 import megamek.common.actions.EntityAction;
 import megamek.common.annotations.Nullable;
-import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.HexCardinalDirection;
 import megamek.common.event.GameBoardChangeEvent;
 import megamek.common.event.GameBoardNewEvent;
 import megamek.common.event.GameEndEvent;
@@ -3337,7 +3337,7 @@ public class Game implements Serializable, IGame {
                 if ((flare.flags & Flare.F_DRIFTING) != 0) {
                     // No drift if the wind is calm, drift one hex for Moderate/Light Gales,
                     // and one more for each wind strength increase above a Moderate Gale.
-                    final CardinalDirection direction = planetaryConditions.getWindDirection();
+                    final HexCardinalDirection direction = planetaryConditions.getWindDirection();
                     switch (planetaryConditions.getWindStrength()) { // Purposeful fallthrough
                         case TORNADO_F4:
                             flare.position = flare.position.translated(direction);

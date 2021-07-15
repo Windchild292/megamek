@@ -26,7 +26,7 @@ import megamek.common.enums.Fog;
 import megamek.common.enums.Light;
 import megamek.common.enums.Weather;
 import megamek.common.enums.Wind;
-import megamek.common.enums.CardinalDirection;
+import megamek.common.enums.HexCardinalDirection;
 import megamek.common.util.EncodeControl;
 import megamek.utils.MegaMekXmlUtil;
 import org.w3c.dom.Node;
@@ -70,7 +70,7 @@ public class PlanetaryConditions implements Serializable {
     private boolean shiftingWindStrength;
     private Wind minimumWindStrength;
     private Wind maximumWindStrength;
-    private CardinalDirection windDirection;
+    private HexCardinalDirection windDirection;
     private boolean shiftingWindDirection;
 
     // Weather
@@ -115,7 +115,7 @@ public class PlanetaryConditions implements Serializable {
         setShiftingWindStrength(false);
         setMinimumWindStrength(Wind.CALM);
         setMaximumWindStrength(Wind.TORNADO_F4);
-        setWindDirection(CardinalDirection.RANDOMIZE);
+        setWindDirection(HexCardinalDirection.RANDOMIZE);
         setShiftingWindDirection(false);
 
         // Weather
@@ -277,11 +277,11 @@ public class PlanetaryConditions implements Serializable {
         this.maximumWindStrength = maximumWindStrength;
     }
 
-    public CardinalDirection getWindDirection() {
+    public HexCardinalDirection getWindDirection() {
         return windDirection;
     }
 
-    public void setWindDirection(final CardinalDirection windDirection) {
+    public void setWindDirection(final HexCardinalDirection windDirection) {
         this.windDirection = windDirection;
     }
 
@@ -419,7 +419,7 @@ public class PlanetaryConditions implements Serializable {
         if (getWindDirection().isRandomize()) {
             // Initial wind direction. If using level 2 rules, this
             // will be the wind direction for the whole battle.
-            setWindDirection(CardinalDirection.getRandomDirection());
+            setWindDirection(HexCardinalDirection.getRandomDirection());
         } else if (isShiftingWindDirection()) {
             // Wind direction changes on a roll of 1 or 6
             switch (Compute.d6()) {
@@ -1020,7 +1020,7 @@ public class PlanetaryConditions implements Serializable {
                         planetaryConditions.setMaximumWindStrength(Wind.parseFromString(wn.getTextContent().trim()));
                         break;
                     case "windDirection":
-                        planetaryConditions.setWindDirection(CardinalDirection.parseFromString(wn.getTextContent().trim()));
+                        planetaryConditions.setWindDirection(HexCardinalDirection.parseFromString(wn.getTextContent().trim()));
                         break;
                     case "shiftingWindDirection":
                         planetaryConditions.setShiftingWindDirection(Boolean.parseBoolean(wn.getTextContent().trim()));
