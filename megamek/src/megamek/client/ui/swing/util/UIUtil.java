@@ -13,6 +13,7 @@
 */ 
 package megamek.client.ui.swing.util;
 
+import java.util.*;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -24,38 +25,8 @@ import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.JToggleButton;
-import javax.swing.JToolTip;
-import javax.swing.JViewport;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.*;
+import javax.swing.border.*;
 
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.ClientGUI;
@@ -373,7 +344,7 @@ public final class UIUtil {
      * gui scale.
      */
     public static void adjustDialog(Container contentPane) {
-        Font scaledFont = new Font("Dialog", Font.PLAIN, UIUtil.scaleForGUI(UIUtil.FONT_SCALE1));
+        Font scaledFont = getScaledFont();
         Component[] allComps = contentPane.getComponents();
         for (Component comp: allComps) {
             if ((comp instanceof JButton) || (comp instanceof JLabel)
@@ -419,11 +390,10 @@ public final class UIUtil {
     }
 
     /** Adapt a JPopupMenu to the GUI scaling. Use after all menu items have been added. */
-    public static void scaleJPopup(final JPopupMenu popup) {
-        Font scaledFont = new Font("Dialog", Font.PLAIN, UIUtil.scaleForGUI(UIUtil.FONT_SCALE1));
+    public static void scaleMenu(final JComponent popup) {
         for (Component comp: popup.getComponents()) {
             if ((comp instanceof JMenuItem)) {
-                comp.setFont(scaledFont);
+                comp.setFont(getScaledFont());
                 scaleJMenuItem((JMenuItem)comp);
             } 
         }
@@ -692,6 +662,14 @@ public final class UIUtil {
         return result;
     }
     
+    /** 
+     * Returns a Font object using the "Dialog" logic font. The font size is based on 
+     * size 14 and scaled with the current gui scaling. 
+     */
+    public static Font getScaledFont() {
+        return new Font("Dialog", Font.PLAIN, scaleForGUI(FONT_SCALE1));
+    }
+    
     
     
     // PRIVATE 
@@ -758,7 +736,7 @@ public final class UIUtil {
     
     /** Internal helper method to adapt items in a JPopupmenu to the GUI scaling. */
     private static void scaleJMenuItem(final JMenuItem menuItem) {
-        Font scaledFont = new Font("Dialog", Font.PLAIN, UIUtil.scaleForGUI(UIUtil.FONT_SCALE1));
+        Font scaledFont = getScaledFont();
         if (menuItem instanceof JMenu) {
             JMenu menu = (JMenu)menuItem;
             menu.setFont(scaledFont);

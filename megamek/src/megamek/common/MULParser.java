@@ -148,7 +148,7 @@ public class MULParser {
     private static final String DEPLOYMENT_ZONE = "deploymentZone";
     private static final String NEVER_DEPLOYED = "neverDeployed";
     private static final String VELOCITY = "velocity";
-    private static final String ALTITUDE = "altitude";
+    public static final String ALTITUDE = "altitude";
     private static final String AUTOEJECT = "autoeject";
     private static final String CONDEJECTAMMO = "condejectammo";
     private static final String CONDEJECTENGINE = "condejectengine";
@@ -1207,10 +1207,10 @@ public class MULParser {
             }
 
             if ((attributes.containsKey(CAT_PORTRAIT)) && (attributes.get(CAT_PORTRAIT).length() > 0)) {
-                crew.setPortraitCategory(attributes.get(CAT_PORTRAIT), slot);
+                crew.getPortrait(slot).setCategory(attributes.get(CAT_PORTRAIT));
             }
             if ((attributes.containsKey(FILE_PORTRAIT)) && (attributes.get(FILE_PORTRAIT).length() > 0)) {
-                crew.setPortraitFileName(attributes.get(FILE_PORTRAIT), slot);
+                crew.getPortrait(slot).setFilename(attributes.get(FILE_PORTRAIT));
             }
 
             // Was the crew wounded?

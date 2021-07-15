@@ -28,6 +28,7 @@ import megamek.common.BattleArmor;
 import megamek.common.BipedMech;
 import megamek.common.Board;
 import megamek.common.BombType;
+import megamek.common.Building;
 import megamek.common.CalledShot;
 import megamek.common.Compute;
 import megamek.common.ComputeECM;
@@ -754,6 +755,22 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                         weapon, weaponId, atype, munition, isFlakAttack, isHaywireINarced, isNemesisConfused,
                         isWeaponFieldGuns, usesAmmo);
             }
+        }
+        
+        // "hack" to cover the situation where the target is standing in a short
+        // building which provides it partial cover. Unlike other partial cover situations,
+        // this occurs regardless of other LOS consideration.
+        if (WeaponAttackAction.targetInShortCoverBuilding(target)) {
+            Building currentBuilding = game.getBoard().getBuildingAt(target.getPosition());
+
+            LosEffects shortBuildingLos = new LosEffects();
+            shortBuildingLos.setTargetCover(LosEffects.COVER_HORIZONTAL);
+            shortBuildingLos.setDamagableCoverTypePrimary(LosEffects.DAMAGABLE_COVER_BUILDING);
+            shortBuildingLos.setCoverBuildingPrimary(currentBuilding);
+            shortBuildingLos.setCoverLocPrimary(target.getPosition());
+            
+            los.add(shortBuildingLos);
+            toHit.append(shortBuildingLos.losModifiers(game));
         }
         
         // Collect the modifiers for the target's condition/actions 
@@ -4554,6 +4571,24 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         }
         
         return toHit;
+    }
+    
+    /**
+     * Quick routine to determine if the target should be treated as being in a short building.
+     */
+    public static boolean targetInShortCoverBuilding(Targetable target) {
+        if (target.getTargetType() != Targetable.TYPE_ENTITY) {
+            return false;
+        }
+        
+        IHex targetHex = ((Entity) target).getGame().getBoard().getHex(target.getPosition());
+        if (targetHex == null) {
+            return false;
+        }
+        
+        return targetHex.containsTerrain(Terrains.BUILDING) &&
+                (((Entity) target).getHeight() > 0) &&
+                (((Entity) target).relHeight() == targetHex.ceiling());
     }
     
     /**

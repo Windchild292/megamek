@@ -583,7 +583,8 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
 
         IPlayer player = entity.getOwner();
 
-        Camouflage camouflage = entity.getCamouflageOrElse(player.getCamouflage());
+        Camouflage camouflage = (player == null) ? new Camouflage()
+                : entity.getCamouflageOrElse(player.getCamouflage());
         EntityImage entityImage = null;
 
         // check if we have a duplicate image already loaded
@@ -626,7 +627,11 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         mechImageList.clear();
         mechImages.clear();
         hexTileset.clearAllHexes();
-    }    
+    }  
+    
+    public synchronized void reloadUnitIcons() {
+        mechImages.clear();
+    }
     
     /** Returns the number of available ultralight destroyed bottom decal images. */
     private int getULightDecalCount() {

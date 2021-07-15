@@ -73,11 +73,12 @@ import megamek.client.bot.ui.swing.BotGUI;
 import megamek.client.generator.RandomCallsignGenerator;
 import megamek.client.ui.Messages;
 import megamek.client.ui.dialogs.BVDisplayDialog;
+import megamek.client.ui.dialogs.CamoChooserDialog;
+import megamek.client.ui.dialogs.EntityReadoutDialog;
 import megamek.client.ui.swing.*;
 import megamek.client.ui.swing.boardview.BoardView1;
 import megamek.client.ui.swing.dialog.DialogButton;
 import megamek.client.ui.swing.dialog.MMConfirmDialog;
-import megamek.client.ui.swing.dialog.imageChooser.CamoChooserDialog;
 import megamek.client.ui.swing.lobby.PlayerTable.PlayerTableModel;
 import megamek.client.ui.swing.lobby.sorters.*;
 import megamek.client.ui.swing.lobby.sorters.MekTableSorter.Sorting;
@@ -90,8 +91,10 @@ import megamek.common.force.*;
 import megamek.common.options.*;
 import megamek.common.preference.*;
 import megamek.common.util.BoardUtilities;
+import megamek.common.util.CollectionUtil;
 import megamek.common.util.CrewSkillSummaryUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
+import megamek.utils.BoardsTagger;
 
 import static megamek.client.ui.swing.lobby.LobbyUtility.*;
 import static megamek.common.util.CollectionUtil.*;
@@ -235,6 +238,8 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     
     LobbyActions lobbyActions = new LobbyActions(this); 
     
+    private Map<String, String> boardTags = new HashMap<>();
+    
     /** Creates a new chat lounge for the clientgui.getClient(). */
     public ChatLounge(ClientGUI clientgui) {
         super(clientgui, SkinSpecification.UIComponents.ChatLounge.getComp(),
@@ -365,7 +370,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         CamoChooserDialog ccd = new CamoChooserDialog(clientgui.getFrame(), player.getCamouflage());
 
         // If the dialog was canceled or nothing selected, do nothing
-        if ((ccd.showDialog() == JOptionPane.CANCEL_OPTION) || (ccd.getSelectedItem() == null)) {
+        if (!ccd.showDialog().isConfirmed()) {
             return;
         }
 
@@ -778,12 +783,25 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     /** 
      * Returns the available boards that match the given search string
      * (path or file name contains the search string.) 
+     * The search string is split at ";" and search results for the tokens
+     * are ANDed.
      */
     protected List<String> getSearchedItems(String searchString) {
         String lowerCaseSearchString = searchString.toLowerCase();
-        return mapSettings.getBoardsAvailableVector().stream()
-                .filter(b -> b.toLowerCase().contains(lowerCaseSearchString) && isBoardFile(b))
-                .collect(Collectors.toList());
+        String[] searchStrings = lowerCaseSearchString.split(";");
+        List<String> result = mapSettings.getBoardsAvailableVector();
+        for (String token : searchStrings) {
+            List<String> byFilename = mapSettings.getBoardsAvailableVector().stream()
+                    .filter(b -> b.toLowerCase().contains(token) && isBoardFile(b))
+                    .collect(Collectors.toList());
+            List<String> byTags = boardTags.entrySet().stream()
+                    .filter(e -> e.getValue().contains(token))
+                    .map(e -> e.getKey())
+                    .collect(Collectors.toList());
+            List<String> tokenResult = CollectionUtil.union(byFilename, byTags);
+            result = result.stream().filter(tokenResult::contains).collect(toList());
+        }
+        return result;
     }
     
     /** 
@@ -900,7 +918,17 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         List<String> availBoards = new ArrayList<>(); 
         availBoards.add(MapSettings.BOARD_GENERATED);
         availBoards.addAll(mapSettings.getBoardsAvailableVector());
+        refreshBoardTags();
         refreshBoardsAvailable(availBoards);
+    }
+    
+    private void refreshBoardTags() {
+        boardTags.clear();
+        for (String boardName : mapSettings.getBoardsAvailableVector()) {
+            File boardFile = new MegaMekFile(Configuration.boardsDir(), boardName + ".board").getFile();
+            Set<String> tags = Board.getTags(boardFile);
+            boardTags.put(boardName, String.join("||", tags).toLowerCase());
+        }
     }
     
     /** 
@@ -971,7 +999,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                     if (boardName.startsWith(MapSettings.BOARD_GENERATED) 
                             || (mapSettings.getMedium() == MapSettings.MEDIUM_SPACE)) {
                         buttonBoard = BoardUtilities.generateRandom(mapSettings);
-                        image = MiniMap.getBoardMinimapImageMaxZoom(buttonBoard);
+                        image = MiniMap.getMinimapImageMaxZoom(buttonBoard);
                     } else { 
                         String boardForImage = boardName;
                         // For a surprise board, just use the first board as example
@@ -988,10 +1016,10 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                             } catch (IOException ex) {
                                 buttonBoard = Board.createEmptyBoard(mapSettings.getBoardWidth(), mapSettings.getBoardHeight());
                             }
-                            image = MiniMap.getBoardMinimapImageMaxZoom(buttonBoard);
+                            image = MiniMap.getMinimapImageMaxZoom(buttonBoard);
                         } else {
                             buttonBoard = Board.createEmptyBoard(mapSettings.getBoardWidth(), mapSettings.getBoardHeight());
-                            BufferedImage emptyBoardMap = MiniMap.getBoardMinimapImageMaxZoom(buttonBoard);
+                            BufferedImage emptyBoardMap = MiniMap.getMinimapImageMaxZoom(buttonBoard);
                             markServerSideBoard(emptyBoardMap);
                             image = emptyBoardMap;
                         }
@@ -1182,6 +1210,10 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 tablePlayers.addRowSelectionInterval(row, row);
             }
         }
+        // If no one is selected now (and the table isn't empty), select the first player
+        if ((tablePlayers.getSelectedRowCount() == 0) && (tablePlayers.getRowCount() > 0)) {
+            tablePlayers.addRowSelectionInterval(0, 0);
+        }
     }
 
     /** Updates the camo button to displays the camo of the currently selected player. */ 
@@ -1204,9 +1236,11 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
     /** Updates the team choice combobox to show the selected player's team. */
     private void refreshTeams() {
-        comboTeam.removeActionListener(lobbyListener);
-        comboTeam.setSelectedIndex(localPlayer().getTeam());
-        comboTeam.addActionListener(lobbyListener);
+        if (localPlayer() != null) {
+            comboTeam.removeActionListener(lobbyListener);
+            comboTeam.setSelectedIndex(localPlayer().getTeam());
+            comboTeam.addActionListener(lobbyListener);
+        }
     }
 
     /**
@@ -1478,38 +1512,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
      * so that multiple dialogs dont appear exactly on top of each other. 
      */
     private void mechReadout(Entity entity, int index) {
-        final ClientDialog dialog = new ClientDialog(clientgui.frame, Messages.getString("ChatLounge.quickView"), false, true);
-        final int height = 600;
-        final int width = 500;
-
-        MechView mv = new MechView(entity, false);
-        // The label must want a fixed width to enforce linebreaks on fluff text
-        JLabel mechSummary = new JLabel("<HTML>" + mv.getMechReadoutHead()
-        + mv.getMechReadoutBasic() + mv.getMechReadoutLoadout()
-        + mv.getMechReadoutFluff()) {
-            private static final long serialVersionUID = 2989361635430008853L;
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(width - 10, super.getPreferredSize().height);
-            }
-        };
-        mechSummary.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JScrollPane tScroll = new JScrollPane(mechSummary,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        tScroll.getVerticalScrollBar().setUnitIncrement(16);
-        dialog.add(tScroll, BorderLayout.CENTER);
-
-        JButton button = new DialogButton(Messages.getString("Okay"));
-        button.addActionListener(e -> dialog.setVisible(false));
-        JPanel okayPanel = new JPanel(new FlowLayout());
-        okayPanel.add(button);
-        dialog.add(okayPanel, BorderLayout.PAGE_END);
-
-        Dimension sz = new Dimension(scaleForGUI(width), scaleForGUI(height));
-        dialog.setPreferredSize(sz);
-        dialog.center();
+        final EntityReadoutDialog dialog = new EntityReadoutDialog(clientgui.frame, entity);
         dialog.setVisible(true);
         dialog.setLocation(dialog.getLocation().x + index * 10, dialog.getLocation().y + index * 10);
     }
@@ -1835,7 +1838,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 final JEditorPane pane = new JEditorPane();
                 pane.setName("helpPane");
                 pane.setEditable(false);
-                pane.setFont(new Font("Dialog", Font.PLAIN, UIUtil.scaleForGUI(UIUtil.FONT_SCALE1)));
+                pane.setFont(UIUtil.getScaledFont());
                 try {
                     pane.setPage(helpfile.toURI().toURL());
                     JScrollPane tScroll = new JScrollPane(pane,
@@ -2071,7 +2074,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
     /**OK Refreshes the Map Summary, Tech Level and Game Year labels. */
     private void refreshLabels() {
-        Font scaledFont = new Font("Dialog", Font.PLAIN, UIUtil.scaleForGUI(UIUtil.FONT_SCALE1));
+        Font scaledFont = UIUtil.getScaledFont();
         GameOptions opts = clientgui.getClient().getGame().getOptions();
         
         String txt = Messages.getString("ChatLounge.GameYear"); 
@@ -2908,6 +2911,10 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             setButUnitIDState();
             mekModel.refreshCells();
             refreshTree();
+        } else if (e.getName().equals(GUIPreferences.ADVANCED_USE_CAMO_OVERLAY)) {
+            clientgui.bv.getTilesetManager().reloadUnitIcons();
+            mekModel.refreshCells();
+            refreshTree();
         }
     }
     
@@ -2991,7 +2998,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         mekModel.refreshCells();
         panTeamOverview.adaptToGUIScale();
 
-        Font scaledFont = new Font("Dialog", Font.PLAIN, UIUtil.scaleForGUI(UIUtil.FONT_SCALE1));
+        Font scaledFont = UIUtil.getScaledFont();
         Font scaledBigFont = new Font("Dialog", Font.PLAIN, UIUtil.scaleForGUI(UIUtil.FONT_SCALE1 + 3));
 
         butCompact.setFont(scaledFont);
@@ -3046,6 +3053,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         
         lblSearch.setFont(scaledFont);
         fldSearch.setFont(scaledFont);
+        String searchTip = Messages.getString("ChatLounge.map.searchTip") + "<BR>";
+        searchTip += autoTagHTMLTable();
+        fldSearch.setToolTipText(UIUtil.scaleStringForGUI(searchTip));
         
         ((TitledBorder)panUnitInfo.getBorder()).setTitleFont(scaledFont);
         ((TitledBorder)panPlayerInfo.getBorder()).setTitleFont(scaledFont);
@@ -3069,6 +3079,29 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 locationOnComponent.x, locationOnComponent.y, 0, 0, 1, false, 0);
         manager.mouseMoved(event);
     }
+    
+    private String autoTagHTMLTable() {
+        String result = "<TABLE><TR>"+ UIUtil.guiScaledFontHTML();
+        int colCount = 0;
+        var autoTags = BoardsTagger.Tags.values();
+        for (BoardsTagger.Tags tag : autoTags) {
+            if (colCount == 0) {
+                result += "<TR>";
+            }
+            result += "<TD>" + tag.getName() + "</TD>";
+            colCount++;
+            if (colCount == 3) {
+                colCount = 0;
+                result += "</TR>";
+            }
+        }
+        if (colCount != 0) {
+            result += "</TR>";
+        }
+        result += "</TABLE>";
+        return result;
+    }
+    
     
     /** 
      * Mouse Listener for the table header of the Mek Table.
@@ -3254,6 +3287,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             if (largerEdge > 40) {
                 zoom = 0;
             }
+            if (board.getWidth() < 25) {
+                zoom = Math.max(zoom, 3);
+            }
             float scale = GUIPreferences.getInstance().getGUIScale();
             zoom = (int)(scale*zoom);
             if (zoom > 6) {
@@ -3262,7 +3298,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             if (zoom < 0) {
                 zoom = 0;
             }
-            BufferedImage bufImage = MiniMap.getBoardMinimapImage(board, zoom);
+            BufferedImage bufImage = MiniMap.getMinimapImage(board, zoom);
 
             // Add the board name label and the server-side board label if necessary
             String text = LobbyUtility.cleanBoardName(boardName, mapSettings);

@@ -94,6 +94,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String ADVANCED_ROUND_REPORT_SPRITES = "AdvancedRoundReportSprites";
     public static final String ADVANCED_LOW_FOLIAGE_COLOR = "AdvancedLowFoliageColor";
     public static final String ADVANCED_NO_SAVE_NAG = "AdvancedNoSaveNag";
+    public static final String ADVANCED_USE_CAMO_OVERLAY = "AdvancedUseCamoOverlay";
     /* --End advanced settings-- */
 
 
@@ -135,11 +136,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String FOV_STRIPES = "FoVFogStripes";
     public static final String FOV_GRAYSCALE = "FoVFogGrayscale";
     public static final String GUI_SCALE = "GUIScale";
-    public static final String IMAGE_CHOOSER_POS_X = "ImageChooserPosX";
-    public static final String IMAGE_CHOOSER_POS_Y = "ImageChooserPosY";
-    public static final String IMAGE_CHOOSER_SIZE_HEIGHT = "ImageChooserSizeHeight";
-    public static final String IMAGE_CHOOSER_SIZE_WIDTH = "ImageChooserSizeWidth";
-    public static final String IMAGE_CHOOSER_SPLIT_POS = "ImageChooserSplitPos";
     public static final String LOBBY_MEKTABLE_UNIT_WIDTH = "LobbyMektableUnitWidth";
     public static final String LOBBY_MEKTABLE_PILOT_WIDTH = "LobbyMektablePilotWidth";
     public static final String LOBBY_MEKTABLE_PLAYER_WIDTH = "LobbyMektablePlayerWidth";
@@ -301,6 +297,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         setDefault(WARNING_COLOR, Color.RED);
         setDefault(ADVANCED_LOW_FOLIAGE_COLOR, new Color(80, 230, 80));
         setDefault(ADVANCED_NO_SAVE_NAG, false);
+        setDefault(ADVANCED_USE_CAMO_OVERLAY, true);
 
         setDefault(ADVANCED_MOVE_FONT_TYPE, Font.SANS_SERIF);
         setDefault(ADVANCED_MOVE_FONT_SIZE, 26);
@@ -353,13 +350,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(GAME_OPTIONS_SIZE_HEIGHT, 400);
         store.setDefault(GAME_OPTIONS_SIZE_WIDTH, 400);
         store.setDefault(FIRING_SOLUTIONS,true);
-
         store.setDefault(GUI_SCALE, 1);
-        store.setDefault(IMAGE_CHOOSER_POS_X, 200);
-        store.setDefault(IMAGE_CHOOSER_POS_Y, 150);
-        store.setDefault(IMAGE_CHOOSER_SIZE_WIDTH, 500);
-        store.setDefault(IMAGE_CHOOSER_SIZE_HEIGHT, 400);
-        store.setDefault(IMAGE_CHOOSER_SPLIT_POS, 50);
         store.setDefault(LOBBY_MEKTABLE_UNIT_WIDTH, 170);
         store.setDefault(LOBBY_MEKTABLE_PILOT_WIDTH, 80);
         store.setDefault(LOBBY_MEKTABLE_PLAYER_WIDTH, 50);
@@ -392,6 +383,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         
         store.setDefault(MINIMAP_COLOURS, "defaultminimap.txt");
         store.setDefault(MINIMAP_ENABLED, true);
+        store.setDefault(MMSYMBOL, true);
         store.setDefault(MINIMUM_SIZE_HEIGHT, 200);
         store.setDefault(MINIMUM_SIZE_WIDTH, 120);
 
@@ -787,22 +779,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
 
     public int getMiniReportSizeWidth() {
         return store.getInt(MINI_REPORT_SIZE_WIDTH);
-    }
-    
-    public int getImageChoicePosX() {
-        return store.getInt(IMAGE_CHOOSER_POS_X);
-    }
-
-    public int getImageChoicePosY() {
-        return store.getInt(IMAGE_CHOOSER_POS_Y);
-    }
-
-    public int getImageChoiceSizeHeight() {
-        return store.getInt(IMAGE_CHOOSER_SIZE_HEIGHT);
-    }
-
-    public int getImageChoiceSizeWidth() {
-        return store.getInt(IMAGE_CHOOSER_SIZE_WIDTH);
     }
 
     public boolean getMouseWheelZoom() {

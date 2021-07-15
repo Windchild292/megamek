@@ -1262,10 +1262,8 @@ public class Client implements IClientCommandHandler {
     /**
      * Hashtable for storing <img> tags containing base64Text src.
      */
-    private void cacheImgTag(Entity entity){
-
+    protected void cacheImgTag(Entity entity) {
         if(entity == null) {
-            MegaMek.getLogger().error("Null entity reference");
             return;
         }
 
@@ -1403,7 +1401,11 @@ public class Client implements IClientCommandHandler {
             receivePlayerInfo(c);
             break;
         case Packet.COMMAND_PLAYER_READY:
-            getPlayer(c.getIntValue(0)).setDone(c.getBooleanValue(1));
+            IPlayer player = getPlayer(c.getIntValue(0));
+            
+            if (player != null) {
+                player.setDone(c.getBooleanValue(1));
+            }
             break;
         case Packet.COMMAND_PLAYER_ADD:
             receivePlayerInfo(c);

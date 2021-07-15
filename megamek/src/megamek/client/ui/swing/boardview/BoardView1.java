@@ -15,6 +15,8 @@
 */
 package megamek.client.ui.swing.boardview;
 
+import static megamek.client.ui.swing.util.UIUtil.guiScaledFontHTML;
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -113,6 +115,7 @@ import megamek.common.ECMInfo;
 import megamek.common.Entity;
 import megamek.common.EntityVisibilityUtils;
 import megamek.common.Flare;
+import megamek.common.FuelTank;
 import megamek.common.GunEmplacement;
 import megamek.common.IBoard;
 import megamek.common.IGame;
@@ -150,6 +153,7 @@ import megamek.common.actions.PunchAttackAction;
 import megamek.common.actions.PushAttackAction;
 import megamek.common.actions.SearchlightAttackAction;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.annotations.Nullable;
 import megamek.common.event.BoardEvent;
 import megamek.common.event.BoardListener;
 import megamek.common.event.GameBoardChangeEvent;
@@ -1085,6 +1089,9 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                 s.prepare();
             }
         }
+        if (e.getName().equals(GUIPreferences.ADVANCED_USE_CAMO_OVERLAY)) {
+            getTilesetManager().reloadUnitIcons();
+        }
         if (e.getName().equals(GUIPreferences.AOHEXSHADOWS)
                 || e.getName().equals(GUIPreferences.FLOATINGISO)
                 || e.getName().equals(GUIPreferences.LEVELHIGHLIGHT)
@@ -1475,7 +1482,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
                 drawHexBorder(g, p, Color.yellow, 0, 3);
                 String s = x.toString();
-                this.drawCenteredText((Graphics2D) g, s, p, Color.yellow, false);
+                drawCenteredText((Graphics2D) g, s, p, Color.yellow, false);
             }
         }
     }
@@ -1748,10 +1755,9 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         n = 5;
         deltaX = lightDirection[0]/n;
         deltaY = lightDirection[1]/n;
-
         // 4) woods and bulding shadows
-        for (int shadowed = board.getMinElevation();
-                shadowed <= board.getMaxElevation();
+        for (int shadowed = board.getMinElevation(); 
+                shadowed <= board.getMaxElevation(); 
                 shadowed++) {
             if (levelClips.get(shadowed) == null) continue;
 
@@ -2327,16 +2333,14 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         graph.drawString(string, x, y);
     }
 
-    /**
-     * This method creates an image the size of the entire board (all
-     * mapsheets), draws the hexes onto it, and returns that image.
-     */
-    public BufferedImage getEntireBoardImage(boolean ignoreUnits) {
+    public BufferedImage getEntireBoardImage(boolean ignoreUnits, boolean useBaseZoom) {
         // Set zoom to base, so we get a consist board image
 
         int oldZoom = zoomIndex;
-        zoomIndex = BASE_ZOOM_INDEX;
-        zoom();
+        if (useBaseZoom) {
+            zoomIndex = BASE_ZOOM_INDEX;
+            zoom();
+        }
 
         Image entireBoard = createImage(boardSize.width, boardSize.height);
         Graphics2D boardGraph = (Graphics2D) entireBoard.getGraphics();
@@ -2484,6 +2488,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                         IHex hex = board.getHex(c);
                         if ((hex != null)) {
                             drawHex(c, g, saveBoardImage);
+                            drawOrthograph(c, g);
                             if (GUIPreferences.getInstance()
                                     .getShowFieldOfFire()) {
                                 drawHexSpritesForHex(c, g, fieldofFireSprites);
@@ -2669,14 +2674,16 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             g.setComposite(svComp);
         }
 
-        // To place roads under the shadow map, supers for hexes with roads
+        // To place roads under the shadow map, some supers 
         // have to be drawn before the shadow map, otherwise the supers are
-        // drawn after.  Unfortunately I dont think the supers images
-        // themselves can be checked for roads.
+        // drawn after. Unfortunately the supers images
+        // themselves can't be checked for roads.
         List<Image> supers = tileManager.supersFor(hex);
         boolean supersUnderShadow = false;
-        if (hex.containsTerrain(Terrains.ROAD) ||
-                hex.containsTerrain(Terrains.WATER)) {
+        if (hex.containsTerrain(Terrains.ROAD) 
+                || hex.containsTerrain(Terrains.WATER) 
+                || hex.containsTerrain(Terrains.PAVEMENT)
+                || hex.containsTerrain(Terrains.GROUND_FLUFF)) {
             supersUnderShadow = true;
             if (supers != null) {
                 for (Image image : supers) {
@@ -2736,7 +2743,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             }
         }
 
-        // Orthos (bridges)
+        // Orthos = bridges
         List<Image> orthos = tileManager.orthoFor(hex);
         if (orthos != null) {
             for (Image image : orthos) {
@@ -2746,13 +2753,6 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                 scaledImage = getScaledImage(image, true);
                 if (!useIsometric()) {
                     g.drawImage(scaledImage, 0, 0, this);
-                }
-                // draw a shadow for bridge hex.
-                if (useIsometric()
-                        && !guip.getBoolean(GUIPreferences.SHADOWMAP)
-                        && (hex.terrainLevel(Terrains.BRIDGE_ELEV) > 0)) {
-                    Image shadow = createShadowMask(scaledImage);
-                    g.drawImage(shadow, 0, 0, this);
                 }
             }
         }
@@ -3011,8 +3011,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
         final IHex oHex = game.getBoard().getHex(c);
         final Point oHexLoc = getHexLocation(c);
-
-        // We need to adjust the height based on several cases
+        // Adjust the draw height for bridges according to their elevation
         int elevOffset = oHex.terrainLevel(Terrains.BRIDGE_ELEV);
 
         int orthX = oHexLoc.x;
@@ -5334,7 +5333,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                 File imgFile = new File(dir, "round_" + game.getRoundCount() + "_" + e.getOldPhase().ordinal() + "_"
                         + IGame.Phase.getDisplayableName(e.getOldPhase()) + ".png");
                 try {
-                    ImageIO.write(getEntireBoardImage(false), "png", imgFile);
+                    ImageIO.write(getEntireBoardImage(false, true), "png", imgFile);
                 } catch (Exception ex) {
                     MegaMek.getLogger().error(ex);
                 }
@@ -5795,12 +5794,13 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                             mhex.terrainLevel(Terrains.FUEL_TANK_MAGN)
                     }));
                 } else {
-                    Building bldg = game.getBoard().getBuildingAt(mcoords);
+                    FuelTank bldg = (FuelTank) game.getBoard().getBuildingAt(mcoords);
                     txt.append("<TABLE BORDER=0 BGCOLOR=#999999 width=100%><TR><TD><FONT color=\"black\">"); //$NON-NLS-1$
                     txt.append(Messages.getString("BoardView1.Tooltip.FuelTank", new Object[] { //$NON-NLS-1$
                             mhex.terrainLevel(Terrains.FUEL_TANK_ELEV),
                             bldg.toString(),
-                            bldg.getCurrentCF(mcoords)
+                            bldg.getCurrentCF(mcoords),
+                            bldg.getMagnitude()
                     }));
                 }
                 txt.append("</FONT></TD></TR></TABLE>"); //$NON-NLS-1$
@@ -5968,6 +5968,17 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             if (aSprite.isInside(point)) {
                 txt.append("<TABLE BORDER=0 BGCOLOR=#FFDDDD width=100%><TR><TD><FONT color=\"black\">"); //$NON-NLS-1$
                 txt.append(aSprite.getTooltip().toString());
+                txt.append("</FONT></TD></TR></TABLE>"); //$NON-NLS-1$
+            }
+        }
+        
+        // Add wreck info
+        var wreckList = useIsometric() ? isometricWreckSprites : wreckSprites;
+        for (var wSprite : wreckList) {
+            if (wSprite.getPosition().equals(mcoords)) {
+                txt.append("<TABLE BORDER=0 width=100%><TR><TD>"); //$NON-NLS-1$
+                txt.append(guiScaledFontHTML());
+                txt.append(wSprite.getTooltip());
                 txt.append("</FONT></TD></TR></TABLE>"); //$NON-NLS-1$
             }
         }
@@ -6709,10 +6720,14 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     /** Displays a dialog and changes the theme of all
      *  board hexes to the user-chosen theme.
      */
-    public void changeTheme() {
-        if (game == null) return;
+    public @Nullable String changeTheme() {
+        if (game == null) {
+            return null;
+        }
         IBoard board = game.getBoard();
-        if (board.inSpace()) return;
+        if (board.inSpace()) {
+            return null;
+        }
 
         Set<String> themes = tileManager.getThemes();
         if (themes.remove("")) themes.add("(No Theme)");
@@ -6730,7 +6745,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         setShouldIgnoreKeys(false);
 
         if (selectedTheme == null) {
-            return;
+            return null;
         } else if (selectedTheme.equals("(Original Theme)")) {
             selectedTheme = null;
         } else if (selectedTheme.equals("(No Theme)")) {
@@ -6738,6 +6753,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         }
         
         board.setTheme(selectedTheme);
+        return selectedTheme;
     }
 
     private Image getBoardBackgroundHexImage(Coords c, IHex hex) {

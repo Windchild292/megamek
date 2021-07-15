@@ -60,6 +60,7 @@ import megamek.common.Minefield;
 import megamek.common.Mounted;
 import megamek.common.MovePath;
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.actions.DisengageAction;
 import megamek.common.actions.EntityAction;
 import megamek.common.actions.FindClubAction;
 import megamek.common.actions.SearchlightAttackAction;
@@ -758,6 +759,16 @@ public class Princess extends BotClient {
     @Override
     protected void calculateTargetingOffBoardTurn() {
         Entity entityToFire = getGame().getFirstEntity(getMyTurn());
+        
+        // if we're crippled, off-board and can do so, disengage
+        if (entityToFire.isOffBoard() && entityToFire.canFlee() && entityToFire.isCrippled(true)) {
+            Vector<EntityAction> disengageVector = new Vector<>();
+            disengageVector.add(new DisengageAction(entityToFire.getId()));
+            sendAttackData(entityToFire.getId(), disengageVector);
+            sendDone(true);
+            return;
+        }
+        
         FiringPlan firingPlan = getArtilleryTargetingControl().calculateIndirectArtilleryPlan(entityToFire, getGame(), this);
         
         sendAttackData(entityToFire.getId(), firingPlan.getEntityActionVector());
@@ -1135,7 +1146,7 @@ public class Princess extends BotClient {
      * @return Whether or not the entity is falling back.
      */
     boolean isFallingBack(final Entity entity) {
-        return (getBehaviorSettings().getDestinationEdge() != CardinalEdge.NEAREST_OR_NONE) ||
+        return (getBehaviorSettings().shouldGoHome()) ||
                 (getBehaviorSettings().isForcedWithdrawal() && entity.isCrippled(true));
     }
 
@@ -1328,16 +1339,11 @@ public class Princess extends BotClient {
             getPathRanker(entity).initUnitTurn(entity, getGame());
             final double fallTolerance =
                     getBehaviorSettings().getFallShameIndex() / 10d;
-            final int startingHomeDistance = getPathRanker(entity).distanceToHomeEdge(
-                    entity.getPosition(),
-                    getBehaviorSettings().getDestinationEdge(),
-                    getGame());
                        
             final List<RankedPath> rankedpaths = getPathRanker(entity).rankPaths(paths,
                                                     getGame(),
                                                     getMaxWeaponRange(entity),
                                                     fallTolerance,
-                                                    startingHomeDistance,
                                                     getEnemyEntities(),
                                                     getFriendEntities());
             
@@ -1619,10 +1625,12 @@ public class Princess extends BotClient {
         }
     }
     
-    /** Update the various state trackers for a specific entity.
-     * Useful to call when receiving an entity update packet */
-    public void updateEntityState(Entity entity) {
-        if(entity.getOwner().isEnemyOf(getLocalPlayer())) {
+    /**
+     * Update the various state trackers for a specific entity.
+     * Useful to call when receiving an entity update packet
+     */
+    public void updateEntityState(final @Nullable Entity entity) {
+        if ((entity != null) && entity.getOwner().isEnemyOf(getLocalPlayer())) {
             // currently just the honor util, and only update it for hostile units
             getHonorUtil().checkEnemyBroken(entity, getForcedWithdrawal());
         }
@@ -1839,11 +1847,15 @@ public class Princess extends BotClient {
     protected void processChat(final GamePlayerChatEvent ge) {
         chatProcessor.processChat(ge, this);
     }
-
+    
+    /**
+     * Given an entity and the current behavior settings, get the "home" edge to which the entity should attempt to retreat
+     * Guaranteed to return a cardinal edge or NONE.
+     */
     CardinalEdge getHomeEdge(Entity entity) {
         // if I am crippled and using forced withdrawal rules, my home edge is the "retreat" edge        
         if(entity.isCrippled(true) && getBehaviorSettings().isForcedWithdrawal()) {
-            if(getBehaviorSettings().getRetreatEdge() == CardinalEdge.NEAREST_OR_NONE) {
+            if (getBehaviorSettings().getRetreatEdge() == CardinalEdge.NEAREST) {
                 return BoardUtilities.getClosestEdge(entity);                
             } else {
                 return getBehaviorSettings().getRetreatEdge();
@@ -1851,7 +1863,11 @@ public class Princess extends BotClient {
         }
         
         // otherwise, return the destination edge
-        return getBehaviorSettings().getDestinationEdge();
+        if (getBehaviorSettings().getDestinationEdge() == CardinalEdge.NEAREST) {
+            return BoardUtilities.getClosestEdge(entity);                
+        } else {
+            return getBehaviorSettings().getDestinationEdge();
+        }
     }
 
     public int calculateAdjustment(final String ticks) {
@@ -2164,9 +2180,8 @@ public class Princess extends BotClient {
      * Updates internal state in addition to base client functionality
      */
     @Override    
-    public void receiveEntityUpdate(Packet c) {
-        super.receiveEntityUpdate(c);
-        Entity entity = (Entity) c.getObject(1);
-        updateEntityState(entity);
+    public void receiveEntityUpdate(final Packet packet) {
+        super.receiveEntityUpdate(packet);
+        updateEntityState((Entity) packet.getObject(1));
     }
 }
