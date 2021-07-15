@@ -19,14 +19,7 @@ package megamek.common;
 
 import megamek.MegaMek;
 import megamek.common.annotations.Nullable;
-import megamek.common.enums.Atmosphere;
-import megamek.common.enums.AtmosphericPressure;
-import megamek.common.enums.Earthquake;
-import megamek.common.enums.Fog;
-import megamek.common.enums.Light;
-import megamek.common.enums.Weather;
-import megamek.common.enums.Wind;
-import megamek.common.enums.HexCardinalDirection;
+import megamek.common.enums.*;
 import megamek.common.util.EncodeControl;
 import megamek.utils.MegaMekXmlUtil;
 import org.w3c.dom.Node;
@@ -84,7 +77,7 @@ public class PlanetaryConditions implements Serializable {
     private Fog fog;
 
     // Misc
-    private Earthquake earthquake;
+    private int earthquakeMagnitude;
     private boolean emi; // Electromagnetic Interference
     private boolean meteorShower;
     private int meteorCount;
@@ -129,7 +122,7 @@ public class PlanetaryConditions implements Serializable {
         setFog(Fog.NONE);
 
         // Misc
-        setEarthquake(Earthquake.NONE);
+        setEarthquakeMagnitude(0);
         setEMI(false);
         setMeteorShower(false);
         setMeteorCount(0);
@@ -171,7 +164,7 @@ public class PlanetaryConditions implements Serializable {
         setFog(conditions.getFog());
 
         // Misc
-        setEarthquake(conditions.getEarthquake());
+        setEarthquakeMagnitude(conditions.getEarthquakeMagnitude());
         setEMI(conditions.isEMI());
         setMeteorShower(conditions.isMeteorShower());
         setMeteorCount(conditions.getMeteorCount());
@@ -347,12 +340,12 @@ public class PlanetaryConditions implements Serializable {
     //endregion Fog
 
     //region Misc
-    public Earthquake getEarthquake() {
-        return earthquake;
+    public int getEarthquakeMagnitude() {
+        return earthquakeMagnitude;
     }
 
-    public void setEarthquake(final Earthquake earthquake) {
-        this.earthquake = earthquake;
+    public void setEarthquakeMagnitude(final int earthquakeMagnitude) {
+        this.earthquakeMagnitude = earthquakeMagnitude;
     }
 
     public boolean isEMI() {
@@ -787,7 +780,7 @@ public class PlanetaryConditions implements Serializable {
         setFog(conditions.getFog());
 
         // Misc
-        setEarthquake(conditions.getEarthquake());
+        setEarthquakeMagnitude(conditions.getEarthquakeMagnitude());
         setEMI(conditions.isEMI());
         setMeteorShower(conditions.isMeteorShower());
         setMeteorCount(conditions.getMeteorCount());
@@ -945,8 +938,8 @@ public class PlanetaryConditions implements Serializable {
         //endregion Fog
 
         //region Misc
-        if (!getEarthquake().isNone()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "earthquake", getEarthquake().name());
+        if (getEarthquakeMagnitude() != 0) {
+            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "earthquake", getEarthquakeMagnitude());
         }
 
         if (isEMI()) {
@@ -1053,7 +1046,7 @@ public class PlanetaryConditions implements Serializable {
 
                     //region Misc
                     case "earthquake":
-                        planetaryConditions.setEarthquake(Earthquake.valueOf(wn.getTextContent().trim()));
+                        planetaryConditions.setEarthquakeMagnitude(Integer.parseInt(wn.getTextContent().trim()));
                         break;
                     case "emi":
                         planetaryConditions.setEMI(Boolean.parseBoolean(wn.getTextContent().trim()));
