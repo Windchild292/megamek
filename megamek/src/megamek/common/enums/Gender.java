@@ -18,6 +18,7 @@ package megamek.common.enums;
 
 import megamek.MegaMek;
 import megamek.client.generator.RandomGenderGenerator;
+import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.List;
@@ -43,7 +44,8 @@ public enum Gender {
     private final String toolTipText;
     private final boolean internal;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors

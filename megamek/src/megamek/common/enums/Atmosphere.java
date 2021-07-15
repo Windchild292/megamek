@@ -19,10 +19,15 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
+import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
 
+/**
+ * The different atmosphere types as per Tactical Operations: Advanced Rules. We keep Radiological
+ * and Poisonous as separate options for MekHQ planetary usage.
+ */
 public enum Atmosphere {
     //region Enum Declarations
     NONE("Atmosphere.NONE.text", "Atmosphere.NONE.toolTipText"),
@@ -41,7 +46,8 @@ public enum Atmosphere {
     private final String name;
     private final String toolTipText;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
@@ -112,19 +118,30 @@ public enum Atmosphere {
         }
 
         try {
-            switch (Integer.parseInt(text)) {
-                case 0:
-                    return VACUUM;
-                case 1:
-                    return TRACE;
-                case 2:
-                    return THIN;
-                case 3:
-                    return STANDARD;
-                case 4:
-                    return HIGH;
-                case 5:
-                    return VERY_HIGH;
+            switch (text) {
+                case "None":
+                    return NONE;
+                case "TAINTEDPOISON":
+                case "Tainted (Poisonous)":
+                    return TAINTED_POISONOUS;
+                case "TAINTEDCAUSTIC":
+                case "Tainted (Caustic)":
+                    return TAINTED_CAUSTIC;
+                case "TAINTEDFLAME":
+                case "Tainted (Flammable)":
+                    return TAINTED_FLAMMABLE;
+                case "TOXICPOISON":
+                case "Toxic (Poisonous)":
+                    return TOXIC_POISONOUS;
+                case "TOXICCAUSTIC":
+                case "Toxic (Caustic)":
+                    return TOXIC_CAUSTIC;
+                case "TOXICFLAME":
+                case "Toxic (Flammable)":
+                    return TOXIC_FLAMMABLE;
+                case "BREATHABLE":
+                case "Breathable":
+                    return BREATHABLE;
                 default:
                     break;
             }
@@ -132,7 +149,7 @@ public enum Atmosphere {
 
         }
 
-        MegaMek.getLogger().error("Unable to parse " + text + " into an Atmosphere. Returning STANDARD.");
+        MegaMek.getLogger().error("Unable to parse " + text + " into an Atmosphere. Returning BREATHABLE.");
 
         return BREATHABLE;
     }

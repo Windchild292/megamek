@@ -20,9 +20,9 @@ package megamek.common.enums;
 
 import megamek.MegaMek;
 import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
 import megamek.common.Mech;
 import megamek.common.VTOL;
+import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
@@ -42,7 +42,8 @@ public enum Wind {
     private final String name;
     private final String toolTipText;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
@@ -114,22 +115,20 @@ public enum Wind {
     public int getPilotingPenalty(final Entity entity) {
         switch (this) {
             case MODERATE_GALE:
-                if ((entity instanceof VTOL) || (entity.getMovementMode() == EntityMovementMode.WIGE)) {
+                if ((entity instanceof VTOL) || entity.getMovementMode().isWiGE()) {
                     return 1;
                 }
                 break;
             case STRONG_GALE:
-                if ((entity instanceof VTOL) || (entity.getMovementMode() == EntityMovementMode.WIGE)
-                        || (entity.getMovementMode() == EntityMovementMode.HOVER)) {
+                if ((entity instanceof VTOL) || entity.getMovementMode().isHoverOrWiGE()) {
                     return 2;
-                } else if ((entity instanceof Mech) || (entity.isAirborne())) {
+                } else if ((entity instanceof Mech) || entity.isAirborne()) {
                     return 1;
                 }
                 break;
             case STORM:
                 if ((entity instanceof VTOL) || (entity instanceof Mech)
-                        || (entity.getMovementMode() == EntityMovementMode.WIGE)
-                        || (entity.getMovementMode() == EntityMovementMode.HOVER)) {
+                        || entity.getMovementMode().isHoverOrWiGE()) {
                     return 3;
                 } else if (entity.isAirborne()) {
                     return 2;

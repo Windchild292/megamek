@@ -20,6 +20,7 @@ package megamek.common.enums;
 
 import megamek.MegaMek;
 import megamek.common.Entity;
+import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
@@ -47,7 +48,8 @@ public enum Weather {
     private final String name;
     private final String toolTipText;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums",
+            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors

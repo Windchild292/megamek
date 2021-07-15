@@ -20,6 +20,7 @@ package megamek.common.enums;
 
 import megamek.MegaMek;
 import megamek.common.Compute;
+import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
@@ -43,7 +44,8 @@ public enum HexCardinalDirection {
     private final String toolTipText;
     private final String abbreviation;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors

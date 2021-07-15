@@ -19,28 +19,38 @@
 package megamek.common.enums;
 
 import megamek.MegaMek;
+import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
 
 public enum Fog {
     //region Enum Declarations
-    NONE("Fog.NONE.text"),
-    LIGHT("Fog.LIGHT.text"),
-    HEAVY("Fog.HEAVY.text");
+    NONE("Fog.NONE.text", "Fog.NONE.toolTipText"),
+    LIGHT("Fog.LIGHT.text", "Fog.LIGHT.toolTipText"),
+    HEAVY("Fog.HEAVY.text", "Fog.HEAVY.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
+    private final String toolTipText;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
-    Fog(String name) {
+    Fog(final String name, final String toolTipText) {
         this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
     }
     //endregion Constructors
+
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+    //endregion Getters
 
     //region Boolean Comparisons
     public boolean isNone() {
@@ -61,9 +71,9 @@ public enum Fog {
      * @param text the string to parse
      * @return the Fog, or NONE if there is an error in parsing
      */
-    public static Fog parseFromString(String text) {
+    public static Fog parseFromString(final String text) {
         try {
-            valueOf(text);
+            return valueOf(text);
         } catch (Exception ignored) {
 
         }

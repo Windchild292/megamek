@@ -23,6 +23,7 @@ import megamek.common.Entity;
 import megamek.common.EntityWeightClass;
 import megamek.common.Mech;
 import megamek.common.Protomech;
+import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
 import java.util.ResourceBundle;
@@ -41,7 +42,8 @@ public enum AtmosphericPressure {
     private final String name;
     private final String toolTipText;
 
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages", new EncodeControl());
+    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
