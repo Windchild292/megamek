@@ -94,11 +94,11 @@ public class PlanetaryConditions implements Serializable {
         setAtmosphericPressure(AtmosphericPressure.STANDARD);
 
         // Gravity
-        setGravity(1.0f);
+        setGravity(1f);
 
         // Temperature
-        setTemperature(25.0);
-        setOldTemperature(25.0);
+        setTemperature(25d);
+        setOldTemperature(25d);
 
         // Light
         setLight(Light.DAY);

@@ -35,6 +35,6 @@ public class WindchildExtendedPlanetaryConditionsGenerator extends AbstractExten
 
     @Override
     public void generate(final PlanetaryConditions conditions) {
-
+        // TODO : Windchild I'm unfinished
     }
 }
