@@ -55,6 +55,7 @@ import java.util.zip.GZIPOutputStream;
 import com.thoughtworks.xstream.XStream;
 
 import megamek.MegaMek;
+import megamek.client.bot.princess.BehaviorSettings;
 import megamek.client.ui.swing.util.PlayerColour;
 import megamek.common.*;
 import megamek.common.Building.BasementType;
@@ -82,6 +83,7 @@ import megamek.common.options.IOption;
 import megamek.common.options.OptionsConstants;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.BoardUtilities;
+import megamek.common.util.EmailService;
 import megamek.common.util.fileUtils.MegaMekFile;
 import megamek.common.util.SerializationHelper;
 import megamek.common.util.StringUtil;
@@ -152,6 +154,9 @@ public class Server implements Runnable {
     private ServerSocket serverSocket;
 
     private String motd;
+
+    private EmailService mailer;
+
 
     private static class ReceivedPacket {
         public int connId;
@@ -343,7 +348,12 @@ public class Server implements Runnable {
     private final Object serverLock = new Object();
 
     public Server(String password, int port) throws IOException {
-        this(password, port, false, "");
+        this(password, port, false, "", null);
+    }
+
+    public Server(String password, int port, boolean registerWithServerBrowser,
+                  String metaServerUrl) throws IOException {
+        this(password, port, registerWithServerBrowser, metaServerUrl, null);
     }
 
     /**
@@ -354,11 +364,14 @@ public class Server implements Runnable {
      *                                  used
      * @param registerWithServerBrowser a <code>boolean</code> indicating whether we should register
      *                                  with the master server browser on megamek.info
+     * @param mailer an email service instance to use for sending round reports.
      */
     public Server(String password, int port, boolean registerWithServerBrowser,
-                  String metaServerUrl) throws IOException {
+                  String metaServerUrl, EmailService mailer) throws IOException {
         this.metaServerUrl = metaServerUrl;
         this.password = password.length() > 0 ? password : null;
+        this.mailer = mailer;
+
         // initialize server socket
         serverSocket = new ServerSocket(port);
 
@@ -610,6 +623,10 @@ public class Server implements Runnable {
             conn.close();
         }
 
+        if (mailer != null) {
+            mailer.shutdown();
+        }
+
         connections.removeAllElements();
         connectionIds.clear();
         if (serverBrowserUpdateTimer != null) {
@@ -681,6 +698,7 @@ public class Server implements Runnable {
                                + " to " + player.getConstantInitBonus() + ".");
             }
             gamePlayer.setConstantInitBonus(player.getConstantInitBonus());
+            gamePlayer.setEmail(player.getEmail());
         }
     }
 
@@ -777,6 +795,7 @@ public class Server implements Runnable {
     private void receivePlayerName(Packet packet, int connId) {
         final IConnection conn = getPendingConnection(connId);
         String name = (String) packet.getObject(0);
+        boolean isBot = (boolean) packet.getObject(1);
         boolean returning = false;
 
         // this had better be from a pending connection
@@ -812,7 +831,7 @@ public class Server implements Runnable {
 
         // add and validate the player info
         if (!returning) {
-            addNewPlayer(connId, name);
+            addNewPlayer(connId, name, isBot);
         }
 
         // if it is not the lounge phase, this player becomes an observer
@@ -826,7 +845,7 @@ public class Server implements Runnable {
         sendServerChat(connId, motd);
 
         // send info that the player has connected
-        send(createPlayerConnectPacket(connId));
+        transmitPlayerConnect(player);
 
         // tell them their local playerId
         send(connId, new Packet(Packet.COMMAND_LOCAL_PN, connId));
@@ -877,7 +896,7 @@ public class Server implements Runnable {
      */
     public void sendCurrentInfo(int connId) {
         // why are these two outside the player != null check below?
-        transmitAllPlayerConnects(connId);
+        transmitPlayerConnect(getClient(connId));
         send(connId, createGameSettingsPacket());
         send(connId, createPlanetaryConditionsPacket());
 
@@ -934,6 +953,7 @@ public class Server implements Runnable {
             send(connId, createArtilleryPacket(player));
             send(connId, createFlarePacket());
             send(connId, createSpecialHexDisplayPacket(connId));
+            send(connId, new Packet(Packet.COMMAND_PRINCESS_SETTINGS, game.getBotSettings()));
 
         } // Found the player.
 
@@ -953,7 +973,7 @@ public class Server implements Runnable {
     /**
      * Adds a new player to the game
      */
-    private IPlayer addNewPlayer(int connId, String name) {
+    private IPlayer addNewPlayer(int connId, String name, boolean isBot) {
         int team = IPlayer.TEAM_UNASSIGNED;
         if (game.getPhase() == Phase.PHASE_LOUNGE) {
             team = IPlayer.TEAM_NONE;
@@ -965,6 +985,7 @@ public class Server implements Runnable {
             team++;
         }
         IPlayer newPlayer = new Player(connId, name);
+        newPlayer.setBot(isBot);
         PlayerColour colour = newPlayer.getColour();
         Enumeration<IPlayer> players = game.getPlayers();
         final PlayerColour[] colours = PlayerColour.values();
@@ -1051,7 +1072,7 @@ public class Server implements Runnable {
         } else {
             player.setGhost(true);
             player.setDone(true);
-            send(createPlayerUpdatePacket(player.getId()));
+            transmitPlayerUpdate(player);
         }
 
         // make sure the game advances
@@ -1107,7 +1128,7 @@ public class Server implements Runnable {
             } else {
                 // non-ghosts set their starting positions to any
                 p.setStartingPos(Board.START_ANY);
-                send(createPlayerUpdatePacket(p.getId()));
+                transmitPlayerUpdate(p);
             }
         }
         for (IPlayer p : ghosts) {
@@ -1122,6 +1143,10 @@ public class Server implements Runnable {
         // Write end of game to stdout so controlling scripts can rotate logs.
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
         MegaMek.getLogger().info(format.format(new Date()) + " END OF GAME");
+
+        if (mailer != null) {
+            mailer.reset();
+        }
 
         changePhase(IGame.Phase.PHASE_LOUNGE);
     }
@@ -1363,7 +1388,7 @@ public class Server implements Runnable {
             }
             String name = idToNameMap.get(conn.getId());
             conn.setId(newId);
-            IPlayer newPlayer = addNewPlayer(newId, name);
+            IPlayer newPlayer = addNewPlayer(newId, name, false);
             newPlayer.setObserver(true);
             connectionIds.put(newId,  conn);
             send(newId, new Packet(Packet.COMMAND_LOCAL_PN, newId));
@@ -1938,7 +1963,7 @@ public class Server implements Runnable {
         if (playerChangingTeam != null) {
             playerChangingTeam.setTeam(requestedTeam);
             game.setupTeams();
-            send(createPlayerUpdatePacket(playerChangingTeam.getId()));
+            transmitPlayerUpdate(playerChangingTeam);
             String teamString = "Team " + requestedTeam + "!";
             if (requestedTeam == IPlayer.TEAM_UNASSIGNED) {
                 teamString = " unassigned!";
@@ -2478,7 +2503,19 @@ public class Server implements Runnable {
                         }
                     }
                 }
-            }
+                }
+                if (mailer != null) {
+                    for (var player: mailer.getEmailablePlayers(game)) {
+                        try {
+                            var message = mailer.newReportMessage(
+                                game, vPhaseReport, player
+                            );
+                            mailer.send(message);
+                        } catch (Exception ex) {
+                            MegaMek.getLogger().error("Error sending email" + ex);
+                        }
+                    }
+                }
                 send(createFullEntitiesPacket());
                 send(createReportPacket(null));
                 send(createEndOfGamePacket());
@@ -4859,7 +4896,7 @@ public class Server implements Runnable {
             Entity tm = game.getEntity(missileId);
             if ((null != tm) && !tm.isDestroyed()
                 && (tm instanceof TeleMissile)) {
-                if (LosEffects.calculateLos(game, entity.getId(), tm).canSee()) {
+                if (LosEffects.calculateLOS(game, entity, tm).canSee()) {
                     ((TeleMissile) tm).setOutContact(false);
                 } else {
                     ((TeleMissile) tm).setOutContact(true);
@@ -10677,7 +10714,7 @@ public class Server implements Runnable {
                 if ((te instanceof Mech) && (!areaEffect)) {
                     // Bug #1585497: Check for partial cover
                     int m = missiles;
-                    LosEffects le = LosEffects.calculateLos(game, attId, t);
+                    LosEffects le = LosEffects.calculateLOS(game, ae, t);
                     int cover = le.getTargetCover();
                     Vector<Report> coverDamageReports = new Vector<>();
                     int heatDamage = 0;
@@ -11641,12 +11678,12 @@ public class Server implements Runnable {
                     if (!team.equals(game.getTeamForPlayer(en.getOwner()))) {
                         continue;
                     }
-                    if (LosEffects.calculateLos(game, en.getId(),
+                    if (LosEffects.calculateLOS(game, en,
                             new HexTarget(mf.getCoords(), Targetable.TYPE_HEX_CLEAR)).canSee()) {
                         target = 0;
                         break;
                     }
-                    LosEffects los = LosEffects.calculateLos(game, en.getId(), layer);
+                    LosEffects los = LosEffects.calculateLOS(game, en, layer);
                     if (los.canSee()) {
                         // TODO : need to add mods
                         ToHitData current = new ToHitData(4, "base");
@@ -13482,14 +13519,16 @@ public class Server implements Runnable {
                 boolean firingAtNewHex = false;
                 final ArtilleryAttackAction aaa = (ArtilleryAttackAction) ea;
                 final Entity firingEntity = game.getEntity(aaa.getEntityId());
+                Targetable attackTarget = aaa.getTarget(game);
+                
                 for (Enumeration<AttackHandler> j = game.getAttacks(); !firingAtNewHex
                         && j.hasMoreElements(); ) {
                     WeaponHandler wh = (WeaponHandler) j.nextElement();
                     if (wh.waa instanceof ArtilleryAttackAction) {
                         ArtilleryAttackAction oaaa = (ArtilleryAttackAction) wh.waa;
+                        
                         if ((oaaa.getEntityId() == aaa.getEntityId())
-                            && !oaaa.getTarget(game).getPosition()
-                                .equals(aaa.getTarget(game).getPosition())) {
+                                && !Targetable.areAtSamePosition(oaaa.getTarget(game), attackTarget)) {
                             firingAtNewHex = true;
                         }
                     }
@@ -13502,7 +13541,7 @@ public class Server implements Runnable {
                             public Targetable target = aaa.getTarget(game);
 
                             public boolean accept(Entity entity) {
-                                LosEffects los = LosEffects.calculateLos(game, entity.getId(), target);
+                                LosEffects los = LosEffects.calculateLOS(game, entity, target);
                                 return ((player == entity.getOwnerId()) && !(los.isBlocked())
                                         && entity.isActive());
                             }
@@ -14150,8 +14189,7 @@ public class Server implements Runnable {
                     }
                 }
 
-                LosEffects los = LosEffects.calculateLos(game,
-                        detector.getId(), detected);
+                LosEffects los = LosEffects.calculateLOS(game, detector, detected);
                 if (los.canSee() || dist <= 1) {
                     detected.setHidden(false);
                     entityUpdate(detected.getId());
@@ -29262,7 +29300,7 @@ public class Server implements Runnable {
             EntityTargetPair etp = new EntityTargetPair(spotter, entity);
             LosEffects los = losCache.get(etp);
             if (los == null) {
-                los = LosEffects.calculateLos(game, spotter.getId(), entity);
+                los = LosEffects.calculateLOS(game, spotter, entity);
                 losCache.put(etp, los);
             }
             if (Compute.canSee(game, spotter, entity, useSensors, los,
@@ -29316,7 +29354,7 @@ public class Server implements Runnable {
             EntityTargetPair etp = new EntityTargetPair(spotter, entity);
             LosEffects los = losCache.get(etp);
             if (los == null) {
-                los = LosEffects.calculateLos(game, spotter.getId(), entity);
+                los = LosEffects.calculateLOS(game, spotter, entity);
                 losCache.put(etp, los);
             }
             if (Compute.inSensorRange(game, los, spotter, entity, allECMInfo)) {
@@ -29449,7 +29487,7 @@ public class Server implements Runnable {
                 EntityTargetPair etp = new EntityTargetPair(spotter, e);
                 LosEffects los = losCache.get(etp);
                 if (los == null) {
-                    los = LosEffects.calculateLos(game, spotter.getId(), e);
+                    los = LosEffects.calculateLOS(game, spotter, e);
                     losCache.put(etp, los);
                 }
                 // Otherwise, if they can see the entity in question
@@ -30139,7 +30177,7 @@ public class Server implements Runnable {
             sendServerChat("" + p.getName() + " has customized initiative.");
         }
     }
-
+    
     /**
      * receive and process an entity mode change packet
      *
@@ -30614,43 +30652,74 @@ public class Server implements Runnable {
     /**
      * Sends out all player info to the specified connection
      */
-    private void transmitAllPlayerConnects(int connId) {
-        for (Enumeration<IPlayer> i = game.getPlayers(); i.hasMoreElements(); ) {
-            final IPlayer player = i.nextElement();
-
-            send(connId, createPlayerConnectPacket(player.getId()));
+    private void transmitPlayerConnect(IConnection connection) {
+        for (var player: game.getPlayersVector()) {
+            var connectionId = connection.getId();
+            connection.send(
+                createPlayerConnectPacket(player, player.getId() != connectionId)
+            );
         }
     }
 
     /**
-     * Creates a packet informing that the player has connected
+     * Sends out player info to all connections
      */
-    private Packet createPlayerConnectPacket(int playerId) {
-        final Object[] data = new Object[2];
-        data[0] = playerId;
-        data[1] = getPlayer(playerId);
-        return new Packet(Packet.COMMAND_PLAYER_ADD, data);
+    private void transmitPlayerConnect(IPlayer player) {
+        for (var connection: connections) {
+            var playerId = player.getId();
+            connection.send(
+                createPlayerConnectPacket(player, playerId != connection.getId())
+            );
+        }
+    }
+
+     /**
+      * Creates a packet informing that the player has connected
+      */
+    private Packet createPlayerConnectPacket(IPlayer player, boolean isPrivate) {
+        var playerId = player.getId();
+        var destPlayer = player;
+        if (isPrivate) {
+            // Sending the player's data to another player's
+            // connection, need to redact any private data
+            destPlayer = player.copy();
+            destPlayer.redactPrivateData();
+        }
+        return new Packet(
+            Packet.COMMAND_PLAYER_ADD,
+            new Object[] { playerId, destPlayer }
+        );
     }
 
     /**
-     * Creates a packet containing the player info, for update
+     * Sends out player info updates for a player to all connections
      */
-    Packet createPlayerUpdatePacket(int playerId) {
-        final Object[] data = new Object[2];
-        data[0] = playerId;
-        data[1] = getPlayer(playerId);
-        return new Packet(Packet.COMMAND_PLAYER_UPDATE, data);
+    void transmitPlayerUpdate(IPlayer player) {
+        for (var connection: connections) {
+            var playerId = player.getId();
+            var destPlayer = player;
+
+            if (playerId != connection.getId()) {
+                // Sending the player's data to another player's
+                // connection, need to redact any private data
+                destPlayer = player.copy();
+                destPlayer.redactPrivateData();
+            }
+            connection.send(
+                new Packet(
+                    Packet.COMMAND_PLAYER_UPDATE,
+                    new Object[] { playerId, destPlayer }
+                )
+            );
+        }
     }
 
     /**
      * Sends out the player info updates for all players to all connections
      */
     private void transmitAllPlayerUpdates() {
-        for (Enumeration<IPlayer> i = game.getPlayers(); i.hasMoreElements(); ) {
-            final IPlayer player = i.nextElement();
-            if (null != player) {
-                send(createPlayerUpdatePacket(player.getId()));
-            }
+        for (var player: game.getPlayersVector()) {
+            transmitPlayerUpdate(player);
         }
     }
 
@@ -31120,6 +31189,20 @@ public class Server implements Runnable {
      * Send the round report to all connected clients.
      */
     private void sendReport(boolean tacticalGeniusReport) {
+        if (mailer != null) {
+            for (var player: mailer.getEmailablePlayers(game)) {
+                try {
+                    var reports = filterReportVector(vPhaseReport, player);
+                    var message = mailer.newReportMessage(
+                        game, reports, player
+                    );
+                    mailer.send(message);
+                } catch (Exception e) {
+                    MegaMek.getLogger().error("Error sending round report", e);
+                }
+            }
+        }
+
         if (connections == null) {
             return;
         }
@@ -31239,7 +31322,7 @@ public class Server implements Runnable {
             case Packet.COMMAND_PLAYER_UPDATE:
                 receivePlayerInfo(packet, connId);
                 validatePlayerInfo(connId);
-                send(createPlayerUpdatePacket(connId));
+                transmitPlayerUpdate(getPlayer(connId));
                 break;
             case Packet.COMMAND_PLAYER_TEAMCHANGE:
                 ServerLobbyHelper.receiveLobbyTeamChange(packet, connId, game, this);
@@ -31248,6 +31331,11 @@ public class Server implements Runnable {
                 receivePlayerDone(packet, connId);
                 send(createPlayerDonePacket(connId));
                 checkReady();
+                break;
+            case Packet.COMMAND_PRINCESS_SETTINGS:
+                if (player != null) {
+                    game.getBotSettings().put(player.getName(), (BehaviorSettings)packet.getObject(0));
+                }
                 break;
             case Packet.COMMAND_REROLL_INITIATIVE:
                 receiveInitiativeRerollRequest(packet, connId);
