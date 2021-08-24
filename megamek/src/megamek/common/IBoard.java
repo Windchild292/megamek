@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import megamek.common.annotations.Nullable;
+import megamek.common.buildings.Building;
 import megamek.common.event.BoardListener;
 
 /**

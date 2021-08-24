@@ -19,7 +19,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import megamek.client.Client;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Compute;
 import megamek.common.Coords;
 import megamek.common.EjectedCrew;

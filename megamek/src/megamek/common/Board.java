@@ -46,7 +46,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import megamek.MegaMek;
-import megamek.common.Building.BasementType;
+import megamek.common.buildings.Building;
+import megamek.common.buildings.Building.BasementType;
 import megamek.common.annotations.Nullable;
 import megamek.common.event.BoardEvent;
 import megamek.common.event.BoardListener;

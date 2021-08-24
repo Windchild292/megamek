@@ -36,6 +36,7 @@ import megamek.client.ui.Messages;
 import megamek.common.*;
 import megamek.common.IGame.Phase;
 import megamek.common.annotations.Nullable;
+import megamek.common.buildings.Building;
 
 public class BotConfigTargetHexDialog extends AbstractButtonDialog {
 

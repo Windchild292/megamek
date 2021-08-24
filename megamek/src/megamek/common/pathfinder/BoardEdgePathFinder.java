@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import megamek.common.Board;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Coords;
 import megamek.common.Entity;
 import megamek.common.EntityMovementMode;

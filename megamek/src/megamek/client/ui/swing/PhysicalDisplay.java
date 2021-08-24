@@ -38,7 +38,7 @@ import megamek.client.ui.swing.widget.IndexedRadioButton;
 import megamek.client.ui.swing.widget.MegamekButton;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.BipedMech;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.BuildingTarget;
 import megamek.common.Compute;
 import megamek.common.Coords;

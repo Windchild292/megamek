@@ -18,7 +18,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import megamek.common.Building.BasementType;
+import megamek.common.buildings.Building;
+import megamek.common.buildings.Building.BasementType;
 import megamek.common.annotations.Nullable;
 
 /**

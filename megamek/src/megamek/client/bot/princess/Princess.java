@@ -40,7 +40,7 @@ import megamek.client.ui.SharedUtility;
 import megamek.common.AmmoType;
 import megamek.common.BattleArmor;
 import megamek.common.Bay;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.BuildingTarget;
 import megamek.common.BulldozerMovePath;
 import megamek.common.Coords;

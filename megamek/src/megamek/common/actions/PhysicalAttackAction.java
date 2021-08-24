@@ -18,7 +18,7 @@ package megamek.common.actions;
 
 import megamek.client.ui.Messages;
 import megamek.common.BattleArmor;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Compute;
 import megamek.common.CriticalSlot;
 import megamek.common.Dropship;

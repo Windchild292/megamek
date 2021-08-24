@@ -30,6 +30,7 @@ import java.util.Vector;
 
 import megamek.common.IGame.Phase;
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.buildings.Building;
 import megamek.common.logging.DefaultMmLogger;
 import megamek.common.logging.MMLogger;
 import megamek.common.options.OptionsConstants;

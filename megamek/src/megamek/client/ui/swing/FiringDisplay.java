@@ -26,6 +26,7 @@ import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
 import megamek.common.IGame.Phase;
 import megamek.common.actions.*;
+import megamek.common.buildings.Building;
 import megamek.common.event.GamePhaseChangeEvent;
 import megamek.common.event.GameTurnChangeEvent;
 import megamek.common.options.OptionsConstants;
@@ -1381,7 +1382,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     setFireEnabled(false);
                 }
             }
-            Building bldg = game.getBoard().getBuildingAt(c); 
+            Building bldg = game.getBoard().getBuildingAt(c);
             if (bldg != null) {
                 Targetable t = new BuildingTarget(c, game.getBoard(), false);
                 toHit = WeaponAttackAction.toHit(game, cen, t, weaponId,

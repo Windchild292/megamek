@@ -22,6 +22,7 @@ package megamek.common;
 
 import megamek.client.ui.Messages;
 import megamek.common.annotations.Nullable;
+import megamek.common.buildings.Building;
 import megamek.common.options.OptionsConstants;
 import megamek.server.SmokeCloud;
 

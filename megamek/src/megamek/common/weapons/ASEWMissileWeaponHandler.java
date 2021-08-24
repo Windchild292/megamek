@@ -15,7 +15,7 @@ package megamek.common.weapons;
 
 import java.util.Vector;
 
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Dropship;
 import megamek.common.Entity;
 import megamek.common.IGame;

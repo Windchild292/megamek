@@ -20,7 +20,7 @@
 
 package megamek.server.commands;
 
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Entity;
 import megamek.server.Server;
 

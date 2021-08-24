@@ -25,7 +25,7 @@ import java.util.List;
 import megamek.client.bot.princess.UnitBehavior.BehaviorType;
 import megamek.client.ui.SharedUtility;
 import megamek.common.BombType;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Compute;
 import megamek.common.Coords;
 import megamek.common.Entity;

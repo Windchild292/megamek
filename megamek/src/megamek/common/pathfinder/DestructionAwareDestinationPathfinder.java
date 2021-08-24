@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import megamek.client.bot.princess.AeroPathUtil;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.BulldozerMovePath;
 import megamek.common.Coords;
 import megamek.common.Entity;

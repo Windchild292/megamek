@@ -14,6 +14,8 @@
 
 package megamek.common;
 
+import megamek.common.buildings.Building;
+
 /**
  * This class represents a single, possibly multi-hex fuel tank on the board.
  *

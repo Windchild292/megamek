@@ -46,6 +46,8 @@ import megamek.common.IGame.Phase;
 import megamek.common.annotations.Nullable;
 
 import static megamek.common.Terrains.*;
+
+import megamek.common.buildings.Building;
 import megamek.common.logging.LogLevel;
 
 /** A dialog box to configure (Princess) bot properties. */

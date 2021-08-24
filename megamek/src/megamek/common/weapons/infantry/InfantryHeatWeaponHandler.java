@@ -18,6 +18,7 @@ import java.util.Vector;
 
 import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.buildings.Building;
 import megamek.common.options.OptionsConstants;
 import megamek.server.Server;
 
@@ -45,8 +46,8 @@ public class InfantryHeatWeaponHandler extends InfantryWeaponHandler {
     
     @Override
     protected void handleEntityDamage(Entity entityTarget,
-            Vector<Report> vPhaseReport, Building bldg, int hits, int nCluster,
-            int bldgAbsorbs) {
+                                      Vector<Report> vPhaseReport, Building bldg, int hits, int nCluster,
+                                      int bldgAbsorbs) {
         if ((entityTarget instanceof Mech)
                 && game.getOptions().booleanOption(OptionsConstants.BASE_FLAMER_HEAT)) {
             // heat
