@@ -35,16 +35,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import megamek.MegaMek;
-import megamek.client.ui.swing.GUIPreferences;
 import megamek.common.Building.BasementType;
 import megamek.common.annotations.Nullable;
 import megamek.common.event.BoardEvent;
@@ -157,6 +158,9 @@ public class Board implements Serializable, IBoard {
      */
     private Map<Coords, Collection<String>> annotations = new HashMap<>();
 
+    /** Tags associated with this board to facilitate searching for it. */
+    private Set<String> tags = new HashSet<>();
+    
     /**
      * Creates a new board with zero as its width and height parameters.
      */
@@ -472,7 +476,7 @@ public class Board implements Serializable, IBoard {
         }
         
         // Internally handled terrain (inclines, cliff-bottoms)
-        initializeAutomaticTerrain(x, y);
+        initializeAutomaticTerrain(x, y, /* useInclines: */ true);
         
         // Add woods/jungle elevation where none was saved
         initializeFoliageElev(x, y);
@@ -506,9 +510,12 @@ public class Board implements Serializable, IBoard {
     
     /** 
      * Checks all hex edges of the hex at (x,y) if automatically handled 
-     * terrains such as inclines must be placed or removed. 
+     * terrains such as inclines must be placed or removed.
+     * @param x The hex X-coord.
+     * @param y The hex Y-coord.
+     * @param useInclines Indicates whether or not to include inclines at hex exits.
      */
-    private void initializeAutomaticTerrain(int x, int y) {
+    private void initializeAutomaticTerrain(int x, int y, boolean useInclines) {
         IHex hex = getHex(x, y);
         int origCliffTopExits = 0;
         int correctedCliffTopExits = 0;
@@ -585,7 +592,7 @@ public class Board implements Serializable, IBoard {
         }
         addOrRemoveAutoTerrain(hex, Terrains.CLIFF_TOP, correctedCliffTopExits);
         addOrRemoveAutoTerrain(hex, Terrains.CLIFF_BOTTOM, cliffBotExits);
-        if (GUIPreferences.getInstance().getHexInclines()) {
+        if (useInclines) {
             addOrRemoveAutoTerrain(hex, Terrains.INCLINE_TOP, inclineTopExits);
             addOrRemoveAutoTerrain(hex, Terrains.INCLINE_BOTTOM, inclineBotExits);
             addOrRemoveAutoTerrain(hex, Terrains.INCLINE_HIGH_TOP, highInclineTopExits);
@@ -611,11 +618,13 @@ public class Board implements Serializable, IBoard {
         }
     }
     
-    /** Rebuilds automatic terrains for the whole board. */
-    public void initializeAllAutomaticTerrain() {
+    /** Rebuilds automatic terrains for the whole board.
+     * @param useInclines Indicates whether or not to use inclines on hex exits.
+     */
+    public void initializeAllAutomaticTerrain(boolean useInclines) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                initializeAutomaticTerrain(x, y);
+                initializeAutomaticTerrain(x, y, useInclines);
             }
         }
         processBoardEvent(new BoardEvent(this, null, BoardEvent.BOARD_CHANGED_ALL_HEXES));
@@ -816,6 +825,32 @@ public class Board implements Serializable, IBoard {
             return null;
         }
         return new BoardDimensions(boardx, boardy);
+    }
+    
+    /** Inspects the given board file and returns a set of its tags. */
+    public static Set<String> getTags(final File filepath) {
+        var result = new HashSet<String>();
+        try (Reader r = new BufferedReader(new FileReader(filepath))) {
+            // read board, looking for "size"
+            StreamTokenizer st = new StreamTokenizer(r);
+            st.eolIsSignificant(true);
+            st.commentChar('#');
+            st.quoteChar('"');
+            st.wordChars('_', '_');
+            while (st.nextToken() != StreamTokenizer.TT_EOF) {
+                if ((st.ttype == StreamTokenizer.TT_WORD) && st.sval.equalsIgnoreCase("tag")) {
+                    st.nextToken();
+                    if (st.ttype == '"') {
+                        result.add(st.sval);
+                    }
+                } else if ((st.ttype == StreamTokenizer.TT_WORD) && st.sval.equalsIgnoreCase("end")) {
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            // return the empty Set
+        }
+        return result;
     }
     
     public static boolean isValid(String board) {
@@ -1036,6 +1071,11 @@ public class Board implements Serializable, IBoard {
                             setAnnotations(c, a);
                         }
                     }
+                } else if ((st.ttype == StreamTokenizer.TT_WORD) && st.sval.equalsIgnoreCase("tag")) {
+                    st.nextToken();
+                    if (st.ttype == '"') {
+                        addTag(st.sval);
+                    }
                 } else if ((st.ttype == StreamTokenizer.TT_WORD) && st.sval.equalsIgnoreCase("end")) {
                     break;
                 }
@@ -1130,6 +1170,9 @@ public class Board implements Serializable, IBoard {
             w.write("size " + width + " " + height + "\r\n");
             if (!roadsAutoExit) {
                 w.write("option exit_roads_to_pavement false\r\n");
+            }
+            for (String tag : tags) {
+                w.write("tag \"" + tag + "\"\r\n");
             }
             for (int i = 0; i < data.length; i++) {
                 IHex hex = data[i];
@@ -1368,6 +1411,10 @@ public class Board implements Serializable, IBoard {
      */
     public Enumeration<Building> getBuildings() {
         return buildings.elements();
+    }
+    
+    public Vector<Building> getBuildingsVector() {
+        return buildings;
     }
 
     /**
@@ -1981,4 +2028,20 @@ public class Board implements Serializable, IBoard {
         Board result = new Board(width, height, hexes);
         return result;
     }
+    
+    @Override
+    public void addTag(String newTag) {
+        tags.add(newTag);
+    }
+    
+    @Override
+    public void removeTag(String tag) {
+        tags.remove(tag);
+    }
+    
+    @Override
+    public Set<String> getTags() {
+        return Collections.unmodifiableSet(tags);
+    }
+    
 }

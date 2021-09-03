@@ -25,7 +25,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -349,7 +348,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                         + Messages.getString("MovementDisplay.butDone") + "</b></html>"); //$NON-NLS-1$
         butDone.setEnabled(false);
 
-        layoutScreen();
         setupButtonPanel();
 
         gear = MovementDisplay.GEAR_LAND;
@@ -501,34 +499,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     public void performAction() {
                         selectEntity(clientgui.getClient()
                                 .getPrevEntityNum(cen));
-                    }
-                });
-
-        // Register the action for MOVE_ENVELOPE
-        controller.registerCommandAction(KeyCommandBind.MOVE_ENVELOPE.cmd,
-                new CommandAction() {
-
-                    @Override
-                    public boolean shouldPerformAction() {
-                        if (clientgui.bv.getChatterBoxActive()
-                                || !display.isVisible()
-                                || display.isIgnoringEvents()) {
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    }
-
-                    @Override
-                    public void performAction() {
-                        GUIPreferences.getInstance().setMoveEnvelope(
-                                !GUIPreferences.getInstance().getMoveEnvelope());
-                        if (GUIPreferences.getInstance().getMoveEnvelope()) {
-                            computeMovementEnvelope(clientgui.mechD
-                                    .getCurrentEntity());
-                        } else {
-                            clientgui.bv.clearMovementEnvelope();
-                        }
                     }
                 });
 
@@ -774,8 +744,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         clear();
         
         updateButtons();
-        // Update the menu bar.
-        clientgui.getMenuBar().setEntity(ce);
         clientgui.getBoardView().highlight(ce.getPosition());
         clientgui.getBoardView().select(null);
         clientgui.getBoardView().cursor(null);
@@ -1015,7 +983,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         if (numButtonGroups > 1)
             getBtn(MoveCommand.MOVE_MORE).setEnabled(true);
         if (!clientgui.bv.isMovingUnits()) {
-            clientgui.setDisplayVisible(true);
+            clientgui.maybeShowUnitDisplay();
         }
         selectEntity(clientgui.getClient().getFirstEntityNum());
         //check if there should be a turn timer running
@@ -1043,7 +1011,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 && (null != next)
                 && (null != ce)
                 && (next.getOwnerId() != ce.getOwnerId())) {
-            clientgui.setDisplayVisible(false);
+            clientgui.setUnitDisplayVisible(false);
         }
         cen = Entity.NONE;
         clientgui.getBoardView().select(null);
@@ -2777,6 +2745,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         }
         if (!ce.isAirborne()
                 && (mpUsed <= Math.ceil((ce.getWalkMP() / 2.0)))
+                && game.getBoard().contains(pos)
                 && !Compute.getMountableUnits(ce, pos,
                     elev + game.getBoard().getHex(pos).surface(), game).isEmpty()) {
             setMountEnabled(true);
@@ -4207,7 +4176,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         // bring up dialog to dump bombs, then make a control roll and report
         // success or failure
         // should update mp available
-        int numFighters = ce().getActiveSubEntities().orElse(Collections.emptyList()).size();
+        int numFighters = ce().getActiveSubEntities().size();
         BombPayloadDialog dumpBombsDialog = new BombPayloadDialog(
                 clientgui.frame,
                 Messages.getString("MovementDisplay.BombDumpDialog.title"), //$NON-NLS-1$
@@ -4530,9 +4499,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         // Are we ignoring events?
         if (isIgnoringEvents()) {
-            return;
-        }
-        if (statusBarActionPerformed(ev, clientgui.getClient())) {
             return;
         }
         if (!clientgui.getClient().isMyTurn()) {
@@ -5443,7 +5409,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             return;
         }
         if (clientgui.getClient().isMyTurn() && (ce != null)) {
-            clientgui.setDisplayVisible(true);
+            clientgui.maybeShowUnitDisplay();
             clientgui.bv.centerOnHex(ce.getPosition());
         }
     }
@@ -5464,7 +5430,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 selectEntity(e.getId());
             }
         } else {
-            clientgui.setDisplayVisible(true);
+            clientgui.maybeShowUnitDisplay();
             clientgui.mechD.displayEntity(e);
             if (e.isDeployed()) {
                 clientgui.bv.centerOnHex(e.getPosition());

@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
@@ -36,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import megamek.MegaMek;
+import megamek.client.bot.princess.FireControl;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.common.Building.BasementType;
@@ -956,6 +956,11 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         for (Mounted mounted : equipmentList) {
             mounted.restore();
         }
+        
+        // in some situations, an entity's facing winds up having an illegal value
+        // this will correct it as best as possible
+        facing = FireControl.correctFacing(getFacing());
+        
         // set game options, we derive some equipment's modes from this
         setGameOptions();
     }
@@ -2622,7 +2627,10 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
             if (transporter == null) {
                 transporter = game.getOutOfGameEntity(conveyance);
             }
-            return transporter.getFacing();
+            
+            if (transporter != null) {
+                return transporter.getFacing();
+            }
         }
         return facing;
     }
@@ -2631,7 +2639,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * Sets the primary facing.
      */
     public void setFacing(int facing) {
-        this.facing = facing;
+        this.facing = FireControl.correctFacing(facing);
         if (game != null) {
             game.processGameEvent(new GameEntityChangeEvent(this, this));
         }
@@ -2653,7 +2661,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * Optionally does not fire a game change event (useful for bot evaluation)
      */
     public void setSecondaryFacing(int sec_facing, boolean fireEvent) {
-        this.sec_facing = sec_facing;
+        this.sec_facing = FireControl.correctFacing(sec_facing);
         if (fireEvent && (game != null)) {
             game.processGameEvent(new GameEntityChangeEvent(this, this));
         }
@@ -6374,11 +6382,13 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         setUnjammingRAC(false);
         crew.setKoThisRound(false);
         m_lNarcedBy |= m_lPendingNarc;
-        if (pendingINarcPods.size() > 0) {
+
+        if (!pendingINarcPods.isEmpty()) {
             iNarcPods.addAll(pendingINarcPods);
-            pendingINarcPods = new ArrayList<INarcPod>();
+            pendingINarcPods.clear();
         }
-        if (pendingNarcPods.size() > 0) {
+
+        if (!pendingNarcPods.isEmpty()) {
             narcPods.addAll(pendingNarcPods);
             pendingNarcPods.clear();
         }
@@ -6753,12 +6763,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * has the team attached a narc pod to me?
      */
     public boolean isNarcedBy(int nTeamID) {
-        for (NarcPod p : narcPods) {
-            if (p.getTeam() == nTeamID) {
-                return true;
-            }
-        }
-        return false;
+        return narcPods.stream().anyMatch(pod -> pod.getTeam() == nTeamID);
     }
 
     /**
@@ -6786,13 +6791,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * @return true if the Entity is narced by that team.
      */
     public boolean isINarcedBy(int nTeamID) {
-        for (INarcPod pod : iNarcPods) {
-            if ((pod.getTeam() == nTeamID)
-                && (pod.getType() == INarcPod.HOMING)) {
-                return true;
-            }
-        }
-        return false;
+        return iNarcPods.stream().anyMatch(pod -> (pod.getTeam() == nTeamID) && (pod.getType() == INarcPod.HOMING));
     }
 
     /**
@@ -6802,12 +6801,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * @return <code>true</code> if we have.
      */
     public boolean isINarcedWith(long type) {
-        for (INarcPod pod : iNarcPods) {
-            if (pod.getType() == type) {
-                return true;
-            }
-        }
-        return false;
+        return iNarcPods.stream().anyMatch(pod -> pod.getType() == type);
     }
 
     /**
@@ -11641,32 +11635,27 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * those still 'stuck' to destroyed or missing locations.
      */
     public void clearDestroyedNarcPods() {
-        for (Iterator<NarcPod> i = pendingNarcPods.iterator(); i.hasNext(); ) {
-            if (!locationCanHoldNarcPod(i.next().getLocation())) {
-                i.remove();
-            }
-        }
-        for (Iterator<NarcPod> i = narcPods.iterator(); i.hasNext(); ) {
-            if (!locationCanHoldNarcPod(i.next().getLocation())) {
-                i.remove();
-            }
-        }
-        for (Iterator<INarcPod> i = pendingINarcPods.iterator(); i.hasNext(); ) {
-            if (!locationCanHoldNarcPod(i.next().getLocation())) {
-                i.remove();
-            }
-        }
-        for (Iterator<INarcPod> i = iNarcPods.iterator(); i.hasNext(); ) {
-            if (!locationCanHoldNarcPod(i.next().getLocation())) {
-                i.remove();
-            }
-        }
+        pendingNarcPods.removeIf(narcPod -> !locationCanHoldNarcPod(narcPod.getLocation()));
+        narcPods.removeIf(narcPod -> !locationCanHoldNarcPod(narcPod.getLocation()));
+        pendingINarcPods.removeIf(iNarcPod -> !locationCanHoldNarcPod(iNarcPod.getLocation()));
+        iNarcPods.removeIf(iNarcPod -> !locationCanHoldNarcPod(iNarcPod.getLocation()));
     }
 
-    private boolean locationCanHoldNarcPod(int location) {
+    private boolean locationCanHoldNarcPod(final int location) {
         return (getInternal(location) > 0)
                && !isLocationBlownOff(location)
                && !isLocationBlownOffThisPhase(location);
+    }
+
+    /**
+     * This clears all Narc and iNarc Pods from an Entity. It is used in MekHQ to clear this
+     * transient data.
+     */
+    public void clearNarcAndiNarcPods() {
+        pendingNarcPods.clear();
+        narcPods.clear();
+        pendingINarcPods.clear();
+        iNarcPods.clear();
     }
 
     public PilotingRollData checkSideSlip(EntityMovementType moveType,
@@ -15497,21 +15486,18 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      *
      * @return an optional collection of sub-entities, if this entity is considered a grouping of them.
      */
-    public Optional<List<Entity>> getSubEntities() {
-        return Optional.empty();
+    public List<Entity> getSubEntities() {
+        return Collections.emptyList();
     }
 
     /**
-     * The default implementation calls getSubEntities(), then filters them. This might not be
-     * the optimal code for many applications, so feel free to override both if needed.
+     * A list of all active sub-entities. In most cases, this is simply an empty list.
      *
      * @return an optional collection of sub-entities, if this entity is considered a grouping of them,
      *         pre-filtered to only contain active (non-destroyed and non-doomed) entities.
      */
-    public Optional<List<Entity>> getActiveSubEntities() {
-        return getSubEntities().map(
-            ents -> ents.stream().filter(
-                ent -> !(ent.isDestroyed() || ent.isDoomed())).collect(Collectors.toList()));
+    public List<Entity> getActiveSubEntities() {
+        return Collections.emptyList();
     }
 
     /**
@@ -16163,5 +16149,4 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     public boolean partOfForce() {
         return forceId != Force.NO_FORCE;
     }
-
 }

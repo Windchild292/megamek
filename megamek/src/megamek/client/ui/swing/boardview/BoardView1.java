@@ -124,6 +124,7 @@ import megamek.common.IHex;
 import megamek.common.IPlayer;
 import megamek.common.ITerrain;
 import megamek.common.Infantry;
+import megamek.common.KeyBindParser;
 import megamek.common.LosEffects;
 import megamek.common.Mech;
 import megamek.common.Minefield;
@@ -154,6 +155,7 @@ import megamek.common.actions.PunchAttackAction;
 import megamek.common.actions.PushAttackAction;
 import megamek.common.actions.SearchlightAttackAction;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.annotations.Nullable;
 import megamek.common.event.BoardEvent;
 import megamek.common.event.BoardListener;
 import megamek.common.event.GameBoardChangeEvent;
@@ -510,7 +512,6 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     /** The coords where the mouse was last. */
     Coords lastCoords;
 
-
     /**
      * Construct a new board view for the specified game
      */
@@ -731,6 +732,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
         PreferenceManager.getClientPreferences().addPreferenceChangeListener(this);
         GUIPreferences.getInstance().addPreferenceChangeListener(this);
+        KeyBindParser.addPreferenceChangeListener(this);
 
         SpecialHexDisplay.Type.ARTILLERY_HIT.init();
         SpecialHexDisplay.Type.ARTILLERY_INCOMING.init();
@@ -751,23 +753,6 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
     private void registerKeyboardCommands(final BoardView1 bv,
             final MegaMekController controller) {
-        // Register the action for TOGGLE_ISO
-        controller.registerCommandAction(KeyCommandBind.TOGGLE_ISO.cmd,
-                new CommandAction() {
-
-                    @Override
-                    public boolean shouldPerformAction() {
-                        return !shouldIgnoreKeyCommands();
-                    }
-
-                    @Override
-                    public void performAction() {
-                        GUIPreferences guip = GUIPreferences.getInstance();
-                        guip.setIsometricEnabled(toggleIsometric());
-                    }
-
-                });
-
         // Register the action for TOGGLE_CHAT
         controller.registerCommandAction(KeyCommandBind.TOGGLE_CHAT.cmd,
                 new CommandAction() {
@@ -950,84 +935,6 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                     }
 
                 });
-
-        // Register the action for Showing the Field of Fire
-        controller.registerCommandAction(KeyCommandBind.FIELD_FIRE.cmd,
-                new CommandAction() {
-
-                    @Override
-                    public boolean shouldPerformAction() {
-                        return !shouldIgnoreKeyCommands();
-                    }
-
-                    @Override
-                    public void performAction() {
-                        GUIPreferences guip = GUIPreferences.getInstance();
-                        guip.setShowFieldOfFire(!guip.getShowFieldOfFire());
-                        repaint();
-                    }
-
-                });
-
-        // Register the action for Toggling drawing unit labels
-        controller.registerCommandAction(KeyCommandBind.TOGGLE_DRAW_LABELS.cmd,
-                new CommandAction() {
-
-                    @Override
-                    public boolean shouldPerformAction() {
-                        return !shouldIgnoreKeyCommands();
-                    }
-
-                    @Override
-                    public void performAction() {
-                        GUIPreferences guip = GUIPreferences.getInstance();
-                        boolean drawLabels = guip.getBoolean(
-                                GUIPreferences.ADVANCED_DRAW_ENTITY_LABEL);
-                        guip.setValue(GUIPreferences.ADVANCED_DRAW_ENTITY_LABEL,
-                                !drawLabels);
-                        updateEntityLabels();
-                        for (Sprite s: wreckSprites) {
-                            s.prepare();
-                        }
-                        for (Sprite s: isometricWreckSprites) {
-                            s.prepare();
-                        }
-                    }
-
-                });
-        
-        // Register the action for TOGGLE_KEYBIND_DISPLAY
-        controller.registerCommandAction(KeyCommandBind.TOGGLE_KEYBIND_DISPLAY.cmd,
-                new CommandAction() {
-
-                    @Override
-                    public boolean shouldPerformAction() {
-                        return !shouldIgnoreKeyCommands();
-                    }
-
-                    @Override
-                    public void performAction() {
-                        toggleKeybindsOverlay();
-                    }
-                });
-        
-        // Register the action for TOGGLE_HEX_COORDS
-        controller.registerCommandAction(KeyCommandBind.TOGGLE_HEX_COORDS.cmd,
-                new CommandAction() {
-
-                    @Override
-                    public boolean shouldPerformAction() {
-                        return !shouldIgnoreKeyCommands();
-                    }
-
-                    @Override
-                    public void performAction() {
-                        boolean coordsShown = GUIPreferences.getInstance().getBoolean(GUIPreferences.ADVANCED_SHOW_COORDS);
-                        GUIPreferences.getInstance().setValue(GUIPreferences.ADVANCED_SHOW_COORDS, !coordsShown);
-                    }
-
-                });
-
     }
 
     private boolean shouldIgnoreKeyCommands() {
@@ -1075,8 +982,8 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     public void preferenceChange(PreferenceChangeEvent e) {
         if (e.getName().equals(IClientPreferences.MAP_TILESET)) {
             updateBoard();
-        }
-        if (e.getName().equals(GUIPreferences.ADVANCED_DRAW_ENTITY_LABEL)
+            
+        } else if (e.getName().equals(GUIPreferences.DRAW_ENTITY_LABEL)
                 || e.getName().equals(GUIPreferences.UNIT_LABEL_BORDER)
                 || e.getName().equals(GUIPreferences.TEAM_COLORING)
                 || e.getName().equals(GUIPreferences.SHOW_DAMAGE_DECAL)
@@ -1088,14 +995,18 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             for (Sprite s: isometricWreckSprites) {
                 s.prepare();
             }
-        }
-        if (e.getName().equals(GUIPreferences.ADVANCED_USE_CAMO_OVERLAY)) {
+            
+        } else if (e.getName().equals(GUIPreferences.ADVANCED_USE_CAMO_OVERLAY)) {
             getTilesetManager().reloadUnitIcons();
-        }
-        if (e.getName().equals(GUIPreferences.AOHEXSHADOWS)
+            
+        } else if (e.getName().equals(GUIPreferences.SHOW_KEYBINDS_OVERLAY)) {
+            keybindOverlay.setVisible((boolean)e.getNewValue());
+            repaint();
+            
+        } else if (e.getName().equals(GUIPreferences.AOHEXSHADOWS)
                 || e.getName().equals(GUIPreferences.FLOATINGISO)
                 || e.getName().equals(GUIPreferences.LEVELHIGHLIGHT)
-                || e.getName().equals(GUIPreferences.ADVANCED_SHOW_COORDS)
+                || e.getName().equals(GUIPreferences.SHOW_COORDS)
                 || e.getName().equals(GUIPreferences.FOV_DARKEN)
                 || e.getName().equals(GUIPreferences.FOV_DARKEN_ALPHA)
                 || e.getName().equals(GUIPreferences.FOV_GRAYSCALE)
@@ -1109,9 +1020,13 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             repaint();
         }
         if (e.getName().equals(GUIPreferences.INCLINES)) {
-            game.getBoard().initializeAllAutomaticTerrain();
+            game.getBoard().initializeAllAutomaticTerrain((boolean) e.getNewValue());
             clearHexImageCache();
             repaint();
+            
+        } else if (e.getName().equals(KeyBindParser.KEYBINDS_CHANGED)) {
+            repaint();
+            
         }
     }
 
@@ -2674,15 +2589,16 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             g.setComposite(svComp);
         }
 
-        // To place roads under the shadow map, supers for hexes with roads
+        // To place roads under the shadow map, some supers 
         // have to be drawn before the shadow map, otherwise the supers are
-        // drawn after.  Unfortunately I dont think the supers images
-        // themselves can be checked for roads.
+        // drawn after. Unfortunately the supers images
+        // themselves can't be checked for roads.
         List<Image> supers = tileManager.supersFor(hex);
         boolean supersUnderShadow = false;
         if (hex.containsTerrain(Terrains.ROAD) 
                 || hex.containsTerrain(Terrains.WATER) 
-                || hex.containsTerrain(Terrains.PAVEMENT)) {
+                || hex.containsTerrain(Terrains.PAVEMENT)
+                || hex.containsTerrain(Terrains.GROUND_FLUFF)) {
             supersUnderShadow = true;
             if (supers != null) {
                 for (Image image : supers) {
@@ -2835,7 +2751,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         }
 
         // write hex coordinate unless deactivated or scale factor too small
-        if (guip.getBoolean(GUIPreferences.ADVANCED_SHOW_COORDS) && (scale >= 0.5)) {
+        if (guip.getBoolean(GUIPreferences.SHOW_COORDS) && (scale >= 0.5)) {
             drawCenteredString(c.getBoardNum(), 0, (int) (12 * scale), font_hexnum, g);
         }
 
@@ -4618,13 +4534,9 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                                                                                           .getString("BoardView1.Mech") : Messages.getString("BoardView1.NonMech"), //$NON-NLS-1$ //$NON-NLS-2$
                                                                                   c2.getBoardNum()}));
             } else {
-                le = LosEffects.calculateLos(game, ae.getId(), te);
-                message.append(Messages.getString(
-                        "BoardView1.Attacker", new Object[]{ //$NON-NLS-1$
-                                                             ae.getDisplayName(), c1.getBoardNum()}));
-                message.append(Messages.getString(
-                        "BoardView1.Target", new Object[]{ //$NON-NLS-1$
-                                                           te.getDisplayName(), c2.getBoardNum()}));
+                le = LosEffects.calculateLOS(game, ae, te);
+                message.append(Messages.getString("BoardView1.Attacker", ae.getDisplayName(), c1.getBoardNum()));
+                message.append(Messages.getString("BoardView1.Target", te.getDisplayName(), c2.getBoardNum()));
             }
             // Check to see if LoS is blocked
             if (!le.canSee()) {
@@ -6130,13 +6042,15 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         return txt.toString();
     }
 
-    private ArrayList<ArtilleryAttackAction> getArtilleryAttacksAtLocation(
-            Coords c) {
+    private ArrayList<ArtilleryAttackAction> getArtilleryAttacksAtLocation(Coords c) {
         ArrayList<ArtilleryAttackAction> v = new ArrayList<ArtilleryAttackAction>();
+        
         for (Enumeration<ArtilleryAttackAction> attacks = game
                 .getArtilleryAttacks(); attacks.hasMoreElements(); ) {
             ArtilleryAttackAction a = attacks.nextElement();
-            if (a.getTarget(game).getPosition().equals(c)) {
+            Targetable target = a.getTarget(game);
+
+            if ((target != null) && c.equals(target.getPosition())) {
                 v.add(a);
             }
         }
@@ -6497,6 +6411,9 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     public void die() {
         ourTask.cancel();
         fovHighlightingAndDarkening.die();
+        KeyBindParser.removePreferenceChangeListener(this);
+        GUIPreferences.getInstance().removePreferenceChangeListener(this);
+        PreferenceManager.getClientPreferences().removePreferenceChangeListener(this);
     }
 
     /**
@@ -6722,10 +6639,14 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     /** Displays a dialog and changes the theme of all
      *  board hexes to the user-chosen theme.
      */
-    public void changeTheme() {
-        if (game == null) return;
+    public @Nullable String changeTheme() {
+        if (game == null) {
+            return null;
+        }
         IBoard board = game.getBoard();
-        if (board.inSpace()) return;
+        if (board.inSpace()) {
+            return null;
+        }
 
         Set<String> themes = tileManager.getThemes();
         if (themes.remove("")) themes.add("(No Theme)");
@@ -6743,7 +6664,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         setShouldIgnoreKeys(false);
 
         if (selectedTheme == null) {
-            return;
+            return null;
         } else if (selectedTheme.equals("(Original Theme)")) {
             selectedTheme = null;
         } else if (selectedTheme.equals("(No Theme)")) {
@@ -6751,6 +6672,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         }
         
         board.setTheme(selectedTheme);
+        return selectedTheme;
     }
 
     private Image getBoardBackgroundHexImage(Coords c, IHex hex) {
@@ -6836,8 +6758,4 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         return displayablesRect;
     }
     
-    public void toggleKeybindsOverlay() {
-        keybindOverlay.setVisible(!keybindOverlay.isVisible());
-        repaint();
-    }
 }

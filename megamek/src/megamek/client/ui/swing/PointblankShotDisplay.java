@@ -458,9 +458,6 @@ public class PointblankShotDisplay extends FiringDisplay implements
 
             clientgui.bv.centerOnHex(ce().getPosition());
 
-            // Update the menu bar.
-            clientgui.getMenuBar().setEntity(ce());
-
             // only twist if crew conscious
             setTwistEnabled(ce().canChangeSecondaryFacing()
                             && ce().getCrew().isActive());
@@ -479,7 +476,7 @@ public class PointblankShotDisplay extends FiringDisplay implements
      * Does turn start stuff
      */
     public void beginMyTurn() {
-        clientgui.setDisplayVisible(true);
+        clientgui.maybeShowUnitDisplay();
         clientgui.bv.clearFieldofF();
 
         butDone.setEnabled(true);
@@ -501,7 +498,7 @@ public class PointblankShotDisplay extends FiringDisplay implements
         if ((game.getPhase() == IGame.Phase.PHASE_FIRING)
             && (next != null) && (ce() != null)
             && (next.getOwnerId() != ce().getOwnerId())) {
-            clientgui.setDisplayVisible(false);
+            clientgui.setUnitDisplayVisible(false);
         }
         cen = Entity.NONE;
         target(null);
@@ -670,9 +667,6 @@ public class PointblankShotDisplay extends FiringDisplay implements
         // clear queue
         attacks.removeAllElements();
 
-        // Clear the menu bar.
-        clientgui.getMenuBar().setEntity(null);
-
         // close aimed shot display, if any
         ash.closeDialog();
 
@@ -752,8 +746,6 @@ public class PointblankShotDisplay extends FiringDisplay implements
 
         // and add it into the game, temporarily
         game.addAction(waa);
-        
-        clientgui.minimap.drawMap();
 
         // set the weapon as used
         mounted.setUsedThisRound(true);
@@ -990,10 +982,6 @@ public class PointblankShotDisplay extends FiringDisplay implements
             return;
         }
 
-        if (statusBarActionPerformed(ev, clientgui.getClient())) {
-            return;
-        }
-
         if (!clientgui.isProcessingPointblankShot()) {
             return;
         }
@@ -1087,7 +1075,7 @@ public class PointblankShotDisplay extends FiringDisplay implements
         }
 
         if (clientgui.isProcessingPointblankShot() && (ce() != null)) {
-            clientgui.setDisplayVisible(true);
+            clientgui.maybeShowUnitDisplay();
             clientgui.bv.centerOnHex(ce().getPosition());
         }
     }
@@ -1103,7 +1091,7 @@ public class PointblankShotDisplay extends FiringDisplay implements
         if (clientgui.getPointblankEID() == e.getId()) {
             selectEntity(e.getId());
         } else {
-            clientgui.setDisplayVisible(true);
+            clientgui.maybeShowUnitDisplay();
             clientgui.mechD.displayEntity(e);
             if (e.isDeployed()) {
                 clientgui.bv.centerOnHex(e.getPosition());
