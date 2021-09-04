@@ -21,7 +21,7 @@ package megamek;
 public abstract class SuiteConstants {
     //region Suite Options
     //region Display Node
-    public static final String SUITE_DISPLAY_NODE = "mmsuite/prefs/display";
+    public static final String SUITE_DISPLAY_NODE = "suite/prefs/display";
     //endregion Display Node
     //endregion Suite Options
 }
