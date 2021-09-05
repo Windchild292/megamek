@@ -18,17 +18,7 @@
  */
 package megamek;
 
-import java.util.prefs.Preferences;
-
-/**
- * Suite Options are persistent options that hold throughout the suite (MM/MML/MHQ). The constants
- * used for storing these are located in {@link SuiteConstants}
- */
-public abstract class SuiteOptions {
-    //region Variable Declarations
-    protected static final Preferences preferences = Preferences.userRoot();
-    //endregion Variable Declarations
-
+public final class MMOptions extends SuiteOptions {
     //region Display
     //endregion Display
 }

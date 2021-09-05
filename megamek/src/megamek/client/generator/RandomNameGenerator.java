@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import megamek.MegaMek;
-import megamek.MegaMekConstants;
+import megamek.MMConstants;
 import megamek.common.enums.Gender;
 import megamek.common.util.weightedMaps.WeightedIntMap;
 
@@ -326,8 +326,8 @@ public class RandomNameGenerator implements Serializable {
 
     private void initializeHistoricalEthnicity() {
         historicalEthnicity = new HashMap<>();
-        loadHistoricalEthnicityFromFile(new File(MegaMekConstants.HISTORICAL_ETHNICITY_FILE));
-        loadHistoricalEthnicityFromFile(new File(MegaMekConstants.USER_HISTORICAL_ETHNICITY_FILE));
+        loadHistoricalEthnicityFromFile(new File(MMConstants.HISTORICAL_ETHNICITY_FILE));
+        loadHistoricalEthnicityFromFile(new File(MMConstants.USER_HISTORICAL_ETHNICITY_FILE));
     }
 
     private void loadHistoricalEthnicityFromFile(final File file) {
@@ -353,9 +353,9 @@ public class RandomNameGenerator implements Serializable {
         factionEthnicCodes = new HashMap<>();
         final Map<String, Map<Integer, Map<Integer, Integer>>> factionGivenNamesLoadMap = new HashMap<>();
         final Map<String, Map<Integer, Integer>> factionEthnicCodesLoadMap = new HashMap<>();
-        loadFactionsFromFile(new File(MegaMekConstants.NAME_FACTIONS_DIRECTORY_PATH),
+        loadFactionsFromFile(new File(MMConstants.NAME_FACTIONS_DIRECTORY_PATH),
                 factionGivenNamesLoadMap, factionEthnicCodesLoadMap);
-        loadFactionsFromFile(new File(MegaMekConstants.USER_NAME_FACTIONS_DIRECTORY_PATH),
+        loadFactionsFromFile(new File(MMConstants.USER_NAME_FACTIONS_DIRECTORY_PATH),
                 factionGivenNamesLoadMap, factionEthnicCodesLoadMap);
 
         if (factionGivenNamesLoadMap.isEmpty() || factionEthnicCodesLoadMap.isEmpty()) {
@@ -467,12 +467,12 @@ public class RandomNameGenerator implements Serializable {
             surnamesLoadMap.put(i, new HashMap<>());
         }
 
-        loadNamesFromFile(new File(MegaMekConstants.GIVEN_NAME_MALE_FILE), maleGivenNamesLoadMap);
-        loadNamesFromFile(new File(MegaMekConstants.USER_GIVEN_NAME_MALE_FILE), maleGivenNamesLoadMap);
-        loadNamesFromFile(new File(MegaMekConstants.GIVEN_NAME_FEMALE_FILE), femaleGivenNamesLoadMap);
-        loadNamesFromFile(new File(MegaMekConstants.USER_GIVEN_NAME_FEMALE_FILE), femaleGivenNamesLoadMap);
-        loadNamesFromFile(new File(MegaMekConstants.SURNAME_FILE), surnamesLoadMap);
-        loadNamesFromFile(new File(MegaMekConstants.USER_SURNAME_FILE), surnamesLoadMap);
+        loadNamesFromFile(new File(MMConstants.GIVEN_NAME_MALE_FILE), maleGivenNamesLoadMap);
+        loadNamesFromFile(new File(MMConstants.USER_GIVEN_NAME_MALE_FILE), maleGivenNamesLoadMap);
+        loadNamesFromFile(new File(MMConstants.GIVEN_NAME_FEMALE_FILE), femaleGivenNamesLoadMap);
+        loadNamesFromFile(new File(MMConstants.USER_GIVEN_NAME_FEMALE_FILE), femaleGivenNamesLoadMap);
+        loadNamesFromFile(new File(MMConstants.SURNAME_FILE), surnamesLoadMap);
+        loadNamesFromFile(new File(MMConstants.USER_SURNAME_FILE), surnamesLoadMap);
 
         for (final Map.Entry<Integer, Map<String, Integer>> externalEntry : maleGivenNamesLoadMap.entrySet()) {
             for (final Map.Entry<String, Integer> internalEntry : externalEntry.getValue().entrySet()) {

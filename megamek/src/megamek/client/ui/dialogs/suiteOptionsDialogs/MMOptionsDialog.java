@@ -16,19 +16,30 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek;
+package megamek.client.ui.dialogs.suiteOptionsDialogs;
 
-import java.util.prefs.Preferences;
+import javax.swing.*;
+import java.util.ResourceBundle;
 
-/**
- * Suite Options are persistent options that hold throughout the suite (MM/MML/MHQ). The constants
- * used for storing these are located in {@link SuiteConstants}
- */
-public abstract class SuiteOptions {
+public class MMOptionsDialog extends SuiteOptionsDialog {
     //region Variable Declarations
-    protected static final Preferences preferences = Preferences.userRoot();
     //endregion Variable Declarations
 
-    //region Display
-    //endregion Display
+    //region Constructors
+    public MMOptionsDialog(final JFrame frame) {
+        super(frame, "MMOptionsDialog", "MMOptionsDialog.title");
+        initialize();
+    }
+
+    protected MMOptionsDialog(final JFrame frame, final ResourceBundle resources, final String name,
+                              final String title) {
+        super(frame, resources, name, title);
+    }
+    //endregion Constructors
+
+    //region Getters/Setters
+    //endregion Getters/Setters
+
+    //region Initialization
+    //endregion Initialization
 }

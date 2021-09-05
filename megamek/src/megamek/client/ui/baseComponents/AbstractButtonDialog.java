@@ -71,8 +71,18 @@ public abstract class AbstractButtonDialog extends AbstractDialog {
      * This creates an AbstractButtonDialog using the specified resource bundle. This is not
      * recommended by default.
      */
-    protected AbstractButtonDialog(final JFrame frame, final boolean modal, final ResourceBundle resources,
+    protected AbstractButtonDialog(final JFrame frame, final ResourceBundle resources,
                                    final String name, final String title) {
+        this(frame, true, resources, name, title);
+    }
+
+    /**
+     * This creates an AbstractButtonDialog using the specified resource bundle and modality. This
+     * is not recommended by default.
+     */
+    protected AbstractButtonDialog(final JFrame frame, final boolean modal,
+                                   final ResourceBundle resources, final String name,
+                                   final String title) {
         super(frame, modal, resources, name, title);
         setResult(DialogResult.CANCELLED); // Default result is cancelled
     }

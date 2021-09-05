@@ -19,9 +19,25 @@
 package megamek;
 
 public abstract class SuiteConstants {
+    //region General Constants
+    public static final int MAXIMUM_D6_VALUE = 6;
+    //endregion General Constants
+
     //region Suite Options
     //region Display Node
     public static final String SUITE_DISPLAY_NODE = "suite/prefs/display";
     //endregion Display Node
+
+    //region File Paths
+    public static final String SUITE_FILE_PATH_NODE = "suite/prefs/filepaths";
+    //endregion File Paths
+
+    //region Nag Tab
+    public static final String SUITE_NAG_NODE = "suite/prefs/nags";
+    //endregion Nag Tab
+
+    //region Miscellaneous Options
+    public static final String SUITE_MISCELLANEOUS_NODE = "suite/prefs/miscellaneous";
+    //endregion Miscellaneous Options
     //endregion Suite Options
 }

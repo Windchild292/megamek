@@ -16,19 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek;
+package megamek.client.ui.panes.suiteOptionsPanes;
 
-import java.util.prefs.Preferences;
-
-/**
- * Suite Options are persistent options that hold throughout the suite (MM/MML/MHQ). The constants
- * used for storing these are located in {@link SuiteConstants}
- */
-public abstract class SuiteOptions {
+public class MMOptionsPane {
     //region Variable Declarations
-    protected static final Preferences preferences = Preferences.userRoot();
     //endregion Variable Declarations
 
-    //region Display
-    //endregion Display
+    //region Constructors
+    public MMOptionsPane() {
+
+    }
+    //endregion Constructors
+
+    //region Getters/Setters
+    //endregion Getters/Setters
+
+    //region Initialization
+    //endregion Initialization
 }

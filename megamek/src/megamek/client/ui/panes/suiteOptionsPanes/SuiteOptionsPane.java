@@ -16,7 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek;
+package megamek.client.ui.panes.suiteOptionsPanes;
 
-public final class MegaMekOptions extends SuiteOptions {
+public final class SuiteOptionsPane {
+    //region Variable Declarations
+    //endregion Variable Declarations
+
+    //region Constructors
+    protected SuiteOptionsPane() {
+        super();
+
+    }
+    //endregion Constructors
+
+    //region Getters/Setters
+    //endregion Getters/Setters
+
+    //region Initialization
+    //endregion Initialization
 }

@@ -1,54 +1,52 @@
 /*
  * MegaMek - Copyright (C) 2003, 2004, 2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.*;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.*;
+import megamek.client.ui.Messages;
+import megamek.client.ui.baseComponents.MMComboBox;
+import megamek.client.ui.enums.Locale;
+import megamek.client.ui.swing.StatusBarPhaseDisplay.PhaseCommand;
+import megamek.client.ui.swing.util.KeyCommandBind;
+import megamek.client.ui.swing.widget.SkinXMLHandler;
+import megamek.common.Configuration;
+import megamek.common.Entity;
+import megamek.common.IGame;
+import megamek.common.KeyBindParser;
+import megamek.common.preference.IClientPreferences;
+import megamek.common.preference.PreferenceManager;
+
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.List;
+import java.util.*;
 
-import megamek.client.ui.Messages;
-import megamek.client.ui.swing.StatusBarPhaseDisplay.PhaseCommand;
-import megamek.client.ui.swing.util.KeyCommandBind;
-import megamek.client.ui.swing.widget.SkinXMLHandler;
-import megamek.common.*;
-import megamek.common.preference.IClientPreferences;
-import megamek.common.preference.PreferenceManager;
-
+/**
+ * A class for storing information about an GUIPreferences advanced option.
+ *
+ * @author arlith
+ */
 public class CommonSettingsDialog extends ClientDialog implements
         ActionListener, ItemListener, FocusListener, ListSelectionListener,
         ChangeListener {
 
-    /**
-     * A class for storing information about an GUIPreferences advanced option.
-     *
-     * @author arlith
-     *
-     */
+
     private class AdvancedOptionData implements Comparable<AdvancedOptionData> {
 
         public String option;
@@ -172,7 +170,7 @@ public class CommonSettingsDialog extends ClientDialog implements
     private JCheckBox useAverageSkills;
     private JCheckBox generateNames;
     private JCheckBox showUnitId;
-    private JComboBox<String> displayLocale;
+    private MMComboBox<Locale> displayLocale;
     private JCheckBox showIPAddressesInChat;
 
     private JCheckBox showDamageLevel;
@@ -358,16 +356,12 @@ public class CommonSettingsDialog extends ClientDialog implements
     }
 
     private JPanel getSettingsPanel() {
-
-        ArrayList<ArrayList<Component>> comps = new ArrayList<ArrayList<Component>>();
+        ArrayList<ArrayList<Component>> comps = new ArrayList<>();
         ArrayList<Component> row;
 
         // displayLocale settings
-        JLabel displayLocaleLabel = new JLabel(Messages.getString("CommonSettingsDialog.locale")); //$NON-NLS-1$
-        displayLocale = new JComboBox<String>();
-        displayLocale.addItem(Messages.getString("CommonSettingsDialog.locale.English")); //$NON-NLS-1$
-        displayLocale.addItem(Messages.getString("CommonSettingsDialog.locale.Deutsch")); //$NON-NLS-1$
-        displayLocale.addItem(Messages.getString("CommonSettingsDialog.locale.Russian")); //$NON-NLS-1$
+        JLabel displayLocaleLabel = new JLabel(Messages.getString("CommonSettingsDialog.locale"));
+        displayLocale = new MMComboBox<>("displayLocale", Locale.values());
         displayLocale.setMaximumSize(new Dimension(150,40));
         row = new ArrayList<>();
         row.add(displayLocaleLabel);
@@ -392,7 +386,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         guiScale.setMajorTickSpacing(3);
         guiScale.setMinimum(7);
         guiScale.setMaximum(24);
-        Hashtable<Integer, JComponent> table = new Hashtable<Integer, JComponent>();
+        Hashtable<Integer, JComponent> table = new Hashtable<>();
         table.put(7, new JLabel("70%"));
         table.put(10, new JLabel("100%"));
         table.put(16, new JLabel("160%"));

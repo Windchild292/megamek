@@ -20,11 +20,23 @@
  */
 package megamek;
 
-public final class MegaMekConstants extends SuiteConstants {
+public final class MMConstants extends SuiteConstants {
     //region MegaMek Options
     //region Display Node
     public static final String DISPLAY_NODE = "megamek/prefs/display";
     //endregion Display Node
+
+    //region File Paths
+    public static final String FILE_PATH_NODE = "megamek/prefs/filepaths";
+    //endregion File Paths
+
+    //region Nag Tab
+    public static final String NAG_NODE = "megamek/prefs/nags";
+    //endregion Nag Tab
+
+    //region Miscellaneous Options
+    public static final String MISCELLANEOUS_NODE = "megamek/prefs/miscellaneous";
+    //endregion Miscellaneous Options
     //endregion MegaMek Options
 
     // This holds all required file paths not saved as part of MegaMek Options
