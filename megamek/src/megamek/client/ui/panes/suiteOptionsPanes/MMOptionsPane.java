@@ -18,13 +18,19 @@
  */
 package megamek.client.ui.panes.suiteOptionsPanes;
 
-public class MMOptionsPane {
+import megamek.client.ui.baseComponents.AbstractTabbedPane;
+import megamek.client.ui.enums.ValidationState;
+
+import javax.swing.*;
+
+public final class MMOptionsPane extends AbstractTabbedPane {
     //region Variable Declarations
     //endregion Variable Declarations
 
     //region Constructors
-    public MMOptionsPane() {
-
+    public MMOptionsPane(final JFrame frame) {
+        super(frame, "MMOptionsPane");
+        initialize();
     }
     //endregion Constructors
 
@@ -32,5 +38,17 @@ public class MMOptionsPane {
     //endregion Getters/Setters
 
     //region Initialization
+    @Override
+    protected void initialize() {
+        setPreferences();
+    }
     //endregion Initialization
+
+    public ValidationState validateData(final boolean display, final JButton btnOk) {
+
+    }
+
+    public void save() {
+
+    }
 }

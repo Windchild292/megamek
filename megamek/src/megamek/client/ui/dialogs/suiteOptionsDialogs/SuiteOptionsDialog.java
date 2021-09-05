@@ -18,29 +18,65 @@
  */
 package megamek.client.ui.dialogs.suiteOptionsDialogs;
 
-import megamek.client.ui.baseComponents.AbstractButtonDialog;
+import megamek.client.ui.baseComponents.AbstractValidationButtonDialog;
+import megamek.client.ui.enums.ValidationState;
+import megamek.client.ui.panes.suiteOptionsPanes.SuiteOptionsPane;
 
 import javax.swing.*;
-import java.util.ResourceBundle;
 
-public abstract class SuiteOptionsDialog extends AbstractButtonDialog {
+public abstract class SuiteOptionsDialog extends AbstractValidationButtonDialog {
     //region Variable Declarations
+    private JTabbedPane tabbedPane;
+    private SuiteOptionsPane suiteOptionsPane;
     //endregion Variable Declarations
 
     //region Constructors
     protected SuiteOptionsDialog(final JFrame frame, final String name, final String title) {
         super(frame, name, title);
-    }
-
-    protected SuiteOptionsDialog(final JFrame frame, final ResourceBundle resources,
-                                 final String name, final String title) {
-        super(frame, resources, name, title);
+        initialize();
     }
     //endregion Constructors
 
     //region Getters/Setters
+    public JTabbedPane getTabbedPane() {
+        return tabbedPane;
+    }
+
+    public void setTabbedPane(final JTabbedPane tabbedPane) {
+        this.tabbedPane = tabbedPane;
+    }
+
+    public SuiteOptionsPane getSuiteOptionsPane() {
+        return suiteOptionsPane;
+    }
+
+    public void setSuiteOptionsPane(final SuiteOptionsPane suiteOptionsPane) {
+        this.suiteOptionsPane = suiteOptionsPane;
+    }
     //endregion Getters/Setters
 
     //region Initialization
+    @Override
+    protected JTabbedPane createCenterPane() {
+        setTabbedPane(new JTabbedPane());
+        getTabbedPane().setName("suiteOptionsTabbedPane");
+
+        setSuiteOptionsPane(new SuiteOptionsPane(getFrame()));
+        getTabbedPane().addTab(resources.getString("suiteOptionsPane.title"), getSuiteOptionsPane());
+        return getTabbedPane();
+    }
     //endregion Initialization
+
+    //region Button Actions
+    @Override
+    protected void okAction() {
+        super.okAction();
+        getSuiteOptionsPane().save();
+    }
+
+    @Override
+    protected ValidationState validateAction(final boolean display) {
+        return getSuiteOptionsPane().validateData(display, getOkButton());
+    }
+    //endregion Button Actions
 }

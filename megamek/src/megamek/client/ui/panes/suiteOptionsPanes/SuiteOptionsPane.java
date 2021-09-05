@@ -18,14 +18,19 @@
  */
 package megamek.client.ui.panes.suiteOptionsPanes;
 
-public final class SuiteOptionsPane {
+import megamek.client.ui.baseComponents.AbstractTabbedPane;
+import megamek.client.ui.enums.ValidationState;
+
+import javax.swing.*;
+
+public final class SuiteOptionsPane extends AbstractTabbedPane {
     //region Variable Declarations
     //endregion Variable Declarations
 
     //region Constructors
-    protected SuiteOptionsPane() {
-        super();
-
+    public SuiteOptionsPane(final JFrame frame) {
+        super(frame, "SuiteOptionsPane");
+        initialize();
     }
     //endregion Constructors
 
@@ -33,5 +38,17 @@ public final class SuiteOptionsPane {
     //endregion Getters/Setters
 
     //region Initialization
+    @Override
+    protected void initialize() {
+        setPreferences();
+    }
     //endregion Initialization
+
+    public ValidationState validateData(final boolean display, final JButton btnOk) {
+
+    }
+
+    public void save() {
+
+    }
 }

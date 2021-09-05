@@ -18,28 +18,63 @@
  */
 package megamek.client.ui.dialogs.suiteOptionsDialogs;
 
+import megamek.client.ui.enums.ValidationState;
+import megamek.client.ui.panes.suiteOptionsPanes.MMOptionsPane;
+
 import javax.swing.*;
-import java.util.ResourceBundle;
 
 public class MMOptionsDialog extends SuiteOptionsDialog {
     //region Variable Declarations
+    private MMOptionsPane mmOptionsPane;
     //endregion Variable Declarations
 
     //region Constructors
     public MMOptionsDialog(final JFrame frame) {
-        super(frame, "MMOptionsDialog", "MMOptionsDialog.title");
-        initialize();
+        this(frame, "MMOptionsDialog");
     }
 
-    protected MMOptionsDialog(final JFrame frame, final ResourceBundle resources, final String name,
-                              final String title) {
-        super(frame, resources, name, title);
+    protected MMOptionsDialog(final JFrame frame, final String name) {
+        super(frame, name, "MMOptionsDialog.title");
     }
     //endregion Constructors
 
     //region Getters/Setters
+    public MMOptionsPane getMMOptionsPane() {
+        return mmOptionsPane;
+    }
+
+    public void setMMOptionsPane(final MMOptionsPane mmOptionsPane) {
+        this.mmOptionsPane = mmOptionsPane;
+    }
     //endregion Getters/Setters
 
     //region Initialization
+    @Override
+    protected JTabbedPane createCenterPane() {
+        super.createCenterPane();
+
+        setMMOptionsPane(new MMOptionsPane(getFrame()));
+        getTabbedPane().addTab(resources.getString("mmOptionsPane.title"), getMMOptionsPane());
+        return getTabbedPane();
+    }
     //endregion Initialization
+
+    //region Button Actions
+    @Override
+    protected void okAction() {
+        super.okAction();
+        getMMOptionsPane().save();
+    }
+
+    @Override
+    protected ValidationState validateAction(final boolean display) {
+        final ValidationState currentState = super.validateAction(display);
+        if (currentState.isFailure()) {
+            return currentState;
+        }
+
+        final ValidationState state = getMMOptionsPane().validateData(display, getOkButton());
+        return state.isSuccess() ? currentState : state;
+    }
+    //endregion Button Actions
 }
