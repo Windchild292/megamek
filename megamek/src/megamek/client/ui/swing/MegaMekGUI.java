@@ -165,17 +165,14 @@ public class MegaMekGUI  implements IPreferenceChangeListener, IMegaMekGUI {
 
         // this should also help to make MegaMek look more system-specific
         try {
-            UIManager.setLookAndFeel(GUIPreferences.getInstance().getUITheme());
+            UIManager.setLookAndFeel(MegaMek.getMMOptions().getTheme());
         } catch (Exception e) {
-            System.err.println("Error setting look and feel!");
-            e.printStackTrace();
+            MegaMek.getLogger().error("Error setting look and feel!", e);
         }
 
-        ToolTipManager.sharedInstance().setInitialDelay(
-                GUIPreferences.getInstance().getTooltipDelay());
-        if (GUIPreferences.getInstance().getTooltipDismissDelay() >= 0) {
-            ToolTipManager.sharedInstance().setDismissDelay(
-                    GUIPreferences.getInstance().getTooltipDismissDelay());
+        ToolTipManager.sharedInstance().setInitialDelay(MegaMek.getMMOptions().getTooltipPopupDelay());
+        if (MegaMek.getMMOptions().getTooltipDismissDelay() >= 0) {
+            ToolTipManager.sharedInstance().setDismissDelay(MegaMek.getMMOptions().getTooltipDismissDelay());
         }
         frame = new JFrame("MegaMek");
         frame.addWindowListener(new WindowAdapter() {
@@ -624,7 +621,7 @@ public class MegaMekGUI  implements IPreferenceChangeListener, IMegaMekGUI {
         // kick off a RNG check
         d6();
         // start server
-        int port = PreferenceManager.getClientPreferences().getLastServerPort();
+        final int port = MegaMek.getMMOptions().getLastServerPort();
         try {
             server = new Server("", port, false, "");
         } catch (IOException ex) {
@@ -643,7 +640,7 @@ public class MegaMekGUI  implements IPreferenceChangeListener, IMegaMekGUI {
             return;
         }
 
-        client = new Client(PreferenceManager.getClientPreferences().getLastPlayerName(), "localhost", port);
+        client = new Client(MegaMek.getMMOptions().getLastPlayerName(), "localhost", port);
         ClientGUI gui = new ClientGUI(client, controller);
         controller.clientgui = gui;
         frame.setCursor(new Cursor(Cursor.WAIT_CURSOR));

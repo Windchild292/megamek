@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.util.UIUtil;
 
@@ -74,19 +75,19 @@ public class HostDialog extends AbstractGameConnectionDialog {
         JLabel portLabel = new JLabel(Messages.getString("MegaMek.portL"), SwingConstants.RIGHT);
         JLabel metaserverLabel = new JLabel(Messages.getString("MegaMek.metaserverL"), SwingConstants.RIGHT);
 
-        setPlayerName(getClientPreferences().getLastPlayerName());
+        setPlayerName(MegaMek.getMMOptions().getLastPlayerName());
         playerNameLabel.setLabelFor(getPlayerNameField());
         addPlayerNameActionListener(this);
 
-        serverPassField = new JTextField(getClientPreferences().getLastServerPass(), 16);
+        serverPassField = new JTextField(MegaMek.getMMOptions().getLastServerPassword(), 16);
         serverPassLabel.setLabelFor(serverPassField);
         serverPassField.addActionListener(this);
 
-        setPortField(new JTextField(getClientPreferences().getLastServerPort() + "", 4));
+        setPortField(new JTextField(MegaMek.getMMOptions().getLastServerPort() + "", 4));
         portLabel.setLabelFor(getPortField());
         getPortField().addActionListener(this);
 
-        setMetaserver(getClientPreferences().getMetaServerName());
+        setMetaserver(MegaMek.getMMOptions().getMetaServerName());
         metaserverField = new JTextField(getMetaserver());
         metaserverLabel.setEnabled(false);
         metaserverLabel.setLabelFor(metaserverField);
@@ -167,8 +168,9 @@ public class HostDialog extends AbstractGameConnectionDialog {
         setMetaserver(metaserverField.getText());
 
         // update settings
-        getClientPreferences().setLastServerPass(getServerPass());
-        getClientPreferences().setValue("megamek.megamek.metaservername", getMetaserver());
+        MegaMek.getMMOptions().setLastServerPassword(getServerPass());
+        MegaMek.getMMOptions().setLastServerPort(getPort());
+        MegaMek.getMMOptions().setMetaServerName(getMetaserver());
         setVisible(false);
     }
     

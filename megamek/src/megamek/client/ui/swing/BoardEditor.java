@@ -2306,7 +2306,7 @@ public class BoardEditor extends JPanel
                     g.setFont(new Font("SansSerif", Font.BOLD, 14));
                     Point hexCenter = new Point(BoardView1.HEX_W / 2, BoardView1.HEX_H / 2);
                     BoardView1.drawCenteredText((Graphics2D) g, Messages.getString("BoardEditor.INVALID"),
-                            hexCenter, guip.getWarningColor(), false);
+                            hexCenter, MegaMek.getMMOptions().getErrorColour(), false);
                     String tooltip = Messages.getString("BoardEditor.invalidHex") + errBuf;
                     tooltip = tooltip.replace("\n", "<br>");
                     setToolTipText(tooltip);

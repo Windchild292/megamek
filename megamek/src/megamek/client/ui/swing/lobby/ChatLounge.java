@@ -1089,7 +1089,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         FontMetrics fm = g.getFontMetrics(g.getFont());
         int cx = (w - fm.stringWidth(text)) / 2;
         int cy = h / 10 + fm.getAscent();
-        g.setColor(GUIPreferences.getInstance().getWarningColor());
+        g.setColor(MegaMek.getMMOptions().getWarningColour());
         g.drawString(text, cx, cy);
         g.dispose();
     }
@@ -2905,8 +2905,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     public void preferenceChange(PreferenceChangeEvent e) {
         if (e.getName().equals(GUIPreferences.GUI_SCALE)) {
             adaptToGUIScale();
-            
-        } else if (e.getName().equals(IClientPreferences.SHOW_UNIT_ID)) {
+        } else if (e.getName().equals(ClientPreferences.SHOW_UNIT_ID)) {
             setButUnitIDState();
             mekModel.refreshCells();
             refreshTree();
@@ -3289,8 +3288,8 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             if (board.getWidth() < 25) {
                 zoom = Math.max(zoom, 3);
             }
-            float scale = GUIPreferences.getInstance().getGUIScale();
-            zoom = (int)(scale*zoom);
+            float scale = MegaMek.getMMOptions().getGUIScale();
+            zoom = (int) (scale * zoom);
             if (zoom > 6) {
                 zoom = 6;
             }
@@ -3339,7 +3338,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     public class BoardNameRenderer extends DefaultListCellRenderer  {
         private static final long serialVersionUID = -3218595828938299222L;
         
-        private float oldGUIScale = GUIPreferences.getInstance().getGUIScale();
+        private float oldGUIScale = MegaMek.getMMOptions().getGUIScale();
         private Image image;
         private ImageIcon icon;
         
@@ -3354,7 +3353,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             }
             
             // If the gui scaling has changed, clear out all images, triggering a reload
-            float currentGUIScale = GUIPreferences.getInstance().getGUIScale();
+            float currentGUIScale = MegaMek.getMMOptions().getGUIScale();
             if (currentGUIScale != oldGUIScale) {
                 oldGUIScale = currentGUIScale;
                 mapIcons.clear();

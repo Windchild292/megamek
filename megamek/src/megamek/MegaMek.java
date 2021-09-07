@@ -64,7 +64,7 @@ import megamek.utils.RATGeneratorEditor;
 public class MegaMek {
     private static MMLogger logger = null;
     private static MMPreferences preferences = null;
-    private static MMOptions megaMekOptions = new MMOptions();
+    private static MMOptions mmOptions = new MMOptions();
 
     public static String VERSION = "0.49.4-SNAPSHOT";
     public static long TIMESTAMP = new File(PreferenceManager.getClientPreferences().getLogDirectory()
@@ -201,8 +201,8 @@ public class MegaMek {
         return preferences;
     }
 
-    public static MMOptions getMegaMekOptions() {
-        return megaMekOptions;
+    public static MMOptions getMMOptions() {
+        return mmOptions;
     }
 
     /**

@@ -26,6 +26,17 @@ public abstract class SuiteConstants {
     //region Suite Options
     //region Display Node
     public static final String SUITE_DISPLAY_NODE = "suite/prefs/display";
+    public static final String LOCALE = "locale";
+    public static final String THEME = "theme";
+    public static final String GUI_SCALE = "guiScale";
+    public static final String TOOLTIP_POPUP_DELAY = "tooltipPopupDelay";
+    public static final String TOOLTIP_DISMISS_DELAY = "tooltipDismissDelay";
+
+    //region Colours
+    public static final String SUCCESS_COLOUR = "successColour";
+    public static final String WARNING_COLOUR = "warningColour";
+    public static final String ERROR_COLOUR = "errorColour";
+    //endregion Colours
     //endregion Display Node
 
     //region File Paths
@@ -38,6 +49,7 @@ public abstract class SuiteConstants {
 
     //region Miscellaneous Options
     public static final String SUITE_MISCELLANEOUS_NODE = "suite/prefs/miscellaneous";
+    public static final String USE_CAMOUFLAGE_OVERLAY = "useCamouflageOverlay";
     //endregion Miscellaneous Options
     //endregion Suite Options
 }

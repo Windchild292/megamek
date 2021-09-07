@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.util.UIUtil;
 
@@ -53,11 +54,11 @@ public class ConnectDialog extends AbstractGameConnectionDialog {
         JLabel yourNameL = new JLabel(Messages.getString("MegaMek.yourNameL"), SwingConstants.RIGHT);
         JLabel serverAddrL = new JLabel(Messages.getString("MegaMek.serverAddrL"), SwingConstants.RIGHT);
         JLabel portL = new JLabel(Messages.getString("MegaMek.portL"), SwingConstants.RIGHT);
-        setPlayerName(getClientPreferences().getLastPlayerName());
+        setPlayerName(MegaMek.getMMOptions().getLastPlayerName());
         addPlayerNameActionListener(this);
-        serverAddressField = new JTextField(getClientPreferences().getLastConnectAddr(), 16);
+        serverAddressField = new JTextField(MegaMek.getMMOptions().getLastConnectionAddress(), 16);
         serverAddressField.addActionListener(this);
-        setPortField(new JTextField(getClientPreferences().getLastConnectPort() + "", 4));
+        setPortField(new JTextField(Integer.toString(MegaMek.getMMOptions().getLastConnectionPort()), 4));
         getPortField().addActionListener(this);
         
         JPanel middlePanel = new JPanel(new GridBagLayout());
@@ -100,7 +101,8 @@ public class ConnectDialog extends AbstractGameConnectionDialog {
         setServerAddress(serverAddressField.getText());
 
         // update settings
-        getClientPreferences().setLastConnectAddr(getServerAddress());
+        MegaMek.getMMOptions().setLastConnectionAddress(getServerAddress());
+        MegaMek.getMMOptions().setLastConnectionPort(getPort());
         setVisible(false);
     }
     

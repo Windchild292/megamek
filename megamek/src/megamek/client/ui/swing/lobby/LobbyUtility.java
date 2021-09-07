@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.UIUtil;
@@ -78,11 +79,11 @@ public class LobbyUtility {
             return true;
         } else {
             if (isTeamsShareVision(game)) {
-                return !game.getPlayersVector().stream().filter(p -> p.isEnemyOf(player))
-                        .anyMatch(p -> startPosOverlap(pos, p.getStartingPos()));
+                return game.getPlayersVector().stream().filter(p -> p.isEnemyOf(player))
+                        .noneMatch(p -> startPosOverlap(pos, p.getStartingPos()));
             } else {
-                return !game.getPlayersVector().stream().filter(p -> !p.equals(player))
-                        .anyMatch(p -> startPosOverlap(pos, p.getStartingPos()));
+                return game.getPlayersVector().stream().filter(p -> !p.equals(player))
+                        .noneMatch(p -> startPosOverlap(pos, p.getStartingPos()));
             }
         }
     }
@@ -145,7 +146,7 @@ public class LobbyUtility {
     
     /** Returns a formatted and colored tooltip string warning that a board is invalid. */
     static String invalidBoardTip() {
-        return UIUtil.guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor())
+        return UIUtil.guiScaledFontHTML(MegaMek.getMMOptions().getErrorColour())
                 + Messages.getString("ChatLounge.map.invalidTip") + "</FONT>";
     }
     
@@ -169,16 +170,17 @@ public class LobbyUtility {
         // When the text is wider than the image, let the text start close to the left edge 
         cx = Math.max(w / 20, cx);
         int cy = h - th / 2;
-        Color col = new Color(250, 250, 250, 140);
-        if (text.startsWith(Messages.getString("ChatLounge.MapSurprise"))) {
-            col = new Color(250, 250, 50, 140);
-        } else if (text.startsWith(Messages.getString("ChatLounge.MapGenerated"))) {
-            col = new Color(50, 50, 250, 140);
-        }
+        final Color colour;
         if (invalid) {
-            col = GUIPreferences.getInstance().getWarningColor();
+            colour = MegaMek.getMMOptions().getErrorColour();
+        } else if (text.startsWith(Messages.getString("ChatLounge.MapSurprise"))) {
+            colour = new Color(250, 250, 50, 140);
+        } else if (text.startsWith(Messages.getString("ChatLounge.MapGenerated"))) {
+            colour = new Color(50, 50, 250, 140);
+        } else {
+            colour = new Color(250, 250, 250, 140);
         }
-        g.setColor(col);
+        g.setColor(colour);
         g.fillRoundRect(cx - 3, cy - fm.getAscent(), w - 2 * cx + 6, th, fontSize/2, fontSize/2);
         // Clip the text to inside the image with a margin of w/20
         g.setClip(w / 20, 0, w - w / 10, h);

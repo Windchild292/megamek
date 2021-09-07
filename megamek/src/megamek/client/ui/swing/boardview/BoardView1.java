@@ -172,10 +172,7 @@ import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
 import megamek.common.pathfinder.BoardClusterTracker;
 import megamek.common.pathfinder.BoardClusterTracker.BoardCluster;
-import megamek.common.preference.IClientPreferences;
-import megamek.common.preference.IPreferenceChangeListener;
-import megamek.common.preference.PreferenceChangeEvent;
-import megamek.common.preference.PreferenceManager;
+import megamek.common.preference.*;
 import megamek.common.util.FiringSolution;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
@@ -636,7 +633,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                         int deltaX = point.x - prevTipX;
                         int deltaY = point.y - prevTipY;
                         double deltaMagnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                        if (deltaMagnitude > GUIPreferences.getInstance().getTooltipDistSuppression()) {
+                        if (deltaMagnitude > MegaMek.getMMOptions().getTooltipDistanceSuppression()) {
                             prevTipX = -1; prevTipY = -1;
                             // Set the dismissal delay to 0 so that the tooltip
                             // goes away and does not reappear until the mouse
@@ -980,7 +977,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     }
 
     public void preferenceChange(PreferenceChangeEvent e) {
-        if (e.getName().equals(IClientPreferences.MAP_TILESET)) {
+        if (e.getName().equals(ClientPreferences.MAP_TILESET)) {
             updateBoard();
             
         } else if (e.getName().equals(GUIPreferences.DRAW_ENTITY_LABEL)
@@ -4810,9 +4807,9 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         // Reset the tooltip dismissal delay to the preference
         // value so that elements outside the boardview can
         // use tooltips
-        if (GUIPreferences.getInstance().getTooltipDismissDelay() >= 0) {
-            ToolTipManager.sharedInstance().setDismissDelay(
-                    GUIPreferences.getInstance().getTooltipDismissDelay());
+
+        if (MegaMek.getMMOptions().getTooltipDismissDelay() >= 0) {
+            ToolTipManager.sharedInstance().setDismissDelay(MegaMek.getMMOptions().getTooltipDismissDelay());
         } else {
             ToolTipManager.sharedInstance().setDismissDelay(dismissDelay);
         }
@@ -6032,9 +6029,8 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         // Now that a valid tooltip text seems to be present,
         // (re)set the tooltip dismissal delay time to the preference
         // value so that the tooltip actually appears
-        if (GUIPreferences.getInstance().getTooltipDismissDelay() >= 0) {
-            ToolTipManager.sharedInstance().setDismissDelay(
-                    GUIPreferences.getInstance().getTooltipDismissDelay());
+        if (MegaMek.getMMOptions().getTooltipDismissDelay() >= 0) {
+            ToolTipManager.sharedInstance().setDismissDelay(MegaMek.getMMOptions().getTooltipDismissDelay());
         } else {
             ToolTipManager.sharedInstance().setDismissDelay(dismissDelay);
         }

@@ -45,6 +45,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.dialog.DialogButton;
 import megamek.common.Configuration;
@@ -440,7 +441,7 @@ public class PlanetaryConditionsDialog extends ClientDialog {
             label.setForeground(null);
             label.setToolTipText(null);
         } else {
-            label.setForeground(GUIPreferences.getInstance().getWarningColor());
+            label.setForeground(MegaMek.getMMOptions().getWarningColour());
             label.setToolTipText(formatTooltip(text.toString()));
         }
     }

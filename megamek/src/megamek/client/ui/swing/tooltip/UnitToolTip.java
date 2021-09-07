@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.UIUtil;
@@ -621,7 +623,7 @@ public final class UnitToolTip {
         if (isGunEmplacement) {
             GunEmplacement emp = (GunEmplacement) entity; 
             if (emp.isTurret() && emp.isTurretLocked(emp.getLocTurret())) {
-                result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor()));
+                result.append(guiScaledFontHTML(MegaMek.getMMOptions().getWarningColour()));
                 result.append(addToTT("TurretLocked", BR));
                 result.append("</FONT>");
             }
@@ -629,7 +631,7 @@ public final class UnitToolTip {
 
         // Unit Immobile
         if (!isGunEmplacement && (entity.isImmobile())) {
-            result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor()));
+            result.append(guiScaledFontHTML(MegaMek.getMMOptions().getWarningColour()));
             result.append(addToTT("Immobile", BR));
             result.append("</FONT>");
         }
@@ -737,7 +739,7 @@ public final class UnitToolTip {
             MapSettings mapSettings) {
         StringBuilder result = new StringBuilder();
         // Critical (red) warnings
-        result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor())); 
+        result.append(guiScaledFontHTML(MegaMek.getMMOptions().getWarningColour()));
         if (entity.getGame().getPlanetaryConditions().whyDoomed(entity, entity.getGame()) != null) {
             result.append("<BR>Cannot survive " + entity.getGame().getPlanetaryConditions().whyDoomed(entity, entity.getGame()));
         }

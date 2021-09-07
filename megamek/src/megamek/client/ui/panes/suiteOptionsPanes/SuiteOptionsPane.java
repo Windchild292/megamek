@@ -19,12 +19,16 @@
 package megamek.client.ui.panes.suiteOptionsPanes;
 
 import megamek.client.ui.baseComponents.AbstractTabbedPane;
+import megamek.client.ui.baseComponents.MMComboBox;
 import megamek.client.ui.enums.ValidationState;
+import megamek.client.ui.swing.UITheme;
 
 import javax.swing.*;
 
 public final class SuiteOptionsPane extends AbstractTabbedPane {
     //region Variable Declarations
+    private MMComboBox<UITheme> comboLocale;
+    private MMComboBox<UITheme> comboTheme;
     //endregion Variable Declarations
 
     //region Constructors

@@ -20,26 +20,29 @@ package megamek.client.ui.enums;
 
 import megamek.common.util.EncodeControl;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
-public enum Locale {
+public enum Locales {
     //region Enum Declarations
-    ENGLISH("Locale.ENGLISH.text", "Locale.ENGLISH.toolTipText"),
-    ENGLISH_CANADA("Locale.ENGLISH_CANADA.text", "Locale.ENGLISH_CANADA.toolTipText"),
-    GERMAN("Locale.GERMAN.text", "Locale.GERMAN.toolTipText"),
-    RUSSIAN("Locale.RUSSIAN.text", "Locale.RUSSIAN.toolTipText");
+    ENGLISH_CANADA("Locales.ENGLISH_CANADA.text", "Locales.ENGLISH_CANADA.toolTipText", "en", "CA"),
+    ENGLISH_US("Locales.ENGLISH_US.text", "Locales.ENGLISH_US.toolTipText", "en", "US"),
+    GERMAN("Locales.GERMAN.text", "Locales.GERMAN.toolTipText", "de", ""),
+    RUSSIAN("Locales.RUSSIAN.text", "Locales.RUSSIAN.toolTipText", "ru", "");
     //endregion Enum Declarations
 
     //region Variable Declarations
     private final String name;
     private final String toolTipText;
+    private final Locale locale;
     //endregion Variable Declarations
 
     //region Constructors
-    Locale(final String name, final String toolTipText) {
+    Locales(final String name, final String toolTipText, final String language, final String country) {
         final ResourceBundle resources = ResourceBundle.getBundle("megamek.client.messages", new EncodeControl());
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
+        this.locale = new Locale(language, country);
     }
     //endregion Constructors
 
@@ -47,15 +50,19 @@ public enum Locale {
     public String getToolTipText() {
         return toolTipText;
     }
+
+    public Locale getLocale() {
+        return locale;
+    }
     //endregion Getters
 
     //region Boolean Comparison Methods
-    public boolean isEnglish() {
-        return this == ENGLISH;
-    }
-
     public boolean isEnglishCanada() {
         return this == ENGLISH_CANADA;
+    }
+
+    public boolean isEnglishUS() {
+        return this == ENGLISH_US;
     }
 
     public boolean isGerman() {

@@ -13,9 +13,10 @@
  */
 package megamek.client.ui.swing;
 
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.baseComponents.MMComboBox;
-import megamek.client.ui.enums.Locale;
+import megamek.client.ui.enums.Locales;
 import megamek.client.ui.swing.StatusBarPhaseDisplay.PhaseCommand;
 import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.widget.SkinXMLHandler;
@@ -23,17 +24,14 @@ import megamek.common.Configuration;
 import megamek.common.Entity;
 import megamek.common.IGame;
 import megamek.common.KeyBindParser;
-import megamek.common.preference.IClientPreferences;
 import megamek.common.preference.PreferenceManager;
 
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.List;
 import java.util.*;
 
@@ -47,41 +45,38 @@ public class CommonSettingsDialog extends ClientDialog implements
         ChangeListener {
 
 
-    private class AdvancedOptionData implements Comparable<AdvancedOptionData> {
+    private static class AdvancedOptionData implements Comparable<AdvancedOptionData> {
 
-        public String option;
+        private String option;
 
         public AdvancedOptionData(String option) {
-            this.option = option;
+            this.setOption(option);
         }
 
         /**
          * Returns true if this option has tooltip text.
-         *
-         * @return
          */
         public boolean hasTooltipText() {
-            return Messages.keyExists("AdvancedOptions." + option + ".tooltip");
+            return Messages.keyExists("AdvancedOptions." + getOption() + ".tooltip");
         }
 
         /**
          * Returns the tooltip text for this option.
-         *
-         * @return
          */
         public String getTooltipText() {
-            return Messages.getString("AdvancedOptions." + option + ".tooltip");
+            return Messages.getString("AdvancedOptions." + getOption() + ".tooltip");
         }
 
         /**
          * Returns a human-readable name for this advanced option.
          *
          */
+        @Override
         public String toString() {
-            if (Messages.keyExists("AdvancedOptions." + option + ".name")) {
-                return Messages.getString("AdvancedOptions." + option + ".name");
+            if (Messages.keyExists("AdvancedOptions." + getOption() + ".name")) {
+                return Messages.getString("AdvancedOptions." + getOption() + ".name");
             } else {
-                return option;
+                return getOption();
             }
         }
 
@@ -89,9 +84,17 @@ public class CommonSettingsDialog extends ClientDialog implements
         public int compareTo(AdvancedOptionData other) {
             return this.toString().compareTo(other.toString());
         }
+
+        public String getOption() {
+            return option;
+        }
+
+        public void setOption(String option) {
+            this.option = option;
+        }
     }
 
-    private class PhaseCommandListMouseAdapter extends MouseInputAdapter {
+    private static class PhaseCommandListMouseAdapter extends MouseInputAdapter {
         private boolean mouseDragging = false;
         private int dragSourceIndex;
 
@@ -170,7 +173,7 @@ public class CommonSettingsDialog extends ClientDialog implements
     private JCheckBox useAverageSkills;
     private JCheckBox generateNames;
     private JCheckBox showUnitId;
-    private MMComboBox<Locale> displayLocale;
+    private MMComboBox<Locales> displayLocale;
     private JCheckBox showIPAddressesInChat;
 
     private JCheckBox showDamageLevel;
@@ -213,9 +216,7 @@ public class CommonSettingsDialog extends ClientDialog implements
 
     private JComboBox<String> skinFiles;
 
-    private JComboBox<UITheme> uiThemes;
-
-    // Avanced Settings
+    // Advanced Settings
     private JList<AdvancedOptionData> advancedKeys;
     private int advancedKeyIndex = 0;
     private JTextField advancedValue;
@@ -254,10 +255,10 @@ public class CommonSettingsDialog extends ClientDialog implements
 
     private ClientGUI clientgui = null;
 
-    private static final String CANCEL = "CANCEL"; //$NON-NLS-1$
-    private static final String UPDATE = "UPDATE"; //$NON-NLS-1$
+    private static final String CANCEL = "CANCEL";
+    private static final String UPDATE = "UPDATE";
 
-    private static final String[] LOCALE_CHOICES = { "en", "de", "ru" }; //$NON-NLS-1$
+    private static final String[] LOCALE_CHOICES = { "en", "de", "ru" };
     
     private static final Dimension LABEL_SPACER = new Dimension(5,0);
     private static final Dimension DEPENDENT_INSET = new Dimension(25,0);
@@ -341,12 +342,12 @@ public class CommonSettingsDialog extends ClientDialog implements
         // Add the dialog controls.
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(1, 0, 20, 5));
-        JButton update = new JButton(Messages.getString("CommonSettingsDialog.Update")); //$NON-NLS-1$
+        JButton update = new JButton(Messages.getString("CommonSettingsDialog.Update"));
         update.setActionCommand(UPDATE);
         update.setMnemonic(KeyEvent.VK_U);
         update.addActionListener(this);
         buttons.add(update);
-        JButton cancel = new JButton(Messages.getString("Cancel")); //$NON-NLS-1$
+        JButton cancel = new JButton(Messages.getString("Cancel"));
         cancel.setActionCommand(CANCEL);
         cancel.setMnemonic(KeyEvent.VK_C);
         cancel.addActionListener(this);
@@ -361,7 +362,7 @@ public class CommonSettingsDialog extends ClientDialog implements
 
         // displayLocale settings
         JLabel displayLocaleLabel = new JLabel(Messages.getString("CommonSettingsDialog.locale"));
-        displayLocale = new MMComboBox<>("displayLocale", Locale.values());
+        displayLocale = new MMComboBox<>("displayLocale", Locales.values());
         displayLocale.setMaximumSize(new Dimension(150,40));
         row = new ArrayList<>();
         row.add(displayLocaleLabel);
@@ -402,25 +403,25 @@ public class CommonSettingsDialog extends ClientDialog implements
         row.add(guiScale);
         comps.add(row);
 
-        showDamageLevel = new JCheckBox(Messages.getString("CommonSettingsDialog.showDamageLevel")); //$NON-NLS-1$
+        showDamageLevel = new JCheckBox(Messages.getString("CommonSettingsDialog.showDamageLevel"));
         showDamageLevel.addItemListener(this);
         row = new ArrayList<>();
         row.add(showDamageLevel);
         comps.add(row);
         
-        showDamageDecal = new JCheckBox(Messages.getString("CommonSettingsDialog.showDamageDecal")); //$NON-NLS-1$
+        showDamageDecal = new JCheckBox(Messages.getString("CommonSettingsDialog.showDamageDecal"));
         showDamageDecal.addItemListener(this);
         row = new ArrayList<>();
         row.add(showDamageDecal);
         comps.add(row);
         
-        showUnitId = new JCheckBox(Messages.getString("CommonSettingsDialog.showUnitId")); //$NON-NLS-1$
+        showUnitId = new JCheckBox(Messages.getString("CommonSettingsDialog.showUnitId"));
         showUnitId.addItemListener(this);
         row = new ArrayList<>();
         row.add(showUnitId);
         comps.add(row);
 
-        entityOwnerColor = new JCheckBox(Messages.getString("CommonSettingsDialog.entityOwnerColor")); //$NON-NLS-1$
+        entityOwnerColor = new JCheckBox(Messages.getString("CommonSettingsDialog.entityOwnerColor"));
         entityOwnerColor.setToolTipText(Messages.getString("CommonSettingsDialog.entityOwnerColorTip"));
         entityOwnerColor.addItemListener(this);
         row = new ArrayList<>();
@@ -434,7 +435,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         row.add(teamColoring);
         comps.add(row);
         
-        useSoftCenter = new JCheckBox(Messages.getString("CommonSettingsDialog.useSoftCenter")); //$NON-NLS-1$
+        useSoftCenter = new JCheckBox(Messages.getString("CommonSettingsDialog.useSoftCenter"));
         useSoftCenter.setToolTipText(Messages.getString("CommonSettingsDialog.useSoftCenterTip"));
         useSoftCenter.addItemListener(this);
         row = new ArrayList<>();
@@ -461,7 +462,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         // Popup Delay and Dismiss Delay
         tooltipDelay = new JTextField(4);
         tooltipDelay.setMaximumSize(new Dimension(150,40));
-        JLabel tooltipDelayLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDelay")); //$NON-NLS-1$
+        JLabel tooltipDelayLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDelay"));
         row = new ArrayList<>();
         row.add(tooltipDelayLabel);
         row.add(tooltipDelay);
@@ -470,7 +471,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         tooltipDismissDelay = new JTextField(4);
         tooltipDismissDelay.setMaximumSize(new Dimension(150,40));
         tooltipDismissDelay.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDismissDelayTooltip"));
-        JLabel tooltipDismissDelayLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDismissDelay")); //$NON-NLS-1$
+        JLabel tooltipDismissDelayLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDismissDelay"));
         tooltipDismissDelayLabel.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDismissDelayTooltip"));
         row = new ArrayList<>();
         row.add(tooltipDismissDelayLabel);
@@ -480,25 +481,25 @@ public class CommonSettingsDialog extends ClientDialog implements
         tooltipDistSupression = new JTextField(4);
         tooltipDistSupression.setMaximumSize(new Dimension(150,40));
         tooltipDistSupression.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDistSuppressionTooltip"));
-        JLabel tooltipDistSupressionLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDistSuppression")); //$NON-NLS-1$
+        JLabel tooltipDistSupressionLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDistSuppression"));
         tooltipDistSupressionLabel.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDistSuppressionTooltip"));
         row = new ArrayList<>();
         row.add(tooltipDistSupressionLabel);
         row.add(tooltipDistSupression);
         comps.add(row);
 
-        showWpsinTT = new JCheckBox(Messages.getString("CommonSettingsDialog.showWpsinTT")); //$NON-NLS-1$
+        showWpsinTT = new JCheckBox(Messages.getString("CommonSettingsDialog.showWpsinTT"));
         row = new ArrayList<>();
         row.add(showWpsinTT);
         comps.add(row);
 
         // copied from showWpsinTT, kept comment as it looks like a relevant compiler/editor flag?
-        showArmorMiniVisTT = new JCheckBox(Messages.getString("CommonSettingsDialog.showArmorMiniVisTT")); //$NON-NLS-1$
+        showArmorMiniVisTT = new JCheckBox(Messages.getString("CommonSettingsDialog.showArmorMiniVisTT"));
         row = new ArrayList<>();
         row.add(showArmorMiniVisTT);
         comps.add(row);
         
-        showPilotPortraitTT = new JCheckBox(Messages.getString("CommonSettingsDialog.showPilotPortraitTT")); //$NON-NLS-1$
+        showPilotPortraitTT = new JCheckBox(Messages.getString("CommonSettingsDialog.showPilotPortraitTT"));
         row = new ArrayList<>();
         row.add(showPilotPortraitTT);
         comps.add(row);
@@ -518,7 +519,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
         // --------------        
         
-        soundMute = new JCheckBox(Messages.getString("CommonSettingsDialog.soundMute")); //$NON-NLS-1$
+        soundMute = new JCheckBox(Messages.getString("CommonSettingsDialog.soundMute"));
         row = new ArrayList<>();
         row.add(soundMute);
         comps.add(row);
@@ -546,51 +547,51 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
         // --------------
         
-        nagForMASC = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForMASC")); //$NON-NLS-1$
+        nagForMASC = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForMASC"));
         row = new ArrayList<>();
         row.add(nagForMASC);
         comps.add(row);
 
-        nagForPSR = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForPSR")); //$NON-NLS-1$
+        nagForPSR = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForPSR"));
         row = new ArrayList<>();
         row.add(nagForPSR);
         comps.add(row);
 
-        nagForWiGELanding = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForWiGELanding")); //$NON-NLS-1$
+        nagForWiGELanding = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForWiGELanding"));
         row = new ArrayList<>();
         row.add(nagForWiGELanding);
         comps.add(row);
 
-        nagForNoAction = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForNoAction")); //$NON-NLS-1$
+        nagForNoAction = new JCheckBox(Messages.getString("CommonSettingsDialog.nagForNoAction"));
         row = new ArrayList<>();
         row.add(nagForNoAction);
         comps.add(row);
         
-        getFocus = new JCheckBox(Messages.getString("CommonSettingsDialog.getFocus")); //$NON-NLS-1$
+        getFocus = new JCheckBox(Messages.getString("CommonSettingsDialog.getFocus"));
         row = new ArrayList<>();
         row.add(getFocus);
         comps.add(row);
-        mouseWheelZoom = new JCheckBox(Messages.getString("CommonSettingsDialog.mouseWheelZoom")); //$NON-NLS-1$
+        mouseWheelZoom = new JCheckBox(Messages.getString("CommonSettingsDialog.mouseWheelZoom"));
         row = new ArrayList<>();
         row.add(mouseWheelZoom);
         comps.add(row);
 
-        mouseWheelZoomFlip = new JCheckBox(Messages.getString("CommonSettingsDialog.mouseWheelZoomFlip")); //$NON-NLS-1$
+        mouseWheelZoomFlip = new JCheckBox(Messages.getString("CommonSettingsDialog.mouseWheelZoomFlip"));
         row = new ArrayList<>();
         row.add(mouseWheelZoomFlip);
         comps.add(row);
 
-        autoEndFiring = new JCheckBox(Messages.getString("CommonSettingsDialog.autoEndFiring")); //$NON-NLS-1$
+        autoEndFiring = new JCheckBox(Messages.getString("CommonSettingsDialog.autoEndFiring"));
         row = new ArrayList<>();
         row.add(autoEndFiring);
         comps.add(row);
 
-        autoDeclareSearchlight = new JCheckBox(Messages.getString("CommonSettingsDialog.autoDeclareSearchlight")); //$NON-NLS-1$
+        autoDeclareSearchlight = new JCheckBox(Messages.getString("CommonSettingsDialog.autoDeclareSearchlight"));
         row = new ArrayList<>();
         row.add(autoDeclareSearchlight);
         comps.add(row);
         
-        JLabel defaultSortOrderLabel = new JLabel(Messages.getString("CommonSettingsDialog.defaultWeaponSortOrder")); //$NON-NLS-1$
+        JLabel defaultSortOrderLabel = new JLabel(Messages.getString("CommonSettingsDialog.defaultWeaponSortOrder"));
         String toolTip = Messages
                 .getString("CommonSettingsDialog.defaultWeaponSortOrderTooltip");
         defaultSortOrderLabel.setToolTipText(toolTip);
@@ -624,14 +625,14 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
         // --------------        
 
-        JLabel unitStartCharLabel = new JLabel(Messages.getString("CommonSettingsDialog.protoMechUnitCodes")); //$NON-NLS-1$
-        unitStartChar = new JComboBox<String>();
+        JLabel unitStartCharLabel = new JLabel(Messages.getString("CommonSettingsDialog.protoMechUnitCodes"));
+        unitStartChar = new JComboBox<>();
         // Add option for "A, B, C, D..."
-        unitStartChar.addItem("\u0041, \u0042, \u0043, \u0044..."); //$NON-NLS-1$
+        unitStartChar.addItem("\u0041, \u0042, \u0043, \u0044...");
         // Add option for "ALPHA, BETA, GAMMA, DELTA..."
-        unitStartChar.addItem("\u0391, \u0392, \u0393, \u0394..."); //$NON-NLS-1$
+        unitStartChar.addItem("\u0391, \u0392, \u0393, \u0394...");
         // Add option for "alpha, beta, gamma, delta..."
-        unitStartChar.addItem("\u03B1, \u03B2, \u03B3, \u03B4..."); //$NON-NLS-1$
+        unitStartChar.addItem("\u03B1, \u03B2, \u03B3, \u03B4...");
         unitStartChar.setMaximumSize(new Dimension(150,40));
         row = new ArrayList<>();
         row.add(unitStartCharLabel);
@@ -639,19 +640,19 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
 
         // player-specific settings
-        defaultAutoejectDisabled = new JCheckBox(Messages.getString("CommonSettingsDialog.defaultAutoejectDisabled")); //$NON-NLS-1$
+        defaultAutoejectDisabled = new JCheckBox(Messages.getString("CommonSettingsDialog.defaultAutoejectDisabled"));
         defaultAutoejectDisabled.addItemListener(this);
         row = new ArrayList<>();
         row.add(defaultAutoejectDisabled);
         comps.add(row);
 
-        useAverageSkills = new JCheckBox(Messages.getString("CommonSettingsDialog.useAverageSkills")); //$NON-NLS-1$
+        useAverageSkills = new JCheckBox(Messages.getString("CommonSettingsDialog.useAverageSkills"));
         useAverageSkills.addItemListener(this);
         row = new ArrayList<>();
         row.add(useAverageSkills);
         comps.add(row);
 
-        generateNames = new JCheckBox(Messages.getString("CommonSettingsDialog.generateNames")); //$NON-NLS-1$
+        generateNames = new JCheckBox(Messages.getString("CommonSettingsDialog.generateNames"));
         generateNames.addItemListener(this);
         row = new ArrayList<>();
         row.add(generateNames);
@@ -673,13 +674,13 @@ public class CommonSettingsDialog extends ClientDialog implements
         // --------------  
 
         // client-side gameLog settings
-        keepGameLog = new JCheckBox(Messages.getString("CommonSettingsDialog.keepGameLog")); //$NON-NLS-1$
+        keepGameLog = new JCheckBox(Messages.getString("CommonSettingsDialog.keepGameLog"));
         keepGameLog.addItemListener(this);
         row = new ArrayList<>();
         row.add(keepGameLog);
         comps.add(row);
 
-        gameLogFilenameLabel = new JLabel(Messages.getString("CommonSettingsDialog.logFileName")); //$NON-NLS-1$
+        gameLogFilenameLabel = new JLabel(Messages.getString("CommonSettingsDialog.logFileName"));
         gameLogFilename = new JTextField(15);
         gameLogFilename.setMaximumSize(new Dimension(250,40));
         row = new ArrayList<>();
@@ -692,13 +693,13 @@ public class CommonSettingsDialog extends ClientDialog implements
         row.add(Box.createRigidArea(new Dimension(0, 5)));
         comps.add(row);
 
-        stampFilenames = new JCheckBox(Messages.getString("CommonSettingsDialog.stampFilenames")); //$NON-NLS-1$
+        stampFilenames = new JCheckBox(Messages.getString("CommonSettingsDialog.stampFilenames"));
         stampFilenames.addItemListener(this);
         row = new ArrayList<>();
         row.add(stampFilenames);
         comps.add(row);
 
-        stampFormatLabel = new JLabel(Messages.getString("CommonSettingsDialog.stampFormat")); //$NON-NLS-1$
+        stampFormatLabel = new JLabel(Messages.getString("CommonSettingsDialog.stampFormat"));
         stampFormat = new JTextField(15);
         stampFormat.setMaximumSize(new Dimension(15*13,40));
         row = new ArrayList<>();
@@ -740,9 +741,8 @@ public class CommonSettingsDialog extends ClientDialog implements
         // Initialize the dialog when it's being shown
         if (visible) {
             GUIPreferences gs = GUIPreferences.getInstance();
-            IClientPreferences cs = PreferenceManager.getClientPreferences();
 
-            guiScale.setValue((int)(gs.getGUIScale() * 10));
+            guiScale.setValue((int) (MegaMek.getMMOptions().getGUIScale() * 10));
             autoEndFiring.setSelected(gs.getAutoEndFiring());
             autoDeclareSearchlight.setSelected(gs.getAutoDeclareSearchlight());
             nagForMASC.setSelected(gs.getNagForMASC());
@@ -752,9 +752,9 @@ public class CommonSettingsDialog extends ClientDialog implements
             animateMove.setSelected(gs.getShowMoveStep());
             showWrecks.setSelected(gs.getShowWrecks());
             soundMute.setSelected(gs.getSoundMute());
-            tooltipDelay.setText(Integer.toString(gs.getTooltipDelay()));
-            tooltipDismissDelay.setText(Integer.toString(gs.getTooltipDismissDelay()));
-            tooltipDistSupression.setText(Integer.toString(gs.getTooltipDistSuppression()));
+            tooltipDelay.setText(Integer.toString(MegaMek.getMMOptions().getTooltipPopupDelay()));
+            tooltipDismissDelay.setText(Integer.toString(MegaMek.getMMOptions().getTooltipDismissDelay()));
+            tooltipDistSupression.setText(Integer.toString(MegaMek.getMMOptions().getTooltipDistanceSuppression()));
             showWpsinTT.setSelected(gs.getShowWpsinTT());
             showArmorMiniVisTT.setSelected(gs.getshowArmorMiniVisTT());
             showPilotPortraitTT.setSelected(gs.getshowPilotPortraitTT());
@@ -777,8 +777,6 @@ public class CommonSettingsDialog extends ClientDialog implements
             keepGameLog.setSelected(cs.keepGameLog());
             gameLogFilename.setEnabled(keepGameLog.isSelected());
             gameLogFilename.setText(cs.getGameLogFilename());
-            // gameLogMaxSize.setEnabled(keepGameLog.isSelected());
-            // gameLogMaxSize.setText( Integer.toString(cs.getGameLogMaxSize()) );
             stampFilenames.setSelected(cs.stampFilenames());
             stampFormat.setEnabled(stampFilenames.isSelected());
             stampFormat.setText(cs.getStampFormat());
@@ -788,15 +786,6 @@ public class CommonSettingsDialog extends ClientDialog implements
             useAverageSkills.setSelected(cs.useAverageSkills());
             generateNames.setSelected(cs.generateNames());
             showUnitId.setSelected(cs.getShowUnitId());
-
-            int index = 0;
-            if (cs.getLocaleString().startsWith("de")) {
-                index = 1;
-            }
-            if (cs.getLocaleString().startsWith("ru")) {
-                index = 2;
-            }
-            displayLocale.setSelectedIndex(index);
 
             showMapsheets.setSelected(gs.getShowMapsheets());
             chkAntiAliasing.setSelected(gs.getAntiAliasing());
@@ -813,18 +802,10 @@ public class CommonSettingsDialog extends ClientDialog implements
             teamColoring.setSelected(gs.getTeamColoring());
 
             File dir = Configuration.hexesDir();
-            tileSets = new ArrayList<>(Arrays.asList(dir.listFiles(new FilenameFilter() {
-                public boolean accept(File direc, String name) {
-                    return name.endsWith(".tileset");
-                }
-            })));
+            tileSets = new ArrayList<>(Arrays.asList(Objects.requireNonNull(dir.listFiles((direc, name) -> name.endsWith(".tileset")))));
             dir = new File(Configuration.userdataDir(),
                     Configuration.hexesDir().toString());
-            File[] userDataTilesets = dir.listFiles(new FilenameFilter() {
-                public boolean accept(File direc, String name) {
-                    return name.endsWith(".tileset");
-                }
-            });
+            File[] userDataTilesets = dir.listFiles((direc, name) -> name.endsWith(".tileset"));
             if (userDataTilesets != null) {
                 tileSets.addAll(Arrays.asList(userDataTilesets));
             }
@@ -842,17 +823,9 @@ public class CommonSettingsDialog extends ClientDialog implements
 
             skinFiles.removeAllItems();
             List<String> xmlFiles = new ArrayList<>(Arrays
-                    .asList(Configuration.skinsDir().list(new FilenameFilter() {
-                        public boolean accept(File directory, String fileName) {
-                            return fileName.endsWith(".xml");
-                        }
-                    })));
+                    .asList(Configuration.skinsDir().list((directory, fileName) -> fileName.endsWith(".xml"))));
             String[] files = new File(Configuration.userdataDir(), Configuration.skinsDir().toString())
-                    .list(new FilenameFilter() {
-                        public boolean accept(File directory, String fileName) {
-                            return fileName.endsWith(".xml");
-                        }
-                    });
+                    .list((directory, fileName) -> fileName.endsWith(".xml"));
             if (files != null) {
                 xmlFiles.addAll(Arrays.asList(files));
 
@@ -867,12 +840,6 @@ public class CommonSettingsDialog extends ClientDialog implements
             skinFiles.setSelectedItem(SkinXMLHandler.defaultSkinXML);
             // If this select fials, the default skin will be selected
             skinFiles.setSelectedItem(GUIPreferences.getInstance().getSkinFile());
-
-            uiThemes.removeAllItems();
-            for (LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels()) {
-                uiThemes.addItem(new UITheme(lafInfo.getClassName(), lafInfo.getName()));
-            }
-            uiThemes.setSelectedItem(new UITheme(GUIPreferences.getInstance().getUITheme()));
 
             fovInsideEnabled.setSelected(gs.getFovHighlight());
             fovHighlightAlpha.setValue(gs.getFovHighlightAlpha());
@@ -968,7 +935,6 @@ public class CommonSettingsDialog extends ClientDialog implements
      */
     private void update() {
         GUIPreferences gs = GUIPreferences.getInstance();
-        IClientPreferences cs = PreferenceManager.getClientPreferences();
 
         gs.setShowDamageLevel(showDamageLevel.isSelected());
         gs.setShowDamageDecal(showDamageDecal.isSelected());
@@ -987,13 +953,9 @@ public class CommonSettingsDialog extends ClientDialog implements
         gs.setShowWpsinTT(showWpsinTT.isSelected());
         gs.setshowArmorMiniVisTT(showArmorMiniVisTT.isSelected());
         gs.setshowPilotPortraitTT(showPilotPortraitTT.isSelected());
-        gs.setTooltipDelay(Integer.parseInt(tooltipDelay.getText()));
-        gs.setTooltipDismissDelay(Integer.parseInt(tooltipDismissDelay.getText()));
-        gs.setTooltipDistSuppression(Integer.parseInt(tooltipDistSupression.getText()));
         gs.setValue(GUIPreferences.GUI_SCALE, (float)(guiScale.getValue()) / 10);
-        cs.setUnitStartChar(((String) unitStartChar.getSelectedItem())
-                .charAt(0));
-        
+        cs.setUnitStartChar(((String) unitStartChar.getSelectedItem()).charAt(0));
+
         gs.setMouseWheelZoom(mouseWheelZoom.isSelected());
         gs.setMouseWheelZoomFlip(mouseWheelZoomFlip.isSelected());
 
@@ -1003,7 +965,6 @@ public class CommonSettingsDialog extends ClientDialog implements
 
         cs.setKeepGameLog(keepGameLog.isSelected());
         cs.setGameLogFilename(gameLogFilename.getText());
-        // cs.setGameLogMaxSize(Integer.parseInt(gameLogMaxSize.getText()));
         cs.setStampFilenames(stampFilenames.isSelected());
         cs.setStampFormat(stampFormat.getText());
         cs.setShowIPAddressesInChat(showIPAddressesInChat.isSelected());
@@ -1016,8 +977,7 @@ public class CommonSettingsDialog extends ClientDialog implements
             clientgui.bv.updateEntityLabels();
         }
 
-        cs.setLocale(CommonSettingsDialog.LOCALE_CHOICES[displayLocale
-                .getSelectedIndex()]);
+        cs.setLocale(CommonSettingsDialog.LOCALE_CHOICES[displayLocale.getSelectedIndex()]);
 
         gs.setShowMapsheets(showMapsheets.isSelected());
         gs.setAOHexShadows(aOHexShadows.isSelected());
@@ -1038,12 +998,6 @@ public class CommonSettingsDialog extends ClientDialog implements
 
         gs.setGameSummaryBoardView(gameSummaryBV.isSelected());
         gs.setGameSummaryMiniMap(gameSummaryMM.isSelected());
-
-        UITheme newUITheme = (UITheme)uiThemes.getSelectedItem();
-        String oldUITheme = gs.getUITheme();
-        if (!oldUITheme.equals(newUITheme.getClassName())) {
-            gs.setUITheme(newUITheme.getClassName());
-        }
 
         String newSkinFile = (String)skinFiles.getSelectedItem();
         String oldSkinFile = gs.getSkinFile();
@@ -1181,6 +1135,7 @@ public class CommonSettingsDialog extends ClientDialog implements
      *
      * @param event - the <code>ActionEvent</code> that initiated this call.
      */
+    @Override
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
         if (command.equals(UPDATE)) {
@@ -1194,6 +1149,7 @@ public class CommonSettingsDialog extends ClientDialog implements
     }
 
     /** Handle some setting changes that directly update e.g. the board. */
+    @Override
     public void itemStateChanged(ItemEvent event) {
         Object source = event.getItemSelectable();
         GUIPreferences guip = GUIPreferences.getInstance();
@@ -1201,7 +1157,6 @@ public class CommonSettingsDialog extends ClientDialog implements
             gameLogFilename.setEnabled(keepGameLog.isSelected());
             stampFormatLabel.setEnabled(stampFilenames.isSelected());
             gameLogFilenameLabel.setEnabled(keepGameLog.isSelected());
-            // gameLogMaxSize.setEnabled(keepGameLog.isSelected());
         } else if (source.equals(stampFilenames)) {
             stampFormat.setEnabled(stampFilenames.isSelected());
             stampFormatLabel.setEnabled(stampFilenames.isSelected());
@@ -1245,8 +1200,10 @@ public class CommonSettingsDialog extends ClientDialog implements
         }
     }
 
+    @Override
     public void focusGained(FocusEvent e) { }
 
+    @Override
     public void focusLost(FocusEvent e) {
         Object src = e.getSource();
         GUIPreferences guip = GUIPreferences.getInstance();          
@@ -1258,7 +1215,7 @@ public class CommonSettingsDialog extends ClientDialog implements
             return;
         } 
         // For Advanced options
-        String option = "Advanced" + advancedKeys.getModel().getElementAt(advancedKeyIndex).option;
+        String option = "Advanced" + advancedKeys.getModel().getElementAt(advancedKeyIndex).getOption();
         savedAdvancedOpt.put(option, guip.getString(option));        
         guip.setValue(option, advancedValue.getText());
     }
@@ -1268,12 +1225,12 @@ public class CommonSettingsDialog extends ClientDialog implements
      */
     private JPanel getGraphicsPanel() {
 
-        ArrayList<ArrayList<Component>> comps = new ArrayList<ArrayList<Component>>();
+        ArrayList<ArrayList<Component>> comps = new ArrayList<>();
         ArrayList<Component> row;
         
         // Anti-Aliasing
         chkAntiAliasing = new JCheckBox(Messages.getString(
-                "CommonSettingsDialog.antiAliasing")); //$NON-NLS-1$
+                "CommonSettingsDialog.antiAliasing"));
         chkAntiAliasing.setToolTipText(Messages.getString(
                 "CommonSettingsDialog.antiAliasingToolTip"));
         row = new ArrayList<>();
@@ -1281,101 +1238,92 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
         
         // Animate Moves
-        animateMove = new JCheckBox(Messages.getString("CommonSettingsDialog.animateMove")); //$NON-NLS-1$
+        animateMove = new JCheckBox(Messages.getString("CommonSettingsDialog.animateMove"));
         row = new ArrayList<>();
         row.add(animateMove);
         comps.add(row);
 
         // Show Wrecks
-        showWrecks = new JCheckBox(Messages.getString("CommonSettingsDialog.showWrecks")); //$NON-NLS-1$
+        showWrecks = new JCheckBox(Messages.getString("CommonSettingsDialog.showWrecks"));
         row = new ArrayList<>();
         row.add(showWrecks);
         comps.add(row);     
         
         // Show Mapsheet borders
-        showMapsheets = new JCheckBox(Messages.getString("CommonSettingsDialog.showMapsheets")); //$NON-NLS-1$
+        showMapsheets = new JCheckBox(Messages.getString("CommonSettingsDialog.showMapsheets"));
         row = new ArrayList<>();
         row.add(showMapsheets);
         comps.add(row);
 
         // Hill Base AO Shadows
-        aOHexShadows = new JCheckBox(Messages.getString("CommonSettingsDialog.AOHexSHadows")); //$NON-NLS-1$
+        aOHexShadows = new JCheckBox(Messages.getString("CommonSettingsDialog.AOHexSHadows"));
         row = new ArrayList<>();
         aOHexShadows.addItemListener(this);
         row.add(aOHexShadows);
         comps.add(row);
         
         // Shadow Map = Terrain and Building shadows
-        shadowMap = new JCheckBox(Messages.getString("CommonSettingsDialog.useShadowMap")); //$NON-NLS-1$
+        shadowMap = new JCheckBox(Messages.getString("CommonSettingsDialog.useShadowMap"));
         row = new ArrayList<>();
         shadowMap.addItemListener(this);
         row.add(shadowMap);
         comps.add(row);
         
         // Use Incline graphics (hex border highlights/shadows)
-        hexInclines = new JCheckBox(Messages.getString("CommonSettingsDialog.useInclines")); //$NON-NLS-1$
+        hexInclines = new JCheckBox(Messages.getString("CommonSettingsDialog.useInclines"));
         row = new ArrayList<>();
         hexInclines.addItemListener(this);
         row.add(hexInclines);
         comps.add(row);
         
         // Level Highlight = borders around level changes
-        levelhighlight = new JCheckBox(Messages.getString("CommonSettingsDialog.levelHighlight")); //$NON-NLS-1$
+        levelhighlight = new JCheckBox(Messages.getString("CommonSettingsDialog.levelHighlight"));
         row = new ArrayList<>();
         levelhighlight.addItemListener(this);
         row.add(levelhighlight);
         comps.add(row);
         
         // Floating Isometric = do not draw hex sides
-        floatingIso = new JCheckBox(Messages.getString("CommonSettingsDialog.floatingIso")); //$NON-NLS-1$
+        floatingIso = new JCheckBox(Messages.getString("CommonSettingsDialog.floatingIso"));
         row = new ArrayList<>();
         floatingIso.addItemListener(this);
         row.add(floatingIso);
         comps.add(row);
 
         // Type of symbol used on the minimap 
-        mmSymbol = new JCheckBox(Messages.getString("CommonSettingsDialog.mmSymbol")); //$NON-NLS-1$
+        mmSymbol = new JCheckBox(Messages.getString("CommonSettingsDialog.mmSymbol"));
         row = new ArrayList<>();
         mmSymbol.addItemListener(this);
         row.add(mmSymbol);
         comps.add(row);
 
         // Game Summary - BoardView
-        gameSummaryBV = new JCheckBox(Messages.getString("CommonSettingsDialog.gameSummaryBV.name")); //$NON-NLS-1$
-        gameSummaryBV.setToolTipText(Messages.getString("CommonSettingsDialog.gameSummaryBV.tooltip", //$NON-NLS-1$
-                new Object[] { Configuration.gameSummaryImagesBVDir() }));
+        gameSummaryBV = new JCheckBox(Messages.getString("CommonSettingsDialog.gameSummaryBV.name"));
+        gameSummaryBV.setToolTipText(Messages.getString("CommonSettingsDialog.gameSummaryBV.tooltip",
+                Configuration.gameSummaryImagesBVDir()));
         row = new ArrayList<>();
         gameSummaryBV.addItemListener(this);
         row.add(gameSummaryBV);
         comps.add(row);
 
         // Game Summary - Mini-map
-        gameSummaryMM = new JCheckBox(Messages.getString("CommonSettingsDialog.gameSummaryMM.name")); //$NON-NLS-1$
-        gameSummaryMM.setToolTipText(Messages.getString("CommonSettingsDialog.gameSummaryMM.tooltip", //$NON-NLS-1$
-                new Object[] { Configuration.gameSummaryImagesMMDir() }));
+        gameSummaryMM = new JCheckBox(Messages.getString("CommonSettingsDialog.gameSummaryMM.name"));
+        gameSummaryMM.setToolTipText(Messages.getString("CommonSettingsDialog.gameSummaryMM.tooltip",
+                Configuration.gameSummaryImagesMMDir()));
         row = new ArrayList<>();
         gameSummaryMM.addItemListener(this);
         row.add(gameSummaryMM);
         comps.add(row);
 
-        // UI Theme
-        uiThemes = new JComboBox<UITheme>();
-        uiThemes.setMaximumSize(new Dimension(400,uiThemes.getMaximumSize().height));
-        JLabel uiThemesLabel = new JLabel(Messages.getString("CommonSettingsDialog.uiTheme")); //$NON-NLS-1$
-        row = new ArrayList<>();
-        row.add(uiThemesLabel);
-        row.add(uiThemes);
-        comps.add(row);   
-        
         // Spacer
         row = new ArrayList<>();
         row.add(Box.createRigidArea(new Dimension(0, 5)));
         comps.add(row);
 
         // Skin
-        skinFiles = new JComboBox<String>();
+        skinFiles = new JComboBox<>();
         skinFiles.setMaximumSize(new Dimension(400,skinFiles.getMaximumSize().height));
-        JLabel skinFileLabel = new JLabel(Messages.getString("CommonSettingsDialog.skinFile")); //$NON-NLS-1$
+        JLabel skinFileLabel = new JLabel(Messages.getString("CommonSettingsDialog.skinFile"));
         row = new ArrayList<>();
         row.add(skinFileLabel);
         row.add(skinFiles);
@@ -1387,8 +1335,8 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
 
         // Tileset
-        JLabel tileSetChoiceLabel = new JLabel(Messages.getString("CommonSettingsDialog.tileset")); //$NON-NLS-1$
-        tileSetChoice = new JComboBox<String>(); //$NON-NLS-1$
+        JLabel tileSetChoiceLabel = new JLabel(Messages.getString("CommonSettingsDialog.tileset"));
+        tileSetChoice = new JComboBox<>();
         tileSetChoice.setMaximumSize(new Dimension(400,tileSetChoice.getMaximumSize().height));
         row = new ArrayList<>();
         row.add(tileSetChoiceLabel);
@@ -1413,7 +1361,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         // Highlighting Radius inside FoV
         //
         // Highlight inside Check box
-        fovInsideEnabled = new JCheckBox(Messages.getString("TacticalOverlaySettingsDialog.FovInsideEnabled")); //$NON-NLS-1$
+        fovInsideEnabled = new JCheckBox(Messages.getString("TacticalOverlaySettingsDialog.FovInsideEnabled"));
         fovInsideEnabled.addItemListener(this);
         row = new ArrayList<>();
         row.add(fovInsideEnabled);
@@ -1434,7 +1382,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         fovHighlightAlpha.addChangeListener(this);
         fovHighlightAlpha.setToolTipText(Messages.getString("TacticalOverlaySettingsDialog.AlphaTooltip"));
         // Label
-        highlightAlphaLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovHighlightAlpha")); //$NON-NLS-1$
+        highlightAlphaLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovHighlightAlpha"));
         row = new ArrayList<>();
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(highlightAlphaLabel);
@@ -1456,7 +1404,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
 
         row = new ArrayList<>();
-        fovHighlightRingsRadiiLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovHighlightRingsRadii")); //$NON-NLS-1$
+        fovHighlightRingsRadiiLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovHighlightRingsRadii"));
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(fovHighlightRingsRadiiLabel);
         comps.add(row);
@@ -1480,7 +1428,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         comps.add(row);
         
         row= new ArrayList<>();
-        fovHighlightRingsColorsLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovHighlightRingsColors")); //$NON-NLS-1$
+        fovHighlightRingsColorsLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovHighlightRingsColors"));
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(fovHighlightRingsColorsLabel);
         comps.add(row);
@@ -1516,7 +1464,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         // Outside FoV Darkening
         //
         // Activation Checkbox
-        fovOutsideEnabled = new JCheckBox(Messages.getString("TacticalOverlaySettingsDialog.FovOutsideEnabled")); //$NON-NLS-1$
+        fovOutsideEnabled = new JCheckBox(Messages.getString("TacticalOverlaySettingsDialog.FovOutsideEnabled"));
         fovOutsideEnabled.addItemListener(this);
         row = new ArrayList<>();
         row.add(fovOutsideEnabled);
@@ -1535,7 +1483,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         fovDarkenAlpha.setMaximumSize(new Dimension(400, 100));
         fovDarkenAlpha.addChangeListener(this);
         fovDarkenAlpha.setToolTipText(Messages.getString("TacticalOverlaySettingsDialog.AlphaTooltip"));
-        darkenAlphaLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovDarkenAlpha")); //$NON-NLS-1$
+        darkenAlphaLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovDarkenAlpha"));
         darkenAlphaLabel.setToolTipText(Messages.getString("TacticalOverlaySettingsDialog.AlphaTooltip"));
         row = new ArrayList<>();
         row.add(Box.createRigidArea(new Dimension(4,0)));
@@ -1567,7 +1515,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         numStripesSlider.addChangeListener(this);
         numStripesSlider.setToolTipText(Messages.getString("TacticalOverlaySettingsDialog.FovStripesTooltip"));
         numStripesLabel = new JLabel(
-                Messages.getString("TacticalOverlaySettingsDialog.FovStripes")); //$NON-NLS-1$
+                Messages.getString("TacticalOverlaySettingsDialog.FovStripes"));
         numStripesLabel.setToolTipText(Messages.getString("TacticalOverlaySettingsDialog.FovStripesTooltip"));
         row = new ArrayList<>();
         row.add(Box.createRigidArea(new Dimension(4,0)));
@@ -1591,7 +1539,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         
         row = new ArrayList<>();
         fovGrayscaleEnabled = new JCheckBox(
-                Messages.getString("TacticalOverlaySettingsDialog.FovGrayscale")); //$NON-NLS-1$
+                Messages.getString("TacticalOverlaySettingsDialog.FovGrayscale"));
         fovGrayscaleEnabled.addItemListener(this);
         row.add(Box.createRigidArea(new Dimension(4,0)));
         row.add(Box.createRigidArea(DEPENDENT_INSET));
@@ -1604,8 +1552,6 @@ public class CommonSettingsDialog extends ClientDialog implements
     /**
      * Creates a panel with a box for all of the commands that can be bound to
      * keys.
-     *
-     * @return
      */
     private JPanel getKeyBindPanel() {
         // The first column is for labels, the second column for modifiers, the third
@@ -1659,9 +1605,9 @@ public class CommonSettingsDialog extends ClientDialog implements
 
         // Create maps to retrieve the text fields for saving
         int numBinds = KeyCommandBind.values().length;
-        cmdModifierMap = new HashMap<String, JTextField>((int)(numBinds*1.26));
-        cmdKeyMap = new HashMap<String, JTextField>((int)(numBinds*1.26));
-        cmdKeyCodeMap = new HashMap<String, Integer>((int)(numBinds*1.26));
+        cmdModifierMap = new HashMap<>((int) (numBinds * 1.26));
+        cmdKeyMap = new HashMap<>((int) (numBinds * 1.26));
+        cmdKeyCodeMap = new HashMap<>((int) (numBinds * 1.26));
 
         // For each keyCommandBind, create a label and two text fields
         for (KeyCommandBind kcb : KeyCommandBind.values()) {
@@ -1813,7 +1759,7 @@ public class CommonSettingsDialog extends ClientDialog implements
     }
     
     private void markTextfield(JTextField field, String errorMsg) {
-        field.setForeground(errorMsg != null ? GUIPreferences.getInstance().getWarningColor() : null);
+        field.setForeground((errorMsg != null) ? MegaMek.getMMOptions().getErrorColour() : null);
         field.setToolTipText(errorMsg);
     }
     
@@ -1851,27 +1797,27 @@ public class CommonSettingsDialog extends ClientDialog implements
         buttonOrderPanel.add(phasePane);
         
         // MovementPhaseDisplay        
-        movePhaseCommands = new DefaultListModel<StatusBarPhaseDisplay.PhaseCommand>();
+        movePhaseCommands = new DefaultListModel<>();
         phasePane.add("Movement", getButtonOrderPane(movePhaseCommands,
                 MovementDisplay.MoveCommand.values()));
         
         // DeploymentPhaseDisplay
-        deployPhaseCommands = new DefaultListModel<StatusBarPhaseDisplay.PhaseCommand>();
+        deployPhaseCommands = new DefaultListModel<>();
         phasePane.add("Deployment", getButtonOrderPane(deployPhaseCommands,
                 DeploymentDisplay.DeployCommand.values()));
         
         // FiringPhaseDisplay
-        firingPhaseCommands = new DefaultListModel<StatusBarPhaseDisplay.PhaseCommand>();
+        firingPhaseCommands = new DefaultListModel<>();
         phasePane.add("Firing", getButtonOrderPane(firingPhaseCommands,
                 FiringDisplay.FiringCommand.values()));
         
         // PhysicalPhaseDisplay
-        physicalPhaseCommands = new DefaultListModel<StatusBarPhaseDisplay.PhaseCommand>();
+        physicalPhaseCommands = new DefaultListModel<>();
         phasePane.add("Physical", getButtonOrderPane(physicalPhaseCommands,
                 PhysicalDisplay.PhysicalCommand.values()));          
         
         // TargetingPhaseDisplay
-        targetingPhaseCommands = new DefaultListModel<StatusBarPhaseDisplay.PhaseCommand>();
+        targetingPhaseCommands = new DefaultListModel<>();
         phasePane.add("Targeting", getButtonOrderPane(targetingPhaseCommands,
                 TargetingPhaseDisplay.TargetingCommand.values()));
         
@@ -1926,7 +1872,7 @@ public class CommonSettingsDialog extends ClientDialog implements
         String[] s = GUIPreferences.getInstance().getAdvancedProperties();
         AdvancedOptionData[] opts = new AdvancedOptionData[s.length];
         for (int i = 0; i < s.length; i++) {
-            s[i] = s[i].substring(s[i].indexOf("Advanced") + 8, s[i].length());
+            s[i] = s[i].substring(s[i].indexOf("Advanced") + 8);
             opts[i] = new AdvancedOptionData(s[i]);
         }
         Arrays.sort(opts);
@@ -1958,13 +1904,14 @@ public class CommonSettingsDialog extends ClientDialog implements
     }
 
     /** Used to note which advanced setting is currently clicked. */  
+    @Override
     public void valueChanged(ListSelectionEvent event) {
         if (event.getValueIsAdjusting()) {
             return;
         }
         if (event.getSource().equals(advancedKeys) && !advancedKeys.isSelectionEmpty()) {
             advancedValue.setText(GUIPreferences.getInstance().getString(
-                    "Advanced" + advancedKeys.getSelectedValue().option));
+                    "Advanced" + advancedKeys.getSelectedValue().getOption()));
             advancedKeyIndex = advancedKeys.getSelectedIndex();
         }
     }
@@ -1973,9 +1920,9 @@ public class CommonSettingsDialog extends ClientDialog implements
     public void stateChanged(ChangeEvent evt) {
         GUIPreferences guip = GUIPreferences.getInstance();
         if (evt.getSource().equals(fovHighlightAlpha)) {
-            guip.setFovHighlightAlpha(Math.max(0, Math.min(255, (int) fovHighlightAlpha.getValue())));
+            guip.setFovHighlightAlpha(Math.max(0, Math.min(255, fovHighlightAlpha.getValue())));
         } else if (evt.getSource().equals(fovDarkenAlpha)) {
-            guip.setFovDarkenAlpha(Math.max(0, Math.min(255, (int) fovDarkenAlpha.getValue())));
+            guip.setFovDarkenAlpha(Math.max(0, Math.min(255, fovDarkenAlpha.getValue())));
         } else if (evt.getSource().equals(numStripesSlider)) {
             guip.setFovStripes(numStripesSlider.getValue());
         }

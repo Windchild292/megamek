@@ -139,7 +139,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     @Override
     public void preferenceChange(PreferenceChangeEvent e) {
         // A new Hex Tileset has been selected
-        if (e.getName().equals(IClientPreferences.MAP_TILESET)) {
+        if (e.getName().equals(ClientPreferences.MAP_TILESET)) {
             HexTileset hts = new HexTileset(boardview.game);
             try {
                 hexTileset.incDepth = 0;
