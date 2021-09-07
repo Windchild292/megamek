@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2000-2011 - Ben Mazur (bmazur@sev.org).
  * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
@@ -25,15 +24,16 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Target;
 
 /**
- * When used on a method, this annotation denotes that the method may return a null value. As a
- * result, consumers of that value should be prepared to handle nulls.
+ * When used on a method, this annotation denotes that the method may not a null value by design. As
+ * a result, consumers of that value should never be designed to handle null values, which can only
+ * occur from previous system failures.
  *
- * When used on a parameter, this annotation denotes that the parameter may contain a null value.
- * As a result, any overriding methods need ot be able to handle nulls.
+ * When used on a parameter, this annotation denotes that the parameter may never contain a null
+ * value. As a result, any overriding methods never need to handle null values for this parameter.
  */
 @Target(value = {ElementType.METHOD, ElementType.PARAMETER})
 @Documented
 @Inherited
-public @interface Nullable {
+public @interface NonNull {
 
 }
