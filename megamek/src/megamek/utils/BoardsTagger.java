@@ -26,6 +26,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.*;
 import static megamek.common.Terrains.*;
 import megamek.common.*;
+import megamek.common.buildings.Building;
 
 /** 
  * Scans all boards and applies automated tags to them.

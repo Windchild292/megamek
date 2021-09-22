@@ -25,7 +25,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 
-import megamek.common.Building.BasementType;
+import megamek.common.buildings.Building;
+import megamek.common.buildings.Building.BasementType;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.BAVibroClawAttackAction;
 import megamek.common.actions.BreakGrappleAttackAction;

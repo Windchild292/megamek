@@ -17,6 +17,7 @@ package megamek.common;
 import java.util.Vector;
 
 import megamek.MegaMek;
+import megamek.common.buildings.Building;
 
 /**
  * A building with weapons fitted and, optionally, a turret.

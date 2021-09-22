@@ -40,7 +40,7 @@ import megamek.client.bot.princess.CardinalEdge;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.ReportDisplay;
 import megamek.common.AmmoType;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Compute;
 import megamek.common.ComputeECM;
 import megamek.common.Coords;

@@ -21,7 +21,7 @@
 package megamek.common.actions;
 
 import megamek.common.BipedMech;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.Entity;
 import megamek.common.IGame;
 import megamek.common.IHex;

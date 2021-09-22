@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import megamek.client.bot.princess.BotGeometry.CoordFacingCombo;
 import megamek.common.Board;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.ComputeECM;
 import megamek.common.Coords;
 import megamek.common.ECMInfo;

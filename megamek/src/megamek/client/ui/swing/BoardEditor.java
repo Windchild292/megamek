@@ -58,6 +58,7 @@ import megamek.client.ui.swing.util.UIUtil;
 import megamek.client.ui.swing.util.UIUtil.FixedYPanel;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
+import megamek.common.buildings.Building;
 import megamek.common.preference.IPreferenceChangeListener;
 import megamek.common.preference.PreferenceChangeEvent;
 import megamek.common.util.BoardUtilities;

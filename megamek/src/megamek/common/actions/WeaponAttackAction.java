@@ -29,7 +29,7 @@ import megamek.common.BattleArmor;
 import megamek.common.BipedMech;
 import megamek.common.Board;
 import megamek.common.BombType;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.CalledShot;
 import megamek.common.Compute;
 import megamek.common.ComputeECM;

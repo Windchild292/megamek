@@ -19,7 +19,7 @@ import megamek.common.Aero;
 import megamek.common.BattleArmor;
 import megamek.common.BipedMech;
 import megamek.common.Board;
-import megamek.common.Building;
+import megamek.common.buildings.Building;
 import megamek.common.ConvFighter;
 import megamek.common.Coords;
 import megamek.common.Crew;

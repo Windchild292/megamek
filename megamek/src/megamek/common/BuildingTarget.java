@@ -16,6 +16,8 @@
 
 package megamek.common;
 
+import megamek.common.buildings.Building;
+
 import java.util.HashMap;
 import java.util.Map;
 

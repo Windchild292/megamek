@@ -22,6 +22,7 @@ import java.util.Vector;
 import megamek.MegaMek;
 import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.buildings.Building;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.WeaponHandler;
 import megamek.server.Server;
