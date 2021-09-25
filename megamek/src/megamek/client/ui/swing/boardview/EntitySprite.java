@@ -78,7 +78,7 @@ class EntitySprite extends Sprite {
             "Wheeled", "Command", "Standard", "Hover", "Hovercraft", "Mechanized", 
             "(Standard)", "Platoon", "Transport", "Vehicle", "Air", 
             "Assault", "Mobile", "Platform", "Battle Armor", "Vessel", "Infantry",
-            "Fighting", "Fire", "Suport", "Reconnaissance", "Fast");
+            "Fighting", "Fire", "Support", "Reconnaissance", "Fast");
     
     public EntitySprite(BoardView1 boardView1, final Entity entity,
             int secondaryPos, Image radarBlipImage) {
