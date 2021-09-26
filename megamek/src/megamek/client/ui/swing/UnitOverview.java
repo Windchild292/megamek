@@ -49,6 +49,7 @@ import megamek.common.util.fileUtils.MegaMekFile;
 import megamek.common.util.StringUtil;
 
 public class UnitOverview implements IDisplayable {
+    //region Variable Declarations
     private static final int UNKNOWN_UNITS_PER_PAGE = -1;
 
     /**
@@ -90,8 +91,10 @@ public class UnitOverview implements IDisplayable {
     private Image scrollDownG;
     private Image pageUpG;
     private Image pageDownG;
+    //endregion Variable Declarations
 
-    public UnitOverview(ClientGUI clientgui) {
+    //region Constructors
+    public UnitOverview(final ClientGUI clientgui) {
         this.clientgui = clientgui;
         fm = clientgui.getFontMetrics(FONT);
 
@@ -115,6 +118,17 @@ public class UnitOverview implements IDisplayable {
         
         visible = GUIPreferences.getInstance().getShowUnitOverview();
     }
+    //endregion Constructors
+
+    //region Getters/Setters
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(final boolean visible) {
+        this.visible = visible;
+    }
+    //endregion Getters/Setters
 
     @Override
     public void draw(Graphics graph, Rectangle clipBounds) {
@@ -174,8 +188,7 @@ public class UnitOverview implements IDisplayable {
             IGame game = clientgui.getClient().getGame();
             GameTurn turn;
             if (game.isPhaseSimultaneous()) {
-                turn = game.getTurnForPlayer(clientgui.getClient()
-                        .getLocalPlayer().getId());
+                turn = game.getTurnForPlayer(clientgui.getClient().getLocalPlayer().getId());
             } else {
                 turn = game.getTurn();
             }
@@ -296,15 +309,7 @@ public class UnitOverview implements IDisplayable {
         }
     }
 
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    private void drawHeat(Graphics graph, Entity entity, int x, int y) {
+    private void drawHeat(final Graphics graph, final Entity entity, final int x, final int y) {
         if (!((entity instanceof Mech) || (entity instanceof Aero))) {
             return;
         }
@@ -323,14 +328,13 @@ public class UnitOverview implements IDisplayable {
         graph.fillRect(x + 51, y + 3, 2, 30);
         graph.setColor(Color.RED);
         if (mtHeat) {
-            graph.fillRect(x + 51, y + 3 + (30 - (int) (heat * 0.6)), 2,
-                    (int) (heat * 0.6));
+            graph.fillRect(x + 51, y + 3 + (30 - (int) (heat * 0.6)), 2, (int) (heat * 0.6));
         } else {
             graph.fillRect(x + 51, y + 3 + (30 - heat), 2, heat);
         }
     }
 
-    private void drawBars(Graphics graph, Entity entity, int x, int y) {
+    private void drawBars(final Graphics graph, final Entity entity, final int x, final int y) {
         // Lets draw our armor and internal status bars
         int baseBarLength = 23;
         int barLength;
@@ -360,7 +364,7 @@ public class UnitOverview implements IDisplayable {
 
     }
 
-    private Color getStatusBarColor(double percentRemaining) {
+    private Color getStatusBarColor(final double percentRemaining) {
         if (percentRemaining <= 0.25) {
             return Color.RED;
         } else if (percentRemaining <= 0.75) {
@@ -370,12 +374,12 @@ public class UnitOverview implements IDisplayable {
         }
     }
 
-    private Color getFrameColor(Entity entity) {
+    private Color getFrameColor(final Entity entity) {
         return (!clientgui.getClient().isMyTurn() || !entity.isSelectableThisTurn())
                 ? Color.DARK_GRAY : Color.BLACK;
     }
 
-    private void printLine(Graphics g, int x, int y, String s) {
+    private void printLine(final Graphics g, final int x, final int y, final String s) {
         g.setColor(Color.BLACK);
         g.drawString(s, x + 1, y);
         g.drawString(s, x - 1, y);
@@ -385,7 +389,7 @@ public class UnitOverview implements IDisplayable {
         g.drawString(s, x, y);
     }
 
-    private void drawConditionStrings(Graphics graph, Entity entity, int x, int y) {
+    private void drawConditionStrings(final Graphics graph, final Entity entity, final int x, final int y) {
 
 //      out of control conditions for ASF
         if(entity.isAero()) {
@@ -469,7 +473,7 @@ public class UnitOverview implements IDisplayable {
         }
     }
 
-    private void computeUnitsPerPage(Dimension size) {
+    private void computeUnitsPerPage(final Dimension size) {
         unitsPerPage = (size.height - DIST_TOP) / (ICON_HEIGHT + PADDING);
     }
 
@@ -507,7 +511,7 @@ public class UnitOverview implements IDisplayable {
         }
     }
 
-    protected String getIconName(Entity e, FontMetrics metrics) {
+    protected String getIconName(final Entity e, final FontMetrics metrics) {
         if (e instanceof BattleArmor) {
             String iconName = e.getShortName();
             if (metrics.stringWidth(iconName) > ICON_NAME_MAX_LENGTH) {
@@ -546,7 +550,7 @@ public class UnitOverview implements IDisplayable {
         }
     }
 
-    protected String adjustString(String s, FontMetrics metrics) {
+    protected String adjustString(String s, final FontMetrics metrics) {
         while (metrics.stringWidth(s) > ICON_NAME_MAX_LENGTH) {
             s = s.substring(0, s.length() - 1);
         }

@@ -80,8 +80,8 @@ class EntitySprite extends Sprite {
             "Assault", "Mobile", "Platform", "Battle Armor", "Vessel", "Infantry",
             "Fighting", "Fire", "Support", "Reconnaissance", "Fast");
     
-    public EntitySprite(BoardView1 boardView1, final Entity entity,
-            int secondaryPos, Image radarBlipImage) {
+    public EntitySprite(final BoardView1 boardView1, final Entity entity, final int secondaryPos,
+                        final Image radarBlipImage) {
         super(boardView1);
         this.entity = entity;
         this.radarBlipImage = radarBlipImage;
@@ -128,12 +128,12 @@ class EntitySprite extends Sprite {
     }
     
     /** 
-     * Returns a shortened unit name string, mostly for vehicles. Words contained
-     * in the removableNameStrings list are taken away from the end of the name
-     * until something is encountered that is not contained in that list. 
-     * On Mech names this will typically have no effect.
+     * Returns a shortened unit name string, mostly for vehicles. Words contained in the
+     * removableNameStrings list are taken away from the end of the name until something is
+     * encountered that is not contained in that list. On 'Mech names this will typically have no
+     * effect.
      */
-    private static String reduceVehicleName(String unitName) {
+    private static String reduceVehicleName(final String unitName) {
         String[] tokens = unitName.split(" ");
         int i = tokens.length - 1;
         for ( ; i > 0; i--) {
@@ -145,7 +145,7 @@ class EntitySprite extends Sprite {
     }
     
     /** Returns the string with some content shortened like Battle Armor -> BA */
-    private static String abbreviateUnitName(String unitName) {
+    private static String abbreviateUnitName(final String unitName) {
         return unitName
                 .replace("(Standard)", "").replace("Battle Armor", "BA")
                 .replace("Standard", "Std.").replace("Vehicle", "Veh.")
@@ -161,22 +161,15 @@ class EntitySprite extends Sprite {
     }
     
     private String pilotNick() {
-        if ((entity.getCrew().getSize() >= 1) && !entity.getCrew().getNickname().isBlank()) {
-            return entity.getCrew().getNickname();
-        } else {
-            return "";
-        }
+        return ((entity.getCrew().getSize() >= 1) && !entity.getCrew().getNickname().isBlank())
+                ? entity.getCrew().getNickname() : "";
     }
     
     private String unitNick() {
-        String name = entity.getShortName();
-        int firstApo = name.indexOf('\'');
-        int secondApo = name.indexOf('\'', name.indexOf('\'') + 1);
-        if ((firstApo >= 0) && (secondApo >= 0)) {
-            return name.substring(firstApo + 1, secondApo);
-        } else {
-            return "";
-        }
+        final String name = entity.getShortName();
+        final int firstApo = name.indexOf('\'');
+        final int secondApo = name.indexOf('\'', name.indexOf('\'') + 1);
+        return ((firstApo < 0) || (secondApo < 0)) ? "" : name.substring(firstApo + 1, secondApo);
     }
     
     private String standardLabelName() {
@@ -206,9 +199,8 @@ class EntitySprite extends Sprite {
         }
         bounds.setLocation(hexOrigin.x + ePos.x, hexOrigin.y + ePos.y);
         
-        entityRect = new Rectangle(bounds.x + (int) (20 * bv.scale), bounds.y
-                + (int) (14 * bv.scale), (int) (44 * bv.scale),
-                (int) (44 * bv.scale));
+        entityRect = new Rectangle(bounds.x + (int) (20 * bv.scale),
+                bounds.y + (int) (14 * bv.scale), (int) (44 * bv.scale), (int) (44 * bv.scale));
 
         return bounds;
     }
@@ -276,7 +268,7 @@ class EntitySprite extends Sprite {
 
         Status(Color c, String s) {
             color = c;
-            status = Messages.getString("BoardView1."+s);
+            status = Messages.getString("BoardView1." + s);
             small = false;
             if (color.equals(Color.RED)) {
                 criticalStatus = true;
@@ -285,7 +277,7 @@ class EntitySprite extends Sprite {
 
         Status(Color c, String s, Object[] objs) {
             color = c;
-            status = Messages.getString("BoardView1."+s, objs);
+            status = Messages.getString("BoardView1." + s, objs);
             small = false;
             if (color.equals(Color.RED)) {
                 criticalStatus = true;
@@ -323,7 +315,7 @@ class EntitySprite extends Sprite {
         // The small info blobs
         g.setFont(labelFont);
         
-        Rectangle stR = new Rectangle(labelRect.x, labelRect.y, labelRect.height, labelRect.height);
+        Rectangle stR = new Rectangle(labelRect.x, labelRect.y, labelRect.width, labelRect.height);
         if (labelPos == Positioning.LEFT) {
             stR.translate(labelRect.width - labelRect.height, 0);
         }
@@ -633,8 +625,7 @@ class EntitySprite extends Sprite {
                 } else {
                     graph.setColor(LABEL_BACK);
                 }
-                graph.fillRoundRect(labelRect.x, labelRect.y, labelRect.width,
-                        labelRect.height, 5, 10);
+                graph.fillRoundRect(labelRect.x, labelRect.y, labelRect.width, labelRect.height, 5, 10);
 
                 // Draw a label border with player colors or team coloring
                 if (guip.getUnitLabelBorder()) {
@@ -653,8 +644,8 @@ class EntitySprite extends Sprite {
                     }
                     Stroke oldStroke = graph.getStroke();
                     graph.setStroke(new BasicStroke(3));
-                    graph.drawRoundRect(labelRect.x - 1, labelRect.y - 1, 
-                            labelRect.width + 1, labelRect.height + 1, 5, 10);
+                    graph.drawRoundRect(labelRect.x - 1, labelRect.y - 1, labelRect.width + 1,
+                            labelRect.height + 1, 5, 10);
                     graph.setStroke(oldStroke);
                 }
 
