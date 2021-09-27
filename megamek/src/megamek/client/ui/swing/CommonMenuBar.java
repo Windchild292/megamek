@@ -327,18 +327,17 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        
         // Changes that are independent of the current state of MM
         // Boardview and others may listen to PreferenceChanges to detect these
         if (event.getActionCommand().equals(ClientGUI.VIEW_INCGUISCALE)) {
-            float guiScale = GUIP.getGUIScale();
+            float guiScale = MegaMek.getMMOptions().getGUIScale();
             if (guiScale < ClientGUI.MAX_GUISCALE) {
-                GUIP.setValue(GUIPreferences.GUI_SCALE, guiScale + 0.1);
+                MegaMek.getMMOptions().setGUIScale(guiScale + 0.1f);
             }
         } else if (event.getActionCommand().equals(ClientGUI.VIEW_DECGUISCALE)) {
-            float guiScale = GUIP.getGUIScale();
+            float guiScale = MegaMek.getMMOptions().getGUIScale();
             if (guiScale > ClientGUI.MIN_GUISCALE) {
-                GUIP.setValue(GUIPreferences.GUI_SCALE, guiScale - 0.1);
+                MegaMek.getMMOptions().setGUIScale(guiScale - 0.1f);
             }
         } else if (event.getActionCommand().equals(ClientGUI.VIEW_MINI_MAP)) {
             GUIP.setMinimapEnabled(!GUIP.getMinimapEnabled());

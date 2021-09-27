@@ -67,7 +67,7 @@ public class PreferenceManager {
         return instance;
     }
 
-    public static IClientPreferences getClientPreferences() {
+    public static ClientPreferences getClientPreferences() {
         return getInstance().clientPreferences;
     }
 

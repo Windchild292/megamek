@@ -14,6 +14,7 @@
 
 package megamek.client.bot;
 
+import megamek.MegaMek;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 
@@ -24,9 +25,8 @@ import java.util.ResourceBundle;
 public class Messages {
     private static final String BUNDLE_NAME = "megamek.client.bot.messages";//$NON-NLS-1$
 
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME, PreferenceManager.getClientPreferences()
-                    .getLocale(), new EncodeControl());
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME,
+            MegaMek.getMMOptions().getLocale().getLocale(), new EncodeControl());
 
     private Messages() {
     }

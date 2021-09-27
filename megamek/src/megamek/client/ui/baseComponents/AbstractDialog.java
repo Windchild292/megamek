@@ -19,14 +19,16 @@
 package megamek.client.ui.baseComponents;
 
 import megamek.MegaMek;
-import megamek.common.preference.PreferenceManager;
-import megamek.common.util.EncodeControl;
 import megamek.client.ui.preferences.JWindowPreference;
 import megamek.client.ui.preferences.PreferencesNode;
+import megamek.common.util.EncodeControl;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ResourceBundle;
 
 /**
@@ -60,8 +62,8 @@ public abstract class AbstractDialog extends JDialog implements WindowListener {
      * modal dialogs.
      */
     protected AbstractDialog(final JFrame frame, final boolean modal, final String name, final String title) {
-        this(frame, modal, ResourceBundle.getBundle("megamek.client.messages", 
-                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl()), name, title);
+        this(frame, modal, ResourceBundle.getBundle("megamek.client.messages",
+                MegaMek.getMMOptions().getLocale().getLocale(), new EncodeControl()), name, title);
     }
 
     /**

@@ -31,6 +31,8 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.Transparency;
 import java.util.*;
+
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.EntityWreckHelper;
@@ -669,7 +671,7 @@ class EntitySprite extends Sprite {
                     graph.scale(1 / bv.scale, 1 / bv.scale);
                     graph.rotate(Math.PI / 24, bv.hex_size.width/2, bv.hex_size.height/2);
                     graph.scale(bv.scale, bv.scale);
-                    graph.setColor(GUIPreferences.getInstance().getWarningColor());
+                    graph.setColor(MegaMek.getMMOptions().getWarningColour());
                     graph.fill(bv.facingPolys[entity.getFacing()]);
                     graph.setColor(Color.LIGHT_GRAY);
                     graph.draw(bv.facingPolys[entity.getFacing()]);
@@ -677,7 +679,7 @@ class EntitySprite extends Sprite {
                 }
                 
                 if (!entity.isDone() && (bv.game.getPhase() == Phase.PHASE_MOVEMENT)) {
-                    graph.setColor(GUIPreferences.getInstance().getWarningColor());
+                    graph.setColor(MegaMek.getMMOptions().getWarningColour());
                     graph.fill(bv.facingPolys[entity.getFacing()]);
                     graph.setColor(Color.WHITE);
                     graph.draw(bv.facingPolys[entity.getFacing()]);

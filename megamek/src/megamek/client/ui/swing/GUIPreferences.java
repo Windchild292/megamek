@@ -1,102 +1,28 @@
 /*
  * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing;
 
-import java.awt.*;
-
-import javax.swing.*;
-
-import megamek.client.ui.swing.boardview.BoardView1;
 import megamek.client.ui.swing.boardview.LabelDisplayStyle;
 import megamek.client.ui.swing.util.PlayerColour;
 import megamek.common.Entity;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.preference.PreferenceStoreProxy;
 
+import java.awt.*;
+
+@Deprecated // Replaced with the SuiteOptions/MMOptions and MMPreferences Setup
 public class GUIPreferences extends PreferenceStoreProxy {
-
-    /*
-     * --Begin advanced settings section-- Options with the "ADVANCED" prefix
-     * are treated specially. They are quick and easy to add, at the expense of
-     * some user-friendliness (that's why they are "advanced"<grin>). Only the
-     * appropriate declaration below and the default value (further down in this
-     * file) need be added. The code will then automatically add the option to
-     * the advanced tab of the client settings. In order to retrieve one of
-     * these settings, use a line like:
-     * GUIPreferences.getInstance().getInt("AdvancedWhateverOption"), where
-     * getInt is replaced with getBoolean, getString, etc as necessary. The
-     * reason these options were made this way is that GUI options have a way of
-     * quickly multiplying and we need a quick and dirty way of adding them
-     * without having to code too many new lines. In addition, keeping them
-     * separated in the settings dialog shields new users from unnecessary
-     * complication.
-     */
-    public static final String ADVANCED_CHATBOX_SIZE = "AdvancedChatboxSize";
-    public static final String ADVANCED_CHAT_LOUNGE_TAB_FONT_SIZE = "AdvancedChatLoungeTabFontSize";
-    public static final String ADVANCED_MECH_DISPLAY_ARMOR_LARGE_FONT_SIZE = "AdvancedMechDisplayArmorLargeFontSize";
-    public static final String ADVANCED_MECH_DISPLAY_ARMOR_MEDIUM_FONT_SIZE = "AdvancedMechDisplayArmorMediumFontSize";
-    public static final String ADVANCED_MECH_DISPLAY_ARMOR_SMALL_FONT_SIZE = "AdvancedMechDisplayArmorSmallFontSize";
-    public static final String ADVANCED_MECH_DISPLAY_LARGE_FONT_SIZE = "AdvancedMechDisplayLargeFontSize";
-    public static final String ADVANCED_MECH_DISPLAY_MEDIUM_FONT_SIZE = "AdvancedMechDisplayMediumFontSize";
-    public static final String ADVANCED_MECH_DISPLAY_WRAP_LENGTH = "AdvancedMechDisplayWrapLength";
-    public static final String ADVANCED_MOVE_DEFAULT_CLIMB_MODE = "AdvancedMoveDefaultClimbMode";
-    public static final String ADVANCED_MOVE_DEFAULT_COLOR = "AdvancedMoveDefaultColor";
-    public static final String ADVANCED_MOVE_ILLEGAL_COLOR = "AdvancedMoveIllegalColor";
-    public static final String ADVANCED_MOVE_JUMP_COLOR = "AdvancedMoveJumpColor";
-    public static final String ADVANCED_MOVE_MASC_COLOR = "AdvancedMoveMASCColor";
-    public static final String ADVANCED_MOVE_RUN_COLOR = "AdvancedMoveRunColor";
-    public static final String ADVANCED_MOVE_BACK_COLOR = "AdvancedMoveBackColor";
-    public static final String ADVANCED_MOVE_SPRINT_COLOR = "AdvancedMoveSprintColor";
-    public static final String ADVANCED_MOVE_FONT_TYPE = "AdvancedMoveFontType";
-    public static final String ADVANCED_MOVE_FONT_SIZE = "AdvancedMoveFontSize";
-    public static final String ADVANCED_MOVE_FONT_STYLE = "AdvancedMoveFontStyle";
-    public static final String ADVANCED_MOVE_STEP_DELAY = "AdvancedMoveStepDelay";
-    public static final String ADVANCED_FIRE_SOLN_CANSEE_COLOR = "AdvancedFireSolnCanSeeColor";
-    public static final String ADVANCED_FIRE_SOLN_NOSEE_COLOR = "AdvancedFireSolnNoSeeColor";
-    public static final String ADVANCED_DARKEN_MAP_AT_NIGHT = "AdvancedDarkenMapAtNight";
-    public static final String ADVANCED_MAPSHEET_COLOR = "AdvancedMapsheetColor";
-    public static final String ADVANCED_TRANSLUCENT_HIDDEN_UNITS = "AdvancedTranslucentHiddenUnits";
-    public static final String ADVANCED_ATTACK_ARROW_TRANSPARENCY = "AdvancedAttackArrowTransparency";
-    public static final String ADVANCED_BUILDING_TEXT_COLOR = "AdvancedBuildingTextColor";
-    public static final String ADVANCED_CHATBOX2_FONTSIZE = "AdvancedChatbox2Fontsize";
-    public static final String ADVANCED_CHATBOX2_BACKCOLOR = "AdvancedChatbox2BackColor";
-    public static final String ADVANCED_CHATBOX2_TRANSPARANCY = "AdvancedChatbox2Transparancy";
-    public static final String ADVANCED_CHATBOX2_AUTOSLIDEDOWN = "AdvancedChatbox2AutoSlidedown";
-    public static final String ADVANCED_ECM_TRANSPARENCY = "AdvancedECMTransparency";
-    public static final String ADVANCED_UNITOVERVIEW_SELECTED_COLOR = "AdvancedUnitOverviewSelectedColor";
-    public static final String ADVANCED_UNITOVERVIEW_VALID_COLOR = "AdvancedUnitOverviewValidColor";
-    public static final String ADVANCED_KEY_REPEAT_DELAY = "AdvancedKeyRepeatDelay";
-    public static final String ADVANCED_KEY_REPEAT_RATE = "AdvancedKeyRepeatRate";
-    public static final String ADVANCED_SHOW_FPS = "AdvancedShowFPS";
-    public static final String ADVANCED_BUTTONS_PER_ROW = "AdvancedButtonsPerRow";
-    public static final String ADVANCED_ARMORMINI_UNITS_PER_BLOCK = "AdvancedArmorMiniUnitsPerBlock";
-    public static final String ADVANCED_ARMORMINI_ARMOR_CHAR = "AdvancedArmorMiniArmorChar";
-    public static final String ADVANCED_ARMORMINI_CAP_ARMOR_CHAR = "AdvancedArmorMiniCapArmorChar";
-    public static final String ADVANCED_ARMORMINI_IS_CHAR = "AdvancedArmorMiniISChar";
-    public static final String ADVANCED_ARMORMINI_DESTROYED_CHAR = "AdvancedArmorMiniDestroyedChar";
-    public static final String ADVANCED_ARMORMINI_COLOR_INTACT = "AdvancedArmorMiniColorIntact";
-    public static final String ADVANCED_ARMORMINI_COLOR_PARTIAL_DMG = "AdvancedArmorMiniColorPartialDmg";
-    public static final String ADVANCED_ARMORMINI_COLOR_DAMAGED = "AdvancedArmorMiniColorDamaged";
-    public static final String ADVANCED_ARMORMINI_FONT_SIZE_MOD = "AdvancedArmorMiniFrontSizeMod";
-    public static final String ADVANCED_ROUND_REPORT_SPRITES = "AdvancedRoundReportSprites";
-    public static final String ADVANCED_LOW_FOLIAGE_COLOR = "AdvancedLowFoliageColor";
-    public static final String ADVANCED_NO_SAVE_NAG = "AdvancedNoSaveNag";
-    public static final String ADVANCED_USE_CAMO_OVERLAY = "AdvancedUseCamoOverlay";
-    /* --End advanced settings-- */
-
-
     public static final String DRAW_ENTITY_LABEL = "drawEntityLabel";
     public static final String SHOW_COORDS = "showCoords";
     public static final String ANTIALIASING = "AntiAliasing";
@@ -109,39 +35,106 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String SOFTCENTER = "SoftCenter";
     public static final String AUTO_END_FIRING = "AutoEndFiring";
     public static final String AUTO_DECLARE_SEARCHLIGHT = "AutoDeclareSearchlight";
-    public static final String CUSTOM_UNIT_HEIGHT = "CustomUnitDialogSizeHeight";
-    public static final String CUSTOM_UNIT_WIDTH = "CustomUnitDialogSizeWidth";
-    public static final String DISPLAY_POS_X = "DisplayPosX";
-    public static final String DISPLAY_POS_Y = "DisplayPosY";
-    public static final String DISPLAY_SIZE_HEIGHT = "DisplaySizeHeight";
-    public static final String DISPLAY_SIZE_WIDTH = "DisplaySizeWidth";
     public static final String GAME_SUMMARY_BOARD_VIEW = "GameSummaryBoardView";
     public static final String GAME_SUMMARY_MINI_MAP = "GameSummaryMiniMap";
-    public static final String ENTITY_OWNER_LABEL_COLOR = "EntityOwnerLabelColor";
-    public static final String UNIT_LABEL_BORDER = "EntityOwnerLabelColor";
-    public static final String TEAM_COLORING = "EntityTeamLabelColor";
     public static final String FOCUS = "Focus";
-    public static final String GAME_OPTIONS_SIZE_HEIGHT = "GameOptionsSizeHeight";
-    public static final String GAME_OPTIONS_SIZE_WIDTH = "GameOptionsSizeWidth";
     public static final String FIRING_SOLUTIONS = "FiringSolutions";
     public static final String MOVE_ENVELOPE = "MoveEnvelope";
     public static final String FOV_HIGHLIGHT = "FovHighlight";
     public static final String FOV_HIGHLIGHT_ALPHA = "FovHighlightAlpha";
-    //Rings' sizes (measured in distance to center) separated by whitespace.
+    // Rings' sizes (measured in distance to center) separated by whitespace.
     public static final String FOV_HIGHLIGHT_RINGS_RADII = "FovHighlightRingsRadii";
-    //Rings' colors in the HSB format.
-    //Each hsb color is separated by a semicolon, particular h, s and b values are whitespace separated.
+    // Rings' colors in the HSB format.
+    // Each hsb color is separated by a semicolon, particular h, s and b values are whitespace separated.
     public static final String FOV_HIGHLIGHT_RINGS_COLORS_HSB = "FovHighlightRingsColorsInHSB";
     public static final String FOV_DARKEN = "FovDarken";
     public static final String FOV_DARKEN_ALPHA = "FovDarkenAlpha";
     public static final String FOV_STRIPES = "FoVFogStripes";
     public static final String FOV_GRAYSCALE = "FoVFogGrayscale";
-    public static final String GUI_SCALE = "GUIScale";
-    public static final String LOBBY_MEKTABLE_UNIT_WIDTH = "LobbyMektableUnitWidth";
-    public static final String LOBBY_MEKTABLE_PILOT_WIDTH = "LobbyMektablePilotWidth";
-    public static final String LOBBY_MEKTABLE_PLAYER_WIDTH = "LobbyMektablePlayerWidth";
-    public static final String LOBBY_MEKTABLE_BV_WIDTH = "LobbyMektableBVWidth";
+    public static final String MINIMAP_ENABLED = "MinimapEnabled";
+    public static final String MINIMAP_ZOOM = "MinimapZoom";
+    public static final String SHOW_UNIT_DISPLAY = "ShowUnitDisplay";
+    public static final String MOUSE_WHEEL_ZOOM = "MouseWheelZoom";
+    public static final String MOUSE_WHEEL_ZOOM_FLIP = "MouseWheelZoomFlip";
+    public static final String SCROLL_SENSITIVITY = "ScrollSensitivity";
+    public static final String SHOW_FIELD_OF_FIRE = "ShowFieldOfFire";
+    public static final String SHOW_MAPHEX_POPUP = "ShowMapHexPopup";
+    public static final String SHOW_WPS_IN_TT = "ShowWpsinTT";
+    public static final String SHOW_ARMOR_MINIVIS_TT = "showArmorMiniVisTT";
+    public static final String SHOW_PILOT_PORTRAIT_TT = "showPilotPortraitTT";
+    public static final String SHOW_MOVE_STEP = "ShowMoveStep";
+    public static final String SHOW_WRECKS = "ShowWrecks";
+    public static final String SOUND_BING_FILENAME = "SoundBingFilename";
+    public static final String SOUND_MUTE = "SoundMute";
+    public static final String RND_MAP_ADVANCED = "RndMapAdvanced";
+    public static final String LOS_MECH_IN_FIRST = "LOSMechInFirst";
+    public static final String LOS_MECH_IN_SECOND = "LOSMechInSecond";
+    public static final String SHOW_MAPSHEETS = "ShowMapsheets";
+    public static final String USE_ISOMETRIC = "UseIsometric";
+    public static final String SHOW_UNIT_OVERVIEW = "ShowUnitOverview";
+    public static final String SHOW_DAMAGE_LEVEL = "ShowDamageLevel";
+    public static final String SHOW_DAMAGE_DECAL = "ShowDamageDecal";
+    public static final String SKIN_FILE = "SkinFile";
+    public static final String DEFAULT_WEAP_SORT_ORDER = "DefaultWeaponSortOrder";
+    public static final String BOARDEDIT_RNDDIALOG_START = "BoardEditRandomDialogStart";
+    public static final String SHOW_KEYBINDS_OVERLAY = "ShowKeybindsOverlay";
+    public static final String OPTIONS_SHOW_UNOFFICIAL = "OptionsShowUnofficial";
+    public static final String OPTIONS_SHOW_LEGACY = "OptionsShowLegacy";
+    public static final String UNIT_LABEL_STYLE = "UnitLabelStyle";
+
+    // Colours
+    public static final String ENTITY_OWNER_LABEL_COLOR = "EntityOwnerLabelColor";
+    public static final String UNIT_LABEL_BORDER = "EntityOwnerLabelColor";
+    public static final String TEAM_COLORING = "EntityTeamLabelColor";
+    public static final String ALLY_UNIT_COLOR = "AllyUnitColor";
+    public static final String MY_UNIT_COLOR = "MyUnitColor";
+    public static final String ENEMY_UNIT_COLOR = "EnemyUnitColor";
     public static final String MAP_TEXT_COLOR = "MapTextColor";
+    public static final String MINIMAP_COLOURS = "MinimapColours";
+    public static final String RULER_COLOR_1 = "RulerColor1";
+    public static final String RULER_COLOR_2 = "RulerColor2";
+
+    // Nags
+    public static final String NAG_FOR_BOT_README = "NagForBotReadme";
+    public static final String NAG_FOR_CRUSHING_BUILDINGS = "NagForCrushingBuildings";
+    public static final String NAG_FOR_MAP_ED_README = "NagForMapEdReadme";
+    public static final String NAG_FOR_MASC = "NagForMASC";
+    public static final String NAG_FOR_NO_ACTION = "NagForNoAction";
+    public static final String NAG_FOR_PSR = "NagForPSR";
+    public static final String NAG_FOR_README = "NagForReadme";
+    public static final String NAG_FOR_SPRINT = "NagForSprint";
+    public static final String NAG_FOR_OVERHEAT = "NagForOverHeat";
+    public static final String NAG_FOR_LAUNCH_DOORS = "NagForLaunchDoors";
+    public static final String NAG_FOR_MECHANICAL_FALL_DAMAGE = "NagForMechanicalFallDamage";
+    public static final String NAG_FOR_DOOMED = "NagForDoomed";
+    public static final String NAG_FOR_WIGE_LANDING = "NagForWiGELanding";
+    public static final String ADVANCED_NO_SAVE_NAG = "AdvancedNoSaveNag";
+
+    // Dialog Preferences
+    public static final String RAT_TECH_LEVEL = "RATTechLevel";
+    public static final String RAT_BV_MIN = "RATBVMin";
+    public static final String RAT_BV_MAX = "RATBVMax";
+    public static final String RAT_NUM_MECHS = "RATNumMechs";
+    public static final String RAT_NUM_VEES = "RATNumVees";
+    public static final String RAT_NUM_BA = "RATNumBA";
+    public static final String RAT_NUM_INF = "RATNumInf";
+    public static final String RAT_YEAR_MIN = "RATYearMin";
+    public static final String RAT_YEAR_MAX = "RATYearMax";
+    public static final String RAT_PAD_BV = "RATPadBV";
+    public static final String RAT_SELECTED_RAT = "RATSelectedRAT";
+    public static final String WINDOW_POS_X = "WindowPosX";
+    public static final String WINDOW_POS_Y = "WindowPosY";
+    public static final String WINDOW_SIZE_HEIGHT = "WindowSizeHeight";
+    public static final String WINDOW_SIZE_WIDTH = "WindowSizeWidth";
+    public static final String RND_ARMY_SIZE_HEIGHT = "RndArmySizeHeight";
+    public static final String RND_ARMY_SIZE_WIDTH = "RndArmySizeWidth";
+    public static final String RND_ARMY_POS_X = "RndArmyPosX";
+    public static final String RND_ARMY_POS_Y = "RndArmyPosY";
+    public static final String RND_ARMY_SPLIT_POS = "RndArmySplitPos";
+    public static final String RND_MAP_POS_X = "RndMapPosX";
+    public static final String RND_MAP_POS_Y = "RndMapPosY";
+    public static final String RND_MAP_SIZE_HEIGHT = "RndMapSizeHeight";
+    public static final String RND_MAP_SIZE_WIDTH = "RndMapSizeWidth";
     public static final String MAP_ZOOM_INDEX = "MapZoomIndex";
     public static final String MECH_SELECTOR_INCLUDE_MODEL = "MechSelectorIncludeModel";
     public static final String MECH_SELECTOR_INCLUDE_NAME = "MechSelectorIncludeName";
@@ -165,97 +158,29 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String MINI_REPORT_POS_Y = "MiniReportPosY";
     public static final String MINI_REPORT_SIZE_HEIGHT = "MiniReportSizeHeight";
     public static final String MINI_REPORT_SIZE_WIDTH = "MiniReportSizeWidth";
-    public static final String MINIMAP_COLOURS = "MinimapColours";
-    public static final String MINIMAP_ENABLED = "MinimapEnabled";
-    public static final String MINIMAP_POS_X = "MinimapPosX";
-    public static final String MINIMAP_POS_Y = "MinimapPosY";
-    public static final String MINIMAP_ZOOM = "MinimapZoom";
-    public static final String MINIMUM_SIZE_HEIGHT = "MinimumSizeHeight";
-    public static final String MINIMUM_SIZE_WIDTH = "MinimumSizeWidth";
-    public static final String SHOW_UNIT_DISPLAY = "ShowUnitDisplay";
-    public static final String MOUSE_WHEEL_ZOOM = "MouseWheelZoom";
-    public static final String MOUSE_WHEEL_ZOOM_FLIP = "MouseWheelZoomFlip";
-    public static final String NAG_FOR_BOT_README = "NagForBotReadme";
-    public static final String NAG_FOR_CRUSHING_BUILDINGS = "NagForCrushingBuildings";
-    public static final String NAG_FOR_MAP_ED_README = "NagForMapEdReadme";
-    public static final String NAG_FOR_MASC = "NagForMASC";
-    public static final String NAG_FOR_NO_ACTION = "NagForNoAction";
-    public static final String NAG_FOR_PSR = "NagForPSR";
-    public static final String NAG_FOR_README = "NagForReadme";
-    public static final String NAG_FOR_SPRINT = "NagForSprint";
-    public static final String NAG_FOR_OVERHEAT = "NagForOverHeat";
-    public static final String NAG_FOR_LAUNCH_DOORS = "NagForLaunchDoors";
-    public static final String NAG_FOR_MECHANICAL_FALL_DAMAGE = "NagForMechanicalFallDamage";
-    public static final String NAG_FOR_DOOMED = "NagForDoomed";
-    public static final String NAG_FOR_WIGE_LANDING = "NagForWiGELanding";
-    public static final String RULER_COLOR_1 = "RulerColor1";
-    public static final String RULER_COLOR_2 = "RulerColor2";
+    public static final String GAME_OPTIONS_SIZE_HEIGHT = "GameOptionsSizeHeight";
+    public static final String GAME_OPTIONS_SIZE_WIDTH = "GameOptionsSizeWidth";
+    public static final String CUSTOM_UNIT_HEIGHT = "CustomUnitDialogSizeHeight";
+    public static final String CUSTOM_UNIT_WIDTH = "CustomUnitDialogSizeWidth";
+    public static final String DISPLAY_POS_X = "DisplayPosX";
+    public static final String DISPLAY_POS_Y = "DisplayPosY";
+    public static final String DISPLAY_SIZE_HEIGHT = "DisplaySizeHeight";
+    public static final String DISPLAY_SIZE_WIDTH = "DisplaySizeWidth";
     public static final String RULER_POS_X = "RulerPosX";
     public static final String RULER_POS_Y = "RulerPosY";
     public static final String RULER_SIZE_HEIGHT = "RulerSizeHeight";
     public static final String RULER_SIZE_WIDTH = "RulerSizeWidth";
-    public static final String SCROLL_SENSITIVITY = "ScrollSensitivity";
-    public static final String SHOW_FIELD_OF_FIRE = "ShowFieldOfFire";
-    public static final String SHOW_MAPHEX_POPUP = "ShowMapHexPopup";
-    public static final String SHOW_WPS_IN_TT = "ShowWpsinTT";
-    public static final String SHOW_ARMOR_MINIVIS_TT = "showArmorMiniVisTT";
-    public static final String SHOW_PILOT_PORTRAIT_TT = "showPilotPortraitTT";
-    public static final String SHOW_MOVE_STEP = "ShowMoveStep";
-    public static final String SHOW_WRECKS = "ShowWrecks";
-    public static final String SOUND_BING_FILENAME = "SoundBingFilename";
-    public static final String SOUND_MUTE = "SoundMute";
-    public static final String TOOLTIP_DELAY = "TooltipDelay";
-    public static final String TOOLTIP_DISMISS_DELAY = "TooltipDismissDelay";
-    public static final String TOOLTIP_DIST_SUPRESSION = "TooltipDistSupression";
-    public static final String WINDOW_POS_X = "WindowPosX";
-    public static final String WINDOW_POS_Y = "WindowPosY";
-    public static final String WINDOW_SIZE_HEIGHT = "WindowSizeHeight";
-    public static final String WINDOW_SIZE_WIDTH = "WindowSizeWidth";
-    public static final String RND_ARMY_SIZE_HEIGHT = "RndArmySizeHeight";
-    public static final String RND_ARMY_SIZE_WIDTH = "RndArmySizeWidth";
-    public static final String RND_ARMY_POS_X = "RndArmyPosX";
-    public static final String RND_ARMY_POS_Y = "RndArmyPosY";
-    public static final String RND_ARMY_SPLIT_POS = "RndArmySplitPos";
-    public static final String RND_MAP_POS_X = "RndMapPosX";
-    public static final String RND_MAP_POS_Y = "RndMapPosY";
-    public static final String RND_MAP_SIZE_HEIGHT = "RndMapSizeHeight";
-    public static final String RND_MAP_SIZE_WIDTH = "RndMapSizeWidth";
-    public static final String RND_MAP_ADVANCED = "RndMapAdvanced";
-    public static final String LOS_MECH_IN_FIRST = "LOSMechInFirst";
-    public static final String LOS_MECH_IN_SECOND = "LOSMechInSecond";
-    public static final String SHOW_MAPSHEETS = "ShowMapsheets";
-    public static final String USE_ISOMETRIC = "UseIsometric";
-    public static final String SHOW_UNIT_OVERVIEW = "ShowUnitOverview";
-    public static final String SHOW_DAMAGE_LEVEL = "ShowDamageLevel";
-    public static final String SHOW_DAMAGE_DECAL = "ShowDamageDecal";
-    public static final String SKIN_FILE = "SkinFile";
-    public static final String DEFAULT_WEAP_SORT_ORDER = "DefaultWeaponSortOrder";
-    public static final String UI_THEME = "UITheme";
+    public static final String LOBBY_MEKTABLE_UNIT_WIDTH = "LobbyMektableUnitWidth";
+    public static final String LOBBY_MEKTABLE_PILOT_WIDTH = "LobbyMektablePilotWidth";
+    public static final String LOBBY_MEKTABLE_PLAYER_WIDTH = "LobbyMektablePlayerWidth";
+    public static final String LOBBY_MEKTABLE_BV_WIDTH = "LobbyMektableBVWidth";
+    public static final String MINIMAP_POS_X = "MinimapPosX";
+    public static final String MINIMAP_POS_Y = "MinimapPosY";
+    public static final String MINIMUM_SIZE_HEIGHT = "MinimumSizeHeight";
+    public static final String MINIMUM_SIZE_WIDTH = "MinimumSizeWidth";
     public static final String BOARDEDIT_LOAD_SIZE_HEIGHT = "BoardEditLoadSizeHeight";
     public static final String BOARDEDIT_LOAD_SIZE_WIDTH = "BoardEditLoadSizeWidth";
-    public static final String BOARDEDIT_RNDDIALOG_START = "BoardEditRandomDialogStart";
-    public static final String WARNING_COLOR = "WarningColor";
-    public static final String ALLY_UNIT_COLOR = "AllyUnitColor";
-    public static final String MY_UNIT_COLOR = "MyUnitColor";
-    public static final String ENEMY_UNIT_COLOR = "EnemyUnitColor";
-    public static final String SHOW_KEYBINDS_OVERLAY = "ShowKeybindsOverlay";
-    public static final String OPTIONS_SHOW_UNOFFICIAL = "OptionsShowUnofficial";
-    public static final String OPTIONS_SHOW_LEGACY = "OptionsShowLegacy";
-    public static final String UNIT_LABEL_STYLE = "UnitLabelStyle";
-    
-    // RAT dialog preferences
-    public static String RAT_TECH_LEVEL = "RATTechLevel";
-    public static String RAT_BV_MIN = "RATBVMin";
-    public static String RAT_BV_MAX = "RATBVMax";
-    public static String RAT_NUM_MECHS = "RATNumMechs";
-    public static String RAT_NUM_VEES = "RATNumVees";
-    public static String RAT_NUM_BA = "RATNumBA";
-    public static String RAT_NUM_INF = "RATNumInf";
-    public static String RAT_YEAR_MIN = "RATYearMin";
-    public static String RAT_YEAR_MAX = "RATYearMax";
-    public static String RAT_PAD_BV = "RATPadBV";
-    public static String RAT_SELECTED_RAT = "RATSelectedRAT";
-    
+
 
     protected static GUIPreferences instance = new GUIPreferences();
 
@@ -268,15 +193,42 @@ public class GUIPreferences extends PreferenceStoreProxy {
 
         store.setDefault(ADVANCED_CHATBOX_SIZE, 5);
         store.setDefault(ADVANCED_CHAT_LOUNGE_TAB_FONT_SIZE, 16);
-        store.setDefault(DRAW_ENTITY_LABEL, true);
         store.setDefault(ADVANCED_MECH_DISPLAY_ARMOR_LARGE_FONT_SIZE, 12);
         store.setDefault(ADVANCED_MECH_DISPLAY_ARMOR_MEDIUM_FONT_SIZE, 10);
         store.setDefault(ADVANCED_MECH_DISPLAY_ARMOR_SMALL_FONT_SIZE, 9);
         store.setDefault(ADVANCED_MECH_DISPLAY_LARGE_FONT_SIZE, 12);
         store.setDefault(ADVANCED_MECH_DISPLAY_MEDIUM_FONT_SIZE, 10);
         store.setDefault(ADVANCED_MECH_DISPLAY_WRAP_LENGTH, 24);
-        store.setDefault(BOARDEDIT_RNDDIALOG_START, false);
         setDefault(ADVANCED_MOVE_DEFAULT_CLIMB_MODE, true);
+        setDefault(ADVANCED_ARMORMINI_UNITS_PER_BLOCK, 10);
+        setDefault(ADVANCED_ARMORMINI_ARMOR_CHAR, "\u2B1B"); // Centered Filled Square    
+        setDefault(ADVANCED_ARMORMINI_CAP_ARMOR_CHAR, "\u26CA"); // Shield
+        setDefault(ADVANCED_ARMORMINI_IS_CHAR, "\u25A3"); // Centered Square with Dot     
+        setDefault(ADVANCED_ARMORMINI_DESTROYED_CHAR, "\u2715"); // Centered x
+        setDefault(ADVANCED_ARMORMINI_FONT_SIZE_MOD, -2);
+        setDefault(ADVANCED_MOVE_FONT_TYPE, Font.SANS_SERIF);
+        setDefault(ADVANCED_MOVE_FONT_SIZE, 26);
+        setDefault(ADVANCED_MOVE_FONT_STYLE, Font.BOLD);
+        store.setDefault(ADVANCED_MOVE_STEP_DELAY, 50);
+        store.setDefault(ADVANCED_DARKEN_MAP_AT_NIGHT, false);
+        setDefault(ADVANCED_MAPSHEET_COLOR, Color.BLUE);
+        store.setDefault(ADVANCED_TRANSLUCENT_HIDDEN_UNITS, true);
+        store.setDefault(ADVANCED_ATTACK_ARROW_TRANSPARENCY, 0x80);
+        setDefault(ADVANCED_BUILDING_TEXT_COLOR, Color.BLUE);
+        store.setDefault(ADVANCED_CHATBOX2_FONTSIZE, 12);
+        store.setDefault(ADVANCED_CHATBOX2_TRANSPARANCY, 50);
+        store.setDefault(ADVANCED_CHATBOX2_AUTOSLIDEDOWN, true);
+        store.setDefault(ADVANCED_ECM_TRANSPARENCY, 0x80);        
+        store.setDefault(ADVANCED_KEY_REPEAT_DELAY, 0);
+        store.setDefault(ADVANCED_KEY_REPEAT_RATE, 20);
+        store.setDefault(ADVANCED_SHOW_FPS, false);
+        store.setDefault(ADVANCED_BUTTONS_PER_ROW, 5);
+        store.setDefault(ADVANCED_ROUND_REPORT_SPRITES, true);
+
+
+        setDefault(ADVANCED_ARMORMINI_COLOR_INTACT, new Color(100, 180, 100)); // medium green
+        setDefault(ADVANCED_ARMORMINI_COLOR_PARTIAL_DMG, new Color(180, 180, 100));  // medium yellow
+        setDefault(ADVANCED_ARMORMINI_COLOR_DAMAGED, new Color(150, 80, 80));  // medium dark red
         setDefault(ADVANCED_MOVE_DEFAULT_COLOR, Color.CYAN);
         setDefault(ADVANCED_MOVE_ILLEGAL_COLOR, Color.DARK_GRAY);
         setDefault(ADVANCED_MOVE_JUMP_COLOR, Color.RED);
@@ -288,42 +240,15 @@ public class GUIPreferences extends PreferenceStoreProxy {
         setDefault(ADVANCED_UNITOVERVIEW_VALID_COLOR, Color.CYAN);
         setDefault(ADVANCED_FIRE_SOLN_CANSEE_COLOR, Color.CYAN);
         setDefault(ADVANCED_FIRE_SOLN_NOSEE_COLOR, Color.RED);
-        setDefault(ADVANCED_ARMORMINI_UNITS_PER_BLOCK, 10);
-        setDefault(ADVANCED_ARMORMINI_ARMOR_CHAR, "\u2B1B"); // Centered Filled Square    
-        setDefault(ADVANCED_ARMORMINI_CAP_ARMOR_CHAR, "\u26CA"); // Shield
-        setDefault(ADVANCED_ARMORMINI_IS_CHAR, "\u25A3"); // Centered Square with Dot     
-        setDefault(ADVANCED_ARMORMINI_DESTROYED_CHAR, "\u2715"); // Centered x 
-        setDefault(ADVANCED_ARMORMINI_COLOR_INTACT, new Color(100, 180, 100)); // medium green 
-        setDefault(ADVANCED_ARMORMINI_COLOR_PARTIAL_DMG, new Color(180, 180, 100));  // medium yellow
-        setDefault(ADVANCED_ARMORMINI_COLOR_DAMAGED, new Color(150, 80, 80));  // medium dark red  
-        setDefault(ADVANCED_ARMORMINI_FONT_SIZE_MOD, -2);
-        setDefault(WARNING_COLOR, Color.RED);
         setDefault(ADVANCED_LOW_FOLIAGE_COLOR, new Color(80, 230, 80));
-        setDefault(ADVANCED_NO_SAVE_NAG, false);
-        setDefault(ADVANCED_USE_CAMO_OVERLAY, true);
-
-        setDefault(ADVANCED_MOVE_FONT_TYPE, Font.SANS_SERIF);
-        setDefault(ADVANCED_MOVE_FONT_SIZE, 26);
-        setDefault(ADVANCED_MOVE_FONT_STYLE, Font.BOLD);
-
-        store.setDefault(ADVANCED_MOVE_STEP_DELAY, 50);
-        store.setDefault(ADVANCED_DARKEN_MAP_AT_NIGHT, false);
-        setDefault(ADVANCED_MAPSHEET_COLOR, Color.BLUE);
-        store.setDefault(ADVANCED_TRANSLUCENT_HIDDEN_UNITS, true);
-        store.setDefault(ADVANCED_ATTACK_ARROW_TRANSPARENCY, 0x80);
-        setDefault(ADVANCED_BUILDING_TEXT_COLOR, Color.BLUE);
         setDefault(ADVANCED_CHATBOX2_BACKCOLOR, new Color(255, 255, 255));
-        store.setDefault(ADVANCED_CHATBOX2_FONTSIZE, 12);
-        store.setDefault(ADVANCED_CHATBOX2_TRANSPARANCY, 50);
-        store.setDefault(ADVANCED_CHATBOX2_AUTOSLIDEDOWN, true);
-        store.setDefault(ADVANCED_ECM_TRANSPARENCY, 0x80);        
-        store.setDefault(ADVANCED_KEY_REPEAT_DELAY, 0);
-        store.setDefault(ADVANCED_KEY_REPEAT_RATE, 20);
-        store.setDefault(ADVANCED_SHOW_FPS, false);
-        store.setDefault(SHOW_COORDS, true);
-        store.setDefault(ADVANCED_BUTTONS_PER_ROW, 5);
-        store.setDefault(ADVANCED_ROUND_REPORT_SPRITES, true);
+        setDefault(ALLY_UNIT_COLOR, new Color(60, 140, 240));  // greenish blue
+        setDefault(ENEMY_UNIT_COLOR, new Color(200, 40, 40)); // red
+        setDefault(MY_UNIT_COLOR, new Color(40, 210, 40));  // light green
 
+        store.setDefault(SHOW_COORDS, true);
+        store.setDefault(DRAW_ENTITY_LABEL, true);
+        store.setDefault(BOARDEDIT_RNDDIALOG_START, false);
         store.setDefault(FOV_HIGHLIGHT_RINGS_RADII, "5 10 15 20 25");
         store.setDefault(FOV_HIGHLIGHT_RINGS_COLORS_HSB, "0.3 1.0 1.0 ; 0.45 1.0 1.0 ; 0.6 1.0 1.0 ; 0.75 1.0 1.0 ; 0.9 1.0 1.0 ; 1.05 1.0 1.0 ");
         store.setDefault(FOV_HIGHLIGHT, false);
@@ -354,7 +279,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(GAME_OPTIONS_SIZE_HEIGHT, 400);
         store.setDefault(GAME_OPTIONS_SIZE_WIDTH, 400);
         store.setDefault(FIRING_SOLUTIONS,true);
-        store.setDefault(GUI_SCALE, 1);
         store.setDefault(SHOW_UNIT_DISPLAY, true);
         store.setDefault(LOBBY_MEKTABLE_UNIT_WIDTH, 170);
         store.setDefault(LOBBY_MEKTABLE_PILOT_WIDTH, 80);
@@ -400,20 +324,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(MOUSE_WHEEL_ZOOM, true);
         store.setDefault(MOUSE_WHEEL_ZOOM_FLIP, true);
 
-        store.setDefault(NAG_FOR_BOT_README, true);
-        store.setDefault(NAG_FOR_CRUSHING_BUILDINGS, true);
-        store.setDefault(NAG_FOR_MAP_ED_README, true);
-        store.setDefault(NAG_FOR_MASC, true);
-        store.setDefault(NAG_FOR_NO_ACTION, true);
-        store.setDefault(NAG_FOR_PSR, true);
-        store.setDefault(NAG_FOR_README, true);
-        store.setDefault(NAG_FOR_SPRINT, true);
-        store.setDefault(NAG_FOR_OVERHEAT, true);
-        store.setDefault(NAG_FOR_LAUNCH_DOORS, true);
-        store.setDefault(NAG_FOR_MECHANICAL_FALL_DAMAGE,true);
-        store.setDefault(NAG_FOR_DOOMED, true);
-        store.setDefault(NAG_FOR_WIGE_LANDING, true);
-
         setDefault(RULER_COLOR_1, Color.CYAN);
         setDefault(RULER_COLOR_2, Color.MAGENTA);
         store.setDefault(RULER_POS_X, 0);
@@ -429,9 +339,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(SOUND_BING_FILENAME, "data/sounds/call.wav");
         store.setDefault(SOUND_MUTE, true);
 
-        store.setDefault(TOOLTIP_DELAY, 1000);
-        store.setDefault(TOOLTIP_DISMISS_DELAY, -1);
-        store.setDefault(TOOLTIP_DIST_SUPRESSION, BoardView1.HEX_DIAG);
         store.setDefault(SHOW_WPS_IN_TT, true);
         store.setDefault(SHOW_ARMOR_MINIVIS_TT, true);
         store.setDefault(SHOW_PILOT_PORTRAIT_TT, true);
@@ -457,7 +364,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(SHOW_DAMAGE_DECAL, true);
         store.setDefault(SKIN_FILE, "BW - Default.xml");
         store.setDefault(SOFTCENTER, false);
-        store.setDefault(UI_THEME, UIManager.getSystemLookAndFeelClassName());
 
         store.setDefault(RAT_TECH_LEVEL, 0);
         store.setDefault(RAT_BV_MIN, "5800");
@@ -471,14 +377,29 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(RAT_PAD_BV, false);
         store.setDefault(RAT_SELECTED_RAT, "");
 
-        setDefault(ALLY_UNIT_COLOR, new Color(60, 140, 240));  // greenish blue
-        setDefault(ENEMY_UNIT_COLOR, new Color(200, 40, 40)); // red
-        setDefault(MY_UNIT_COLOR, new Color(40, 210, 40));  // light green
         setDefault(TEAM_COLORING, true);
 
         setDefault(SHOW_KEYBINDS_OVERLAY, true);
         setDefault(OPTIONS_SHOW_UNOFFICIAL, true);
         setDefault(OPTIONS_SHOW_LEGACY, true);
+
+        // Nags
+        store.setDefault(NAG_FOR_BOT_README, true);
+        store.setDefault(NAG_FOR_CRUSHING_BUILDINGS, true);
+        store.setDefault(NAG_FOR_MAP_ED_README, true);
+        store.setDefault(NAG_FOR_MASC, true);
+        store.setDefault(NAG_FOR_NO_ACTION, true);
+        store.setDefault(NAG_FOR_PSR, true);
+        store.setDefault(NAG_FOR_README, true);
+        store.setDefault(NAG_FOR_SPRINT, true);
+        store.setDefault(NAG_FOR_OVERHEAT, true);
+        store.setDefault(NAG_FOR_LAUNCH_DOORS, true);
+        store.setDefault(NAG_FOR_MECHANICAL_FALL_DAMAGE,true);
+        store.setDefault(NAG_FOR_DOOMED, true);
+        store.setDefault(NAG_FOR_WIGE_LANDING, true);
+        setDefault(ADVANCED_NO_SAVE_NAG, false);
+
+        // Dialog Preferences
     }
 
     public void setDefault(String name, Color color) {
@@ -834,7 +755,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
         return store.getBoolean(NAG_FOR_LAUNCH_DOORS);
     }
 
-
     public boolean getNagForMechanicalJumpFallDamage() {
         return store.getBoolean(NAG_FOR_MECHANICAL_FALL_DAMAGE);
     }
@@ -911,22 +831,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
         return store.getBoolean(SOUND_MUTE);
     }
 
-    public int getTooltipDelay() {
-        return store.getInt(TOOLTIP_DELAY);
-    }
-
-    public int getTooltipDismissDelay() {
-        return store.getInt(TOOLTIP_DISMISS_DELAY);
-    }
-
-    public int getTooltipDistSuppression() {
-        return store.getInt(TOOLTIP_DIST_SUPRESSION);
-    }
-    
-    public float getGUIScale() {
-        return store.getFloat(GUI_SCALE);
-    }
-
     public int getWindowPosX() {
         return store.getInt(WINDOW_POS_X);
     }
@@ -961,10 +865,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
     
     public String getSkinFile() {
         return store.getString(SKIN_FILE);
-    }
-
-    public String getUITheme() {
-        return store.getString(UI_THEME);
     }
 
     public int getDefaultWeaponSortOrder() {
@@ -1367,22 +1267,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setValue(SOUND_MUTE, state);
     }
 
-    public void setTooltipDelay(int i) {
-        store.setValue(TOOLTIP_DELAY, i);
-        ToolTipManager.sharedInstance().setInitialDelay(i);
-    }
-
-    public void setTooltipDismissDelay(int i) {
-        store.setValue(TOOLTIP_DISMISS_DELAY, i);
-        if (i > 0){
-            ToolTipManager.sharedInstance().setDismissDelay(i);
-        }
-    }
-
-    public void setTooltipDistSuppression(int i) {
-        store.setValue(TOOLTIP_DIST_SUPRESSION, i);
-    }
-
     public void setWindowPosX(int i) {
         store.setValue(WINDOW_POS_X, i);
     }
@@ -1429,10 +1313,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
     
     public void setSkinFile(String s) {
         store.setValue(SKIN_FILE, s);
-    }
-
-    public void setUITheme(String s) {
-        store.setValue(UI_THEME, s);
     }
     
     public void setDefaultWeaponSortOrder(int i) {
@@ -1554,14 +1434,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
 
     public Color getAllyUnitColor() {
         return getColor(ALLY_UNIT_COLOR);
-    }
-
-    public Color getWarningColor() {
-        return getColor(WARNING_COLOR);
-    }
-
-    public void setWarningColor(Color color) {
-        store.setValue(WARNING_COLOR, getColorString(color));
     }
     
     /** Sets the user preference for the Unit Display window to active. */

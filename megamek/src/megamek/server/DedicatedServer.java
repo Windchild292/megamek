@@ -42,7 +42,7 @@ public class DedicatedServer {
         if (cp.getPort() != -1) {
             usePort = cp.getPort();
         } else {
-            usePort = PreferenceManager.getClientPreferences().getLastServerPort();
+            usePort = MegaMek.getMMOptions().getLastServerPort();
         }
         String announceUrl = cp.getAnnounceUrl();
         String password = cp.getPassword();
@@ -67,8 +67,8 @@ public class DedicatedServer {
         // start server
         Server dedicated;
         try {
-            if (password == null || password.length() == 0) {
-                password = PreferenceManager.getClientPreferences().getLastServerPass();
+            if ((password == null) || (password.isBlank())) {
+                password = MegaMek.getMMOptions().getLastServerPassword();
             }
             dedicated = new Server(password, usePort, !announceUrl.equals(""), announceUrl, mailer);
         } catch (Exception ex) {

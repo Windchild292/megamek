@@ -31,6 +31,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
+import megamek.MegaMek;
 import megamek.client.Client;
 import megamek.client.bot.princess.*;
 import megamek.client.ui.Messages;
@@ -319,9 +320,9 @@ public class BotConfigDialog extends AbstractButtonDialog implements ActionListe
         
         removeTargetButton.setMnemonic(KeyEvent.VK_R);
         removeTargetButton.setFont(UIUtil.getScaledFont());
-        removeTargetButton.setForeground(GUIPreferences.getInstance().getWarningColor());
+        removeTargetButton.setForeground(MegaMek.getMMOptions().getWarningColour());
         removeTargetButton.addActionListener(this);
-        
+
         JPanel removeButtonPanel = new FixedXPanel(new FlowLayout(FlowLayout.RIGHT));
         removeButtonPanel.add(removeTargetButton);
         

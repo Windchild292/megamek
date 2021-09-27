@@ -33,6 +33,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import megamek.MegaMek;
 import megamek.client.bot.BotClient;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
@@ -178,7 +179,7 @@ class PlayerTable extends JTable {
 
             // Second Line - Team
             boolean isEnemy = lobby.localPlayer().isEnemyOf(player);
-            Color color = isEnemy ? GUIPreferences.getInstance().getWarningColor() : uiGreen();
+            Color color = isEnemy ? MegaMek.getMMOptions().getWarningColour() : MegaMek.getMMOptions().getSuccessColour();
             result.append(guiScaledFontHTML(color));
             result.append(IPlayer.teamNames[player.getTeam()]);
             result.append("</FONT>");

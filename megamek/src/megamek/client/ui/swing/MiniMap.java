@@ -43,6 +43,7 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import megamek.MegaMek;
 import megamek.client.Client;
 import megamek.client.event.*;
 import megamek.client.ui.*;
@@ -507,7 +508,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
                     addRoadElements(h, j, k);
                     // Color invalid hexes red when in the Map Editor
                     if ((game != null) && (game.getPhase() == IGame.Phase.PHASE_UNKNOWN) && !h.isValid(null)) {
-                        gg.setColor(GUIPreferences.getInstance().getWarningColor());
+                        gg.setColor(MegaMek.getMMOptions().getErrorColour());
                         paintCoord(gg, j, k, true);
                     }
                 }

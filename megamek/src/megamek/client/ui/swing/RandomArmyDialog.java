@@ -28,7 +28,7 @@ import megamek.common.event.GameListenerAdapter;
 import megamek.common.event.GameSettingsChangeEvent;
 import megamek.common.loaders.EntityLoadingException;
 import megamek.common.options.OptionsConstants;
-import megamek.common.preference.IClientPreferences;
+import megamek.common.preference.ClientPreferences;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.RandomArmyCreator;
 
@@ -915,7 +915,7 @@ public class RandomArmyDialog extends JDialog implements ActionListener, TreeSel
     }
 
     private void autoSetSkillsAndName(Entity e) {
-        IClientPreferences cs = PreferenceManager.getClientPreferences();
+        ClientPreferences cs = PreferenceManager.getClientPreferences();
         if (cs.useAverageSkills()) {
             m_client.getSkillGenerator().setRandomSkills(e, true);
         }

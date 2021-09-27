@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import megamek.MegaMek;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.GUIPreferences;
@@ -94,14 +95,14 @@ public final class UIUtil {
         return "<FONT FACE=Dialog " + sizeString(deltaScale) + colorString(col) + ">";
     }
     
-    /** Returns the yellow and gui-scaled warning sign. */
+    /** Returns the warning-coloured and gui-scaled warning sign. */
     public static String warningSign() {
-        return guiScaledFontHTML(uiYellow()) + WARNING_SIGN + "</FONT>";
+        return guiScaledFontHTML(MegaMek.getMMOptions().getWarningColour()) + WARNING_SIGN + "</FONT>";
     }
     
-    /** Returns the (usually) red and gui-scaled warning sign. */
+    /** Returns the error-coloured and gui-scaled warning sign. */
     public static String criticalSign() {
-        return guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor()) + WARNING_SIGN + "</FONT>";
+        return guiScaledFontHTML(MegaMek.getMMOptions().getErrorColour()) + WARNING_SIGN + "</FONT>";
     }
     
     /** 
@@ -300,12 +301,12 @@ public final class UIUtil {
     }
     
     public static float scaleForGUI(float value) {
-        return GUIPreferences.getInstance().getGUIScale() * value;
+        return MegaMek.getMMOptions().getGUIScale() * value;
     }
     
     public static Dimension scaleForGUI(Dimension dim) {
-        float scale = GUIPreferences.getInstance().getGUIScale();
-        return new Dimension((int)(scale * dim.width), (int)(scale * dim.height));
+        float scale = MegaMek.getMMOptions().getGUIScale();
+        return new Dimension((int) (scale * dim.width), (int) (scale * dim.height));
     }
     
     /** 
@@ -874,7 +875,7 @@ public final class UIUtil {
     
     /** Returns an HTML FONT Size String, according to GUIScale (e.g. "style=font-size:22"). */
     private static String sizeString() {
-        int fontSize = (int)(GUIPreferences.getInstance().getGUIScale() * FONT_SCALE1);
+        int fontSize = (int) (MegaMek.getMMOptions().getGUIScale() * FONT_SCALE1);
         return " style=font-size:" + fontSize + " ";
     }
     
@@ -886,10 +887,10 @@ public final class UIUtil {
      * Suitable deltaScale values are usually between -0.4 and +0.4
      */
     private static String sizeString(float deltaScale) {
-        float guiScale = GUIPreferences.getInstance().getGUIScale();
+        float guiScale = MegaMek.getMMOptions().getGUIScale();
         float boundedScale = Math.max(ClientGUI.MIN_GUISCALE, guiScale + deltaScale);
         boundedScale = Math.min(ClientGUI.MAX_GUISCALE, boundedScale);
-        int fontSize = (int)(boundedScale * FONT_SCALE1);
+        int fontSize = (int) (boundedScale * FONT_SCALE1);
         return " style=font-size:" + fontSize + " ";
     }
     

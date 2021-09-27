@@ -18,41 +18,26 @@
  */
 package megamek.client.ui.swing.lobby;
 
-import static megamek.client.ui.Messages.getString;
-import static megamek.client.ui.swing.lobby.MekTableModel.DOT_SPACER;
-import static megamek.client.ui.swing.util.UIUtil.*;
-
-import java.awt.Color;
-import java.text.MessageFormat;
-import java.util.List;
-
+import megamek.MegaMek;
 import megamek.client.Client;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.PlayerColour;
-import megamek.common.Aero;
-import megamek.common.Board;
-import megamek.common.Crew;
-import megamek.common.Entity;
-import megamek.common.FighterSquadron;
-import megamek.common.GunEmplacement;
-import megamek.common.IAero;
-import megamek.common.IGame;
-import megamek.common.IPlayer;
-import megamek.common.IStartingPositions;
-import megamek.common.Infantry;
-import megamek.common.MapSettings;
-import megamek.common.Mech;
-import megamek.common.Protomech;
-import megamek.common.Tank;
-import megamek.common.UnitType;
-import megamek.common.VTOL;
+import megamek.common.*;
 import megamek.common.force.Force;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.CollectionUtil;
 import megamek.common.util.CrewSkillSummaryUtil;
+
+import java.awt.*;
+import java.text.MessageFormat;
+import java.util.List;
+
+import static megamek.client.ui.Messages.getString;
+import static megamek.client.ui.swing.lobby.MekTableModel.DOT_SPACER;
+import static megamek.client.ui.swing.util.UIUtil.*;
 
 class LobbyMekCellFormatter {
     
@@ -112,14 +97,14 @@ class LobbyMekCellFormatter {
                 || (entity.doomedInSpace() && mapType == MapSettings.MEDIUM_SPACE)
                 || (!entity.isDesignValid())
                 ) {
-            result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor())); 
+            result.append(guiScaledFontHTML(MegaMek.getMMOptions().getErrorColour()));
             result.append(WARNING_SIGN + "</FONT>");
             hasCritical = true;
         }
 
         // Unit Name
         if (hasCritical) {
-            result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor()));
+            result.append(guiScaledFontHTML(MegaMek.getMMOptions().getWarningColour()));
         } else if (hasWarning) {
             result.append(guiScaledFontHTML(uiYellow()));
         } else {
@@ -148,7 +133,7 @@ class LobbyMekCellFormatter {
         if (!forceView) {
             if (!entity.isDesignValid()) {
                 result.append(DOT_SPACER);
-                result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor()));
+                result.append(guiScaledFontHTML(MegaMek.getMMOptions().getErrorColour()));
                 result.append("\u26D4 </FONT>").append(Messages.getString("ChatLounge.invalidDesign"));
             }
         }
@@ -223,7 +208,7 @@ class LobbyMekCellFormatter {
         if (forceView) {
             if (!entity.isDesignValid()) {
                 firstEntry = dotSpacer(result, firstEntry);
-                result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor()));
+                result.append(guiScaledFontHTML(MegaMek.getMMOptions().getErrorColour()));
                 result.append("\u26D4 </FONT>").append(Messages.getString("ChatLounge.invalidDesign"));
             }
         }
@@ -467,7 +452,7 @@ class LobbyMekCellFormatter {
                 || (entity.doomedInSpace() && mapType == MapSettings.MEDIUM_SPACE)
                 || (!entity.isDesignValid())
                 ) {
-            result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor())); 
+            result.append(guiScaledFontHTML(MegaMek.getMMOptions().getErrorColour()));
             result.append(WARNING_SIGN + "</FONT>");
         }
 
@@ -529,7 +514,7 @@ class LobbyMekCellFormatter {
         // Invalid unit design
         if (!entity.isDesignValid()) {
             result.append(DOT_SPACER);
-            result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor()));
+            result.append(guiScaledFontHTML(MegaMek.getMMOptions().getErrorColour()));
             result.append("\u26D4 </FONT>").append(Messages.getString("ChatLounge.invalidDesign"));
         }
 

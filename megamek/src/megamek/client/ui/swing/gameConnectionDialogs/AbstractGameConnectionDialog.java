@@ -25,8 +25,6 @@ import megamek.client.ui.swing.ClientDialog;
 import megamek.client.ui.swing.CloseAction;
 import megamek.client.ui.swing.OkayAction;
 import megamek.client.ui.swing.dialog.DialogButton;
-import megamek.common.preference.IClientPreferences;
-import megamek.common.preference.PreferenceManager;
 import megamek.common.util.StringUtil;
 
 import javax.swing.*;
@@ -40,9 +38,9 @@ public abstract class AbstractGameConnectionDialog extends ClientDialog implemen
 
     /**
      * We need a way to access the action map for a JComboBox editor, so that we can
-     * have it fire an action when wenter is pressed. This simple class allows this.
+     * have it fire an action when enter is pressed. This simple class allows this.
      */
-    public class SimpleComboBoxEditor extends JTextField implements ComboBoxEditor {
+    public static class SimpleComboBoxEditor extends JTextField implements ComboBoxEditor {
 
         private static final long serialVersionUID = 4496820410417436582L;
 
@@ -77,9 +75,7 @@ public abstract class AbstractGameConnectionDialog extends ClientDialog implemen
     private JComboBox<String> playerNameCombo = null;
     private JTextField portField;
 
-    private Vector<String> playerNames = null;
-
-    private IClientPreferences clientPreferences = PreferenceManager.getClientPreferences();
+    private Vector<String> playerNames;
 
     protected AbstractGameConnectionDialog(JFrame owner, String title, boolean modal, String playerName) {
         this(owner, title, modal, playerName, null);
@@ -141,7 +137,7 @@ public abstract class AbstractGameConnectionDialog extends ClientDialog implemen
             }
         } else {
             if (playerNameCombo == null) {
-                playerNameCombo = new JComboBox<String>(playerNames);
+                playerNameCombo = new JComboBox<>(playerNames);
                 Dimension preferredSize = playerNameCombo.getPreferredSize();
                 preferredSize.setSize(180, preferredSize.getHeight());
                 playerNameCombo.setPreferredSize(preferredSize);
@@ -215,10 +211,6 @@ public abstract class AbstractGameConnectionDialog extends ClientDialog implemen
     public void setPortField(JTextField portField) {
         this.portField = portField;
     }
-
-    protected IClientPreferences getClientPreferences() {
-        return clientPreferences;
-    }
     //endregion Getters and Setters
 
     //region Validation
@@ -251,7 +243,6 @@ public abstract class AbstractGameConnectionDialog extends ClientDialog implemen
         }
 
         setConfirmed(true);
-        getClientPreferences().setLastPlayerName(getPlayerName());
-        getClientPreferences().setLastConnectPort(getPort());
+        MegaMek.getMMOptions().setLastPlayerName(getPlayerName());
     }
 }

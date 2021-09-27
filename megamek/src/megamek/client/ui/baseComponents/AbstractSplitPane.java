@@ -49,8 +49,8 @@ public abstract class AbstractSplitPane extends JSplitPane {
      * constructor to use for an AbstractSplitPane.
      */
     protected AbstractSplitPane(final JFrame frame, final String name) {
-        this(frame, ResourceBundle.getBundle("megamek.client.messages", 
-                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl()), name);
+        this(frame, ResourceBundle.getBundle("megamek.client.messages",
+                MegaMek.getMMOptions().getLocale().getLocale(), new EncodeControl()), name);
     }
 
     /**

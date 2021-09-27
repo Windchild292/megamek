@@ -13,16 +13,16 @@
 */ 
 package megamek.client.ui.swing.tooltip;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.function.Function;
-
-import megamek.client.ui.swing.GUIPreferences;
+import megamek.MegaMek;
 import megamek.client.ui.swing.util.UIUtil;
 import megamek.common.Configuration;
 import megamek.common.options.IOption;
 import megamek.common.options.IOptionGroup;
+
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.function.Function;
 
 /** Provides static helper functions for creating entity and crew tooltips. */
 public final class TipUtil {
@@ -89,7 +89,7 @@ public final class TipUtil {
     }
 
     static String scaledHTMLSpacer(final int unscaledSize) {
-        int scaledSize = (int)(GUIPreferences.getInstance().getGUIScale() * unscaledSize);  
+        int scaledSize = (int) (MegaMek.getMMOptions().getGUIScale() * unscaledSize);
         return "<P><IMG SRC=FILE:" + Configuration.widgetsDir() + "/Tooltip/TT_Spacer.png "
                 + "WIDTH=" + scaledSize + " HEIGHT=" + scaledSize + "></P>";
     }

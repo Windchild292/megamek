@@ -18,6 +18,7 @@
  */
 package megamek.client.ui.swing.dialog;
 
+import megamek.MegaMek;
 import megamek.client.Client;
 import megamek.client.generator.RandomGenderGenerator;
 import megamek.client.generator.RandomNameGenerator;
@@ -25,11 +26,12 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.UnitFailureDialog;
 import megamek.client.ui.swing.UnitLoadingDialog;
-import megamek.common.*;
+import megamek.common.Entity;
+import megamek.common.IPlayer;
+import megamek.common.MechSummaryCache;
+import megamek.common.TechConstants;
 import megamek.common.enums.Gender;
 import megamek.common.options.OptionsConstants;
-import megamek.common.preference.IClientPreferences;
-import megamek.common.preference.PreferenceManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -115,14 +117,12 @@ public class MegaMekUnitSelectorDialog extends AbstractUnitSelectorDialog {
     }
 
     private void autoSetSkillsAndName(Entity e, IPlayer player) {
-        IClientPreferences cs = PreferenceManager.getClientPreferences();
-
-        if (cs.useAverageSkills()) {
+        if (MegaMek.getMMOptions().useAverageSkills()) {
             clientGUI.getClient().getSkillGenerator().setRandomSkills(e, true);
         }
 
         for (int i = 0; i < e.getCrew().getSlotCount(); i++) {
-            if (cs.generateNames()) {
+            if (MegaMek.getMMOptions().generateNames()) {
                 Gender gender = RandomGenderGenerator.generate();
                 e.getCrew().setGender(gender, i);
                 e.getCrew().setName((player != null)
