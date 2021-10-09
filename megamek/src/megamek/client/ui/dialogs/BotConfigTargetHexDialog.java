@@ -34,7 +34,6 @@ import megamek.client.ui.swing.util.UIUtil.TipList;
 import megamek.client.ui.swing.util.UIUtil.TipTextField;
 import megamek.client.ui.Messages;
 import megamek.common.*;
-import megamek.common.Game.Phase;
 import megamek.common.annotations.Nullable;
 
 public class BotConfigTargetHexDialog extends AbstractButtonDialog {
@@ -53,7 +52,7 @@ public class BotConfigTargetHexDialog extends AbstractButtonDialog {
         super(frame, "BotConfigTargetUnitDialog", "BotConfigDialog.bcthdTitle");
         clientGui = cg;
         if (clientGui != null) {
-            if (clientGui.getClient().getGame().getPhase() == Phase.PHASE_LOUNGE) {
+            if (clientGui.getClient().getGame().getPhase().isLounge()) {
                 board = clientGui.chatlounge.getPossibleGameBoard(true);
             } else {
                 board = clientGui.getClient().getBoard();

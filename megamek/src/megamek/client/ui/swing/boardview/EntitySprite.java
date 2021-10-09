@@ -35,7 +35,6 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.EntityWreckHelper;
 import megamek.common.*;
-import megamek.common.Game.Phase;
 
 /**
  * Sprite for an entity. Changes whenever the entity changes. Consists of an
@@ -663,7 +662,7 @@ class EntitySprite extends Sprite {
                     && !(isAero && ((IAero) entity).isSpheroid() && !board
                             .inSpace())) {
                 // Indicate a stacked unit with the same facing that can still move
-                if (shouldIndicateNotDone() && (bv.game.getPhase() == Phase.PHASE_MOVEMENT)) {
+                if (shouldIndicateNotDone() && bv.game.getPhase().isMovement()) {
                     var tr = graph.getTransform();
                     // rotate the arrow slightly
                     graph.scale(1 / bv.scale, 1 / bv.scale);
@@ -676,7 +675,7 @@ class EntitySprite extends Sprite {
                     graph.setTransform(tr);
                 }
                 
-                if (!entity.isDone() && (bv.game.getPhase() == Phase.PHASE_MOVEMENT)) {
+                if (!entity.isDone() && bv.game.getPhase().isMovement()) {
                     graph.setColor(GUIPreferences.getInstance().getWarningColor());
                     graph.fill(bv.facingPolys[entity.getFacing()]);
                     graph.setColor(Color.WHITE);

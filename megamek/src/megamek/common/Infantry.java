@@ -27,6 +27,7 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import megamek.MegaMek;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.infantry.InfantryWeapon;
 
@@ -1780,20 +1781,20 @@ public class Infantry extends Entity {
     }
 
     @Override
-    public boolean isEligibleFor(Game.Phase phase) {
-        if ((turnsLayingExplosives > 0) && (phase != Game.Phase.PHASE_PHYSICAL)) {
+    public boolean isEligibleFor(GamePhase phase) {
+        if ((turnsLayingExplosives > 0) && !phase.isPhysical()) {
             return false;
-        }
-        if ((dugIn != DUG_IN_COMPLETE) && (dugIn != DUG_IN_NONE)) {
+        } else if ((dugIn != DUG_IN_COMPLETE) && (dugIn != DUG_IN_NONE)) {
             return false;
+        } else {
+            return super.isEligibleFor(phase);
         }
-        return super.isEligibleFor(phase);
     }
 
     @Override
     public boolean isEligibleForFiring() {
-        if(game.getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_TACOPS_FAST_INFANTRY_MOVE)) {
-            if(moved == EntityMovementType.MOVE_RUN) {
+        if (game.getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_TACOPS_FAST_INFANTRY_MOVE)) {
+            if (moved == EntityMovementType.MOVE_RUN) {
                 return false;
             }
         }

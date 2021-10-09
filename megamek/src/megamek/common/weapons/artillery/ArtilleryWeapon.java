@@ -55,24 +55,19 @@ public abstract class ArtilleryWeapon extends AmmoWeapon {
      * megamek.server.Server)
      */
     @Override
-    protected AttackHandler getCorrectHandler(ToHitData toHit,
-            WeaponAttackAction waa, Game game, Server server) {
+    protected AttackHandler getCorrectHandler(ToHitData toHit, WeaponAttackAction waa, Game game,
+                                              Server server) {
         Mounted ammo = game.getEntity(waa.getEntityId())
                 .getEquipment(waa.getWeaponId()).getLinked();
 
         if (ammo.isHomingAmmoInHomingMode()) {
-            if (game.getPhase() == Game.Phase.PHASE_FIRING) {
-                return new ArtilleryWeaponDirectHomingHandler(toHit, waa, game,
-                        server);
-            }
-            return new ArtilleryWeaponIndirectHomingHandler(toHit, waa, game,
-                    server);
-        } else if (game.getPhase() == Game.Phase.PHASE_FIRING) {
-            return new ArtilleryWeaponDirectFireHandler(toHit, waa, game,
-                    server);
+            return game.getPhase().isFiring()
+                    ? new ArtilleryWeaponDirectHomingHandler(toHit, waa, game, server)
+                    : new ArtilleryWeaponIndirectHomingHandler(toHit, waa, game, server);
         } else {
-            return new ArtilleryWeaponIndirectFireHandler(toHit, waa, game,
-                    server);
+            return game.getPhase().isFiring()
+                    ? new ArtilleryWeaponDirectFireHandler(toHit, waa, game, server)
+                    : new ArtilleryWeaponIndirectFireHandler(toHit, waa, game, server);
         }
     }
 }

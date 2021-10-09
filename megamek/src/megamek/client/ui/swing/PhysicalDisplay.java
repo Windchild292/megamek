@@ -319,8 +319,7 @@ public class PhysicalDisplay extends StatusBarPhaseDisplay {
         // end my turn, then.
         Entity next = clientgui.getClient().getGame()
                 .getNextEntity(clientgui.getClient().getGame().getTurnIndex());
-        if ((Game.Phase.PHASE_PHYSICAL == clientgui.getClient().getGame()
-                .getPhase())
+        if (clientgui.getClient().getGame().getPhase().isPhysical()
             && (null != next)
             && (null != ce())
             && (next.getOwnerId() != ce().getOwnerId())) {
@@ -1591,16 +1590,16 @@ public class PhysicalDisplay extends StatusBarPhaseDisplay {
         if (isIgnoringEvents()) {
             return;
         }
-        // On simultaneous phases, each player ending their turn will generalte a turn change
+        // On simultaneous phases, each player ending their turn will generate a turn change
         // We want to ignore turns from other players and only listen to events we generated
         // Except on the first turn
-        if (clientgui.getClient().getGame().isPhaseSimultaneous()
+        if (clientgui.getClient().getGame().getPhase().isSimultaneous(clientgui.getClient().getGame())
                 && (e.getPreviousPlayerId() != clientgui.getClient().getLocalPlayerNumber())
                 && (clientgui.getClient().getGame().getTurnIndex() != 0)) {
             return;
         }
 
-        if (clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_PHYSICAL) {
+        if (clientgui.getClient().getGame().getPhase().isPhysical()) {
 
             if (clientgui.getClient().isMyTurn()) {
                 if (cen == Entity.NONE) {
@@ -1631,7 +1630,7 @@ public class PhysicalDisplay extends StatusBarPhaseDisplay {
     public void gamePhaseChange(GamePhaseChangeEvent e) {
 
         // In case of a /reset command, ensure the state gets reset
-        if (clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_LOUNGE) {
+        if (clientgui.getClient().getGame().getPhase().isLounge()) {
             endMyTurn();
         }
 
@@ -1640,20 +1639,19 @@ public class PhysicalDisplay extends StatusBarPhaseDisplay {
             return;
         }
 
-        if (clientgui.getClient().isMyTurn()
-                && (clientgui.getClient().getGame().getPhase() != Game.Phase.PHASE_PHYSICAL)) {
+        if (clientgui.getClient().isMyTurn() && !clientgui.getClient().getGame().getPhase().isPhysical()) {
             endMyTurn();
         }
         // if we're ending the firing phase, unregister stuff.
-        if (clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_PHYSICAL) {
-            setStatusBarText(Messages
-                    .getString("PhysicalDisplay.waitingForPhysicalAttackPhase")); //$NON-NLS-1$
+        if (clientgui.getClient().getGame().getPhase().isPhysical()) {
+            setStatusBarText(Messages.getString("PhysicalDisplay.waitingForPhysicalAttackPhase"));
         }
     }
 
     //
     // ActionListener
     //
+    @Override
     public void actionPerformed(ActionEvent ev) {
 
         // Are we ignoring events?

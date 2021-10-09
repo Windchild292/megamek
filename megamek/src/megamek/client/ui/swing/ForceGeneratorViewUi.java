@@ -55,7 +55,6 @@ import megamek.client.ratgenerator.RATGenerator;
 import megamek.client.ratgenerator.Ruleset;
 import megamek.client.ui.Messages;
 import megamek.common.Entity;
-import megamek.common.Game.Phase;
 import megamek.common.UnitType;
 import megamek.common.enums.SkillLevel;
 
@@ -241,7 +240,7 @@ public class ForceGeneratorViewUi {
         }
         for (Entity e : modelChosen.allEntities()) {
             e.setOwner(c.getLocalPlayer());
-            if (c.getGame().getPhase() != Phase.PHASE_LOUNGE){
+            if (!c.getGame().getPhase().isLounge()) {
                 e.setDeployRound(c.getGame().getRoundCount()+1);
                 e.setGame(c.getGame());
                 // Set these to true, otherwise units reinforced in

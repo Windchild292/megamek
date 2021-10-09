@@ -399,10 +399,11 @@ public class DeployMinefieldDisplay extends StatusBarPhaseDisplay {
         }
 
         if (clientgui.getClient().isMyTurn()
-                && (clientgui.getClient().getGame().getPhase() != Game.Phase.PHASE_DEPLOY_MINEFIELDS)) {
+                && !clientgui.getClient().getGame().getPhase().isDeployMinefields()) {
             endMyTurn();
         }
-        if (clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_DEPLOY_MINEFIELDS) {
+
+        if (clientgui.getClient().getGame().getPhase().isDeployMinefields()) {
             setStatusBarText(Messages
                     .getString("DeployMinefieldDisplay.waitingForDeploymentPhase")); //$NON-NLS-1$
         }
@@ -411,8 +412,8 @@ public class DeployMinefieldDisplay extends StatusBarPhaseDisplay {
     //
     // ActionListener
     //
+    @Override
     public void actionPerformed(ActionEvent ev) {
-
         // Are we ignoring events?
         if (isIgnoringEvents()) {
             return;

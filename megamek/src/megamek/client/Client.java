@@ -31,6 +31,7 @@ import megamek.client.ui.swing.boardview.BoardView1;
 import megamek.common.*;
 import megamek.common.Building.DemolitionCharge;
 import megamek.common.actions.*;
+import megamek.common.enums.GamePhase;
 import megamek.common.event.*;
 import megamek.common.force.Force;
 import megamek.common.force.Forces;
@@ -415,54 +416,55 @@ public class Client implements IClientCommandHandler {
     /**
      * Changes the game phase, and the displays that go along with it.
      */
-    public void changePhase(Game.Phase phase) {
+    public void changePhase(final GamePhase phase) {
         game.setPhase(phase);
         // Handle phase-specific items.
         switch (phase) {
-        case PHASE_STARTING_SCENARIO:
-        case PHASE_EXCHANGE:
-            sendDone(true);
-            break;
-        case PHASE_DEPLOYMENT:
-            // free some memory thats only needed in lounge
-            MechFileParser.dispose();
-            // We must do this last, as the name and unit generators can create
-            // a new instance if they are running
-            MechSummaryCache.dispose();
-            memDump("entering deployment phase"); //$NON-NLS-1$
-            break;
-        case PHASE_TARGETING:
-            memDump("entering targeting phase"); //$NON-NLS-1$
-            break;
-        case PHASE_MOVEMENT:
-            memDump("entering movement phase"); //$NON-NLS-1$
-            break;
-        case PHASE_OFFBOARD:
-            memDump("entering offboard phase"); //$NON-NLS-1$
-            break;
-        case PHASE_FIRING:
-            memDump("entering firing phase"); //$NON-NLS-1$
-            break;
-        case PHASE_PHYSICAL:
-            memDump("entering physical phase"); //$NON-NLS-1$
-            break;
-        case PHASE_LOUNGE:
-            try {
-                QuirksHandler.initQuirksList();
-            } catch (IOException e) {
-                System.out.println(e);
-                e.printStackTrace();
-            }
-            UnitRoleHandler.initialize();
-            MechSummaryCache.getInstance().addListener(RandomUnitGenerator::getInstance);
-            if (MechSummaryCache.getInstance().isInitialized()) {
-                RandomUnitGenerator.getInstance();
-            }
-            synchronized (unitNameTracker) {
-                unitNameTracker.clear(); // reset this
-            }
-            break;
-        default:
+            case STARTING_SCENARIO:
+            case EXCHANGE:
+                sendDone(true);
+                break;
+            case DEPLOYMENT:
+                // free some memory thats only needed in lounge
+                MechFileParser.dispose();
+                // We must do this last, as the name and unit generators can create
+                // a new instance if they are running
+                MechSummaryCache.dispose();
+                memDump("entering deployment phase"); //$NON-NLS-1$
+                break;
+            case TARGETING:
+                memDump("entering targeting phase"); //$NON-NLS-1$
+                break;
+            case MOVEMENT:
+                memDump("entering movement phase"); //$NON-NLS-1$
+                break;
+            case OFFBOARD:
+                memDump("entering offboard phase"); //$NON-NLS-1$
+                break;
+            case FIRING:
+                memDump("entering firing phase"); //$NON-NLS-1$
+                break;
+            case PHYSICAL:
+                memDump("entering physical phase"); //$NON-NLS-1$
+                break;
+            case LOUNGE:
+                try {
+                    QuirksHandler.initQuirksList();
+                } catch (IOException e) {
+                    System.out.println(e);
+                    e.printStackTrace();
+                }
+                UnitRoleHandler.initialize();
+                MechSummaryCache.getInstance().addListener(RandomUnitGenerator::getInstance);
+                if (MechSummaryCache.getInstance().isInitialized()) {
+                    RandomUnitGenerator.getInstance();
+                }
+                synchronized (unitNameTracker) {
+                    unitNameTracker.clear(); // reset this
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -481,14 +483,14 @@ public class Client implements IClientCommandHandler {
      * is it my turn?
      */
     public boolean isMyTurn() {
-        if (game.isPhaseSimultaneous()) {
+        if (game.getPhase().isSimultaneous(game)) {
             return game.getTurnForPlayer(localPlayerNumber) != null;
         }
         return (game.getTurn() != null) && game.getTurn().isValid(localPlayerNumber, game);
     }
 
     public GameTurn getMyTurn() {
-        if (game.isPhaseSimultaneous()) {
+        if (game.getPhase().isSimultaneous(game)) {
             return game.getTurnForPlayer(localPlayerNumber);
         }
         return game.getTurn();
@@ -577,7 +579,7 @@ public class Client implements IClientCommandHandler {
     /**
      * Send activate hidden data to the server
      */
-    public void sendActivateHidden(int nEntity, Game.Phase phase) {
+    public void sendActivateHidden(int nEntity, GamePhase phase) {
         Object[] data = { Integer.valueOf(nEntity), phase };
         send(new Packet(Packet.COMMAND_ENTITY_ACTIVATE_HIDDEN, data));
     }
@@ -1498,7 +1500,7 @@ public class Client implements IClientCommandHandler {
             receiveBuildingCollapse(c);
             break;
         case Packet.COMMAND_PHASE_CHANGE:
-            changePhase((Game.Phase) c.getObject(0));
+            changePhase((GamePhase) c.getObject(0));
             break;
         case Packet.COMMAND_TURN:
             changeTurnIndex(c.getIntValue(0), c.getIntValue(1));

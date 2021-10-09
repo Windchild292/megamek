@@ -41,6 +41,7 @@ import megamek.common.ToHitData;
 import megamek.common.WeaponType;
 import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.bayweapons.TeleOperatedMissileBayWeapon;
 import megamek.server.Server;
@@ -93,12 +94,8 @@ public class CapitalMissileBearingsOnlyHandler extends AmmoBayWeaponHandler {
      * @see megamek.common.weapons.AttackHandler#cares(int)
      */
     @Override
-    public boolean cares(Game.Phase phase) {
-        if ((phase == Game.Phase.PHASE_FIRING)
-                || (phase == Game.Phase.PHASE_TARGETING)) {
-            return true;
-        }
-        return false;
+    public boolean cares(GamePhase phase) {
+        return phase.isFiring() || phase.isTargeting();
     }
     
     protected void getMountedAmmo() {
@@ -138,12 +135,12 @@ public class CapitalMissileBearingsOnlyHandler extends AmmoBayWeaponHandler {
      * @see megamek.common.weapons.AttackHandler#handle(int, java.util.Vector)
      */
     @Override
-    public boolean handle(Game.Phase phase, Vector<Report> vPhaseReport) {
+    public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (!cares(phase)) {
             return true;
         }
         ArtilleryAttackAction aaa = (ArtilleryAttackAction) waa;
-        if (phase == Game.Phase.PHASE_TARGETING) {
+        if (phase.isTargeting()) {
             if (!handledAmmoAndReport) {
                 addHeat();
                 // Report the firing itself
@@ -171,7 +168,7 @@ public class CapitalMissileBearingsOnlyHandler extends AmmoBayWeaponHandler {
         }
         Entity entityTarget = (aaa.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) aaa
                 .getTarget(game) : null;
-        if (game.getPhase() == Game.Phase.PHASE_FIRING && entityTarget == null) {
+        if (game.getPhase().isFiring() && (entityTarget == null)) {
             convertHexTargetToEntityTarget(vPhaseReport);
             entityTarget = (aaa.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) aaa
                     .getTarget(game) : null;

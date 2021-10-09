@@ -30,6 +30,7 @@ import megamek.common.Targetable;
 import megamek.common.ToHitData;
 import megamek.common.WeaponType;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.server.Server;
 
@@ -37,11 +38,6 @@ import megamek.server.Server;
  * @author Jay Lawson
  */
 public class CapitalMissileBayHandler extends AmmoBayWeaponHandler {
-
-    /**
-     * 
-     */
-
     private static final long serialVersionUID = -1618484541772117621L;
     boolean advancedPD = false;
 
@@ -63,9 +59,8 @@ public class CapitalMissileBayHandler extends AmmoBayWeaponHandler {
      * @see megamek.common.weapons.AttackHandler#handle(int, java.util.Vector)
      */
     @Override
-    public boolean handle(Game.Phase phase, Vector<Report> vPhaseReport) {
-        
-        if(game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_AERO_SANITY)) {
+    public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
+        if (game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_AERO_SANITY)) {
             return handleAeroSanity(phase, vPhaseReport);
         }
         
@@ -490,7 +485,7 @@ public class CapitalMissileBayHandler extends AmmoBayWeaponHandler {
      * Insert any additional attacks that should occur before this attack
      */
     @Override
-    protected void insertAttacks(Game.Phase phase, Vector<Report> vPhaseReport) {
+    protected void insertAttacks(GamePhase phase, Vector<Report> vPhaseReport) {
         // If there are no other missiles in the bay that aren't inserted
         // attacks, there will be a spurious "no damage" report
         if (attackValue < 1) {
@@ -544,7 +539,7 @@ public class CapitalMissileBayHandler extends AmmoBayWeaponHandler {
     }
     
     @Override
-    public boolean handleAeroSanity(Game.Phase phase, Vector<Report> vPhaseReport) {
+    public boolean handleAeroSanity(GamePhase phase, Vector<Report> vPhaseReport) {
         if (!cares(phase)) {
             return true;
         }

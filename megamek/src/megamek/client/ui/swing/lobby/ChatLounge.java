@@ -1629,7 +1629,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             return;
         }
         
-        if (clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_LOUNGE) {
+        if (clientgui.getClient().getGame().getPhase().isLounge()) {
             refreshDoneButton();
             refreshGameSettings();
             refreshPlayerTable();

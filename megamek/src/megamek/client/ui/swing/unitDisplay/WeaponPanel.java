@@ -1056,17 +1056,15 @@ public class WeaponPanel extends PicMap implements ListSelectionListener,
             }
             
             ((WeaponListModel) weaponList.getModel()).addWeapon(mounted);
-            if (mounted.isUsedThisRound()
-                && (game.getPhase() == mounted.usedInPhase())
-                && (game.getPhase() == Game.Phase.PHASE_FIRING)) {
+            if (mounted.isUsedThisRound() && game.getPhase().isFiring()
+                    && mounted.usedInPhase().isFiring()) {
                 hasFiredWeapons = true;
                 // add heat from weapons fire to heat tracker
                 if (entity.usesWeaponBays()) {
                     // if using bay heat option then don't add total arc
                     if (game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_HEAT_BY_BAY)) {
                         for (int wId : mounted.getBayWeapons()) {
-                            currentHeatBuildup += entity.getEquipment(wId)
-                                                        .getCurrentHeat();
+                            currentHeatBuildup += entity.getEquipment(wId).getCurrentHeat();
                         }
                     } else {
                         // check whether arc has fired

@@ -14,34 +14,14 @@
  */
 package megamek.client.bot.ui.swing;
 
-import javax.swing.JFrame;
-
 import megamek.client.bot.BotClient;
 import megamek.client.bot.Messages;
 import megamek.client.ui.dialogs.helpDialogs.BotHelpDialog;
 import megamek.client.ui.swing.ConfirmDialog;
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.common.Game;
-import megamek.common.event.GameBoardChangeEvent;
-import megamek.common.event.GameBoardNewEvent;
-import megamek.common.event.GameCFREvent;
-import megamek.common.event.GameEndEvent;
-import megamek.common.event.GameEntityChangeEvent;
-import megamek.common.event.GameEntityNewEvent;
-import megamek.common.event.GameEntityNewOffboardEvent;
-import megamek.common.event.GameEntityRemoveEvent;
-import megamek.common.event.GameListener;
-import megamek.common.event.GameMapQueryEvent;
-import megamek.common.event.GameNewActionEvent;
-import megamek.common.event.GamePhaseChangeEvent;
-import megamek.common.event.GamePlayerChangeEvent;
-import megamek.common.event.GamePlayerChatEvent;
-import megamek.common.event.GamePlayerConnectedEvent;
-import megamek.common.event.GamePlayerDisconnectedEvent;
-import megamek.common.event.GameReportEvent;
-import megamek.common.event.GameSettingsChangeEvent;
-import megamek.common.event.GameTurnChangeEvent;
-import megamek.common.event.GameVictoryEvent;
+import megamek.common.event.*;
+
+import javax.swing.*;
 
 public class BotGUI implements GameListener {
 
@@ -58,8 +38,7 @@ public class BotGUI implements GameListener {
      * @see megamek.common.GameListener#gamePhaseChange(megamek.common.GamePhaseChangeEvent)
      */
     public void gamePhaseChange(GamePhaseChangeEvent e) {
-        if (bot.getGame().getPhase() == Game.Phase.PHASE_LOUNGE
-                || bot.getGame().getPhase() == Game.Phase.PHASE_STARTING_SCENARIO) {
+        if (bot.getGame().getPhase().isLounge() || bot.getGame().getPhase().isStartingScenario()) {
             notifyOfBot();
         }
     }

@@ -297,8 +297,7 @@ public class FireCommand extends ClientCommand {
             			|| (m.getType().hasModes() && m.curMode().equals("Point Defense"))) {
                 str += " Can't shoot: "
                        + Messages.getString("FiringDisplay.autoFiringWeapon");
-            } else if (getClient().getGame().getPhase() == Game.Phase.PHASE_FIRING
-                        && m.isInBearingsOnlyMode()) {
+            } else if (getClient().getGame().getPhase().isFiring() && m.isInBearingsOnlyMode()) {
                 str += " Can't shoot: "
                         + Messages.getString("FiringDisplay.bearingsOnlyWrongPhase");
             } else if (toHit.getValue() == TargetRoll.AUTOMATIC_FAIL) {

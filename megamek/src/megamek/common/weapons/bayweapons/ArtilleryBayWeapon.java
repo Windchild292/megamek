@@ -60,8 +60,8 @@ public class ArtilleryBayWeapon extends AmmoBayWeapon {
      * megamek.server.Server)
      */
     @Override
-    protected AttackHandler getCorrectHandler(ToHitData toHit,
-                                              WeaponAttackAction waa, Game game, Server server) {
+    protected AttackHandler getCorrectHandler(ToHitData toHit, WeaponAttackAction waa, Game game,
+                                              Server server) {
         Entity ae = game.getEntity(waa.getEntityId());
         boolean useHoming = false;
         for (int wId : ae.getEquipment(waa.getWeaponId()).getBayWeapons()) {
@@ -76,19 +76,15 @@ public class ArtilleryBayWeapon extends AmmoBayWeapon {
             //We only need to get this information for the first weapon in the bay to return the right handler
             break;
         }
+
         if (useHoming) {
-            if (game.getPhase() == Game.Phase.PHASE_FIRING) {
-                return new ArtilleryBayWeaponDirectHomingHandler(toHit, waa,
-                        game, server);
-            }
-            return new ArtilleryBayWeaponIndirectHomingHandler(toHit, waa,
-                    game, server);
-        } else if (game.getPhase() == Game.Phase.PHASE_FIRING) {
-            return new ArtilleryBayWeaponDirectFireHandler(toHit, waa, game,
-                    server);
+            return game.getPhase().isFiring()
+                    ? new ArtilleryBayWeaponDirectHomingHandler(toHit, waa, game, server)
+                    : new ArtilleryBayWeaponIndirectHomingHandler(toHit, waa, game, server);
         } else {
-            return new ArtilleryBayWeaponIndirectFireHandler(toHit, waa, game,
-                    server);
+            return game.getPhase().isFiring()
+                    ? new ArtilleryBayWeaponDirectFireHandler(toHit, waa, game, server)
+                    : new ArtilleryBayWeaponIndirectFireHandler(toHit, waa, game, server);
         }
     }
 }

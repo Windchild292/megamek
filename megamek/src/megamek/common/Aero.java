@@ -3599,8 +3599,8 @@ public class Aero extends Entity implements IAero, IBomber {
     public boolean canLoad(Entity unit, boolean checkFalse) {
         // capital fighters can load other capital fighters (becoming squadrons)
         // but not in the deployment phase
-        if (isCapitalFighter() && !unit.isEnemyOf(this) && unit.isCapitalFighter() && (getId() != unit.getId())
-                && (game.getPhase() != Game.Phase.PHASE_DEPLOYMENT)) {
+        if (isCapitalFighter() && !unit.isEnemyOf(this) && unit.isCapitalFighter()
+                && (getId() != unit.getId()) && !game.getPhase().isDeployment()) {
             return true;
         }
 

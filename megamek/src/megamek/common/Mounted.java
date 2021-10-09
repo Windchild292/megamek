@@ -26,6 +26,7 @@ import java.util.*;
 
 import megamek.MegaMek;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.options.WeaponQuirks;
 import megamek.common.weapons.AmmoWeapon;
@@ -135,7 +136,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
      */
     private int armorValue = 0;
 
-    private Game.Phase phase = Game.Phase.PHASE_UNKNOWN;
+    private GamePhase phase = GamePhase.UNKNOWN;
 
     public static final int MINE_NONE = -1;
     public static final int MINE_CONVENTIONAL = 0;
@@ -409,7 +410,8 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         called.reset();
     }
 
-    public void newPhase(Game.Phase phase) {
+    @Override
+    public void newPhase(GamePhase phase) {
         jammed = jammedThisPhase;
     }
 
@@ -604,18 +606,11 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
     public void setUsedThisRound(boolean usedThisRound) {
         this.usedThisRound = usedThisRound;
-        if (usedThisRound) {
-            phase = entity.game.getPhase();
-        } else {
-            phase = Game.Phase.PHASE_UNKNOWN;
-        }
+        phase = usedThisRound ? entity.getGame().getPhase() : GamePhase.UNKNOWN;
     }
 
-    public Game.Phase usedInPhase() {
-        if (usedThisRound) {
-            return phase;
-        }
-        return Game.Phase.PHASE_UNKNOWN;
+    public GamePhase usedInPhase() {
+        return usedThisRound ? phase : GamePhase.UNKNOWN;
     }
 
     public boolean isBreached() {
@@ -641,8 +636,8 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     public void setDestroyed(boolean destroyed) {
         this.destroyed = destroyed;
         if ((destroyed == true)
-                && getType().hasFlag(MiscType.F_RADICAL_HEATSINK)){
-            if (entity != null){
+                && getType().hasFlag(MiscType.F_RADICAL_HEATSINK)) {
+            if (entity != null) {
                 entity.setHasDamagedRHS(true);
             }
         }

@@ -990,13 +990,13 @@ public class Princess extends BotClient {
      * Gets an entity eligible to fire from a list contained in the fire control state.
      */
     Entity getEntityToFire(FireControlState fireControlState) {
-    	if(fireControlState.getOrderedFiringEntities().size() == 0) {
+    	if (fireControlState.getOrderedFiringEntities().size() == 0) {
     		initFiringEntities(fireControlState);
     	}
     	
     	//if, even after initializing entities, we have no valid entities
     	//we'll let the game determine 
-    	if(fireControlState.getOrderedFiringEntities().size() == 0) {
+    	if (fireControlState.getOrderedFiringEntities().size() == 0) {
     	    return game.getFirstEntity(getMyTurn());
     	}
     	
@@ -1013,13 +1013,13 @@ public class Princess extends BotClient {
     	List<Entity> myEntities = game.getPlayerEntities(this.getLocalPlayer(), true);
     	fireControlState.clearOrderedFiringEntities();
     	
-    	for(Entity entity : myEntities) {
+    	for (Entity entity : myEntities) {
     	    // if you can't fire, you can't fire.
-    		if(!getMyTurn().isValidEntity(entity, game)) {
+    		if (!getMyTurn().isValidEntity(entity, game)) {
     			continue;
     		}
     		
-    		if(getFireControl(entity).entityCanIndirectFireMissile(fireControlState, entity)) {
+    		if (getFireControl(entity).entityCanIndirectFireMissile(fireControlState, entity)) {
     			fireControlState.getOrderedFiringEntities().addLast(entity);
     		} else {
     			fireControlState.getOrderedFiringEntities().addFirst(entity);
@@ -1048,7 +1048,7 @@ public class Princess extends BotClient {
         for (final Entity entity : myEntities) {
             msg.append("\n\tUnit ").append(entity.getDisplayName());
             
-            if(entity.isDone()) {
+            if (entity.isDone()) {
                 msg.append("has already moved this phase");
                 continue;
             }
@@ -1057,7 +1057,7 @@ public class Princess extends BotClient {
                     || (null == entity.getPosition())
                     || entity.isUnloadedThisTurn()
                     || !getGame().getTurn().isValidEntity(entity, getGame()))
-                            && !getGame().isPhaseSimultaneous()){
+                            && !getGame().getPhase().isSimultaneous(getGame())) {
                 msg.append("cannot be moved.");
                 continue;
             }
@@ -1076,7 +1076,7 @@ public class Princess extends BotClient {
             }
             
             // can't do anything with out-of-control aeros, so use them as init sinks
-            if(entity.isAero() && ((IAero) entity).isOutControlTotal()) {
+            if (entity.isAero() && ((IAero) entity).isOutControlTotal()) {
                 msg.append("is out-of-control aero.");
                 movingEntity = entity;
                 break;

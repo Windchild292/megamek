@@ -21,11 +21,11 @@
 
 package megamek.common;
 
-import java.io.Serializable;
-import java.util.Iterator;
-
 import megamek.common.annotations.Nullable;
 import megamek.common.options.OptionsConstants;
+
+import java.io.Serializable;
+import java.util.Iterator;
 
 /**
  * Represents a single turn within a phase of the game, where a specific player
@@ -35,10 +35,6 @@ import megamek.common.options.OptionsConstants;
  * @author Ben
  */
 public class GameTurn implements Serializable {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = -8340385894504735190L;
 
     private int playerId;
@@ -98,7 +94,7 @@ public class GameTurn implements Serializable {
                                  final boolean useValidNonInfantryCheck) {
         return (entity != null) && (entity.getOwnerId() == playerId) && entity.isSelectableThisTurn()
                 // This next bit enforces the "A players Infantry/ProtoMechs move after that player's other units" options.
-                && !(useValidNonInfantryCheck && (game.getPhase() == Game.Phase.PHASE_MOVEMENT)
+                && !(useValidNonInfantryCheck && game.getPhase().isMovement()
                 && (((entity instanceof Infantry) && game.getOptions().booleanOption(OptionsConstants.INIT_INF_MOVE_LATER))
                 || ((entity instanceof Protomech) && game.getOptions().booleanOption(OptionsConstants.INIT_PROTOS_MOVE_LATER)))
                 && game.checkForValidNonInfantryAndOrProtomechs(playerId));

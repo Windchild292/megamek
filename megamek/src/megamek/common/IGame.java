@@ -33,6 +33,7 @@ import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.AttackAction;
 import megamek.common.actions.EntityAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.GamePhase;
 import megamek.common.event.GameEvent;
 import megamek.common.event.GameListener;
 import megamek.common.force.Forces;
@@ -333,12 +334,6 @@ public interface IGame {
     abstract List<Entity> getValidTargets(Entity entity);
 
     /**
-     * Returns true if this phase has turns. If false, the phase is simply
-     * waiting for everybody to declare "done".
-     */
-    abstract boolean phaseHasTurns(Game.Phase phase);
-
-    /**
      * @return true if the current phase can be played simultaneously
      */
     abstract boolean isPhaseSimultaneous();
@@ -416,13 +411,13 @@ public interface IGame {
      */
     abstract void setTurnVector(List<GameTurn> turnVector);
 
-    abstract Game.Phase getPhase();
+    abstract GamePhase getPhase();
 
-    abstract void setPhase(Game.Phase phase);
+    abstract void setPhase(GamePhase phase);
 
-    abstract Game.Phase getLastPhase();
+    abstract GamePhase getLastPhase();
 
-    abstract void setLastPhase(Game.Phase lastPhase);
+    abstract void setLastPhase(GamePhase lastPhase);
 
     abstract void setDeploymentComplete(boolean deploymentComplete);
 

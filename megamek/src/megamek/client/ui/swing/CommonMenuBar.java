@@ -19,24 +19,26 @@
  */
 package megamek.client.ui.swing;
 
-import java.awt.event.*;
-import java.util.*;
-
-import javax.swing.*;
-
-import megamek.MegaMek;
 import megamek.client.Client;
 import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.util.UIUtil;
-
-import static megamek.client.ui.Messages.*;
-import megamek.common.*;
-import megamek.common.Game.Phase;
+import megamek.common.KeyBindParser;
+import megamek.common.enums.GamePhase;
 import megamek.common.preference.IPreferenceChangeListener;
 import megamek.common.preference.PreferenceChangeEvent;
-import static megamek.client.ui.swing.ClientGUI.*;
-import static java.awt.event.KeyEvent.*;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.awt.event.KeyEvent.*;
+import static megamek.client.ui.Messages.getString;
+import static megamek.client.ui.swing.ClientGUI.*;
 
 /**
  * The menu bar that is used across MM, i.e. in the main menu, the board editor and
@@ -53,7 +55,7 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
     /** True when this menu is attached to a client (lobby or ingame). */
     private boolean isGame = false;
     /** The current phase of the game, if any. */
-    private Game.Phase phase = Game.Phase.PHASE_UNKNOWN;
+    private GamePhase phase = GamePhase.UNKNOWN;
 
     // The Game menu
     private JMenuItem gameLoad = new JMenuItem(getString("CommonMenuBar.fileGameLoad"));
@@ -388,13 +390,12 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
 
     /** Manages the enabled states of the menu items depending on where the menu is empoyed. */
     private synchronized void updateEnabledStates() {
-        boolean isLobby = isGame && (phase == Phase.PHASE_LOUNGE);
-        boolean isInGame = isGame && phase.isDuringOrAfter(Phase.PHASE_DEPLOYMENT);
+        boolean isLobby = isGame && phase.isLounge();
+        boolean isInGame = isGame && phase.isDuringOrAfter(GamePhase.DEPLOYMENT);
         boolean isInGameBoardView = isInGame && phase.isOnMap();
         boolean isBoardView = isInGameBoardView || isBoardEditor;
-        boolean canSave = (phase != Phase.PHASE_UNKNOWN) && (phase != Phase.PHASE_SELECTION)
-                && (phase != Phase.PHASE_EXCHANGE) && (phase != Phase.PHASE_VICTORY)
-                && (phase != Phase.PHASE_STARTING_SCENARIO);
+        boolean canSave = !phase.isUnknown() && !phase.isSelection() && !phase.isExchange()
+                && !phase.isVictory() && !phase.isStartingScenario();
         
         viewAccessibilityWindow.setEnabled(false);
         
@@ -463,7 +464,7 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
      *            valid values for this argument are defined as constants in the
      *            <code>Game</code> class).
      */
-    public synchronized void setPhase(Game.Phase current) {
+    public synchronized void setPhase(GamePhase current) {
         phase = current;
         updateEnabledStates();
     }

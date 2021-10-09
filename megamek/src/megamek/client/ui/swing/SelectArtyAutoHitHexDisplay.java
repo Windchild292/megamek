@@ -288,10 +288,11 @@ public class SelectArtyAutoHitHexDisplay extends StatusBarPhaseDisplay {
         }
 
         if (clientgui.getClient().isMyTurn()
-                && (clientgui.getClient().getGame().getPhase() != Game.Phase.PHASE_SET_ARTYAUTOHITHEXES)) {
+                && !clientgui.getClient().getGame().getPhase().isSetArtilleryAutohitHexes()) {
             endMyTurn();
         }
-        if (clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_SET_ARTYAUTOHITHEXES) {
+
+        if (clientgui.getClient().getGame().getPhase().isSetArtilleryAutohitHexes()) {
             setStatusBarText(Messages
                     .getString("SelectArtyAutoHitHexDisplay.waitingMinefieldPhase")); //$NON-NLS-1$
         }
@@ -300,6 +301,7 @@ public class SelectArtyAutoHitHexDisplay extends StatusBarPhaseDisplay {
     //
     // ActionListener
     //
+    @Override
     public void actionPerformed(ActionEvent ev) {
 
         // Are we ignoring events?

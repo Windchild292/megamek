@@ -25,7 +25,6 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.UIUtil;
 import megamek.common.*;
-import megamek.common.Game.Phase;
 import megamek.common.annotations.Nullable;
 import megamek.common.options.*;
 import megamek.common.preference.PreferenceManager;
@@ -575,10 +574,9 @@ public final class UnitToolTip {
         // Actual Movement
         if (!isGunEmplacement) {
             // "Has not yet moved" only during movement phase
-            if (!entity.isDone() && game.getPhase() == Phase.PHASE_MOVEMENT) {
+            if (!entity.isDone() && game.getPhase().isMovement()) {
                 result.append(addToTT("NotYetMoved", BR));
-            } else if ((entity.isDone() && game.getPhase() == Phase.PHASE_MOVEMENT) 
-                    || game.getPhase() == Phase.PHASE_FIRING) {
+            } else if ((entity.isDone() && game.getPhase().isMovement()) || game.getPhase().isFiring()) {
                 int tmm = Compute.getTargetMovementModifier(game, entity.getId()).getValue();
                 if (entity.moved == EntityMovementType.MOVE_NONE) {
                     result.append(addToTT("NoMove", BR, tmm));
@@ -635,8 +633,7 @@ public final class UnitToolTip {
         }
 
         if (entity.isHiddenActivating()) {
-            result.append(addToTT("HiddenActivating", BR,
-                    Game.Phase.getDisplayableName(entity.getHiddenActivationPhase())));
+            result.append(addToTT("HiddenActivating", BR, entity.getHiddenActivationPhase()));
         } else if (entity.isHidden()) {
             result.append(addToTT("Hidden", BR));
         }

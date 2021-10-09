@@ -39,7 +39,6 @@ import megamek.client.bot.princess.FireControl;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.common.Building.BasementType;
-import megamek.common.Game.Phase;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.AbstractAttackAction;
 import megamek.common.actions.AttackAction;
@@ -51,6 +50,7 @@ import megamek.common.actions.PushAttackAction;
 import megamek.common.actions.TeleMissileAttackAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.GamePhase;
 import megamek.common.event.GameEntityChangeEvent;
 import megamek.common.force.Force;
 import megamek.common.icons.Camouflage;
@@ -517,11 +517,10 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     protected boolean madePointblankShot = false;
 
     /**
-     * Keeps track of whether this Entity should activate in a particular game
-     * phase.  Generally this will be null, indicating the unit isn't
-     * activating.
+     * Keeps track of whether this Entity should activate in a particular GamePhase. Generally this
+     * will be UNKNOWN, indicating the unit isn't activating.
      */
-    protected Game.Phase hiddenActivationPhase = null;
+    protected GamePhase hiddenActivationPhase = GamePhase.UNKNOWN;
 
     protected boolean carcass = false;
 
@@ -3842,7 +3841,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * Returns the equipment number of the specified equipment, or -1 if
      * equipment is not present.
      */
-    public int getEquipmentNum(Mounted mounted) {
+    public int getEquipmentNum(@Nullable Mounted mounted) {
         if (mounted != null) {
             return equipmentList.indexOf(mounted);
         }
@@ -3859,7 +3858,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     /**
      * Returns the equipment, specified by number
      */
-    public Mounted getEquipment(int index) {
+    public @Nullable Mounted getEquipment(int index) {
         try {
             return equipmentList.get(index);
         } catch (IndexOutOfBoundsException ex) {
@@ -3867,7 +3866,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         }
     }
 
-    public EquipmentType getEquipmentType(CriticalSlot cs) {
+    public @Nullable EquipmentType getEquipmentType(CriticalSlot cs) {
         if (cs.getType() != CriticalSlot.TYPE_EQUIPMENT) {
             return null;
         }
@@ -3977,12 +3976,10 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         // we can't use during this phase... do we?
         for (Mounted mounted : getWeaponList()) {
             // TAG only in the correct phase...
-            if ((mounted.getType().hasFlag(WeaponType.F_TAG) && (game
-                                                                         .getPhase() != Game.Phase.PHASE_OFFBOARD))
-                || (!mounted.getType().hasFlag(WeaponType.F_TAG) && (game
-                                                                             .getPhase() == Game.Phase.PHASE_OFFBOARD))
-                //No AMS, unless it's in 'weapon' mode
-                || (mounted.getType().hasFlag(WeaponType.F_AMS) && !mounted.curMode().equals(Weapon.MODE_AMS_MANUAL))) {
+            if ((!getGame().getPhase().isOffboard() && mounted.getType().hasFlag(WeaponType.F_TAG))
+                    || (getGame().getPhase().isOffboard() && !mounted.getType().hasFlag(WeaponType.F_TAG))
+                    // No AMS, unless it's in 'weapon' mode
+                    || (mounted.getType().hasFlag(WeaponType.F_AMS) && !mounted.curMode().equals(Weapon.MODE_AMS_MANUAL))) {
                 continue;
             }
 
@@ -4040,11 +4037,8 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                 || (mounted.getLinked().getUsableShotsLeft() > 0))) {
 
             // TAG only in the correct phase...
-            if ((mounted.getType().hasFlag(WeaponType.F_TAG)
-                    && (game.getPhase() != Game.Phase.PHASE_OFFBOARD))
-                    || (!mounted.getType().hasFlag(WeaponType.F_TAG)
-                            && (game.getPhase()
-                                    == Game.Phase.PHASE_OFFBOARD))) {
+            if ((!getGame().getPhase().isOffboard() && mounted.getType().hasFlag(WeaponType.F_TAG))
+                    || (getGame().getPhase().isOffboard() && !mounted.getType().hasFlag(WeaponType.F_TAG))) {
                 return false;
             }
 
@@ -4053,11 +4047,11 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                     || mounted.isInBearingsOnlyMode()
                     || (this.getAltitude() == 0
                             && mounted.getType() instanceof CapitalMissileWeapon))
-                && (game.getPhase() == Game.Phase.PHASE_TARGETING)) {
+                    && game.getPhase().isTargeting()) {
                 return false;
             }
             // No Bearings-only missiles in the firing phase
-            if (mounted.isInBearingsOnlyMode() && game.getPhase() == Game.Phase.PHASE_FIRING) {
+            if (mounted.isInBearingsOnlyMode() && game.getPhase().isFiring()) {
                 return false;
             }
 
@@ -7097,7 +7091,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
             roll.addModifier(taserInterference, "taser interference");
         }
 
-        if ((game.getPhase() == Phase.PHASE_MOVEMENT) && isPowerReverse()) {
+        if (getGame().getPhase().isMovement() && isPowerReverse()) {
             roll.addModifier(1, "power reverse");
         }
 
@@ -9885,9 +9879,9 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     /**
      * Determines if an entity is eligible for a phase.
      */
-    public boolean isEligibleFor(Game.Phase phase) {
+    public boolean isEligibleFor(GamePhase phase) {
         // only deploy in deployment phase
-        if ((phase == Game.Phase.PHASE_DEPLOYMENT) == isDeployed()) {
+        if (phase.isDeployment() == isDeployed()) {
             if (!isDeployed() && isEligibleForTargetingPhase()
                     && game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_ON_MAP_PREDESIGNATE)) {
                 MegaMek.getLogger().debug("Artillery Units Present and Advanced PreDesignate option enabled");
@@ -9902,21 +9896,20 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         }
 
         // Hidden units shouldn't be counted for turn order, unless deploying
-        if (isHidden() && phase != Phase.PHASE_DEPLOYMENT
-                && phase != Phase.PHASE_FIRING) {
+        if (isHidden() && !phase.isDeployment() && !phase.isFiring()) {
             return false;
         }
 
         switch (phase) {
-            case PHASE_MOVEMENT:
+            case MOVEMENT:
                 return isEligibleForMovement();
-            case PHASE_FIRING:
+            case FIRING:
                 return isEligibleForFiring();
-            case PHASE_PHYSICAL:
+            case PHYSICAL:
                 return isEligibleForPhysical();
-            case PHASE_TARGETING:
+            case TARGETING:
                 return isEligibleForTargetingPhase();
-            case PHASE_OFFBOARD:
+            case OFFBOARD:
                 return isEligibleForOffboard();
             default:
                 return true;
@@ -9930,15 +9923,13 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * played when not needed. However it could be used for other things in the
      * future
      */
-    public boolean canAssist(Game.Phase phase) {
-        if ((phase != Game.Phase.PHASE_PHYSICAL)
-            && (phase != Game.Phase.PHASE_FIRING)
-            && (phase != Game.Phase.PHASE_OFFBOARD)) {
+    public boolean canAssist(GamePhase phase) {
+        if (!phase.isPhysical() && !phase.isFiring() && !phase.isOffboard()) {
             return false;
         }
         // if you're charging or finding a club, it's already declared
         if (isUnjammingRAC() || isCharging() || isMakingDfa() || isRamming()
-            || isFindingClub() || isOffBoard()) {
+                || isFindingClub() || isOffBoard()) {
             return false;
         }
         // must be active
@@ -11482,11 +11473,9 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     }
 
     /**
-     * Set a phase for this hidden unit to become active in.
-     *
-     * @param phase
+     * @param phase the phase for this hidden unit to become active in
      */
-    public void setHiddeActivationPhase(Game.Phase phase) {
+    public void setHiddenActivationPhase(final GamePhase phase) {
         hiddenActivationPhase = phase;
     }
 
@@ -11509,16 +11498,14 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * @return
      */
     public boolean isHiddenActivating() {
-        return getHiddenActivationPhase() != null;
+        return !getHiddenActivationPhase().isUnknown();
     }
 
     /**
-     * Get the phase that this hidden unit will activate in (generally this
-     * will be null, indicating that the unit isn't activating).
-     * @return
+     * @return the phase that this hidden unit will activate in (generally this will be UNKNOWN,
+     * indicating that the unit isn't activating).
      */
-    @Nullable
-    public Game.Phase getHiddenActivationPhase() {
+    public GamePhase getHiddenActivationPhase() {
         return hiddenActivationPhase;
     }
 
@@ -14950,7 +14937,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     }
 
     @Override
-    public void newPhase(Game.Phase phase) {
+    public void newPhase(GamePhase phase) {
         for (Mounted m : getEquipment()) {
             m.newPhase(phase);
         }

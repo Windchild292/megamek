@@ -15,59 +15,11 @@
  */
 package megamek.server;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.IllegalFormatException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import megamek.MegaMek;
 import megamek.client.generator.RandomGenderGenerator;
-import megamek.common.AmmoType;
-import megamek.common.BattleArmor;
-import megamek.common.Board;
-import megamek.common.Compute;
-import megamek.common.Configuration;
-import megamek.common.Coords;
-import megamek.common.Crew;
-import megamek.common.CriticalSlot;
-import megamek.common.Entity;
-import megamek.common.EquipmentType;
-import megamek.common.Game;
-import megamek.common.HitData;
-import megamek.common.IAero;
-import megamek.common.IArmorState;
-import megamek.common.IBoard;
-import megamek.common.Game;
-import megamek.common.IPlayer;
-import megamek.common.IStartingPositions;
-import megamek.common.MapSettings;
-import megamek.common.Mech;
-import megamek.common.MechFileParser;
-import megamek.common.MechSummary;
-import megamek.common.MechSummaryCache;
-import megamek.common.Mounted;
-import megamek.common.Player;
-import megamek.common.Protomech;
-import megamek.common.SimpleTechLevel;
-import megamek.common.Tank;
-import megamek.common.TechConstants;
-import megamek.common.ToHitData;
-import megamek.common.WeaponType;
+import megamek.common.*;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.GamePhase;
 import megamek.common.enums.Gender;
 import megamek.common.icons.Camouflage;
 import megamek.common.loaders.EntityLoadingException;
@@ -75,6 +27,12 @@ import megamek.common.options.IOption;
 import megamek.common.options.OptionsConstants;
 import megamek.common.util.BoardUtilities;
 import megamek.common.util.fileUtils.MegaMekFile;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ScenarioLoader {
     private static final String COMMENT_MARK = "#";
@@ -433,7 +391,7 @@ public class ScenarioLoader {
         // Set up the teams (for initiative)
         g.setupTeams();
 
-        g.setPhase(Game.Phase.PHASE_STARTING_SCENARIO);
+        g.setPhase(GamePhase.STARTING_SCENARIO);
 
         g.setupRoundDeployment();
 

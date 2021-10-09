@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import megamek.common.Game.Phase;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.logging.DefaultMmLogger;
 import megamek.common.logging.MMLogger;
@@ -3191,7 +3190,7 @@ public class MoveStep implements Serializable {
         // Hidden units, and activating hidden units cannot move 
         // unless it is the movement phase and the plan is to activate then
         // if we're in this method, we're implicitly in the movement phase
-        if (entity.isHidden() || (entity.isHiddenActivating() && (entity.hiddenActivationPhase != Phase.PHASE_MOVEMENT))) {
+        if (entity.isHidden() || (entity.isHiddenActivating() && !entity.hiddenActivationPhase.isMovement())) {
             return false;
         }
 

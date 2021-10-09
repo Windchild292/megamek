@@ -1,28 +1,16 @@
 package megamek.client.ui.swing.unitDisplay;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Enumeration;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import megamek.client.ui.Messages;
+import megamek.client.ui.baseComponents.MMComboBox;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.HeatEffects;
 import megamek.client.ui.swing.Slider;
@@ -44,6 +32,7 @@ import megamek.common.Mech;
 import megamek.common.Mounted;
 import megamek.common.Sensor;
 import megamek.common.Tank;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.util.fileUtils.MegaMekFile;
 import megamek.common.weapons.other.TSEMPWeapon;
@@ -93,7 +82,7 @@ class ExtraPanel extends PicMap implements ActionListener, ItemListener {
     JButton activateHidden = new JButton(
             Messages.getString("MechDisplay.ActivateHidden.Label"));
 
-    JComboBox<String> activateHiddenPhase = new JComboBox<>();
+    MMComboBox<GamePhase> activateHiddenPhase = new MMComboBox<>("activateHiddenPhase");
 
     ExtraPanel(UnitDisplay unitDisplay) {
         this.unitDisplay = unitDisplay;
@@ -181,14 +170,20 @@ class ExtraPanel extends PicMap implements ActionListener, ItemListener {
         activateHiddenPhase.setToolTipText(Messages
                 .getString("MechDisplay.ActivateHiddenPhase.ToolTip"));
         activateHidden.addActionListener(this);
-        activateHiddenPhase.addItem(Game.Phase
-                .getDisplayableName(Game.Phase.PHASE_MOVEMENT));
-        activateHiddenPhase.addItem(Game.Phase
-                .getDisplayableName(Game.Phase.PHASE_FIRING));
-        activateHiddenPhase.addItem(Game.Phase
-                .getDisplayableName(Game.Phase.PHASE_PHYSICAL));
-        activateHiddenPhase.addItem(Messages
-                .getString("MechDisplay.ActivateHidden.StopActivating"));
+        activateHiddenPhase.addItem(GamePhase.UNKNOWN);
+        activateHiddenPhase.addItem(GamePhase.MOVEMENT);
+        activateHiddenPhase.addItem(GamePhase.FIRING);
+        activateHiddenPhase.addItem(GamePhase.PHYSICAL);
+        activateHiddenPhase.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                return super.getListCellRendererComponent(list,
+                        (((value instanceof GamePhase) && ((GamePhase) value).isUnknown())
+                                ? Messages.getString("MechDisplay.ActivateHidden.StopActivating")
+                                : value),
+                        index, isSelected, cellHasFocus);
+            }
+        });
 
         // layout choice panel
         GridBagLayout gridbag;
@@ -675,6 +670,7 @@ class ExtraPanel extends PicMap implements ActionListener, ItemListener {
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent ae) {
         ClientGUI clientgui = unitDisplay.getClientGUI();
         if (clientgui == null) {
@@ -697,10 +693,8 @@ class ExtraPanel extends PicMap implements ActionListener, ItemListener {
             clientgui.getClient().sendSinksChange(myMechId, numActiveSinks);
             displayMech(clientgui.getClient().getGame().getEntity(myMechId));
         } else if (activateHidden.equals(ae.getSource()) && !dontChange) {
-            Game.Phase activationPhase = Game.Phase
-                    .getPhaseFromName((String) activateHiddenPhase
-                            .getSelectedItem());
-            clientgui.getClient().sendActivateHidden(myMechId, activationPhase);
+            final GamePhase phase = activateHiddenPhase.getSelectedItem();
+            clientgui.getClient().sendActivateHidden(myMechId, (phase == null) ? GamePhase.UNKNOWN : phase);
         }
     }
 }

@@ -119,7 +119,6 @@ import megamek.common.FuelTank;
 import megamek.common.GunEmplacement;
 import megamek.common.IBoard;
 import megamek.common.Game;
-import megamek.common.Game.Phase;
 import megamek.common.IHex;
 import megamek.common.IPlayer;
 import megamek.common.ITerrain;
@@ -156,6 +155,7 @@ import megamek.common.actions.PushAttackAction;
 import megamek.common.actions.SearchlightAttackAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.GamePhase;
 import megamek.common.enums.IlluminationLevel;
 import megamek.common.event.BoardEvent;
 import megamek.common.event.BoardListener;
@@ -939,16 +939,8 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     }
 
     private boolean shouldIgnoreKeyCommands() {
-        return getChatterBoxActive() || !isVisible()
-               || (game.getPhase() == Phase.PHASE_LOUNGE)
-               || (game.getPhase() == Phase.PHASE_END_REPORT)
-               || (game.getPhase() == Phase.PHASE_MOVEMENT_REPORT)
-               || (game.getPhase() == Phase.PHASE_TARGETING_REPORT)
-               || (game.getPhase() == Phase.PHASE_FIRING_REPORT)
-               || (game.getPhase() == Phase.PHASE_PHYSICAL_REPORT)
-               || (game.getPhase() == Phase.PHASE_OFFBOARD_REPORT)
-               || (game.getPhase() == Phase.PHASE_INITIATIVE_REPORT)
-               || shouldIgnoreKeys;
+        return getChatterBoxActive() || !isVisible() || game.getPhase().isLounge()
+               || game.getPhase().isReport() || shouldIgnoreKeys;
     }
 
     protected final RedrawWorker redrawWorker = new RedrawWorker();
@@ -1212,7 +1204,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             drawSprites(g, fieldofFireSprites);
         }
 
-        if ((game.getPhase() == Phase.PHASE_MOVEMENT) && !useIsometric()) {
+        if (game.getPhase().isMovement() && !useIsometric()) {
             drawSprites(g, moveEnvSprites);
             drawSprites(g, moveModEnvSprites);
         }
@@ -1238,7 +1230,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             drawDeployment(g);
         }
 
-        if ((game.getPhase() == Game.Phase.PHASE_SET_ARTYAUTOHITHEXES) && showAllDeployment) {
+        if (game.getPhase().isSetArtilleryAutohitHexes() && showAllDeployment) {
             drawAllDeployment(g);
         }
 
@@ -1267,7 +1259,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         drawSprites(g, attackSprites);
 
         // draw movement vectors.
-        if (game.useVectorMove() && (game.getPhase() == Game.Phase.PHASE_MOVEMENT)) {
+        if (game.useVectorMove() && game.getPhase().isMovement()) {
             drawSprites(g, movementSprites);
         }
 
@@ -1275,11 +1267,11 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         drawSprites(g, pathSprites);
 
         // draw firing solution sprites, but only during the firing phase
-        if ((game.getPhase() == Phase.PHASE_FIRING) || (game.getPhase() == Phase.PHASE_OFFBOARD)) {
+        if (game.getPhase().isFiring() || game.getPhase().isOffboard()) {
             drawSprites(g, firingSprites);
         }
 
-        if (game.getPhase() == Phase.PHASE_FIRING) {
+        if (game.getPhase().isFiring()) {
             for (Coords c : strafingCoords) {
                 drawHexBorder(g, getHexLocation(c), Color.yellow, 0, 3);
             }
@@ -1367,29 +1359,29 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
      */
     @SuppressWarnings("unused")
     private void renderMovementBoundingBox(Graphics2D g) {
-        if(selectedEntity != null) {
+        if (selectedEntity != null) {
             Princess princess = new Princess("test", "localhost", 2020, LogLevel.DEBUG);
             princess.getGame().setBoard(this.game.getBoard());
             PathEnumerator pathEnum = new PathEnumerator(princess, this.game);
             pathEnum.recalculateMovesFor(this.selectedEntity);
 
             ConvexBoardArea cba = pathEnum.getUnitMovableAreas().get(this.selectedEntity.getId());
-            for(int x = 0; x < game.getBoard().getWidth(); x++) {
-                for(int y = 0; y < game.getBoard().getHeight(); y++) {
+            for (int x = 0; x < game.getBoard().getWidth(); x++) {
+                for (int y = 0; y < game.getBoard().getHeight(); y++) {
                     Point p = getCentreHexLocation(x, y, true);
                     p.translate(HEX_W  / 2, HEX_H  / 2);
                     Coords c = new Coords(x, y);
 
-                    if(cba.contains(c)) {
+                    if (cba.contains(c)) {
 
                         drawHexBorder(g, p, Color.PINK, 0, 6);
                     }
                 }
             }
 
-            for(Integer x = 0; x < 6; x++) {
+            for (Integer x = 0; x < 6; x++) {
                 Coords c = cba.getVertexNum(x);
-                if(c == null) {
+                if (c == null) {
                     continue;
                 }
 
@@ -1411,7 +1403,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
     private void renderDonut(Graphics2D g, Coords coords, int radius) {
         List<Coords> donut = coords.allAtDistance(radius);
 
-        for(Coords donutCoords : donut) {
+        for (Coords donutCoords : donut) {
             Point p = getCentreHexLocation(donutCoords.getX(), donutCoords.getY(), true);
             p.translate(HEX_W  / 2, HEX_H  / 2);
             drawHexBorder(g, p, Color.PINK, 0, 6);
@@ -1427,7 +1419,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         BoardClusterTracker bct = new BoardClusterTracker();
         Map<Coords, BoardCluster> clusterMap = bct.generateClusters(selectedEntity, false, true);
         
-        for(BoardCluster cluster : clusterMap.values().stream().distinct().collect(Collectors.toList())) {
+        for (BoardCluster cluster : clusterMap.values().stream().distinct().collect(Collectors.toList())) {
             for (Coords coords : cluster.contents.keySet()) {
                 Point p = getCentreHexLocation(coords.getX(), coords.getY(), true);
                 p.translate(HEX_W  / 2, HEX_H  / 2);
@@ -1508,7 +1500,9 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         if (boardSize == null) updateBoardSize();
         if (!isTileImagesLoaded()) return;
         // Map editor? No shadows
-        if (game.getPhase() == Game.Phase.PHASE_UNKNOWN) return;
+        if (game.getPhase().isUnknown()) {
+            return;
+        }
 
         long stT = System.nanoTime();
 
@@ -2036,12 +2030,12 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
      * returns the weapon selected in the mech display, or null if none selected
      * or it is not artillery or null if the selected entity is not owned
      */
-    public Mounted getSelectedArtilleryWeapon() {
+    public @Nullable Mounted getSelectedArtilleryWeapon() {
         // We don't want to display artillery auto-hit/adjusted fire hexes
         // during
         // the artyautohithexes phase. These could be displayed if the player
         // uses the /reset command in some situations
-        if (game.getPhase() == Game.Phase.PHASE_SET_ARTYAUTOHITHEXES) {
+        if (game.getPhase().isSetArtilleryAutohitHexes()) {
             return null;
         }
 
@@ -2282,12 +2276,11 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             }
 
             // Field of Fire
-            if (!useIsometric()
-                    && GUIPreferences.getInstance().getShowFieldOfFire()) {
+            if (!useIsometric() && GUIPreferences.getInstance().getShowFieldOfFire()) {
                 drawSprites(boardGraph, fieldofFireSprites);
             }
 
-            if ((game.getPhase() == Phase.PHASE_MOVEMENT) && !useIsometric()) {
+            if (game.getPhase().isMovement() && !useIsometric()) {
                 drawSprites(boardGraph, moveEnvSprites);
                 drawSprites(boardGraph, moveModEnvSprites);
             }
@@ -2313,8 +2306,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                 drawDeployment(boardGraph);
             }
 
-            if ((game.getPhase() == Game.Phase.PHASE_SET_ARTYAUTOHITHEXES)
-                    && (showAllDeployment)) {
+            if (game.getPhase().isSetArtilleryAutohitHexes() && showAllDeployment) {
                 drawAllDeployment(boardGraph);
             }
 
@@ -2343,8 +2335,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             drawSprites(boardGraph, attackSprites);
 
             // draw movement vectors.
-            if (game.useVectorMove()
-                && (game.getPhase() == Game.Phase.PHASE_MOVEMENT)) {
+            if (game.useVectorMove() && game.getPhase().isMovement()) {
                 drawSprites(boardGraph, movementSprites);
             }
 
@@ -2352,12 +2343,11 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             drawSprites(boardGraph, pathSprites);
 
             // draw firing solution sprites, but only during the firing phase
-            if ((game.getPhase() == Phase.PHASE_FIRING) ||
-                (game.getPhase() == Phase.PHASE_OFFBOARD)) {
+            if (game.getPhase().isFiring() || game.getPhase().isOffboard()) {
                 drawSprites(boardGraph, firingSprites);
             }
 
-            if (game.getPhase() == Phase.PHASE_FIRING) {
+            if (game.getPhase().isFiring()) {
                 for (Coords c : strafingCoords) {
                     drawHexBorder(boardGraph, getHexLocation(c), Color.yellow, 0, 3);
                 }
@@ -5122,7 +5112,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         public void gameEntityNew(GameEntityNewEvent e) {
             updateEcmList();
             redrawAllEntities();
-            if (game.getPhase() == Game.Phase.PHASE_MOVEMENT) {
+            if (game.getPhase().isMovement()) {
                 refreshMoveVectors();
             }
         }
@@ -5131,7 +5121,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
         public void gameEntityRemove(GameEntityRemoveEvent e) {
             updateEcmList();
             redrawAllEntities();
-            if (game.getPhase() == Game.Phase.PHASE_MOVEMENT) {
+            if (game.getPhase().isMovement()) {
                 refreshMoveVectors();
             }
         }
@@ -5146,13 +5136,12 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             updateEcmList();
             
             //For Entities that have converted to another mode, check for a different sprite
-            if (game.getPhase() == Game.Phase.PHASE_MOVEMENT
-                    && en.isConvertingNow()) {
+            if (game.getPhase().isMovement() && en.isConvertingNow()) {
                 tileManager.reloadImage(en);
             }
             
             // for units that have been blown up, damaged or ejected, force a reload
-            if((e.getOldEntity() != null) &&
+            if ((e.getOldEntity() != null) &&
                     ((en.getDamageLevel() != e.getOldEntity().getDamageLevel()) ||
                     (en.isDestroyed() != e.getOldEntity().isDestroyed()) ||
                     (en.getCrew().isEjected() != e.getOldEntity().getCrew().isEjected()))) {
@@ -5160,7 +5149,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             }
             
             redrawAllEntities();
-            if (game.getPhase() == Game.Phase.PHASE_MOVEMENT) {
+            if (game.getPhase().isMovement()) {
                 refreshMoveVectors();
             }
             if ((mp != null) && (mp.size() > 0) && guip.getShowMoveStep()
@@ -5238,15 +5227,16 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
         @Override
         public void gamePhaseChange(GamePhaseChangeEvent e) {
-            if (GUIPreferences.getInstance().getGameSummaryBoardView() && ((e.getOldPhase() == Phase.PHASE_DEPLOYMENT)
-                    || (e.getOldPhase() == Phase.PHASE_MOVEMENT) || (e.getOldPhase() == Phase.PHASE_TARGETING)
-                    || (e.getOldPhase() == Phase.PHASE_FIRING) || (e.getOldPhase() == Phase.PHASE_PHYSICAL))) {
+            if (GUIPreferences.getInstance().getGameSummaryBoardView()
+                    && (e.getOldPhase().isDeployment() || e.getOldPhase().isMovement()
+                    || e.getOldPhase().isTargeting() || e.getOldPhase().isFiring()
+                    || e.getOldPhase().isPhysical())) {
                 File dir = new File(Configuration.gameSummaryImagesBVDir(), game.getUUIDString());
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
                 File imgFile = new File(dir, "round_" + game.getRoundCount() + "_" + e.getOldPhase().ordinal() + "_"
-                        + Game.Phase.getDisplayableName(e.getOldPhase()) + ".png");
+                        + e.getOldPhase() + ".png");
                 try {
                     ImageIO.write(getEntireBoardImage(false, true), "png", imgFile);
                 } catch (Exception ex) {
@@ -5261,20 +5251,20 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
             clearMovementEnvelope();
 
             switch (e.getNewPhase()) {
-                case PHASE_MOVEMENT:
+                case MOVEMENT:
                     refreshMoveVectors();
-                case PHASE_FIRING:
+                case FIRING:
                     clearAllMoveVectors();
-                case PHASE_PHYSICAL:
+                case PHYSICAL:
                     refreshAttacks();
                     break;
-                case PHASE_INITIATIVE:
+                case INITIATIVE:
                     clearAllAttacks();
                     break;
-                case PHASE_END:
-                case PHASE_VICTORY:
+                case END:
+                case VICTORY:
                     clearSprites();
-                case PHASE_LOUNGE:
+                case LOUNGE:
                     clearHexImageCache();
                     clearAllMoveVectors();
                     clearAllAttacks();
@@ -5283,6 +5273,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                     cursor(null);
                     highlight(null);
                 default:
+                    break;
             }
             for (Entity en: game.getEntitiesVector()) {
                 if ((en.getDamageLevel() != Entity.DMG_NONE) && 
@@ -5682,8 +5673,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
                     }
                 }
 
-                if ((game.getPhase() == Phase.PHASE_MOVEMENT) &&
-                        (movementTarget != null)) {
+                if (game.getPhase().isMovement() && (movementTarget != null)) {
                     txt.append("<BR>");
                     int disPM = movementTarget.distance(mcoords);
                     if (disPM == 1) {
@@ -5839,7 +5829,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
         // Show the player(s) that may deploy here
         // in the artillery autohit designation phase
-        if ((game.getPhase() == Game.Phase.PHASE_SET_ARTYAUTOHITHEXES) && (mhex != null)) {
+        if (game.getPhase().isSetArtilleryAutohitHexes() && (mhex != null)) {
             txt.append("<TABLE BORDER=0 width=100%><TR><TD>"); //$NON-NLS-1$
             Enumeration<IPlayer> allP = game.getPlayers();
             boolean foundPlayer = false;
@@ -5991,7 +5981,7 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
 
         final Collection<SpecialHexDisplay> shdList = game.getBoard()
                 .getSpecialHexDisplay(mcoords);
-        final Phase currPhase = game.getPhase();
+        final GamePhase currPhase = game.getPhase();
         int round = game.getRoundCount();
         if (shdList != null) {
             boolean isHexAutoHit = localPlayer.getArtyAutoHitHexes().contains(
@@ -6468,12 +6458,9 @@ public class BoardView1 extends JPanel implements IBoardView, Scrollable,
      * field-of-view changes.
      */
     public void checkFoVHexImageCacheClear() {
-        boolean darken = GUIPreferences.getInstance().getBoolean(
-                GUIPreferences.FOV_DARKEN);
-        boolean highlight = GUIPreferences.getInstance().getBoolean(
-                GUIPreferences.FOV_HIGHLIGHT);
-        if ((game.getPhase() == Phase.PHASE_MOVEMENT)
-                && (darken || highlight)) {
+        boolean darken = GUIPreferences.getInstance().getBoolean(GUIPreferences.FOV_DARKEN);
+        boolean highlight = GUIPreferences.getInstance().getBoolean(GUIPreferences.FOV_HIGHLIGHT);
+        if (game.getPhase().isMovement() && (darken || highlight)) {
             clearHexImageCache();
         }
     }

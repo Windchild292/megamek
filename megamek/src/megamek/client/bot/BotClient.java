@@ -70,6 +70,7 @@ import megamek.common.WeaponType;
 import megamek.common.actions.EntityAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.GamePhase;
 import megamek.common.event.GameCFREvent;
 import megamek.common.event.GameListenerAdapter;
 import megamek.common.event.GamePhaseChangeEvent;
@@ -129,8 +130,8 @@ public abstract class BotClient extends Client {
             public void gameTurnChange(GameTurnChangeEvent e) {
                 // On simultaneous phases, each player ending their turn will generate a turn change
                 // We want to ignore turns from other players and only listen to events we generated
-                boolean ignoreSimTurn = game.isPhaseSimultaneous() && (e.getPreviousPlayerId() != localPlayerNumber)
-                        && calculatedTurnThisPhase;
+                boolean ignoreSimTurn = game.getPhase().isSimultaneous(game)
+                        && (e.getPreviousPlayerId() != localPlayerNumber) && calculatedTurnThisPhase;
 
                 
                 if (isMyTurn() && !ignoreSimTurn) {
@@ -153,7 +154,7 @@ public abstract class BotClient extends Client {
             @Override
             public void gamePhaseChange(GamePhaseChangeEvent e) {
                 calculatedTurnThisPhase = false;
-                if (e.getOldPhase().isPhaseSimultaneous(game)) {
+                if (e.getOldPhase().isSimultaneous(game)) {
                     int numOwnedEntities = game.getEntitiesOwnedBy(getLocalPlayer());
                     System.out.println("BotClient calculated turns, " + getName() + " phase " + e.getOldPhase()
                             + " " + calculatedTurnsThisPhase + "/" + numOwnedEntities);
@@ -163,7 +164,7 @@ public abstract class BotClient extends Client {
 
             @Override
             public void gameReport(GameReportEvent e) {
-                if (game.getPhase() == Game.Phase.PHASE_INITIATIVE_REPORT) {
+                if (game.getPhase().isInitiativeReport()) {
                     // Opponent has used tactical genius, must press
                     // "Done" again to advance past initiative report.
                     sendDone(true);
@@ -375,7 +376,7 @@ public abstract class BotClient extends Client {
      * Only good for the current entity turn calculation, as this list can change between individual entity turns. 
      */
     public List<Entity> getFriendEntities() {
-        if(currentTurnFriendlyEntities == null) {
+        if (currentTurnFriendlyEntities == null) {
             currentTurnFriendlyEntities = new ArrayList<>();
             for (Entity entity : game.getEntitiesVector()) {
                 if (!entity.getOwner().isEnemyOf(getLocalPlayer()) && (entity.getPosition() != null)
@@ -390,18 +391,18 @@ public abstract class BotClient extends Client {
 
     // TODO: move initMovement to be called on phase end
     @Override
-    public void changePhase(Game.Phase phase) {
+    public void changePhase(GamePhase phase) {
         super.changePhase(phase);
 
         try {
             switch (phase) {
-                case PHASE_LOUNGE:
+                case LOUNGE:
                     sendChat(Messages.getString("BotClient.Hi")); //$NON-NLS-1$
                     break;
-                case PHASE_DEPLOYMENT:
+                case DEPLOYMENT:
                     initialize();
                     break;
-                case PHASE_MOVEMENT:
+                case MOVEMENT:
                     /* Do not uncomment this. It is so that bots stick around till end of game
                      * for proper salvage. If the bot dies out here, the salvage for all but the
                      * last bot disappears for some reason
@@ -426,30 +427,30 @@ public abstract class BotClient extends Client {
                     }
                     initMovement();
                     break;
-                case PHASE_FIRING:
+                case FIRING:
                     initFiring();
                     break;
-                case PHASE_PHYSICAL:
+                case PHYSICAL:
                     break;
-                case PHASE_TARGETING:
+                case TARGETING:
                     initTargeting();
                     break;
-                case PHASE_END_REPORT:
+                case END_REPORT:
                     // Check if stealth armor should be switched on/off
                     // Kinda cheap leaving this until the end phase, players
                     // can't do this
                     toggleStealth();
                     endOfTurnProcessing();
                     // intentional fallthrough: all reports must click "done", otherwise the game never moves on.
-                case PHASE_TARGETING_REPORT:
-                case PHASE_INITIATIVE_REPORT:
-                case PHASE_MOVEMENT_REPORT:
-                case PHASE_OFFBOARD_REPORT:
-                case PHASE_FIRING_REPORT:
-                case PHASE_PHYSICAL_REPORT:
+                case TARGETING_REPORT:
+                case INITIATIVE_REPORT:
+                case MOVEMENT_REPORT:
+                case OFFBOARD_REPORT:
+                case FIRING_REPORT:
+                case PHYSICAL_REPORT:
                     sendDone(true);
                     break;
-                case PHASE_VICTORY:
+                case VICTORY:
                     runEndGame();
                     sendChat(Messages.getString("BotClient.Bye")); //$NON-NLS-1$
                     die();
@@ -517,10 +518,10 @@ public abstract class BotClient extends Client {
     	int retryCount = 0;
         boolean success = false;
         
-        while((retryCount < BOT_TURN_RETRY_COUNT) && !success) {
+        while ((retryCount < BOT_TURN_RETRY_COUNT) && !success) {
         	success = calculateMyTurnWorker();
         	
-        	if(!success) {
+        	if (!success) {
 	        	// if we fail, take a nap for 500-1500 milliseconds, then try again
 	            // as it may be due to some kind of thread-related issue
         		// limit number of retries so we're not endlessly spinning
@@ -544,53 +545,63 @@ public abstract class BotClient extends Client {
         currentTurnFriendlyEntities = null;
         
         try {
-            if (game.getPhase() == Game.Phase.PHASE_MOVEMENT) {
-                MovePath mp;
-                if (game.getTurn() instanceof GameTurn.SpecificEntityTurn) {
-                    GameTurn.SpecificEntityTurn turn = (GameTurn.SpecificEntityTurn) game
-                            .getTurn();
-                    Entity mustMove = game.getEntity(turn.getEntityNum());
-                    mp = continueMovementFor(mustMove);
-                } else {
-                    if (config.isForcedIndividual()) {
-                        Entity mustMove = getRandomUnmovedEntity();
+            switch (game.getPhase()) {
+                case MOVEMENT:
+                    MovePath mp;
+                    if (game.getTurn() instanceof GameTurn.SpecificEntityTurn) {
+                        GameTurn.SpecificEntityTurn turn = (GameTurn.SpecificEntityTurn) game.getTurn();
+                        Entity mustMove = game.getEntity(turn.getEntityNum());
                         mp = continueMovementFor(mustMove);
                     } else {
-                        mp = calculateMoveTurn();
+                        if (config.isForcedIndividual()) {
+                            Entity mustMove = getRandomUnmovedEntity();
+                            mp = continueMovementFor(mustMove);
+                        } else {
+                            mp = calculateMoveTurn();
+                        }
                     }
-                }
-                moveEntity(mp.getEntity().getId(), mp);
-            } else if (game.getPhase() == Game.Phase.PHASE_FIRING) {
-                calculateFiringTurn();
-            } else if (game.getPhase() == Game.Phase.PHASE_PHYSICAL) {
-                PhysicalOption po = calculatePhysicalTurn();
-                // Bug #1072137: don't crash if the bot can't find a physical.
-                if (null != po) {
-                    sendAttackData(po.attacker.getId(), po.getVector());
-                } else {
-                    // Send a "no attack" to clear the game turn, if any.
-                    sendAttackData(game.getFirstEntityNum(getMyTurn()),
-                                   new Vector<>(0));
-                }
-            } else if (game.getPhase() == Game.Phase.PHASE_DEPLOYMENT) {
-                calculateDeployment();
-            } else if (game.getPhase() == Game.Phase.PHASE_DEPLOY_MINEFIELDS) {
-                Vector<Minefield> mines = calculateMinefieldDeployment();
-                for (Minefield mine : mines) {
-                    game.addMinefield(mine);
-                }
-                sendDeployMinefields(mines);
-                sendPlayerInfo();
-            } else if (game.getPhase() == Game.Phase.PHASE_SET_ARTYAUTOHITHEXES) {
-                // For now, declare no autohit hexes.
-                Vector<Coords> autoHitHexes = calculateArtyAutoHitHexes();
-                sendArtyAutoHitHexes(autoHitHexes);
-            } else if ((game.getPhase() == Game.Phase.PHASE_TARGETING)
-                       || (game.getPhase() == Game.Phase.PHASE_OFFBOARD)) {
-                // Princess implements arty targeting; no plans to do so for testbod
-                calculateTargetingOffBoardTurn();
+                    moveEntity(mp.getEntity().getId(), mp);
+                    break;
+                case FIRING:
+                    calculateFiringTurn();
+                    break;
+                case PHYSICAL:
+                    PhysicalOption po = calculatePhysicalTurn();
+                    // Bug #1072137: don't crash if the bot can't find a physical.
+                    if (null != po) {
+                        sendAttackData(po.attacker.getId(), po.getVector());
+                    } else {
+                        // Send a "no attack" to clear the game turn, if any.
+                        sendAttackData(game.getFirstEntityNum(getMyTurn()),
+                                new Vector<>(0));
+                    }
+                    break;
+                case DEPLOYMENT:
+                    calculateDeployment();
+                    break;
+                case DEPLOY_MINEFIELDS:
+                    Vector<Minefield> mines = calculateMinefieldDeployment();
+                    for (Minefield mine : mines) {
+                        game.addMinefield(mine);
+                    }
+                    sendDeployMinefields(mines);
+                    sendPlayerInfo();
+                    break;
+                case SET_ARTILLERY_AUTOHIT_HEXES:
+                    // For now, declare no autohit hexes.
+                    Vector<Coords> autoHitHexes = calculateArtyAutoHitHexes();
+                    sendArtyAutoHitHexes(autoHitHexes);
+                    break;
+                case TARGETING:
+                case OFFBOARD:
+                    // Princess implements arty targeting; no plans to do so for testbot
+                    calculateTargetingOffBoardTurn();
+                    break;
+                default:
+                    break;
+
             }
-            
+
             return true;
         } catch (Throwable t) {
             MegaMek.getLogger().error(t);            
@@ -928,7 +939,7 @@ public abstract class BotClient extends Client {
             // Make sure I'm not stuck in a dead-end.
             coord.fitness += calculateEdgeAccessFitness(deployed_ent, board);
             
-            if(coord.fitness > highestFitness) {
+            if (coord.fitness > highestFitness) {
                 highestFitness = coord.fitness;
             }
         }
@@ -937,8 +948,8 @@ public abstract class BotClient extends Client {
         // This indicates that we do not have a way of getting to the opposite board edge,
         // even when considering terrain destruction
         // attempt to deploy in the biggest area this unit can access instead
-        if(highestFitness < -10) {
-            for(RankedCoords rc : validCoords) {
+        if (highestFitness < -10) {
+            for (RankedCoords rc : validCoords) {
                 rc.fitness += getClusterTracker().getBoardClusterSize(deployed_ent, rc.coords, false);
             }
         }

@@ -13,11 +13,10 @@
  */
 package megamek.client.ui.swing.util;
 
-
 import megamek.client.Client;
 import megamek.client.ui.swing.AbstractPhaseDisplay;
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.common.Game;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.Option;
 import megamek.common.options.OptionsConstants;
 
@@ -30,7 +29,6 @@ import java.awt.event.ActionListener;
  * This class takes a time limit, which is to be set in Basic Options and counts down to zero
  * When zero is reached, the ready() method of the given {@link AbstractPhaseDisplay} is called
  * to end the users current turn.
- *
  */
 public class TurnTimer {
     private Timer timer;
@@ -118,10 +116,10 @@ public class TurnTimer {
         Option timer = (Option) client.getGame().getOptions().getOption(OptionsConstants.BASE_TURN_TIMER);
         // if timer is set to 0 in options, it is disabled so we only create one if a limit is set in options
         if (timer.intValue() > 0 ) {
-            Game.Phase phase = client.getGame().getPhase();
+            GamePhase phase = client.getGame().getPhase();
 
             // turn timer should only kick in on firing, targeting, movement and physical attack phase
-            return phase == Game.Phase.PHASE_MOVEMENT || phase == Game.Phase.PHASE_FIRING || phase == Game.Phase.PHASE_PHYSICAL || phase == Game.Phase.PHASE_TARGETING;
+            return phase.isMovement() || phase.isFiring() || phase.isPhysical() || phase.isTargeting();
         }
         return false;
     }

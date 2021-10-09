@@ -140,7 +140,8 @@ public class ReportDisplay extends AbstractPhaseDisplay implements
 
     public void resetButtons() {
         resetReadyButton();
-        if ((clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_INITIATIVE_REPORT) && clientgui.getClient().getGame().hasTacticalGenius(clientgui.getClient().getLocalPlayer())) {
+        if (clientgui.getClient().getGame().getPhase().isInitiativeReport()
+                && clientgui.getClient().getGame().hasTacticalGenius(clientgui.getClient().getLocalPlayer())) {
             showRerollButton(true);
         } else {
             showRerollButton(false);

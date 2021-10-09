@@ -39,6 +39,7 @@ import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.AttackAction;
 import megamek.common.actions.EntityAction;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.GamePhase;
 import megamek.common.event.GameBoardChangeEvent;
 import megamek.common.event.GameBoardNewEvent;
 import megamek.common.event.GameEndEvent;
@@ -68,113 +69,6 @@ import megamek.server.victory.VictoryResult;
  */
 public class Game implements Serializable {
     private static final long serialVersionUID = 8376320092671792532L;
-
-    public enum Phase {
-        PHASE_UNKNOWN,
-        PHASE_LOUNGE,
-        PHASE_SELECTION,
-        PHASE_EXCHANGE,
-        PHASE_DEPLOYMENT,
-        PHASE_INITIATIVE,
-        PHASE_INITIATIVE_REPORT,
-        PHASE_TARGETING,
-        PHASE_TARGETING_REPORT,
-        PHASE_MOVEMENT,
-        PHASE_MOVEMENT_REPORT,
-        PHASE_OFFBOARD,
-        PHASE_OFFBOARD_REPORT,
-        PHASE_POINTBLANK_SHOT, // Fake phase only reached through hidden units
-        PHASE_FIRING,
-        PHASE_FIRING_REPORT,
-        PHASE_PHYSICAL,
-        PHASE_PHYSICAL_REPORT,
-        PHASE_END,
-        PHASE_END_REPORT,
-        PHASE_VICTORY,
-        PHASE_DEPLOY_MINEFIELDS,
-        PHASE_STARTING_SCENARIO,
-        PHASE_SET_ARTYAUTOHITHEXES;
-
-        /**
-         * @param otherPhase
-         * @return
-         */
-        public boolean isDuringOrAfter(Phase otherPhase) {
-            return compareTo(otherPhase) >= 0;
-        }
-
-        /**
-         * @param otherPhase
-         * @return
-         */
-        public boolean isBefore(Phase otherPhase) {
-            return compareTo(otherPhase) < 0;
-        }
-
-        /** Returns true when this phase shows the game map (boardview). */
-        public boolean isOnMap() {
-            return (this == PHASE_SET_ARTYAUTOHITHEXES) || (this == PHASE_DEPLOY_MINEFIELDS)
-                    || (this == PHASE_MOVEMENT) || (this == PHASE_FIRING)
-                    || (this == PHASE_PHYSICAL) || (this == PHASE_OFFBOARD)
-                    || (this == PHASE_TARGETING) || (this == PHASE_DEPLOYMENT);
-        }
-
-        /**
-         * Get the displayable name for the given Phase.
-         *
-         * @param phase
-         * @return
-         */
-        static public String getDisplayableName(Phase phase) {
-            return Messages.getString("GAME_" + phase.name());
-        }
-
-        /**
-         * Given a displayable name for a phase, return the Phase instance for
-         * that name.  Null will be returned if no match is found or a null
-         * string is passed.
-         *
-         * @param name
-         * @return
-         */
-        @Nullable
-        static public Phase getPhaseFromName(@Nullable String name) {
-            if (name == null) {
-                return null;
-            }
-
-            for (Phase p : values()) {
-                if (name.equals(getDisplayableName(p))) {
-                    return p;
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Returns true if this phase is simultaneous.
-         *
-         * @param game  Game instance used to get game options
-         * @return
-         */
-        public boolean isPhaseSimultaneous(Game game) {
-            switch (this) {
-                case PHASE_DEPLOYMENT:
-                    return game.getOptions().booleanOption(OptionsConstants.INIT_SIMULTANEOUS_DEPLOYMENT);
-                case PHASE_MOVEMENT:
-                    return game.getOptions().booleanOption(OptionsConstants.INIT_SIMULTANEOUS_MOVEMENT);
-                case PHASE_FIRING:
-                    return game.getOptions().booleanOption(OptionsConstants.INIT_SIMULTANEOUS_FIRING);
-                case PHASE_PHYSICAL:
-                    return game.getOptions().booleanOption(OptionsConstants.INIT_SIMULTANEOUS_PHYSICAL);
-                case PHASE_TARGETING:
-                case PHASE_OFFBOARD:
-                    return game.getOptions().booleanOption(OptionsConstants.INIT_SIMULTANEOUS_TARGETING);
-                default:
-                    return false;
-            }
-        }
-    }
 
     /**
      * A UUID to identify this game instance.
@@ -229,12 +123,12 @@ public class Game implements Serializable {
     /**
      * The present phase
      */
-    private Phase phase = Phase.PHASE_UNKNOWN;
+    private GamePhase phase = GamePhase.UNKNOWN;
 
     /**
      * The past phase
      */
-    private Phase lastPhase = Phase.PHASE_UNKNOWN;
+    private GamePhase lastPhase = GamePhase.UNKNOWN;
 
     // phase state
     private Vector<EntityAction> actions = new Vector<>();
@@ -553,7 +447,7 @@ public class Game implements Serializable {
         }
 
         // May need to copy state over from previous teams, such as initiative
-        if ((teams != null) && (getPhase() != Phase.PHASE_LOUNGE)) {
+        if ((teams != null) && !getPhase().isLounge()) {
             for (Team newTeam : initTeams) {
                 for (Team oldTeam : teams) {
                     if (newTeam.equals(oldTeam)) {
@@ -754,30 +648,6 @@ public class Game implements Serializable {
     }
 
     /**
-     * Returns true if this phase has turns. If false, the phase is simply
-     * waiting for everybody to declare "done".
-     */
-    public boolean phaseHasTurns(Game.Phase thisPhase) {
-        switch (thisPhase) {
-            case PHASE_SET_ARTYAUTOHITHEXES:
-            case PHASE_DEPLOY_MINEFIELDS:
-            case PHASE_DEPLOYMENT:
-            case PHASE_MOVEMENT:
-            case PHASE_FIRING:
-            case PHASE_PHYSICAL:
-            case PHASE_TARGETING:
-            case PHASE_OFFBOARD:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    public boolean isPhaseSimultaneous() {
-        return phase.isPhaseSimultaneous(this);
-    }
-
-    /**
      * Returns the current GameTurn object
      */
     public GameTurn getTurn() {
@@ -884,55 +754,48 @@ public class Game implements Serializable {
         this.turnVector.addAll(turnVector);
     }
 
-    public Phase getPhase() {
+    public GamePhase getPhase() {
         return phase;
     }
 
-    public void setPhase(Phase phase) {
-        final Phase oldPhase = this.phase;
+    public void setPhase(GamePhase phase) {
+        final GamePhase oldPhase = this.phase;
         this.phase = phase;
         // Handle phase-specific items.
         switch (phase) {
-            case PHASE_LOUNGE:
+            case LOUNGE:
                 reset();
                 break;
-            case PHASE_TARGETING:
+            case DEPLOYMENT:
+            case TARGETING:
+            case MOVEMENT:
+            case FIRING:
+            case PHYSICAL:
                 resetActions();
                 break;
-            case PHASE_MOVEMENT:
-                resetActions();
-                break;
-            case PHASE_FIRING:
-                resetActions();
-                break;
-            case PHASE_PHYSICAL:
-                resetActions();
-                break;
-            case PHASE_DEPLOYMENT:
-                resetActions();
-                break;
-            case PHASE_INITIATIVE:
+            case INITIATIVE:
                 resetActions();
                 resetCharges();
                 resetRams();
                 break;
             // TODO Is there better solution to handle charges?
-            case PHASE_PHYSICAL_REPORT:
-            case PHASE_END:
+            case PHYSICAL_REPORT:
+            case END:
                 resetCharges();
                 resetRams();
                 break;
             default:
+                break;
         }
 
         processGameEvent(new GamePhaseChangeEvent(this, oldPhase, phase));
     }
 
-    public Phase getLastPhase() {
+    public GamePhase getLastPhase() {
         return lastPhase;
     }
 
-    public void setLastPhase(Phase lastPhase) {
+    public void setLastPhase(GamePhase lastPhase) {
         this.lastPhase = lastPhase;
     }
 
@@ -2227,8 +2090,11 @@ public class Game implements Serializable {
      * Removes the first turn found that the specified entity can move in. Used
      * when a turn is played out of order
      */
-    public GameTurn removeFirstTurnFor(Entity entity) {
-        assert (phase != Phase.PHASE_MOVEMENT); // special move multi cases
+    public @Nullable GameTurn removeFirstTurnFor(Entity entity) {
+        if (!phase.isMovement()) {
+            MegaMek.getLogger().error("Unexpected game phase of " + phase + " in Game::removeFirstTurnFor");
+            return null;
+        }
         // ignored
         for (int i = turnIndex; i < turnVector.size(); i++) {
             GameTurn turn = turnVector.elementAt(i);
@@ -2253,8 +2119,7 @@ public class Game implements Serializable {
         // A turn only needs to be removed when going from 4 inf (2 turns) to
         // 3 inf (1 turn)
         if (getOptions().booleanOption(OptionsConstants.INIT_INF_MOVE_MULTI)
-            && (entity instanceof Infantry)
-            && (phase == Phase.PHASE_MOVEMENT)) {
+                && (entity instanceof Infantry) && phase.isMovement()) {
             if ((getInfantryLeft(entity.getOwnerId()) % getOptions().intOption(
                     OptionsConstants.INIT_INF_PROTO_MOVE_MULTI)) != 1) {
                 // exception, if the _next_ turn is an infantry turn, remove
@@ -2277,8 +2142,7 @@ public class Game implements Serializable {
         }
         // Same thing but for protos
         if (getOptions().booleanOption(OptionsConstants.INIT_PROTOS_MOVE_MULTI)
-            && (entity instanceof Protomech)
-            && (phase == Phase.PHASE_MOVEMENT)) {
+            && (entity instanceof Protomech) && phase.isMovement()) {
             if ((getProtomechsLeft(entity.getOwnerId()) % getOptions()
                     .intOption(OptionsConstants.INIT_INF_PROTO_MOVE_MULTI)) != 1) {
                 // exception, if the _next_ turn is an protomek turn, remove
@@ -2302,7 +2166,7 @@ public class Game implements Serializable {
 
         // Same thing but for vehicles
         if (getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_VEHICLE_LANCE_MOVEMENT)
-            && (entity instanceof Tank) && (phase == Phase.PHASE_MOVEMENT)) {
+                && (entity instanceof Tank) && phase.isMovement()) {
             if ((getVehiclesLeft(entity.getOwnerId()) % getOptions()
                     .intOption(OptionsConstants.ADVGRNDMOV_VEHICLE_LANCE_MOVEMENT_NUMBER)) != 1) {
                 // exception, if the _next_ turn is a tank turn, remove that
@@ -2325,11 +2189,11 @@ public class Game implements Serializable {
 
         // Same thing but for meks
         if (getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_MEK_LANCE_MOVEMENT)
-            && (entity instanceof Mech) && (phase == Phase.PHASE_MOVEMENT)) {
+                && (entity instanceof Mech) && phase.isMovement()) {
             if ((getMechsLeft(entity.getOwnerId()) % getOptions()
                     .intOption(OptionsConstants.ADVGRNDMOV_MEK_LANCE_MOVEMENT_NUMBER)) != 1) {
                 // exception, if the _next_ turn is a mech turn, remove that
-                // contrived, but may come up e.g. one mech accidently kills
+                // contrived, but may come up e.g. one mech accidentally kills
                 // another
                 if (hasMoreTurns()) {
                     GameTurn nextTurn = turnVector.elementAt(turnIndex + 1);
@@ -2907,7 +2771,7 @@ public class Game implements Serializable {
 
     /**
      * Returns true if the specified player is either the victor, or is on the
-     * winning team. Best to call during PHASE_VICTORY.
+     * winning team. Best to call during VICTORY.
      */
     public boolean isPlayerVictor(IPlayer player) {
         if (player.getTeam() == IPlayer.TEAM_NONE) {
@@ -3664,12 +3528,9 @@ public class Game implements Serializable {
         }
         Collections.sort(entitiesInCache);
         Collections.sort(entitiesInVector);
-        if ((entitiesInCacheCount != entityVectorSize)
-                && (getPhase() != Phase.PHASE_DEPLOYMENT)
-                && (getPhase() != Phase.PHASE_EXCHANGE)
-                && (getPhase() != Phase.PHASE_LOUNGE)
-                && (getPhase() != Phase.PHASE_INITIATIVE_REPORT)
-                && (getPhase() != Phase.PHASE_INITIATIVE)) {
+        if ((entitiesInCacheCount != entityVectorSize) && !getPhase().isDeployment()
+                && !getPhase().isExchange() && !getPhase().isLounge() && !getPhase().isInitiative()
+                && !getPhase().isInitiativeReport()) {
             MegaMek.getLogger().warning("Entities vector has " + entities.size()
                     + " but pos lookup cache has " + entitiesInCache.size() + "entities!");
             List<Integer> missingIds = new ArrayList<>();

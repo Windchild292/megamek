@@ -14,35 +14,6 @@
  */
 package megamek.client.ui.swing;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.SystemColor;
-import java.awt.event.*;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import megamek.MegaMek;
 import megamek.client.Client;
 import megamek.client.TimerSingleton;
@@ -50,7 +21,6 @@ import megamek.client.bot.BotClient;
 import megamek.client.bot.TestBot;
 import megamek.client.bot.princess.BehaviorSettings;
 import megamek.client.bot.princess.Princess;
-import megamek.client.bot.ui.swing.BotGUI;
 import megamek.client.event.BoardViewEvent;
 import megamek.client.event.BoardViewListener;
 import megamek.client.ui.GBC;
@@ -68,9 +38,9 @@ import megamek.client.ui.swing.unitDisplay.UnitDisplay;
 import megamek.client.ui.swing.util.BASE64ToolKit;
 import megamek.client.ui.swing.util.MegaMekController;
 import megamek.common.*;
-import megamek.common.Game.Phase;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
 import megamek.common.event.*;
 import megamek.common.icons.Camouflage;
 import megamek.common.net.Packet;
@@ -79,8 +49,26 @@ import megamek.common.preference.PreferenceChangeEvent;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.AddBotUtil;
 import megamek.common.util.Distractable;
-import megamek.common.util.fileUtils.MegaMekFile;
 import megamek.common.util.StringUtil;
+import megamek.common.util.fileUtils.MegaMekFile;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.applet.Applet;
+import java.applet.AudioClip;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClientGUI extends JPanel implements WindowListener, BoardViewListener, 
                     ActionListener, ComponentListener, IPreferenceChangeListener {
@@ -551,7 +539,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
         w = GUIPreferences.getInstance().getRulerSizeWidth();
         if ((x + w) > virtualBounds.getWidth()) {
             x = 0;
-            w = Math.min(w, (int)virtualBounds.getWidth());
+            w = Math.min(w, (int) virtualBounds.getWidth());
         }
         if ((y + h) > virtualBounds.getHeight()) {
             y = 0;
@@ -563,7 +551,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
         cb = new ChatterBox(this);
         cb.setChatterBox2(cb2);
         cb2.setChatterBox(cb);
-        client.changePhase(Game.Phase.PHASE_UNKNOWN);
+        client.changePhase(GamePhase.UNKNOWN);
         UnitLoadingDialog unitLoadingDialog = new UnitLoadingDialog(frame);
         if (!MechSummaryCache.getInstance().isInitialized()) {
             unitLoadingDialog.setVisible(true);
@@ -651,11 +639,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
      * Called when the user selects the "View->Game Options" menu item.
      */
     private void showOptions() {
-        if (client.getGame().getPhase() == Game.Phase.PHASE_LOUNGE) {
-            getGameOptionsDialog().setEditable(true);
-        } else {
-            getGameOptionsDialog().setEditable(false);
-        }
+        getGameOptionsDialog().setEditable(client.getGame().getPhase().isLounge());
         // Display the game options dialog.
         getGameOptionsDialog().update(client.getGame().getOptions());
         getGameOptionsDialog().setVisible(true);
@@ -824,7 +808,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 GUIPreferences.getInstance().setFovHighlight(
                         !GUIPreferences.getInstance().getFovHighlight());
                 bv.refreshDisplayables();
-                if (client.getGame().getPhase() == Phase.PHASE_MOVEMENT) {
+                if (client.getGame().getPhase().isMovement()) {
                     bv.clearHexImageCache();
                 }
                 break;
@@ -836,7 +820,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
             case VIEW_TOGGLE_FOV_DARKEN:
                 GUIPreferences.getInstance().setFovDarken(!GUIPreferences.getInstance().getFovDarken());
                 bv.refreshDisplayables();
-                if (client.getGame().getPhase() == Phase.PHASE_MOVEMENT) {
+                if (client.getGame().getPhase().isMovement()) {
                     bv.clearHexImageCache();
                 }
                 break;
@@ -1029,7 +1013,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
         return conditionsDialog;
     }
 
-    void switchPanel(Game.Phase phase) {
+    void switchPanel(GamePhase phase) {
         // Clear the old panel's listeners.
         if (curPanel instanceof BoardViewListener) {
             bv.removeBoardViewListener((BoardViewListener) curPanel);
@@ -1050,42 +1034,42 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
 
         // Handle phase-specific items.
         switch (phase) {
-            case PHASE_LOUNGE:
+            case LOUNGE:
                 // reset old report tabs and images, if any
-                ReportDisplay rD = (ReportDisplay) phaseComponents.get(String.valueOf(Game.Phase.PHASE_INITIATIVE_REPORT));
+                ReportDisplay rD = (ReportDisplay) phaseComponents.get(GamePhase.INITIATIVE_REPORT.name());
                 if (rD != null) {
                     rD.resetTabs();
                 }
-                ChatLounge cl = (ChatLounge) phaseComponents.get(String.valueOf(Game.Phase.PHASE_LOUNGE));
+                ChatLounge cl = (ChatLounge) phaseComponents.get(GamePhase.LOUNGE.name());
                 cb.setDoneButton(cl.butDone);
                 cl.add(cb.getComponent(), BorderLayout.SOUTH);
                 getBoardView().getTilesetManager().reset();
                 mechW.setVisible(false);
                 setMapVisible(false);
                 break;
-            case PHASE_POINTBLANK_SHOT:
-            case PHASE_SET_ARTYAUTOHITHEXES:
-            case PHASE_DEPLOY_MINEFIELDS:
-            case PHASE_DEPLOYMENT:
-            case PHASE_TARGETING:
-            case PHASE_MOVEMENT:
-            case PHASE_OFFBOARD:
-            case PHASE_FIRING:
-            case PHASE_PHYSICAL:
+            case POINTBLANK_SHOT:
+            case SET_ARTILLERY_AUTOHIT_HEXES:
+            case DEPLOY_MINEFIELDS:
+            case DEPLOYMENT:
+            case TARGETING:
+            case MOVEMENT:
+            case OFFBOARD:
+            case FIRING:
+            case PHYSICAL:
                 if (frame.isShowing()) {
                     maybeShowMinimap();
                     maybeShowUnitDisplay();
                 }
                 break;
-            case PHASE_INITIATIVE_REPORT:
-            case PHASE_TARGETING_REPORT:
-            case PHASE_MOVEMENT_REPORT:
-            case PHASE_OFFBOARD_REPORT:
-            case PHASE_FIRING_REPORT:
-            case PHASE_PHYSICAL_REPORT:
-            case PHASE_END_REPORT:
-            case PHASE_VICTORY:
-                rD = (ReportDisplay) phaseComponents.get(String.valueOf(Game.Phase.PHASE_INITIATIVE_REPORT));
+            case INITIATIVE_REPORT:
+            case TARGETING_REPORT:
+            case MOVEMENT_REPORT:
+            case OFFBOARD_REPORT:
+            case FIRING_REPORT:
+            case PHYSICAL_REPORT:
+            case END_REPORT:
+            case VICTORY:
+                rD = (ReportDisplay) phaseComponents.get(GamePhase.INITIATIVE_REPORT.name());
                 cb.setDoneButton(rD.butDone);
                 rD.add(cb.getComponent(), GBC.eol().fill(GridBagConstraints.HORIZONTAL));
                 setMapVisible(false);
@@ -1123,40 +1107,39 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
         }
     }
 
-    public void updateButtonPanel(Game.Phase phase) {
-        if ((currPhaseDisplay != null)
-                && client.getGame().getPhase().equals(phase)) {
+    public void updateButtonPanel(GamePhase phase) {
+        if ((currPhaseDisplay != null) && (client.getGame().getPhase() == phase)) {
             currPhaseDisplay.setupButtonPanel();
         }
     }
 
-    private JComponent initializePanel(Game.Phase phase) {
+    private JComponent initializePanel(GamePhase phase) {
         // Create the components for this phase.
-        String name = String.valueOf(phase);
+        String name = phase.name();
         JComponent component;
         String secondary = null;
         String main;
         switch (phase) {
-            case PHASE_LOUNGE:
+            case LOUNGE:
                 component = new ChatLounge(this);
                 chatlounge = (ChatLounge) component;
                 main = "ChatLounge"; //$NON-NLS-1$
                 component.setName(main);
                 panMain.add(component, main);
                 break;
-            case PHASE_STARTING_SCENARIO:
+            case STARTING_SCENARIO:
                 component = new JLabel(Messages.getString("ClientGUI.StartingScenario")); //$NON-NLS-1$
                 main = "JLabel-StartingScenario"; //$NON-NLS-1$
                 component.setName(main);
                 panMain.add(component, main);
                 break;
-            case PHASE_EXCHANGE:
+            case EXCHANGE:
                 component = new JLabel(Messages.getString("ClientGUI.TransmittingData")); //$NON-NLS-1$
                 main = "JLabel-Exchange"; //$NON-NLS-1$
                 component.setName(main);
                 panMain.add(component, main);
                 break;
-            case PHASE_SET_ARTYAUTOHITHEXES:
+            case SET_ARTILLERY_AUTOHIT_HEXES:
                 component = new SelectArtyAutoHitHexDisplay(this);
                 main = "BoardView"; //$NON-NLS-1$
                 secondary = "SelectArtyAutoHitHexDisplay"; //$NON-NLS-1$
@@ -1167,7 +1150,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_DEPLOY_MINEFIELDS:
+            case DEPLOY_MINEFIELDS:
                 component = new DeployMinefieldDisplay(this);
                 main = "BoardView"; //$NON-NLS-1$
                 secondary = "DeployMinefieldDisplay"; //$NON-NLS-1$
@@ -1178,7 +1161,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_DEPLOYMENT:
+            case DEPLOYMENT:
                 component = new DeploymentDisplay(this);
                 main = "BoardView"; //$NON-NLS-1$
                 secondary = "DeploymentDisplay"; //$NON-NLS-1$
@@ -1189,7 +1172,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_TARGETING:
+            case TARGETING:
                 component = new TargetingPhaseDisplay(this, false);
                 ((TargetingPhaseDisplay) component).initializeListeners();
                 main = "BoardView"; //$NON-NLS-1$
@@ -1202,7 +1185,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 panSecondary.add(component, secondary);
                 offBoardOverlay.setTargetingPhaseDisplay((TargetingPhaseDisplay) component);
                 break;
-            case PHASE_MOVEMENT:
+            case MOVEMENT:
                 component = new MovementDisplay(this);
                 main = "BoardView"; //$NON-NLS-1$
                 secondary = "MovementDisplay"; //$NON-NLS-1$
@@ -1213,7 +1196,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_OFFBOARD:
+            case OFFBOARD:
                 component = new TargetingPhaseDisplay(this, true);
                 ((TargetingPhaseDisplay) component).initializeListeners();
                 main = "BoardView"; //$NON-NLS-1$
@@ -1225,7 +1208,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_FIRING:
+            case FIRING:
                 component = new FiringDisplay(this);
                 main = "BoardView"; //$NON-NLS-1$
                 secondary = "FiringDisplay"; //$NON-NLS-1$
@@ -1236,7 +1219,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_POINTBLANK_SHOT:
+            case POINTBLANK_SHOT:
                 component = new PointblankShotDisplay(this);
                 main = "BoardView"; //$NON-NLS-1$
                 secondary = "PointblankShotDisplay"; //$NON-NLS-1$
@@ -1247,7 +1230,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_PHYSICAL:
+            case PHYSICAL:
                 component = new PhysicalDisplay(this);
                 main = "BoardView"; //$NON-NLS-1$
                 secondary = "PhysicalDisplay"; //$NON-NLS-1$
@@ -1258,24 +1241,24 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                 currPhaseDisplay = (StatusBarPhaseDisplay)(component);
                 panSecondary.add(component, secondary);
                 break;
-            case PHASE_INITIATIVE_REPORT:
+            case INITIATIVE_REPORT:
                 component = new ReportDisplay(this);
                 main = "ReportDisplay"; //$NON-NLS-1$
                 component.setName(main);
                 panMain.add(main, component);
                 break;
-            case PHASE_TARGETING_REPORT:
-            case PHASE_MOVEMENT_REPORT:
-            case PHASE_OFFBOARD_REPORT:
-            case PHASE_FIRING_REPORT:
-            case PHASE_PHYSICAL_REPORT:
-            case PHASE_END_REPORT:
-            case PHASE_VICTORY:
+            case TARGETING_REPORT:
+            case MOVEMENT_REPORT:
+            case OFFBOARD_REPORT:
+            case FIRING_REPORT:
+            case PHYSICAL_REPORT:
+            case END_REPORT:
+            case VICTORY:
                 // Try to reuse the ReportDisplay for other phases...
-                component = phaseComponents.get(String.valueOf(Game.Phase.PHASE_INITIATIVE_REPORT));
+                component = phaseComponents.get(GamePhase.INITIATIVE_REPORT.name());
                 if (component == null) {
                     // no ReportDisplay to reuse -- get a new one
-                    component = initializePanel(Game.Phase.PHASE_INITIATIVE_REPORT);
+                    component = initializePanel(GamePhase.INITIATIVE_REPORT);
                 }
                 main = "ReportDisplay"; //$NON-NLS-1$
                 break;
@@ -2127,7 +2110,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                         // Used to indicate it's this player's turn
                         setPointblankEID(evt.getEntityId());
                         // Switch to the right display
-                        switchPanel(Game.Phase.PHASE_POINTBLANK_SHOT);
+                        switchPanel(GamePhase.POINTBLANK_SHOT);
                         PointblankShotDisplay curDisp = ((PointblankShotDisplay) curPanel);
                         // Set targeting info
                         curDisp.beginMyTurn();
@@ -2450,7 +2433,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
             systemMessage(message.toString());
             // Make this princess a locally owned bot if in the lobby. This way it
             // can be configured and it will faithfully press Done when the local player does.
-            if ((princess != null) && client.getGame().getPhase() == Phase.PHASE_LOUNGE) {
+            if ((princess != null) && client.getGame().getPhase().isLounge()) {
                 getBots().put(player, princess);   
             } 
         }

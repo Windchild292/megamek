@@ -173,9 +173,8 @@ public class UnitOverview implements IDisplayable {
 
             Game game = clientgui.getClient().getGame();
             GameTurn turn;
-            if (game.isPhaseSimultaneous()) {
-                turn = game.getTurnForPlayer(clientgui.getClient()
-                        .getLocalPlayer().getId());
+            if (game.getPhase().isSimultaneous(game)) {
+                turn = game.getTurnForPlayer(clientgui.getClient().getLocalPlayer().getId());
             } else {
                 turn = game.getTurn();
             }

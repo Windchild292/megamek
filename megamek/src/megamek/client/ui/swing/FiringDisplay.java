@@ -24,7 +24,6 @@ import megamek.client.ui.swing.util.MegaMekController;
 import megamek.client.ui.swing.widget.MegamekButton;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
-import megamek.common.Game.Phase;
 import megamek.common.actions.*;
 import megamek.common.event.GamePhaseChangeEvent;
 import megamek.common.event.GameTurnChangeEvent;
@@ -879,9 +878,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         // end my turn, then.
         Game game = clientgui.getClient().getGame();
         Entity next = game.getNextEntity(game.getTurnIndex());
-        if ((game.getPhase() == Game.Phase.PHASE_FIRING)
-            && (next != null) && (ce() != null)
-            && (next.getOwnerId() != ce().getOwnerId())) {
+        if (game.getPhase().isFiring() && (next != null) && (ce() != null)
+                && (next.getOwnerId() != ce().getOwnerId())) {
             clientgui.setUnitDisplayVisible(false);
         }
         cen = Entity.NONE;
@@ -2111,16 +2109,16 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         if (isIgnoringEvents()) {
             return;
         }
-        // On simultaneous phases, each player ending their turn will generalte a turn change
+        // On simultaneous phases, each player ending their turn will generate a turn change
         // We want to ignore turns from other players and only listen to events we generated
         // Except on the first turn
-        if (clientgui.getClient().getGame().isPhaseSimultaneous()
+        if (clientgui.getClient().getGame().getPhase().isSimultaneous(clientgui.getClient().getGame())
                 && (e.getPreviousPlayerId() != clientgui.getClient().getLocalPlayerNumber())
                 && (clientgui.getClient().getGame().getTurnIndex() != 0)) {
             return;
         }
         
-        if (clientgui.getClient().getGame().getPhase() == Game.Phase.PHASE_FIRING) {
+        if (clientgui.getClient().getGame().getPhase().isFiring()) {
             if (clientgui.getClient().isMyTurn()) {
                 if (cen == Entity.NONE) {
                     beginMyTurn();
@@ -2146,8 +2144,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     public void gamePhaseChange(GamePhaseChangeEvent e) {
 
         // In case of a /reset command, ensure the state gets reset
-        if (clientgui.getClient().getGame().getPhase() 
-                == Game.Phase.PHASE_LOUNGE) {
+        if (clientgui.getClient().getGame().getPhase().isLounge()) {
             endMyTurn();
         }
 
@@ -2156,16 +2153,12 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             return;
         }
 
-        if (clientgui.getClient().isMyTurn()
-                && (clientgui.getClient().getGame().getPhase() 
-                        != Game.Phase.PHASE_FIRING)) {
+        if (clientgui.getClient().isMyTurn() && !clientgui.getClient().getGame().getPhase().isFiring()) {
             endMyTurn();
         }
         // if we're ending the firing phase, unregister stuff.
-        if (clientgui.getClient().getGame().getPhase() 
-                == Game.Phase.PHASE_FIRING) {
-            setStatusBarText(Messages
-                    .getString("FiringDisplay.waitingForFiringPhase")); //$NON-NLS-1$
+        if (clientgui.getClient().getGame().getPhase().isFiring()) {
+            setStatusBarText(Messages.getString("FiringDisplay.waitingForFiringPhase"));
         }
     }
 
@@ -2425,12 +2418,14 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent event) {
         if (event.getValueIsAdjusting()) {
             return;
         }
+
         if (event.getSource().equals(clientgui.mechD.wPan.weaponList)
-                && (clientgui.getClient().getGame().getPhase() == Phase.PHASE_FIRING)) {
+                && clientgui.getClient().getGame().getPhase().isFiring()) {
             // If we aren't in the firing phase, there's no guarantee that cen
             // is set properly, hence we can't update
 
@@ -2442,6 +2437,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     /**
      * Stop just ignoring events and actually stop listening to them.
      */
+    @Override
     public void removeAllListeners() {
         clientgui.getClient().getGame().removeGameListener(this);
         clientgui.getBoardView().removeBoardViewListener(this);
@@ -2621,7 +2617,9 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     
     public void FieldofFire(Entity unit, int[][] ranges, int arc, int loc, int facing) {
         // do nothing here outside the movement phase
-        if (!(clientgui.getClient().getGame().getPhase() == Phase.PHASE_FIRING)) return;
+        if (!clientgui.getClient().getGame().getPhase().isFiring()) {
+            return;
+        }
         
         clientgui.bv.fieldofFireUnit = unit;
         clientgui.bv.fieldofFireRanges = ranges;
