@@ -2157,7 +2157,7 @@ public class Game implements Serializable {
         }
         // Same thing but for protos
         if (getOptions().booleanOption(OptionsConstants.INIT_PROTOS_MOVE_MULTI)
-            && (entity instanceof Protomech) && phase.isMovement()) {
+                && (entity instanceof Protomech) && phase.isMovement()) {
             if ((getProtomechsLeft(entity.getOwnerId()) % getOptions()
                     .intOption(OptionsConstants.INIT_INF_PROTO_MOVE_MULTI)) != 1) {
                 // exception, if the _next_ turn is an protomek turn, remove

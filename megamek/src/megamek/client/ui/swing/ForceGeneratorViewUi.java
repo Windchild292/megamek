@@ -241,7 +241,7 @@ public class ForceGeneratorViewUi {
         for (Entity e : modelChosen.allEntities()) {
             e.setOwner(c.getLocalPlayer());
             if (!c.getGame().getPhase().isLounge()) {
-                e.setDeployRound(c.getGame().getRoundCount()+1);
+                e.setDeployRound(c.getGame().getRoundCount() + 1);
                 e.setGame(c.getGame());
                 // Set these to true, otherwise units reinforced in
                 // the movement turn are considered selectable

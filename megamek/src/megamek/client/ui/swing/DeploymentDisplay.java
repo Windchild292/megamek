@@ -364,8 +364,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
                 && (e.getPreviousPlayerId() != clientgui.getClient().getLocalPlayerNumber())
                 && (game.getTurnIndex() != 0)) {
             return;
-        }
-        if (!game.getPhase().isDeployment()) {
+        } else if (!game.getPhase().isDeployment()) {
             // ignore
             return;
         }

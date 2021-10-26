@@ -4370,6 +4370,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         if (isIgnoringEvents()) {
             return;
         }
+
         if (clientgui.getClient().isMyTurn() && !clientgui.getClient().getGame().getPhase().isMovement()) {
             endMyTurn();
         }

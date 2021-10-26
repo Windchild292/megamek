@@ -545,7 +545,7 @@ public class Precognition implements Runnable {
                 List<Integer> toRemove = new ArrayList<>();
                 for (Integer index : toDirty) {
                     if ((getGame().getEntity(index) == null)
-                            || (!getGame().getEntity(index).isSelectableThisTurn())
+                            || !getGame().getEntity(index).isSelectableThisTurn()
                             && getGame().getPhase().isMovement()) {
                         toRemove.add(index);
                     }
