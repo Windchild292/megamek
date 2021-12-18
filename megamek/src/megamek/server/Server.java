@@ -225,7 +225,7 @@ public class Server implements Runnable {
     /**
      * Keeps track of what team a player requested to join.
      */
-    private int requestedTeam = Player.TEAM_NONE;
+    private int requestedTeam = Team.NONE;
 
     /**
      * Keeps track of what player made a request to change teams.
@@ -921,9 +921,9 @@ public class Server implements Runnable {
      * Adds a new player to the game
      */
     private Player addNewPlayer(int connId, String name, boolean isBot) {
-        int team = Player.TEAM_UNASSIGNED;
+        int team = Team.UNASSIGNED;
         if (game.getPhase() == GamePhase.LOUNGE) {
-            team = Player.TEAM_NONE;
+            team = Team.NONE;
             for (Player p : game.getPlayersVector()) {
                 if (p.getTeam() > team) {
                     team = p.getTeam();
@@ -1673,7 +1673,7 @@ public class Server implements Runnable {
         // Declare the victor
         r = new Report(1210);
         r.type = Report.PUBLIC;
-        if (game.getVictoryTeam() == Player.TEAM_NONE) {
+        if (game.getVictoryTeam() == Team.NONE) {
             Player player = getPlayer(game.getVictoryPlayerId());
             if (null == player) {
                 r.messageId = 7005;
@@ -1836,9 +1836,9 @@ public class Server implements Runnable {
      */
     public void forceVictory(Player victor) {
         game.setForceVictory(true);
-        if (victor.getTeam() == Player.TEAM_NONE) {
+        if (victor.getTeam() == Team.NONE) {
             game.setVictoryPlayerId(victor.getId());
-            game.setVictoryTeam(Player.TEAM_NONE);
+            game.setVictoryTeam(Team.NONE);
         } else {
             game.setVictoryPlayerId(Player.PLAYER_NONE);
             game.setVictoryTeam(victor.getTeam());
@@ -1879,9 +1879,9 @@ public class Server implements Runnable {
             game.setupTeams();
             transmitPlayerUpdate(playerChangingTeam);
             String teamString = "Team " + requestedTeam + "!";
-            if (requestedTeam == Player.TEAM_UNASSIGNED) {
+            if (requestedTeam == Team.UNASSIGNED) {
                 teamString = " unassigned!";
-            } else if (requestedTeam == Player.TEAM_NONE) {
+            } else if (requestedTeam == Team.NONE) {
                 teamString = " lone wolf!";
             }
             sendServerChat(playerChangingTeam.getName() + " has changed teams to " + teamString);
@@ -3172,7 +3172,7 @@ public class Server implements Runnable {
 
         for (Player player : game.getPlayersVector()) {
             if ((player.getId() == game.getVictoryPlayerId()) || ((player.getTeam() == game.getVictoryTeam())
-                    && (game.getVictoryTeam() != Player.TEAM_NONE))) {
+                    && (game.getVictoryTeam() != Team.NONE))) {
                 continue;
             }
 
@@ -3724,7 +3724,7 @@ public class Server implements Runnable {
                 } else {
                     // Multiple players. List the team, then break it down.
                     r = new Report(1015, Report.PUBLIC);
-                    r.add(Player.TEAM_NAMES[team.getId()]);
+                    r.add(Team.NAMES[team.getId()]);
                     r.add(team.getInitiative().toString());
                     addReport(r);
                     for (Enumeration<Player> j = team.getNonObserverPlayers(); j.hasMoreElements(); ) {
@@ -11470,11 +11470,7 @@ public class Server implements Runnable {
      * @param mf The <code>Minefield</code> to be revealed
      */
     private void revealMinefield(Minefield mf) {
-        Enumeration<Team> teams = game.getTeams();
-        while (teams.hasMoreElements()) {
-            Team team = teams.nextElement();
-            revealMinefield(team, mf);
-        }
+        getGame().getTeams().forEach(team -> revealMinefield(team, mf));
     }
 
     /**
@@ -11484,14 +11480,8 @@ public class Server implements Runnable {
      * @param mf   The <code>Minefield</code> to be revealed
      */
     public void revealMinefield(Team team, Minefield mf) {
-        Enumeration<Player> players = team.getPlayers();
-        while (players.hasMoreElements()) {
-            Player player = players.nextElement();
-            if (!player.containsMinefield(mf)) {
-                player.addMinefield(mf);
-                send(player.getId(), new Packet(Packet.COMMAND_REVEAL_MINEFIELD, mf));
-            }
-        }
+        team.getPlayers().stream().filter(player -> !player.containsMinefield(mf))
+                .forEach(player -> send(player.getId(), new Packet(Packet.COMMAND_REVEAL_MINEFIELD, mf)));
     }
     
     /**
@@ -11516,12 +11506,10 @@ public class Server implements Runnable {
      * LOS. If so, then it reveals the mine
      */
     private void checkForRevealMinefield(Minefield mf, Entity layer) {
-        Enumeration<Team> teams = game.getTeams();
         // loop through each team and determine if they can see the mine, then
         // loop through players on team
         // and reveal the mine
-        while (teams.hasMoreElements()) {
-            Team team = teams.nextElement();
+        for (final Team team : getGame().getTeams()) {
             boolean canSee = false;
 
             // the players own team can always see the mine
@@ -11539,6 +11527,7 @@ public class Server implements Runnable {
                     if (!team.equals(game.getTeamForPlayer(en.getOwner()))) {
                         continue;
                     }
+
                     if (LosEffects.calculateLOS(game, en,
                             new HexTarget(mf.getCoords(), Targetable.TYPE_HEX_CLEAR)).canSee()) {
                         target = 0;
@@ -11561,6 +11550,7 @@ public class Server implements Runnable {
                     canSee = true;
                 }
             }
+
             if (canSee) {
                 revealMinefield(team, mf);
             }
@@ -11579,7 +11569,7 @@ public class Server implements Runnable {
         while (targets.hasNext()) {
             Entity entity = targets.next();
 
-            // Airborne entities wont get hit by the mines...
+            // Airborne entities won't get hit by the mines...
             if (entity.isAirborne()) {
                 continue;
             }
@@ -13182,7 +13172,7 @@ public class Server implements Runnable {
         if (null != player) {
             int teamId = player.getTeam();
 
-            if (teamId != Player.TEAM_NONE) {
+            if (teamId != Team.NONE) {
                 Enumeration<Team> teams = game.getTeams();
                 while (teams.hasMoreElements()) {
                     Team team = teams.nextElement();
@@ -30852,7 +30842,7 @@ public class Server implements Runnable {
             if (wh.waa instanceof ArtilleryAttackAction) {
                 ArtilleryAttackAction aaa = (ArtilleryAttackAction) wh.waa;
                 if ((aaa.getPlayerId() == p.getId())
-                        || ((team != Player.TEAM_NONE)
+                        || ((team != Team.NONE)
                         && (team == game.getPlayer(aaa.getPlayerId()).getTeam()))
                         || p.getSeeAll()) {
                     v.addElement(aaa);
@@ -34088,7 +34078,7 @@ public class Server implements Runnable {
                             || (pe.isAirborne() && !pe.isSpaceborne())
                             || (pe.getElevation() != e.getElevation())
                             || (pe.getOwnerId() == e.getOwnerId()) || (pe.getId() == e.getId())
-                            || (pe.getOwner().getTeam() == Player.TEAM_NONE)
+                            || (pe.getOwner().getTeam() == Team.NONE)
                             || (pe.getOwner().getTeam() != e.getOwner().getTeam())) {
                         continue;
                     }
@@ -35332,8 +35322,7 @@ public class Server implements Runnable {
         int damage_bonus = Math.max(0, game.getPlanetaryConditions().getWindStrength()
                 - PlanetaryConditions.WI_MOD_GALE);
         // cycle through each team and damage 1d6 airborne VTOL/WiGE
-        for (Enumeration<Team> loop = game.getTeams(); loop.hasMoreElements(); ) {
-            Team team = loop.nextElement();
+        for (final Team team : getGame().getTeams()) {
             Vector<Integer> airborne = team.getAirborneVTOL();
             if (airborne.size() > 0) {
                 // how many units are affected

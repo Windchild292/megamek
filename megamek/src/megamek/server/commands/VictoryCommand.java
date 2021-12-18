@@ -14,6 +14,7 @@
 package megamek.server.commands;
 
 import megamek.common.Player;
+import megamek.common.Team;
 import megamek.server.Server;
 
 /**
@@ -71,12 +72,7 @@ public class VictoryCommand extends ServerCommand {
 
     private void reset(int connId) {
         Player player = server.getPlayer(connId);
-        /*
-         * // are we cancelling victory? if (server.getGame().isForceVictory()) {
-         * server.sendServerChat(player.getName() + " cancels the force
-         * victory."); server.cancelVictory(); return; }
-         */// okay, declare force victory
-        if (player.getTeam() == Player.TEAM_NONE) {
+        if (player.getTeam() == Team.NONE) {
             server.sendServerChat(getDeclareIndividual(player.getName()));
         } else {
             server.sendServerChat(getDeclareTeam(player.getName()));

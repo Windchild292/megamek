@@ -5032,7 +5032,7 @@ public abstract class Mech extends Entity {
                     // Okay, actually check for friendly TAG.
                     if (tmpP.hasTAG()) {
                         tagBV += atype.getBV(this);
-                    } else if ((tmpP.getTeam() != Player.TEAM_NONE) && (game != null)) {
+                    } else if ((tmpP.getTeam() != Team.NONE) && (game != null)) {
                         for (Enumeration<Team> e = game.getTeams(); e.hasMoreElements();) {
                             Team m = e.nextElement();
                             if (m.getId() == tmpP.getTeam()) {

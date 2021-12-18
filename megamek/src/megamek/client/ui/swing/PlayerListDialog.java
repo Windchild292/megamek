@@ -69,7 +69,7 @@ public class PlayerListDialog extends JDialog {
             if (displayTeam) {
                 Team team = client.getGame().getTeamForPlayer(player);
                 if (team != null) {
-                    if (team.getId() == Player.TEAM_NONE) {
+                    if (team.getId() == Team.NONE) {
                         playerDisplay.append(Messages.getString("PlayerListDialog.NoTeam"));
                     } else {
                         playerDisplay.append(Messages.getString("PlayerListDialog.Team", team.getId()));

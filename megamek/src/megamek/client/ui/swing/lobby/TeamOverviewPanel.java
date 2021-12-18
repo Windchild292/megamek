@@ -208,7 +208,7 @@ public class TeamOverviewPanel extends JPanel {
                 int hiddenBv = 0;
                 boolean[] unitCritical = { false, false, false, false, false };
                 boolean[] unitWarnings = { false, false, false, false, false };
-                for (Player teamMember: team.getPlayersVector()) {
+                for (final Player teamMember: team.getPlayers()) {
                     // Get the "real" player object, as the team's may be wrong
                     Player player = game.getPlayer(teamMember.getId());
                     bv += player.getBV();

@@ -361,14 +361,14 @@ class ExtraPanel extends PicMap implements ActionListener, ItemListener {
                 if (en.isNarcedBy(team) && !player.isObserver()) {
                     buff = new StringBuffer(Messages.getString("MechDisplay.NARCedBy"));
                     buff.append(player.getName())
-                            .append(" [").append(Player.TEAM_NAMES[team]).append(']');
+                            .append(" [").append(Team.NAMES[team]).append(']');
                     ((DefaultListModel<String>) narcList.getModel()).addElement(buff.toString());
                 }
 
                 if (en.isINarcedBy(team) && !player.isObserver()) {
                     buff = new StringBuffer(Messages.getString("MechDisplay.INarcHoming"));
                     buff.append(player.getName()).append(" [")
-                            .append(Player.TEAM_NAMES[team]).append("] ")
+                            .append(Team.NAMES[team]).append("] ")
                             .append(Messages.getString("MechDisplay.attached"))
                             .append('.');
                     ((DefaultListModel<String>) narcList.getModel()).addElement(buff.toString());

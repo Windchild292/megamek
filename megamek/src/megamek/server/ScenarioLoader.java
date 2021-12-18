@@ -745,7 +745,7 @@ public class ScenarioLoader {
             } else {
                 teamId++;
             }
-            player.setTeam(Math.min(teamId, Player.TEAM_NAMES.length - 1));
+            player.setTeam(Math.min(teamId, Team.NAMES.length - 1));
             
             String minefields = p.getString(getFactionParam(faction, PARAM_MINEFIELDS));
             if ((minefields != null) && !minefields.isEmpty()) {

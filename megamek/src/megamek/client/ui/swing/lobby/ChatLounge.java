@@ -42,7 +42,6 @@ import megamek.client.ui.swing.lobby.sorters.*;
 import megamek.client.ui.swing.lobby.sorters.MekTableSorter.Sorting;
 import megamek.client.ui.swing.util.ScalingPopup;
 import megamek.client.ui.swing.util.UIUtil;
-import megamek.client.ui.swing.util.UIUtil.*;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
@@ -1272,8 +1271,8 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
     /** Sets up the team choice box. */
     private void setupTeamCombo() {
-        for (int i = 0; i < Player.TEAM_NAMES.length; i++) {
-            comboTeam.addItem(Player.TEAM_NAMES[i]);
+        for (int i = 0; i < Team.NAMES.length; i++) {
+            comboTeam.addItem(Team.NAMES[i]);
         }
     }
 

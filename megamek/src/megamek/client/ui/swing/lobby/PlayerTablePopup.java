@@ -75,8 +75,8 @@ class PlayerTablePopup {
     /** Returns the "Team" submenu, allowing to assign a player to a team. */
     private static JMenu teamMenu(boolean enabled, ActionListener listener) {
         JMenu menu = new JMenu("Assign to Team");
-        for (int i = 0; i < Player.TEAM_NAMES.length; i++) {
-            JMenuItem item = menuItem(Player.TEAM_NAMES[i], PTP_TEAM + "|" + i, enabled, listener);
+        for (int i = 0; i < Team.NAMES.length; i++) {
+            JMenuItem item = menuItem(Team.NAMES[i], PTP_TEAM + "|" + i, enabled, listener);
             menu.add(item);
         }
         menu.setEnabled(enabled);

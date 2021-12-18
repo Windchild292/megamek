@@ -48,8 +48,8 @@ public class PhysicalAttackAction extends AbstractAttackAction {
             // a friendly unit can never be the target of a direct attack.
             if ((target.getTargetType() == Targetable.TYPE_ENTITY)
                 && ((((Entity) target).getOwnerId() == ae.getOwnerId())
-                    || ((((Entity) target).getOwner().getTeam() != Player.TEAM_NONE)
-                        && (ae.getOwner().getTeam() != Player.TEAM_NONE)
+                    || ((((Entity) target).getOwner().getTeam() != Team.NONE)
+                        && (ae.getOwner().getTeam() != Team.NONE)
                         && (ae.getOwner().getTeam() == ((Entity) target).getOwner().getTeam())))) {
                 return "A friendly unit can never be the target of a direct attack.";
             }

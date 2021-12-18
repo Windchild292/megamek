@@ -13,10 +13,7 @@
  */
 package megamek.server.victory;
 
-import megamek.common.Entity;
-import megamek.common.Game;
-import megamek.common.Player;
-import megamek.common.Report;
+import megamek.common.*;
 
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -104,7 +101,7 @@ public class KillCountVictory implements IVictoryConditions, Serializable {
             if (team == wreck.getOwner().getTeam()) {
                 continue;
             }
-            if (team != Player.TEAM_NONE) {
+            if (team != Team.NONE) {
                 Integer kills = teamKills.get(team);
                 if (kills == null) {
                     kills = 1;

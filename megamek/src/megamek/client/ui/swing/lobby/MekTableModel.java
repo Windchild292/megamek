@@ -23,10 +23,7 @@ import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.tooltip.PilotToolTip;
 import megamek.client.ui.swing.tooltip.UnitToolTip;
 import megamek.client.ui.swing.util.UIUtil;
-import megamek.common.Configuration;
-import megamek.common.Entity;
-import megamek.common.MapSettings;
-import megamek.common.Player;
+import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.icons.Camouflage;
 import megamek.common.icons.Portrait;
@@ -248,7 +245,7 @@ public class MekTableModel extends AbstractTableModel {
         result.append(guiScaledFontHTML(owner.getColour().getColour(), size)).append(owner.getName())
                 .append("</FONT>").append(guiScaledFontHTML(size)).append(sep).append("</FONT>")
                 .append(guiScaledFontHTML(isEnemy ? Color.RED : uiGreen(), size))
-                .append(Player.TEAM_NAMES[owner.getTeam()]);
+                .append(Team.NAMES[owner.getTeam()]);
         return result.toString();
     }
     

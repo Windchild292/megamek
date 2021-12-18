@@ -16,6 +16,7 @@
 package megamek.server.commands;
 
 import megamek.common.Player;
+import megamek.common.Team;
 import megamek.server.Server;
 
 /**
@@ -53,7 +54,7 @@ public class AllowTeamChangeCommand extends ServerCommand {
             int voteCount = 0;
             int eligiblePlayerCount = 0;
             for (Player p : server.getGame().getPlayersVector()) {
-                if (p.getTeam() != Player.TEAM_UNASSIGNED) {
+                if (p.getTeam() != Team.UNASSIGNED) {
                     changeTeam &= p.isAllowingTeamChange();
                     if (p.isAllowingTeamChange()) {
                         voteCount++;

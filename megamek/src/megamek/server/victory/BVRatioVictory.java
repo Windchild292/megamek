@@ -16,6 +16,7 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
+import megamek.common.Team;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -47,19 +48,18 @@ public class BVRatioVictory extends AbstractBVVictory {
             int fbv = 0;
             int ebv = 0;
             int team = player.getTeam();
-            if (team != Player.TEAM_NONE) {
+            if (team != Team.NONE) {
                 if (doneTeams.contains(team))
                     continue; // skip if already
                 doneTeams.add(team);
             }
             fbv = getFriendlyBV(game, player);
             ebv = getEnemyBV(game, player);
-            // eibv=getEnemyInitialBV(game,player);
 
             if (ebv == 0 || (100 * fbv) / ebv >= ratio) {
                 Report r = new Report(7100, Report.PUBLIC);
                 victory = true;
-                if (team == Player.TEAM_NONE) {
+                if (team == Team.NONE) {
                     r.add(player.getName());
                     vr.addPlayerScore(player.getId(), 1.0);
                 } else {

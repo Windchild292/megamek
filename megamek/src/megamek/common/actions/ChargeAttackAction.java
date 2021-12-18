@@ -85,8 +85,8 @@ public class ChargeAttackAction extends DisplacementAttackAction {
             // a friendly unit can never be the target of a direct attack.
             if (!skid && (target.getTargetType() == Targetable.TYPE_ENTITY)
                 && ((((Entity) target).getOwnerId() == ae.getOwnerId())
-                    || ((((Entity) target).getOwner().getTeam() != Player.TEAM_NONE)
-                    && (ae.getOwner().getTeam() != Player.TEAM_NONE)
+                    || ((((Entity) target).getOwner().getTeam() != Team.NONE)
+                    && (ae.getOwner().getTeam() != Team.NONE)
                     && (ae.getOwner().getTeam() == ((Entity) target).getOwner().getTeam())))) {
                 return new ToHitData(TargetRoll.IMPOSSIBLE,
                         "A friendly unit can never be the target of a direct attack.");

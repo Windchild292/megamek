@@ -21,6 +21,7 @@
 package megamek.server.commands;
 
 import megamek.common.Player;
+import megamek.common.Team;
 import megamek.server.Server;
 
 /**
@@ -62,15 +63,15 @@ public class JoinTeamCommand extends ServerCommand {
             
             int teamId = Integer.parseInt(args[1]);
             
-            if ((Player.TEAM_UNASSIGNED == teamId) && (numEntities != 0)) {
+            if ((Team.UNASSIGNED == teamId) && (numEntities != 0)) {
                 server.sendServerChat(connId, "Player must have no more " +
                         "units to join the unassigned team!");
                 return;
             }
             String teamString = "join Team " + teamId + ".  ";
-            if (teamId == Player.TEAM_UNASSIGNED) {
+            if (teamId == Team.UNASSIGNED) {
                 teamString = " leave their team and go unassigned.  ";
-            } else if (teamId == Player.TEAM_NONE) {
+            } else if (teamId == Team.NONE) {
                 teamString = " go lone wolf!  ";
             }
 

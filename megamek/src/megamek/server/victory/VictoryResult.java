@@ -16,6 +16,7 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
+import megamek.common.Team;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -46,17 +47,17 @@ public class VictoryResult {
         if (player != Player.PLAYER_NONE) {
             addPlayerScore(player, 1.0);
         }
-        if (team != Player.TEAM_NONE) {
+        if (team != Team.NONE) {
             addTeamScore(team, 1.0);
         }
     }
     
     protected static VictoryResult noResult() {
-    	return new VictoryResult(false, Player.PLAYER_NONE, Player.TEAM_NONE);
+    	return new VictoryResult(false, Player.PLAYER_NONE, Team.NONE);
     }
     
     protected static VictoryResult drawResult() {
-        return new VictoryResult(true, Player.PLAYER_NONE, Player.TEAM_NONE);
+        return new VictoryResult(true, Player.PLAYER_NONE, Team.NONE);
     }
 
     private int getWinningPlayerOrTeam(Map<Integer, Double> entities, int defaultEntity) {
@@ -89,7 +90,7 @@ public class VictoryResult {
      * @return the id of the winning team, or Player.TEAM_NONE if it's a draw
      */
     public int getWinningTeam() {
-        return getWinningPlayerOrTeam(teamScore, Player.TEAM_NONE);
+        return getWinningPlayerOrTeam(teamScore, Team.NONE);
     }
 
     protected void updateHiScore() {
@@ -200,7 +201,7 @@ public class VictoryResult {
                 someReports.add(r);
             }
 
-            if (wonTeam != Player.TEAM_NONE) {
+            if (wonTeam != Team.NONE) {
                 Report r = new Report(7200, Report.PUBLIC);
                 r.add("Team " + wonTeam);
                 someReports.add(r);
@@ -209,7 +210,7 @@ public class VictoryResult {
             if (draw) {
                 // multiple-won draw
                 game.setVictoryPlayerId(Player.PLAYER_NONE);
-                game.setVictoryTeam(Player.TEAM_NONE);
+                game.setVictoryTeam(Team.NONE);
             } else {
                 // nobody-won draw or
                 // single player won or
@@ -244,6 +245,6 @@ public class VictoryResult {
     }
 
     public boolean isDraw() {
-        return (getWinningPlayer() == Player.PLAYER_NONE) && (getWinningTeam() == Player.TEAM_NONE);
+        return (getWinningPlayer() == Player.PLAYER_NONE) && (getWinningTeam() == Team.NONE);
     }
 }

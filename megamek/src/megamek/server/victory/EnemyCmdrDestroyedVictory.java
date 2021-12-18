@@ -16,6 +16,7 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
+import megamek.common.Team;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
         for (Player player : game.getPlayersVector()) {
             boolean killedAll = true;
             int team = player.getTeam();
-            if (team != Player.TEAM_NONE) {
+            if (team != Team.NONE) {
                 if (doneTeams.contains(team))
                     continue; 
                 // skip if already dealt with this team
@@ -48,7 +49,7 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
             }
             for (Player enemyPlayer : game.getPlayersVector()) {
                 if (enemyPlayer.equals(player) ||
-                        (team != Player.TEAM_NONE && team == enemyPlayer.getTeam()))
+                        (team != Team.NONE && team == enemyPlayer.getTeam()))
                     continue;
                 if (game.getLiveCommandersOwnedBy(enemyPlayer) > 0) {
                     killedAll = false;
@@ -56,7 +57,7 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
             }
             // all enemy commanders are dead
             if (killedAll) {
-                if (team == Player.TEAM_NONE) {
+                if (team == Team.NONE) {
                     Report r = new Report(7110, Report.PUBLIC);
                     r.add(player.getName());
                     vr.addPlayerScore(player.getId(), 1);

@@ -11,22 +11,51 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+/*
+ * Copyright (c) 2003-2004 - Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
+ */
 package megamek.common;
 
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 /**
- * The Team class holds a list of information about a team. It holds the
- * initiative for the team, and contains a list of players on that team. It also
- * implements functions that gather the number of units each team has.
+ * The Team class holds a list of information about a team. It holds the initiative for the team,
+ * and contains a list of players on that team. It also implements functions that gather the number
+ * of units each team has.
+ *
+ * TODO : Allow for teams to ally, not just have multiple players on the same team.
+ * TODO : Allow for teams to be neutral to each other
  */
 public final class Team extends TurnOrdered {
+    //region Variable Declarations
     private static final long serialVersionUID = 2270215552964191597L;
-    private Vector<Player> players = new Vector<>();
+
+    public static final int NONE = 0;
+    public static final int UNASSIGNED = -1;
+    public static final String[] NAMES = { "No Team", "Team 1", "Team 2", "Team 3", "Team 4", "Team 5" };
+
+    private List<Player> players = new Vector<>();
     private int id;
     private Boolean ObserverTeam = null;
+    //endregion Variable Declarations
 
     public Team(int newID) {
         id = newID;
@@ -37,27 +66,15 @@ public final class Team extends TurnOrdered {
     }
 
     public int getNonObserverSize() {
-        int nonObservers = 0;
-        for (int i = 0; i < players.size(); i++) {
-            if (!players.get(i).isObserver()) {
-                nonObservers++;
-            }
-        }
-        return nonObservers;
+        return Math.toIntExact(getPlayers().stream().filter(player -> !player.isObserver()).count());
     }
 
-    public Enumeration<Player> getPlayers() {
-        return players.elements();
+    public List<Player> getPlayers() {
+        return players;
     }
 
-    public Enumeration<Player> getNonObserverPlayers() {
-        Vector<Player> nonObservers = new Vector<>();
-        for (int i = 0; i < players.size(); i++) {
-            if (!players.get(i).isObserver()) {
-                nonObservers.add(players.get(i));
-            }
-        }
-        return nonObservers.elements();
+    public List<Player> getNonObserverPlayers() {
+        return getPlayers().stream().filter(player -> !player.isObserver()).collect(Collectors.toList());
     }
     
     public Vector<Player> getPlayersVector() {
@@ -81,8 +98,8 @@ public final class Team extends TurnOrdered {
     
     public void cacheObserverStatus() {
         ObserverTeam = Boolean.TRUE;
-        for (int i = 0; i < players.size(); i++) {
-            if (!players.get(i).isObserver()) {
+        for (Player player : players) {
+            if (!player.isObserver()) {
                 ObserverTeam = false;
             }
         }
@@ -112,9 +129,9 @@ public final class Team extends TurnOrdered {
      * Clear the initiative of this object.
      */
     @Override
-    public void clearInitiative(boolean bUseInitComp) {
+    public void clearInitiative(boolean useInitComp) {
         getInitiative().clear();
-        TurnOrdered.rollInitiative(players, bUseInitComp);
+        TurnOrdered.rollInitiative(getPlayers(), useInitComp);
     }
 
     public TurnVectors determineTeamOrder(Game game) {
@@ -132,121 +149,76 @@ public final class Team extends TurnOrdered {
     }
 
     /**
-     * Return the number of "normal" turns that this item requires. This is
-     * normally the sum of multi-unit turns and the other turns. A team without
-     * any "normal" turns must return it's number of even turns to produce a
-     * fair distribution of moves.
+     * Return the number of "normal" turns that this item requires. This is normally the sum of
+     * multi-unit turns and the other turns. A team without any "normal" turns must return its
+     * number of even turns to produce a fair distribution of moves.
      *
-     * @return the <code>int</code> number of "normal" turns this item should
-     *         take in a phase.
+     * @return the <code>int</code> number of "normal" turns this item should take in a phase.
      */
     @Override
     public int getNormalTurns(Game game) {
-        int normal = getMultiTurns(game) + getOtherTurns();
-        if (0 == normal) {
-            normal = getEvenTurns();
-        }
-        return normal;
+        final int normal = getMultiTurns(game) + getOtherTurns();
+        return (normal == 0) ? getEvenTurns() : normal;
     }
 
     @Override
     public int getEvenTurns() {
         // Sum the even turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getEvenTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getEvenTurns).sum();
     }
 
     @Override
     public int getOtherTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getOtherTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getOtherTurns).sum();
     }
 
     @Override
     public int getMultiTurns(Game game) {
         // Sum the multi turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getMultiTurns(game);
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(player -> player.getMultiTurns(game)).sum();
     }
 
     @Override
     public int getSpaceStationTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getSpaceStationTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getSpaceStationTurns).sum();
     }
 
     @Override
     public int getJumpshipTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getJumpshipTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getJumpshipTurns).sum();
     }
 
     @Override
     public int getWarshipTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getWarshipTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getWarshipTurns).sum();
     }
 
     @Override
     public int getDropshipTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getDropshipTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getDropshipTurns).sum();
     }
 
     @Override
     public int getSmallCraftTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getSmallCraftTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getSmallCraftTurns).sum();
     }
-    
+
     @Override
     public int getTeleMissileTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getSmallCraftTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getTeleMissileTurns).sum();
     }
 
     @Override
     public int getAeroTurns() {
         // Sum the other turns of all Players in this Team.
-        int sum = 0;
-        for (Enumeration<Player> loop = players.elements(); loop.hasMoreElements(); ) {
-            sum += loop.nextElement().getAeroTurns();
-        }
-        return sum;
+        return getPlayers().stream().mapToInt(TurnOrdered::getAeroTurns).sum();
     }
 
     /**
@@ -272,11 +244,7 @@ public final class Team extends TurnOrdered {
     
     @Override
     public String toString() {
-        if (getId() == Player.TEAM_NONE) {
-            return "No Team";
-        } else {
-            return "Team " + getId();
-        }
+        return (getId() < 0) ? "Unassigned" : NAMES[getId()];
     }
 
     public boolean hasTAG(Game game) {
@@ -299,8 +267,7 @@ public final class Team extends TurnOrdered {
         int turnb = 0;
         int constantb = Integer.MIN_VALUE;
         int commandb = Integer.MIN_VALUE;
-        constantb = Integer.MIN_VALUE;
-        for (Player player : getPlayersVector()) {
+        for (final Player player : getPlayers()) {
             turnb += player.getTurnInitBonus();
             if (player.getCommandBonus() > commandb) {
                 commandb = player.getCommandBonus();
@@ -319,26 +286,14 @@ public final class Team extends TurnOrdered {
         return getInitCompensationBonus(true);
     }
 
-    public int getInitCompensationBonus(boolean bUseInitCompensation) {
-        int nInitCompBonus = 0;
-
-        if (bUseInitCompensation) {
-            for (Player player : getPlayersVector()) {
-                if (player.getInitCompensationBonus() > nInitCompBonus) {
-                    nInitCompBonus = player.getInitCompensationBonus();
-                }
-            }
-        }
-
-        return nInitCompBonus;
+    public int getInitCompensationBonus(final boolean useInitCompensation) {
+        return useInitCompensation
+                ? getPlayers().stream().mapToInt(Player::getInitCompensationBonus).max().orElse(0) : 0;
     }
 
     @Override
-    public void setInitCompensationBonus(int nNewValue) {
-        for (Enumeration<Player> p = getPlayers(); p.hasMoreElements(); ) {
-            Player player = p.nextElement();
-            player.setInitCompensationBonus(nNewValue);
-        }
+    public void setInitCompensationBonus(final int bonus) {
+        getPlayers().forEach(player -> player.setInitCompensationBonus(bonus));
     }
 
     /**

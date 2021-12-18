@@ -15,6 +15,7 @@ package megamek.server.victory;
 
 import megamek.common.Game;
 import megamek.common.Player;
+import megamek.common.Team;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         int playersAlive = 0;
         Player lastPlayer = null;
         boolean oneTeamAlive = false;
-        int lastTeam = Player.TEAM_NONE;
+        int lastTeam = Team.NONE;
         boolean unteamedAlive = false;
         for (Player player : game.getPlayersVector()) {
             int team = player.getTeam();
@@ -45,9 +46,9 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
             playersAlive++;
             lastPlayer = player;
             // check team
-            if (team == Player.TEAM_NONE) {
+            if (team == Team.NONE) {
                 unteamedAlive = true;
-            } else if (lastTeam == Player.TEAM_NONE) {
+            } else if (lastTeam == Team.NONE) {
                 // possibly only one team alive
                 oneTeamAlive = true;
                 lastTeam = team;
@@ -62,9 +63,9 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         if (playersAlive < 1) {
             return VictoryResult.drawResult();
         } else if (playersAlive == 1) {
-            if ((lastPlayer != null) && (lastPlayer.getTeam() == Player.TEAM_NONE)) {
+            if ((lastPlayer != null) && (lastPlayer.getTeam() == Team.NONE)) {
                 // individual victory
-                return new VictoryResult(true, lastPlayer.getId(), Player.TEAM_NONE);
+                return new VictoryResult(true, lastPlayer.getId(), Team.NONE);
             }
         }
 

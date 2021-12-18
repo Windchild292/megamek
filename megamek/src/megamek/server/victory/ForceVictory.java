@@ -15,6 +15,7 @@ package megamek.server.victory;
 
 import megamek.common.Game;
 import megamek.common.Player;
+import megamek.common.Team;
 
 import java.io.Serializable;
 import java.util.List;
@@ -53,7 +54,7 @@ public class ForceVictory implements IVictoryConditions, Serializable {
             }
         }
         // Team victory.
-        if (victoryTeam != Player.TEAM_NONE) {
+        if (victoryTeam != Team.NONE) {
             for (int i = 0; i < players.size(); i++) {
                 Player player = players.get(i);
 

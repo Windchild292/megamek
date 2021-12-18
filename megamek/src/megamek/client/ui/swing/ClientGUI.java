@@ -672,7 +672,7 @@ public class ClientGUI extends JPanel implements BoardViewListener,
                 break;
             case FILE_UNITS_REINFORCE_RAT:
                 ignoreHotKeys = true;
-                if (client.getLocalPlayer().getTeam() == Player.TEAM_UNASSIGNED) {
+                if (client.getLocalPlayer().getTeam() == Team.UNASSIGNED) {
                     String title = Messages.getString("ClientGUI.openUnitListFileDialog.noReinforceTitle");
                     String msg = Messages.getString("ClientGUI.openUnitListFileDialog.noReinforceMessage");
                     JOptionPane.showMessageDialog(frame, msg, title, JOptionPane.ERROR_MESSAGE, null);
@@ -1423,7 +1423,7 @@ public class ClientGUI extends JPanel implements BoardViewListener,
     protected void loadListFile(Player player, boolean reinforce) {
         boolean addedUnits = false;
 
-        if (reinforce && (player.getTeam() == Player.TEAM_UNASSIGNED)) {
+        if (reinforce && (player.getTeam() == Team.UNASSIGNED)) {
             String title = Messages.getString("ClientGUI.openUnitListFileDialog.noReinforceTitle");
             String msg = Messages.getString("ClientGUI.openUnitListFileDialog.noReinforceMessage");
             JOptionPane.showMessageDialog(frame, msg, title, JOptionPane.ERROR_MESSAGE, null);

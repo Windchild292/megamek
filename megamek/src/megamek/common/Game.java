@@ -69,7 +69,7 @@ public class Game implements Serializable {
     private Vector<Entity> vOutOfGame = new Vector<>();
 
     private Vector<Player> players = new Vector<>();
-    private Vector<Team> teams = new Vector<>();
+    private List<Team> teams = new Vector<>();
 
     private Hashtable<Integer, Player> playerIds = new Hashtable<>();
 
@@ -121,7 +121,7 @@ public class Game implements Serializable {
 
     private boolean forceVictory = false;
     private int victoryPlayerId = Player.PLAYER_NONE;
-    private int victoryTeam = Player.TEAM_NONE;
+    private int victoryTeam = Team.NONE;
 
     private Hashtable<Integer, Vector<Entity>> deploymentTable = new Hashtable<>();
     private int lastDeploymentRound = 0;
@@ -353,8 +353,8 @@ public class Game implements Serializable {
     /**
      * Return an enumeration of teams in the game
      */
-    public Enumeration<Team> getTeams() {
-        return teams.elements();
+    public List<Team> getTeams() {
+        return teams;
     }
 
     /**
@@ -377,11 +377,8 @@ public class Game implements Serializable {
      */
     public @Nullable Team getTeamForPlayer(Player p) {
         for (Team team : teams) {
-            for (Enumeration<Player> j = team.getPlayers(); j.hasMoreElements(); ) {
-                final Player player = j.nextElement();
-                if (p == player) {
-                    return team;
-                }
+            if (team.getPlayers().contains(p)) {
+                return team;
             }
         }
         return null;
@@ -402,11 +399,11 @@ public class Game implements Serializable {
         for (Enumeration<Player> i = getPlayers(); i.hasMoreElements(); ) {
             final Player player = i.nextElement();
             // Ignore players not on a team
-            if (player.getTeam() == Player.TEAM_UNASSIGNED) {
+            if (player.getTeam() == Team.UNASSIGNED) {
                 continue;
             }
-            if (!useTeamInit || (player.getTeam() == Player.TEAM_NONE)) {
-                Team new_team = new Team(Player.TEAM_NONE);
+            if (!useTeamInit || (player.getTeam() == Team.NONE)) {
+                Team new_team = new Team(Team.NONE);
                 new_team.addPlayer(player);
                 initTeams.addElement(new_team);
             }
@@ -414,7 +411,7 @@ public class Game implements Serializable {
 
         if (useTeamInit) {
             // Now, go through all the teams, and add the appropriate player
-            for (int t = Player.TEAM_NONE + 1; t < Player.TEAM_NAMES.length; t++) {
+            for (int t = Team.NONE + 1; t < Team.NAMES.length; t++) {
                 Team new_team = null;
                 for (Enumeration<Player> i = getPlayers(); i.hasMoreElements(); ) {
                     final Player player = i.nextElement();
@@ -1470,7 +1467,7 @@ public class Game implements Serializable {
 
         forceVictory = false;
         victoryPlayerId = Player.PLAYER_NONE;
-        victoryTeam = Player.TEAM_NONE;
+        victoryTeam = Team.NONE;
         lastEntityId = 0;
         planetaryConditions = new PlanetaryConditions();
     }
@@ -2688,7 +2685,7 @@ public class Game implements Serializable {
      * to call during GamePhase.VICTORY.
      */
     public boolean isPlayerVictor(Player player) {
-        if (player.getTeam() == Player.TEAM_NONE) {
+        if (player.getTeam() == Team.NONE) {
             return player.getId() == victoryPlayerId;
         }
         return player.getTeam() == victoryTeam;
@@ -3511,6 +3508,6 @@ public class Game implements Serializable {
     public void cancelVictory() {
         setForceVictory(false);
         setVictoryPlayerId(Player.PLAYER_NONE);
-        setVictoryTeam(Player.TEAM_NONE);
+        setVictoryTeam(Team.NONE);
     }
 }

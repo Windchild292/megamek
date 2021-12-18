@@ -32,9 +32,6 @@ public final class Player extends TurnOrdered {
     private static final long serialVersionUID = 6828849559007455761L;
 
     public static final int PLAYER_NONE = -1;
-    public static final int TEAM_NONE = 0;
-    public static final int TEAM_UNASSIGNED = -1;
-    public static final String[] TEAM_NAMES = {"No Team", "Team 1", "Team 2", "Team 3", "Team 4", "Team 5"};
 
     private transient Game game;
 
@@ -42,7 +39,7 @@ public final class Player extends TurnOrdered {
     private String email;
     private int id;
 
-    private int team = TEAM_NONE;
+    private int team = Team.NONE;
 
     private boolean done = false; // done with phase
     private boolean ghost = false; // disconnected player
@@ -309,7 +306,7 @@ public final class Player extends TurnOrdered {
             return true;
         }
         return (id != other.getId()) 
-            && ((team == TEAM_NONE) || (team == TEAM_UNASSIGNED) || (team != other.getTeam()));
+            && ((team == Team.NONE) || (team == Team.UNASSIGNED) || (team != other.getTeam()));
     }
 
     public void setAdmitsDefeat(boolean admitsDefeat) {
