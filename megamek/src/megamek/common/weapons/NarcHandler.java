@@ -225,7 +225,7 @@ public class NarcHandler extends MissileWeaponHandler {
         AmmoType atype = (AmmoType) ammo.getType();
         if (atype.getAmmoType() == AmmoType.T_NARC) {
             // narced
-            NarcPod pod = new NarcPod(ae.getOwner().getTeam(),
+            NarcPod pod = new NarcPod(ae.getOwner().getTeamNumber(),
                     hit.getLocation());
             Report r = new Report(3250);
             r.subject = subjectId;
@@ -237,7 +237,7 @@ public class NarcHandler extends MissileWeaponHandler {
             // iNarced
             INarcPod pod = null;
             if (atype.getMunitionType() == AmmoType.M_ECM) {
-                pod = new INarcPod(ae.getOwner().getTeam(), INarcPod.ECM,
+                pod = new INarcPod(ae.getOwner().getTeamNumber(), INarcPod.ECM,
                         hit.getLocation());
                 Report r = new Report(3251);
                 r.subject = subjectId;
@@ -245,7 +245,7 @@ public class NarcHandler extends MissileWeaponHandler {
                 r.add(entityTarget.getLocationAbbr(hit));
                 vPhaseReport.addElement(r);
             } else if (atype.getMunitionType() == AmmoType.M_HAYWIRE) {
-                pod = new INarcPod(ae.getOwner().getTeam(), INarcPod.HAYWIRE,
+                pod = new INarcPod(ae.getOwner().getTeamNumber(), INarcPod.HAYWIRE,
                         hit.getLocation());
                 Report r = new Report(3252);
                 r.subject = subjectId;
@@ -253,7 +253,7 @@ public class NarcHandler extends MissileWeaponHandler {
                 r.add(entityTarget.getLocationAbbr(hit));
                 vPhaseReport.addElement(r);
             } else if (atype.getMunitionType() == AmmoType.M_NEMESIS) {
-                pod = new INarcPod(ae.getOwner().getTeam(), INarcPod.NEMESIS,
+                pod = new INarcPod(ae.getOwner().getTeamNumber(), INarcPod.NEMESIS,
                         hit.getLocation());
                 Report r = new Report(3253);
                 r.add(entityTarget.getDisplayName());
@@ -261,7 +261,7 @@ public class NarcHandler extends MissileWeaponHandler {
                 r.subject = subjectId;
                 vPhaseReport.addElement(r);
             } else {
-                pod = new INarcPod(ae.getOwner().getTeam(), INarcPod.HOMING,
+                pod = new INarcPod(ae.getOwner().getTeamNumber(), INarcPod.HOMING,
                         hit.getLocation());
                 Report r = new Report(3254);
                 r.subject = subjectId;

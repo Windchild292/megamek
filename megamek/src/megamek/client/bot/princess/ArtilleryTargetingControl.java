@@ -205,7 +205,7 @@ public class ArtilleryTargetingControl {
         }
         
         for (Entity enemy : game.getAllOffboardEnemyEntities(shooter.getOwner())) {
-            if (enemy.isOffBoardObserved(shooter.getOwner().getTeam())) {
+            if (enemy.isOffBoardObserved(shooter.getOwner().getTeamNumber())) {
                 targetSet.add(enemy);
             }
         }

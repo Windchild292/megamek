@@ -660,7 +660,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             Game game = clientgui.getClient().getGame();
             Player localPlayer = clientgui.getClient().getLocalPlayer();
             forwardIni = (game.getTeamForPlayer(localPlayer) != null)
-                    && (game.getTeamForPlayer(localPlayer).getSize() > 1);
+                    && (game.getTeamForPlayer(localPlayer).getPlayers().size() > 1);
             opts = game.getOptions();
         }
 
@@ -5188,7 +5188,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             int idx = 0;
             for (var player : players) {
                 if (player.getName().equals(clientgui.getClient().getLocalPlayer().getName())
-                        || (player.getTeam() == Team.UNASSIGNED)) {
+                        || (player.getTeamNumber() == Team.UNASSIGNED)) {
                     continue;
                 }
                 playerIds[idx] = player.getId();

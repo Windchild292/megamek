@@ -47,7 +47,7 @@ public class BVRatioVictory extends AbstractBVVictory {
                 continue;
             int fbv = 0;
             int ebv = 0;
-            int team = player.getTeam();
+            int team = player.getTeamNumber();
             if (team != Team.NONE) {
                 if (doneTeams.contains(team))
                     continue; // skip if already

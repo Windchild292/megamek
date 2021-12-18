@@ -110,7 +110,7 @@ public class OffBoardTargetOverlay implements IDisplayable {
      */
     private boolean showDirectionalElement(OffBoardDirection direction, Mounted selectedArtilleryWeapon) {
         for (Entity entity : getCurrentGame().getAllOffboardEnemyEntities(getCurrentPlayer())) {
-            if (entity.isOffBoardObserved(getCurrentPlayer().getTeam()) && 
+            if (entity.isOffBoardObserved(getCurrentPlayer().getTeamNumber()) &&
                     (entity.getOffBoardDirection() == direction) &&
                         (targetingPhaseDisplay.ce().isOffBoard() ||
                         weaponFacingInDirection(selectedArtilleryWeapon, direction))) {
@@ -280,7 +280,7 @@ public class OffBoardTargetOverlay implements IDisplayable {
         
         for (Entity ent : this.getCurrentGame().getAllOffboardEnemyEntities(getCurrentPlayer())) {
             if (ent.getOffBoardDirection() == direction &&
-                    ent.isOffBoardObserved(getCurrentPlayer().getTeam())) {
+                    ent.isOffBoardObserved(getCurrentPlayer().getTeamNumber())) {
                 eligibleTargets.add(ent);
             }
         }

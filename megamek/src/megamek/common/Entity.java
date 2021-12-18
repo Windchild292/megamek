@@ -9611,7 +9611,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         // If team vision, see if any players on team can see
         if (game.getOptions().booleanOption(OptionsConstants.ADVANCED_TEAM_VISION)) {
             for (Player teammate : game.getPlayersVector()) {
-                if ((teammate.getTeam() == p.getTeam()) && entitySeenBy.contains(teammate)) {
+                if ((teammate.getTeamNumber() == p.getTeamNumber()) && entitySeenBy.contains(teammate)) {
                     return true;
                 }
             }
@@ -9683,7 +9683,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         // If team vision, see if any players on team can see
         if (game.getOptions().booleanOption(OptionsConstants.ADVANCED_TEAM_VISION)) {
             for (Player teammate : game.getPlayersVector()) {
-                if ((teammate.getTeam() == p.getTeam()) && entityDetectedBy.contains(teammate)) {
+                if ((teammate.getTeamNumber() == p.getTeamNumber()) && entityDetectedBy.contains(teammate)) {
                     return true;
                 }
             }
@@ -9703,7 +9703,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     public boolean isSensorReturn(Player spotter) {
         boolean alliedUnit =
                 !getOwner().isEnemyOf(spotter)
-                || (getOwner().getTeam() == spotter.getTeam()
+                || (getOwner().getTeamNumber() == spotter.getTeamNumber()
                     && game.getOptions().booleanOption(OptionsConstants.ADVANCED_TEAM_VISION));
 
         boolean sensors = (game.getOptions().booleanOption(

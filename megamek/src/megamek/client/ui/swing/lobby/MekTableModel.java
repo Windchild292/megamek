@@ -245,7 +245,7 @@ public class MekTableModel extends AbstractTableModel {
         result.append(guiScaledFontHTML(owner.getColour().getColour(), size)).append(owner.getName())
                 .append("</FONT>").append(guiScaledFontHTML(size)).append(sep).append("</FONT>")
                 .append(guiScaledFontHTML(isEnemy ? Color.RED : uiGreen(), size))
-                .append(Team.NAMES[owner.getTeam()]);
+                .append(Team.NAMES[owner.getTeamNumber()]);
         return result.toString();
     }
     

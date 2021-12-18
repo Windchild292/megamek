@@ -368,12 +368,12 @@ public abstract class TurnOrdered implements ITurnOrdered {
             
             int bonus = 0;
             if (item instanceof Team) {
-                bonus = ((Team) item).getTotalInitBonus(bInitCompBonus);
+                bonus = ((Team) item).getTotalInitiativeBonus(bInitCompBonus);
             }
 
             if (item instanceof Entity) {
                 Entity e = (Entity) item;
-                bonus = e.getGame().getTeamForPlayer(e.getOwner()).getTotalInitBonus(false)
+                bonus = e.getGame().getTeamForPlayer(e.getOwner()).getTotalInitiativeBonus(false)
                         + e.getCrew().getInitBonus();
             }
 

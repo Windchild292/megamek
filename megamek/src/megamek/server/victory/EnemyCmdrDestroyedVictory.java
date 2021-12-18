@@ -40,7 +40,7 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
         HashSet<Integer> doneTeams = new HashSet<>();
         for (Player player : game.getPlayersVector()) {
             boolean killedAll = true;
-            int team = player.getTeam();
+            int team = player.getTeamNumber();
             if (team != Team.NONE) {
                 if (doneTeams.contains(team))
                     continue; 
@@ -49,7 +49,7 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
             }
             for (Player enemyPlayer : game.getPlayersVector()) {
                 if (enemyPlayer.equals(player) ||
-                        (team != Team.NONE && team == enemyPlayer.getTeam()))
+                        (team != Team.NONE && team == enemyPlayer.getTeamNumber()))
                     continue;
                 if (game.getLiveCommandersOwnedBy(enemyPlayer) > 0) {
                     killedAll = false;

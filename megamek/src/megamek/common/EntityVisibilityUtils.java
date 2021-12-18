@@ -70,7 +70,7 @@ public class EntityVisibilityUtils {
         if (e.getGame().getOptions().booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND) //$NON-NLS-1$
                 && ((e.getOwner().getId() == localPlayer.getId()) || 
                         (e.getGame().getOptions().booleanOption(OptionsConstants.ADVANCED_TEAM_VISION) //$NON-NLS-1$
-                && (e.getOwner().getTeam() == localPlayer.getTeam())))) {
+                && (e.getOwner().getTeamNumber() == localPlayer.getTeamNumber())))) {
             return true;
         }
         

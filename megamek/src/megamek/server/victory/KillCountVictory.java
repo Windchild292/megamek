@@ -96,9 +96,9 @@ public class KillCountVictory implements IVictoryConditions, Serializable {
                 continue;
             }            
             
-            int team = killer.getOwner().getTeam();
+            int team = killer.getOwner().getTeamNumber();
             // Friendly fire doesn't count
-            if (team == wreck.getOwner().getTeam()) {
+            if (team == wreck.getOwner().getTeamNumber()) {
                 continue;
             }
             if (team != Team.NONE) {

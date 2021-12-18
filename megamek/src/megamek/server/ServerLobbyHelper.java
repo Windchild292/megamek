@@ -331,7 +331,7 @@ class ServerLobbyHelper {
         players.stream().map(p -> game.getPlayer(p.getId())).forEach(serverPlayers::add);
         
         // Check parameters and if there's an actual change to a player
-        serverPlayers.removeIf(p -> p == null || p.getTeam() == newTeam);
+        serverPlayers.removeIf(p -> p == null || p.getTeamNumber() == newTeam);
         if (serverPlayers.isEmpty() || newTeam < 0 || newTeam > 5) {
             return;
         }

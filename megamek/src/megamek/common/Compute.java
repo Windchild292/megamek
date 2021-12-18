@@ -3161,8 +3161,8 @@ public class Compute {
 
                 // Check for target with attached Narc or iNarc homing pod from
                 // friendly unit
-                if (target.isNarcedBy(attacker.getOwner().getTeam())
-                        || target.isINarcedBy(attacker.getOwner().getTeam())) {
+                if (target.isNarcedBy(attacker.getOwner().getTeamNumber())
+                        || target.isINarcedBy(attacker.getOwner().getTeamNumber())) {
                     if (((at.getAmmoType() == AmmoType.T_LRM)
                             || (at.getAmmoType() == AmmoType.T_LRM_IMP)
                             || (at.getAmmoType() == AmmoType.T_MML)
@@ -3587,7 +3587,7 @@ public class Compute {
                             // option
                             if ((wtype.getAmmoType() == AmmoType.T_NARC)
                                     && (abin_type.getMunitionType() == AmmoType.M_STANDARD)) {
-                                if (!(target.isNarcedBy(shooter.getOwner().getTeam()))
+                                if (!(target.isNarcedBy(shooter.getOwner().getTeamNumber()))
                                         && !(target instanceof Infantry)) {
                                     ex_damage = 5.0;
                                 } else {
@@ -3602,7 +3602,7 @@ public class Compute {
                             if (wtype.getAmmoType() == AmmoType.T_INARC) {
                                 if ((abin_type.getMunitionType() == AmmoType.M_STANDARD)
                                         && !(target instanceof Infantry)) {
-                                    if (!(target.isINarcedBy(shooter.getOwner().getTeam()))) {
+                                    if (!(target.isINarcedBy(shooter.getOwner().getTeamNumber()))) {
                                         ex_damage = 7.0;
                                     } else {
                                         ex_damage = 1.0;
@@ -6728,7 +6728,7 @@ public class Compute {
             for (Entity other : game.getEntitiesVector(c)) {
                 // Is the other unit friendly and not the current entity?
                 if ((en.getOwner().equals(other.getOwner()) || (en.getOwner()
-                                                                  .getTeam() == other.getOwner().getTeam()))
+                                                                  .getTeamNumber() == other.getOwner().getTeamNumber()))
                     && !en.equals(other)
                     && ((other instanceof SmallCraft) || other.getTowing() != Entity.NONE || other.getTowedBy() != Entity.NONE)
                     && other.canLoad(en)

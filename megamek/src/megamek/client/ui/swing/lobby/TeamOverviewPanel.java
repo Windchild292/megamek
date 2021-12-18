@@ -198,7 +198,7 @@ public class TeamOverviewPanel extends JPanel {
             clearData();
             for (Team team: game.getTeamsVector()) {
                 teams.add(team);
-                teamID.add(team.getId());
+                teamID.add(team.getTeamNumber());
                 teamNames.add(team.toString());
                 
                 long cost = 0;
@@ -313,7 +313,7 @@ public class TeamOverviewPanel extends JPanel {
             TOMCOLS column = TOMCOLS.values()[col];
             switch (column) {
                 case TEAM:
-                    boolean isEnemy = !teams.get(row).getPlayersVector().contains(clientGui.getClient().getLocalPlayer());
+                    boolean isEnemy = !teams.get(row).getPlayers().contains(clientGui.getClient().getLocalPlayer());
                     Color color = isEnemy ? GUIPreferences.getInstance().getEnemyUnitColor() : GUIPreferences.getInstance().getMyUnitColor();
                     result.append(guiScaledFontHTML(color, textSizeDelta) + "&nbsp;");
                     result.append(teamNames.get(row) + "</FONT>");
@@ -341,7 +341,7 @@ public class TeamOverviewPanel extends JPanel {
                     break;
 
                 case MEMBERS:
-                    return teams.get(row).getPlayersVector();
+                    return teams.get(row).getPlayers();
 
                 case BV:
                     result.append(guiScaledFontHTML(textSizeDelta) + "<CENTER>");
@@ -372,7 +372,7 @@ public class TeamOverviewPanel extends JPanel {
         private boolean seeTeam(int row) {
             Game game = clientGui.getClient().getGame();
             return !game.getOptions().booleanOption(OptionsConstants.BASE_REAL_BLIND_DROP)
-                    || game.getTeamForPlayer(clientGui.getClient().getLocalPlayer()).getId() == teamID.get(row);
+                    || game.getTeamForPlayer(clientGui.getClient().getLocalPlayer()).getTeamNumber() == teamID.get(row);
         }
         
         /** 

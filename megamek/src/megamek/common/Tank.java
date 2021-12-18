@@ -1800,11 +1800,11 @@ public class Tank extends Entity {
                 if (tmpP != null) {
                     if (tmpP.hasTAG()) {
                         tagBV += atype.getBV(this);
-                    } else if ((tmpP.getTeam() != Team.NONE) && (game != null)) {
+                    } else if ((tmpP.getTeamNumber() != Team.NONE) && (game != null)) {
                         for (Enumeration<Team> e = game.getTeams(); e.hasMoreElements();) {
                             Team m = e.nextElement();
-                            if (m.getId() == tmpP.getTeam()) {
-                                if (m.hasTAG(game)) {
+                            if (m.getTeamNumber() == tmpP.getTeamNumber()) {
+                                if (m.hasTAG()) {
                                     tagBV += atype.getBV(this);
                                     bvText.append("Tag: ");
                                     bvText.append(atype.getBV(this));

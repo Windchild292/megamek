@@ -532,11 +532,11 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
                 // if the entity is hostile and the attacker has not been designated
                 // as observed already by the entity's team
                 if (entity.isEnemyOf(aaa.getEntity(game)) &&
-                        !aaa.getEntity(game).isOffBoardObserved(entity.getOwner().getTeam())) {
+                        !aaa.getEntity(game).isOffBoardObserved(entity.getOwner().getTeamNumber())) {
                     boolean hasLoS = LosEffects.calculateLOS(game, entity, hexTarget).canSee();
                     
                     if (hasLoS) {
-                        aaa.getEntity(game).addOffBoardObserver(entity.getOwner().getTeam());
+                        aaa.getEntity(game).addOffBoardObserver(entity.getOwner().getTeamNumber());
                         Report r = new Report(9997);
                         r.add(entity.getDisplayName());
                         r.subject = subjectId;
@@ -547,7 +547,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
         // an off-board target can observe counter-battery fire attacking it for counter-battery fire (probably)
         } else if (target.isOffBoard()) {
             Entity attacker = aaa.getEntity(game);
-            int targetTeam = ((Entity) target).getOwner().getTeam();
+            int targetTeam = ((Entity) target).getOwner().getTeamNumber();
             
             if (attacker.isOffBoard() && !attacker.isOffBoardObserved(targetTeam)) {
                 attacker.addOffBoardObserver(targetTeam);

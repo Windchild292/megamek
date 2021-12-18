@@ -268,12 +268,12 @@ public class GeneralInfoMapSet implements DisplayMapSet {
                 .getString("GeneralInfoMapSet.prone") : Messages.getString("GeneralInfoMapSet.normal")); //$NON-NLS-1$ //$NON-NLS-2$
         if (en.getOwner() != null) {
             playerR.setString(en.getOwner().getName());
-            if (en.getOwner().getTeam() == 0) {
+            if (en.getOwner().getTeamNumber() == 0) {
                 teamL.setVisible(false);
                 teamR.setVisible(false);
             } else {
                 teamL.setVisible(true);
-                teamR.setString(Messages.getString("GeneralInfoMapSet.Team") + en.getOwner().getTeam()); //$NON-NLS-1$
+                teamR.setString(Messages.getString("GeneralInfoMapSet.Team") + en.getOwner().getTeamNumber()); //$NON-NLS-1$
                 teamR.setVisible(true);
             }
         }

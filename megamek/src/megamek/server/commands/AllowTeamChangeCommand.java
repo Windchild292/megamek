@@ -54,7 +54,7 @@ public class AllowTeamChangeCommand extends ServerCommand {
             int voteCount = 0;
             int eligiblePlayerCount = 0;
             for (Player p : server.getGame().getPlayersVector()) {
-                if (p.getTeam() != Team.UNASSIGNED) {
+                if (p.getTeamNumber() != Team.UNASSIGNED) {
                     changeTeam &= p.isAllowingTeamChange();
                     if (p.isAllowingTeamChange()) {
                         voteCount++;

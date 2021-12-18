@@ -40,15 +40,15 @@ public class PlayerBVSorter implements MekTableSorter {
         final Player p_a = clientGui.getClient().getGame().getPlayer(a.getOwnerId());
         final Player p_b = clientGui.getClient().getGame().getPlayer(b.getOwnerId());
         final Player localPlayer = clientGui.getClient().getLocalPlayer();
-        final int t_a = p_a.getTeam();
-        final int t_b = p_b.getTeam();
+        final int t_a = p_a.getTeamNumber();
+        final int t_b = p_b.getTeamNumber();
         if (p_a.equals(localPlayer) && !p_b.equals(localPlayer)) {
             return -1;
         } else if (!p_a.equals(localPlayer) && p_b.equals(localPlayer)) {
             return 1;
-        } else if ((t_a == localPlayer.getTeam()) && (t_b != localPlayer.getTeam())) {
+        } else if ((t_a == localPlayer.getTeamNumber()) && (t_b != localPlayer.getTeamNumber())) {
             return -1;
-        } else if ((t_b == localPlayer.getTeam()) && (t_a != localPlayer.getTeam())) {
+        } else if ((t_b == localPlayer.getTeamNumber()) && (t_a != localPlayer.getTeamNumber())) {
             return 1;
         } else if (t_a != t_b) {
             return t_a - t_b;

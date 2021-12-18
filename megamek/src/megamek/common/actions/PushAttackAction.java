@@ -66,9 +66,9 @@ public class PushAttackAction extends DisplacementAttackAction {
             // a friendly unit can never be the target of a direct attack.
             if ((target.getTargetType() == Targetable.TYPE_ENTITY)
                 && ((((Entity) target).getOwnerId() == ae.getOwnerId())
-                    || ((((Entity) target).getOwner().getTeam() != Team.NONE)
-                        && (ae.getOwner().getTeam() != Team.NONE)
-                        && (ae.getOwner().getTeam() == ((Entity) target).getOwner().getTeam())))) {
+                    || ((((Entity) target).getOwner().getTeamNumber() != Team.NONE)
+                        && (ae.getOwner().getTeamNumber() != Team.NONE)
+                        && (ae.getOwner().getTeamNumber() == ((Entity) target).getOwner().getTeamNumber())))) {
                 return "A friendly unit can never be the target of a direct attack.";
             }
         }

@@ -197,7 +197,7 @@ public final class Player extends TurnOrdered {
         return id;
     }
 
-    public int getTeam() {
+    public int getTeamNumber() {
         return team;
     }
 
@@ -306,7 +306,7 @@ public final class Player extends TurnOrdered {
             return true;
         }
         return (id != other.getId()) 
-            && ((team == Team.NONE) || (team == Team.UNASSIGNED) || (team != other.getTeam()));
+            && ((team == Team.NONE) || (team == Team.UNASSIGNED) || (team != other.getTeamNumber()));
     }
 
     public void setAdmitsDefeat(boolean admitsDefeat) {

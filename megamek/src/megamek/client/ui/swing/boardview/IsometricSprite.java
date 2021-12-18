@@ -212,7 +212,7 @@ class IsometricSprite extends Sprite {
         return opts.booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND)
                 && ((e.getOwner().getId() == localPlayer.getId())
                 || (opts.booleanOption(OptionsConstants.ADVANCED_TEAM_VISION)
-                && (e.getOwner().getTeam() == localPlayer.getTeam())));
+                && (e.getOwner().getTeamNumber() == localPlayer.getTeamNumber())));
     }
     
     /**

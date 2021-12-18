@@ -1280,7 +1280,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     private void refreshTeams() {
         if (localPlayer() != null) {
             comboTeam.removeActionListener(lobbyListener);
-            comboTeam.setSelectedIndex(localPlayer().getTeam());
+            comboTeam.setSelectedIndex(localPlayer().getTeamNumber());
             comboTeam.addActionListener(lobbyListener);
         }
     }
@@ -2361,7 +2361,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             var selPlayer = theElement(selPlayers);
             var hasUnits = !game().getPlayerEntities(selPlayer, false).isEmpty();
             butSaveList.setEnabled(hasUnits && unitsVisible(selPlayer));
-            setTeamSelectedItem(selPlayer.getTeam());
+            setTeamSelectedItem(selPlayer.getTeamNumber());
         }
     }
     

@@ -641,7 +641,7 @@ public class Server implements Runnable {
         if (null != gamePlayer) {
             gamePlayer.setColour(player.getColour());
             gamePlayer.setStartingPos(player.getStartingPos());
-            gamePlayer.setTeam(player.getTeam());
+            gamePlayer.setTeam(player.getTeamNumber());
             gamePlayer.setCamouflage(player.getCamouflage().clone());
             gamePlayer.setNbrMFConventional(player.getNbrMFConventional());
             gamePlayer.setNbrMFCommand(player.getNbrMFCommand());
@@ -925,8 +925,8 @@ public class Server implements Runnable {
         if (game.getPhase() == GamePhase.LOUNGE) {
             team = Team.NONE;
             for (Player p : game.getPlayersVector()) {
-                if (p.getTeam() > team) {
-                    team = p.getTeam();
+                if (p.getTeamNumber() > team) {
+                    team = p.getTeamNumber();
                 }
             }
             team++;
@@ -1836,12 +1836,12 @@ public class Server implements Runnable {
      */
     public void forceVictory(Player victor) {
         game.setForceVictory(true);
-        if (victor.getTeam() == Team.NONE) {
+        if (victor.getTeamNumber() == Team.NONE) {
             game.setVictoryPlayerId(victor.getId());
             game.setVictoryTeam(Team.NONE);
         } else {
             game.setVictoryPlayerId(Player.PLAYER_NONE);
-            game.setVictoryTeam(victor.getTeam());
+            game.setVictoryTeam(victor.getTeamNumber());
         }
 
         Vector<Player> playersVector = game.getPlayersVector();
@@ -2954,7 +2954,7 @@ public class Server implements Runnable {
         }
         
         // get the next player from the team this player is on.
-        Player next = currentPlayerTeam.getNextValidPlayer(current, game);
+        Player next = currentPlayerTeam.getNextValidPlayer(getGame(), current);
         
         while (!next.equals(current)) {
             // if the chosen player is a valid player, we change the turn order and
@@ -3023,7 +3023,7 @@ public class Server implements Runnable {
                 // if nothing changed return without doing anything
             }
             
-            next = currentPlayerTeam.getNextValidPlayer(next, game);
+            next = currentPlayerTeam.getNextValidPlayer(getGame(), next);
         }
     }
 
@@ -3171,7 +3171,7 @@ public class Server implements Runnable {
         }
 
         for (Player player : game.getPlayersVector()) {
-            if ((player.getId() == game.getVictoryPlayerId()) || ((player.getTeam() == game.getVictoryTeam())
+            if ((player.getId() == game.getVictoryPlayerId()) || ((player.getTeamNumber() == game.getVictoryTeam())
                     && (game.getVictoryTeam() != Team.NONE))) {
                 continue;
             }
@@ -3724,7 +3724,7 @@ public class Server implements Runnable {
                 } else {
                     // Multiple players. List the team, then break it down.
                     r = new Report(1015, Report.PUBLIC);
-                    r.add(Team.NAMES[team.getId()]);
+                    r.add(Team.NAMES[team.getTeamNumber()]);
                     r.add(team.getInitiative().toString());
                     addReport(r);
                     for (Enumeration<Player> j = team.getNonObserverPlayers(); j.hasMoreElements(); ) {
@@ -13170,13 +13170,13 @@ public class Server implements Runnable {
 
         Player player = game.getPlayer(playerId);
         if (null != player) {
-            int teamId = player.getTeam();
+            int teamId = player.getTeamNumber();
 
             if (teamId != Team.NONE) {
                 Enumeration<Team> teams = game.getTeams();
                 while (teams.hasMoreElements()) {
                     Team team = teams.nextElement();
-                    if (team.getId() == teamId) {
+                    if (team.getTeamNumber() == teamId) {
                         Enumeration<Player> players = team.getPlayers();
                         while (players.hasMoreElements()) {
                             Player teamPlayer = players.nextElement();
@@ -30836,14 +30836,14 @@ public class Server implements Runnable {
      */
     private Packet createArtilleryPacket(Player p) {
         Vector<ArtilleryAttackAction> v = new Vector<>();
-        int team = p.getTeam();
+        int team = p.getTeamNumber();
         for (Enumeration<AttackHandler> i = game.getAttacks(); i.hasMoreElements(); ) {
             WeaponHandler wh = (WeaponHandler) i.nextElement();
             if (wh.waa instanceof ArtilleryAttackAction) {
                 ArtilleryAttackAction aaa = (ArtilleryAttackAction) wh.waa;
                 if ((aaa.getPlayerId() == p.getId())
                         || ((team != Team.NONE)
-                        && (team == game.getPlayer(aaa.getPlayerId()).getTeam()))
+                        && (team == game.getPlayer(aaa.getPlayerId()).getTeamNumber()))
                         || p.getSeeAll()) {
                     v.addElement(aaa);
                 }
@@ -34078,8 +34078,8 @@ public class Server implements Runnable {
                             || (pe.isAirborne() && !pe.isSpaceborne())
                             || (pe.getElevation() != e.getElevation())
                             || (pe.getOwnerId() == e.getOwnerId()) || (pe.getId() == e.getId())
-                            || (pe.getOwner().getTeam() == Team.NONE)
-                            || (pe.getOwner().getTeam() != e.getOwner().getTeam())) {
+                            || (pe.getOwner().getTeamNumber() == Team.NONE)
+                            || (pe.getOwner().getTeamNumber() != e.getOwner().getTeamNumber())) {
                         continue;
                     }
                     if (pe instanceof MechWarrior) {

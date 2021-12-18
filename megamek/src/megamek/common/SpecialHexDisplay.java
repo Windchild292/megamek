@@ -227,7 +227,7 @@ public class SpecialHexDisplay implements Serializable {
         if ((obscured == SHD_OBSCURED_OWNER) && owner.equals(other)) {
             return false;
         } else if ((obscured == SHD_OBSCURED_TEAM) && (other != null)
-                && (owner.getTeam() == other.getTeam())) {
+                && (owner.getTeamNumber() == other.getTeamNumber())) {
             return false;
         } else if (obscured == SHD_OBSCURED_ALL) {
             return false;

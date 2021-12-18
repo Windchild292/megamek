@@ -470,7 +470,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                 || (wtype instanceof SRTWeapon) || (wtype instanceof LRTWeapon);
 
         if (te != null) {
-            if (!isTargetECMAffected && te.isINarcedBy(ae.getOwner().getTeam()) && (atype != null)
+            if (!isTargetECMAffected && te.isINarcedBy(ae.getOwner().getTeamNumber()) && (atype != null)
                     && ((atype.getAmmoType() == AmmoType.T_LRM)
                             || (atype.getAmmoType() == AmmoType.T_LRM_IMP)
                             || (atype.getAmmoType() == AmmoType.T_MML)
@@ -492,7 +492,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         if (isIndirect && !ae.hasAbility(OptionsConstants.GUNNERY_OBLIQUE_ATTACKER)) {
             if ((target instanceof Entity) && !isTargetECMAffected && (te != null) && (atype != null) && usesAmmo
                     && (munition == AmmoType.M_NARC_CAPABLE)
-                    && (te.isNarcedBy(ae.getOwner().getTeam()) || te.isINarcedBy(ae.getOwner().getTeam()))) {
+                    && (te.isNarcedBy(ae.getOwner().getTeamNumber()) || te.isINarcedBy(ae.getOwner().getTeamNumber()))) {
                 spotter = te;
                 narcSpotter = true;
             } else {

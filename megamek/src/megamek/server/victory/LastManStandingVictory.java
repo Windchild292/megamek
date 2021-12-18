@@ -38,7 +38,7 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         int lastTeam = Team.NONE;
         boolean unteamedAlive = false;
         for (Player player : game.getPlayersVector()) {
-            int team = player.getTeam();
+            int team = player.getTeamNumber();
             if (game.getLiveDeployedEntitiesOwnedBy(player) <= 0) {
                 continue;
             }
@@ -63,7 +63,7 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         if (playersAlive < 1) {
             return VictoryResult.drawResult();
         } else if (playersAlive == 1) {
-            if ((lastPlayer != null) && (lastPlayer.getTeam() == Team.NONE)) {
+            if ((lastPlayer != null) && (lastPlayer.getTeamNumber() == Team.NONE)) {
                 // individual victory
                 return new VictoryResult(true, lastPlayer.getId(), Team.NONE);
             }

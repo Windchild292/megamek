@@ -898,7 +898,7 @@ public class LobbyActions {
         var toSend = new HashSet<Player>();
         players.stream()
             .filter(this::isSelfOrLocalBot)
-            .filter(p -> p.getTeam() != team)
+            .filter(p -> p.getTeamNumber() != team)
             .forEach(toSend::add);
         client().sendChangeTeam(toSend, team);
     }

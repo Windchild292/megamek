@@ -34,7 +34,7 @@ public class TeamCommand extends ServerCommand {
 
         if (args.length > 1) {
 
-            int team = server.getPlayer(connId).getTeam();
+            int team = server.getPlayer(connId).getTeamNumber();
 
             if (team < 1 || team > 8) {
                 server.sendServerChat(connId, "You are not on a team!");
@@ -54,7 +54,7 @@ public class TeamCommand extends ServerCommand {
             for (Enumeration<AbstractConnection> i = server.getConnections(); i.hasMoreElements();) {
                 AbstractConnection conn = i.nextElement();
 
-                if (server.getPlayer(conn.getId()).getTeam() == team)
+                if (server.getPlayer(conn.getId()).getTeamNumber() == team)
                     server.sendChat(conn.getId(), origin, message.toString());
             }
         }

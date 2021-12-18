@@ -58,7 +58,7 @@ public class ForceVictory implements IVictoryConditions, Serializable {
             for (int i = 0; i < players.size(); i++) {
                 Player player = players.get(i);
 
-                if (player.getTeam() != victoryTeam && !player.isObserver()) {
+                if (player.getTeamNumber() != victoryTeam && !player.isObserver()) {
                     if (!player.admitsDefeat()) {
                         forceVictory = false;
                         break;

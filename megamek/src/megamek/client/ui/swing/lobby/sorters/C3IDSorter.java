@@ -48,8 +48,8 @@ public class C3IDSorter implements MekTableSorter {
         final Player p_a = clientGui.getClient().getGame().getPlayer(a.getOwnerId());
         final Player p_b = clientGui.getClient().getGame().getPlayer(b.getOwnerId());
         final Player localPlayer = clientGui.getClient().getLocalPlayer();
-        final int t_a = p_a.getTeam();
-        final int t_b = p_b.getTeam();
+        final int t_a = p_a.getTeamNumber();
+        final int t_b = p_b.getTeamNumber();
         String tr_a = a.getC3NetId();
         String tr_b = b.getC3NetId();
         tr_a = (tr_a == null ? "" : tr_a);
@@ -62,9 +62,9 @@ public class C3IDSorter implements MekTableSorter {
         boolean a_C3 = a.hasAnyC3System();
         boolean b_C3 = b.hasAnyC3System();
         
-        if ((t_a == localPlayer.getTeam()) && (t_b != localPlayer.getTeam())) {
+        if ((t_a == localPlayer.getTeamNumber()) && (t_b != localPlayer.getTeamNumber())) {
             return -1;
-        } else if ((t_b == localPlayer.getTeam()) && (t_a != localPlayer.getTeam())) {
+        } else if ((t_b == localPlayer.getTeamNumber()) && (t_a != localPlayer.getTeamNumber())) {
             return 1;
         } else if (t_a != t_b) {
             return t_a - t_b;

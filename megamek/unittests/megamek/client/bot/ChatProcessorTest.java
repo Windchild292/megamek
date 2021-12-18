@@ -65,28 +65,28 @@ public class ChatProcessorTest {
         Mockito.when(mockHumanPlayerDave.isEnemyOf(mockBotPlayerVGer)).thenReturn(false);
         Mockito.when(mockHumanPlayerDave.isEnemyOf(mockHumanPlayerDave)).thenReturn(false);
         Mockito.when(mockHumanPlayerDave.isEnemyOf(mockHumanPlayerKirk)).thenReturn(true);
-        Mockito.when(mockHumanPlayerDave.getTeam()).thenReturn(1);
+        Mockito.when(mockHumanPlayerDave.getTeamNumber()).thenReturn(1);
 
         Mockito.when(mockHumanPlayerKirk.getName()).thenReturn("Kirk");
         Mockito.when(mockHumanPlayerKirk.isEnemyOf(mockBotPlayerHal)).thenReturn(false);
         Mockito.when(mockHumanPlayerKirk.isEnemyOf(mockBotPlayerVGer)).thenReturn(true);
         Mockito.when(mockHumanPlayerKirk.isEnemyOf(mockHumanPlayerDave)).thenReturn(true);
         Mockito.when(mockHumanPlayerKirk.isEnemyOf(mockHumanPlayerKirk)).thenReturn(false);
-        Mockito.when(mockHumanPlayerKirk.getTeam()).thenReturn(2);
+        Mockito.when(mockHumanPlayerKirk.getTeamNumber()).thenReturn(2);
 
         Mockito.when(mockBotPlayerHal.getName()).thenReturn("Hal");
         Mockito.when(mockBotPlayerHal.isEnemyOf(mockBotPlayerHal)).thenReturn(false);
         Mockito.when(mockBotPlayerHal.isEnemyOf(mockBotPlayerVGer)).thenReturn(true);
         Mockito.when(mockBotPlayerHal.isEnemyOf(mockHumanPlayerDave)).thenReturn(true);
         Mockito.when(mockBotPlayerHal.isEnemyOf(mockHumanPlayerKirk)).thenReturn(false);
-        Mockito.when(mockBotPlayerHal.getTeam()).thenReturn(2);
+        Mockito.when(mockBotPlayerHal.getTeamNumber()).thenReturn(2);
 
         Mockito.when(mockBotPlayerVGer.getName()).thenReturn("V'Ger");
         Mockito.when(mockBotPlayerVGer.isEnemyOf(mockBotPlayerHal)).thenReturn(true);
         Mockito.when(mockBotPlayerVGer.isEnemyOf(mockBotPlayerVGer)).thenReturn(false);
         Mockito.when(mockBotPlayerVGer.isEnemyOf(mockHumanPlayerDave)).thenReturn(false);
         Mockito.when(mockBotPlayerVGer.isEnemyOf(mockHumanPlayerKirk)).thenReturn(true);
-        Mockito.when(mockBotPlayerVGer.getTeam()).thenReturn(1);
+        Mockito.when(mockBotPlayerVGer.getTeamNumber()).thenReturn(1);
 
         final Vector<Player> playerVector = new Vector<>(4);
         playerVector.add(mockHumanPlayerDave);

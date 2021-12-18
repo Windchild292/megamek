@@ -399,10 +399,10 @@ public class Game implements Serializable {
         for (Enumeration<Player> i = getPlayers(); i.hasMoreElements(); ) {
             final Player player = i.nextElement();
             // Ignore players not on a team
-            if (player.getTeam() == Team.UNASSIGNED) {
+            if (player.getTeamNumber() == Team.UNASSIGNED) {
                 continue;
             }
-            if (!useTeamInit || (player.getTeam() == Team.NONE)) {
+            if (!useTeamInit || (player.getTeamNumber() == Team.NONE)) {
                 Team new_team = new Team(Team.NONE);
                 new_team.addPlayer(player);
                 initTeams.addElement(new_team);
@@ -415,7 +415,7 @@ public class Game implements Serializable {
                 Team new_team = null;
                 for (Enumeration<Player> i = getPlayers(); i.hasMoreElements(); ) {
                     final Player player = i.nextElement();
-                    if (player.getTeam() == t) {
+                    if (player.getTeamNumber() == t) {
                         if (new_team == null) {
                             new_team = new Team(t);
                         }
@@ -2685,10 +2685,10 @@ public class Game implements Serializable {
      * to call during GamePhase.VICTORY.
      */
     public boolean isPlayerVictor(Player player) {
-        if (player.getTeam() == Team.NONE) {
+        if (player.getTeamNumber() == Team.NONE) {
             return player.getId() == victoryPlayerId;
         }
-        return player.getTeam() == victoryTeam;
+        return player.getTeamNumber() == victoryTeam;
     }
 
     /**

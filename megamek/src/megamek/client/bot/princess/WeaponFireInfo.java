@@ -464,7 +464,7 @@ public class WeaponFireInfo {
                 // now we go through all affected hexes and add up the damage done
                 for (final Coords coords : affectedHexes) {
                     for (final Entity currentVictim : game.getEntitiesVector(coords)) {                        
-                        if (currentVictim.getOwner().getTeam() != shooter.getOwner().getTeam()) {
+                        if (currentVictim.getOwner().getTeamNumber() != shooter.getOwner().getTeamNumber()) {
                             damage += damagePerShot;
                         } else { // we prefer not to blow up friendlies if we can help it
                             damage -= damagePerShot;

@@ -45,7 +45,7 @@ public class BVDestroyedVictory extends AbstractBVVictory {
                 continue;
             int ebv = 0;
             int eibv = 0;
-            int team = player.getTeam();
+            int team = player.getTeamNumber();
             if (team != Team.NONE) {
                 if (doneTeams.contains(team))
                     continue; // skip if already

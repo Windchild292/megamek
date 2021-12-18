@@ -357,7 +357,7 @@ class ExtraPanel extends PicMap implements ActionListener, ItemListener {
             Enumeration<Player> loop = clientgui.getClient().getGame().getPlayers();
             while (loop.hasMoreElements()) {
                 Player player = loop.nextElement();
-                int team = player.getTeam();
+                int team = player.getTeamNumber();
                 if (en.isNarcedBy(team) && !player.isObserver()) {
                     buff = new StringBuffer(Messages.getString("MechDisplay.NARCedBy"));
                     buff.append(player.getName())

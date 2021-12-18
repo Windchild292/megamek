@@ -207,8 +207,8 @@ public class MissileWeaponHandler extends AmmoWeaponHandler {
                 nMissilesModifier += 2;
             }
         } else if ((entityTarget != null)
-                && (entityTarget.isNarcedBy(ae.getOwner().getTeam()) || entityTarget
-                        .isINarcedBy(ae.getOwner().getTeam()))) {
+                && (entityTarget.isNarcedBy(ae.getOwner().getTeamNumber()) || entityTarget
+                        .isINarcedBy(ae.getOwner().getTeamNumber()))) {
             // only apply Narc bonus if we're not suffering ECM effect
             // and we are using narc ammo, and we're not firing indirectly.
             // narc capable missiles are only affected if the narc pod, which

@@ -72,7 +72,7 @@ public class VictoryCommand extends ServerCommand {
 
     private void reset(int connId) {
         Player player = server.getPlayer(connId);
-        if (player.getTeam() == Team.NONE) {
+        if (player.getTeamNumber() == Team.NONE) {
             server.sendServerChat(getDeclareIndividual(player.getName()));
         } else {
             server.sendServerChat(getDeclareTeam(player.getName()));
