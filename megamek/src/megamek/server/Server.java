@@ -641,7 +641,7 @@ public class Server implements Runnable {
         if (null != gamePlayer) {
             gamePlayer.setColour(player.getColour());
             gamePlayer.setStartingPos(player.getStartingPos());
-            gamePlayer.setTeam(player.getTeamNumber());
+            gamePlayer.setTeamNumber(player.getTeamNumber());
             gamePlayer.setCamouflage(player.getCamouflage().clone());
             gamePlayer.setNbrMFConventional(player.getNbrMFConventional());
             gamePlayer.setNbrMFCommand(player.getNbrMFCommand());
@@ -948,7 +948,7 @@ public class Server implements Runnable {
         }
         newPlayer.setColour(colour);
         newPlayer.setCamouflage(new Camouflage(Camouflage.COLOUR_CAMOUFLAGE, colour.name()));
-        newPlayer.setTeam(Math.min(team, 5));
+        newPlayer.setTeamNumber(Math.min(team, 5));
         game.addPlayer(connId, newPlayer);
         validatePlayerInfo(connId);
         return newPlayer;
@@ -1875,7 +1875,7 @@ public class Server implements Runnable {
 
     private void processTeamChange() {
         if (playerChangingTeam != null) {
-            playerChangingTeam.setTeam(requestedTeam);
+            playerChangingTeam.setTeamNumber(requestedTeam);
             game.setupTeams();
             transmitPlayerUpdate(playerChangingTeam);
             String teamString = "Team " + requestedTeam + "!";
@@ -3496,8 +3496,7 @@ public class Server implements Runnable {
         Hashtable<Team, TurnVectors> allTeamTurns = new Hashtable<>(nTeams);
         Hashtable<Team, int[]> evenTrackers = new Hashtable<>(nTeams);
         int numTeamsMoving = 0;
-        for (Enumeration<Team> loop = game.getTeams(); loop.hasMoreElements(); ) {
-            final Team team = loop.nextElement();
+        for (final Team team : getGame().getTeams()) {
             allTeamTurns.put(team, team.determineTeamOrder(game));
 
             // Track both the number of times we've checked the team for
@@ -3705,9 +3704,7 @@ public class Server implements Runnable {
                 }
             }
         } else {
-            for (Enumeration<Team> i = game.getTeams(); i.hasMoreElements(); ) {
-                final Team team = i.nextElement();
-
+            for (final Team team : getGame().getTeams()) {
                 // Teams with no active players can be ignored
                 if (team.isObserverTeam()) {
                     continue;
@@ -3716,7 +3713,7 @@ public class Server implements Runnable {
                 // If there is only one non-observer player, list
                 // them as the 'team', and use the team initiative
                 if (team.getNonObserverSize() == 1) {
-                    final Player player = team.getNonObserverPlayers().nextElement();
+                    final Player player = team.getNonObserverPlayers().get(0);
                     r = new Report(1015, Report.PUBLIC);
                     r.add(player.getColorForPlayer());
                     r.add(team.getInitiative().toString());
@@ -3727,8 +3724,7 @@ public class Server implements Runnable {
                     r.add(Team.NAMES[team.getTeamNumber()]);
                     r.add(team.getInitiative().toString());
                     addReport(r);
-                    for (Enumeration<Player> j = team.getNonObserverPlayers(); j.hasMoreElements(); ) {
-                        final Player player = j.nextElement();
+                    for (final Player player : team.getNonObserverPlayers()) {
                         r = new Report(1015, Report.PUBLIC);
                         r.indent();
                         r.add(player.getName());
@@ -13173,13 +13169,9 @@ public class Server implements Runnable {
             int teamId = player.getTeamNumber();
 
             if (teamId != Team.NONE) {
-                Enumeration<Team> teams = game.getTeams();
-                while (teams.hasMoreElements()) {
-                    Team team = teams.nextElement();
+                for (final Team team : getGame().getTeams()) {
                     if (team.getTeamNumber() == teamId) {
-                        Enumeration<Player> players = team.getPlayers();
-                        while (players.hasMoreElements()) {
-                            Player teamPlayer = players.nextElement();
+                        for (final Player teamPlayer : team.getPlayers()) {
                             if (teamPlayer.getId() != player.getId()) {
                                 send(teamPlayer.getId(), new Packet(Packet.COMMAND_DEPLOY_MINEFIELDS,
                                         minefields));
@@ -35323,7 +35315,7 @@ public class Server implements Runnable {
                 - PlanetaryConditions.WI_MOD_GALE);
         // cycle through each team and damage 1d6 airborne VTOL/WiGE
         for (final Team team : getGame().getTeams()) {
-            Vector<Integer> airborne = team.getAirborneVTOL();
+            List<Integer> airborne = team.getAirborneVTOL();
             if (airborne.size() > 0) {
                 // how many units are affected
                 int unitsAffected = Math.min(Compute.d6(), airborne.size());

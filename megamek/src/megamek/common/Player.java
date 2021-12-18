@@ -39,7 +39,7 @@ public final class Player extends TurnOrdered {
     private String email;
     private int id;
 
-    private int team = Team.NONE;
+    private int teamNumber = Team.NONE;
 
     private boolean done = false; // done with phase
     private boolean ghost = false; // disconnected player
@@ -198,11 +198,11 @@ public final class Player extends TurnOrdered {
     }
 
     public int getTeamNumber() {
-        return team;
+        return teamNumber;
     }
 
-    public void setTeam(int team) {
-        this.team = team;
+    public void setTeamNumber(final int teamNumber) {
+        this.teamNumber = teamNumber;
     }
 
     public boolean isDone() {
@@ -305,8 +305,8 @@ public final class Player extends TurnOrdered {
         if (null == other) {
             return true;
         }
-        return (id != other.getId()) 
-            && ((team == Team.NONE) || (team == Team.UNASSIGNED) || (team != other.getTeamNumber()));
+        return (id != other.getId())
+            && ((getTeamNumber() == Team.NONE) || (getTeamNumber() == Team.UNASSIGNED) || (getTeamNumber() != other.getTeamNumber()));
     }
 
     public void setAdmitsDefeat(boolean admitsDefeat) {
@@ -580,7 +580,7 @@ public final class Player extends TurnOrdered {
         copy.email = email;
 
         copy.game = game;
-        copy.team = team;
+        copy.setTeamNumber(getTeamNumber());
 
         copy.done = done;
         copy.ghost = ghost;

@@ -2344,10 +2344,9 @@ public class Aero extends Entity implements IAero, IBomber {
                     if (tmpP.hasTAG()) {
                         tagBV += atype.getBV(this);
                     } else if ((tmpP.getTeamNumber() != Team.NONE) && (game != null)) {
-                        for (Enumeration<Team> e = game.getTeams(); e.hasMoreElements();) {
-                            Team m = e.nextElement();
-                            if (m.getTeamNumber() == tmpP.getTeamNumber()) {
-                                if (m.hasTAG()) {
+                        for (final Team team : getGame().getTeams()) {
+                            if (team.getTeamNumber() == tmpP.getTeamNumber()) {
+                                if (team.hasTAG()) {
                                     tagBV += atype.getBV(this);
                                 }
                                 // A player can't be on two teams.

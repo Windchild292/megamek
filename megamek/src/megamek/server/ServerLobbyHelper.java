@@ -338,7 +338,7 @@ class ServerLobbyHelper {
         
         // First, change all teams, then correct all connections (load, C3, force)
         for (Player player : serverPlayers) {
-            player.setTeam(newTeam);
+            player.setTeamNumber(newTeam);
         }
         Forces forces = game.getForces();
         forces.correct();
