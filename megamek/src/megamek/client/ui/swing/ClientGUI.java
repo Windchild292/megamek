@@ -71,7 +71,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientGUI extends JPanel implements BoardViewListener,
-                    ActionListener, ComponentListener, IPreferenceChangeListener {
+        ActionListener, ComponentListener, IPreferenceChangeListener {
     //region Variable Declarations
     private static final long serialVersionUID = 3913466735610109147L;
     
@@ -301,7 +301,7 @@ public class ClientGUI extends JPanel implements BoardViewListener,
     }
 
     public UnitDetailPane getUnitDetailPane() {
-        return this.unitDetailPane;
+        return unitDetailPane;
     }
 
     /**

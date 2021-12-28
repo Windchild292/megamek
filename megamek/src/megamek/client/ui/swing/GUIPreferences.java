@@ -239,18 +239,17 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String UNIT_LABEL_STYLE = "UnitLabelStyle";
     
     // RAT dialog preferences
-    public static String RAT_TECH_LEVEL = "RATTechLevel";
-    public static String RAT_BV_MIN = "RATBVMin";
-    public static String RAT_BV_MAX = "RATBVMax";
-    public static String RAT_NUM_MECHS = "RATNumMechs";
-    public static String RAT_NUM_VEES = "RATNumVees";
-    public static String RAT_NUM_BA = "RATNumBA";
-    public static String RAT_NUM_INF = "RATNumInf";
-    public static String RAT_YEAR_MIN = "RATYearMin";
-    public static String RAT_YEAR_MAX = "RATYearMax";
-    public static String RAT_PAD_BV = "RATPadBV";
-    public static String RAT_SELECTED_RAT = "RATSelectedRAT";
-    
+    public static final String RAT_TECH_LEVEL = "RATTechLevel";
+    public static final String RAT_BV_MIN = "RATBVMin";
+    public static final String RAT_BV_MAX = "RATBVMax";
+    public static final String RAT_NUM_MECHS = "RATNumMechs";
+    public static final String RAT_NUM_VEES = "RATNumVees";
+    public static final String RAT_NUM_BA = "RATNumBA";
+    public static final String RAT_NUM_INF = "RATNumInf";
+    public static final String RAT_YEAR_MIN = "RATYearMin";
+    public static final String RAT_YEAR_MAX = "RATYearMax";
+    public static final String RAT_PAD_BV = "RATPadBV";
+    public static final String RAT_SELECTED_RAT = "RATSelectedRAT";
 
     protected static GUIPreferences instance = new GUIPreferences();
 
@@ -378,7 +377,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(RND_ARMY_POS_Y, 200);
         store.setDefault(RND_ARMY_SPLIT_POS, 300);
         
-        store.setDefault(MINIMAP_COLOURS, "defaultminimap.txt");
+        store.setDefault(MINIMAP_COLOURS, "defaultminimap.txt"); // TODO : Remove inline file name - this also seems an odd value for this
         store.setDefault(MINIMAP_ENABLED, true);
         store.setDefault(MMSYMBOL, true);
         store.setDefault(MINIMUM_SIZE_HEIGHT, 200);
@@ -418,7 +417,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(SHOW_MAPHEX_POPUP, true);
         store.setDefault(SHOW_MOVE_STEP, true);
         store.setDefault(SHOW_WRECKS, true);
-        store.setDefault(SOUND_BING_FILENAME, "data/sounds/call.wav");
+        store.setDefault(SOUND_BING_FILENAME, "data/sounds/call.wav"); // TODO : remove inline file path
         store.setDefault(SOUND_MUTE, true);
 
         store.setDefault(TOOLTIP_DELAY, 1000);
@@ -444,7 +443,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(SHOW_MAPSHEETS, false);
 
         store.setDefault(SHOW_UNIT_OVERVIEW, true);
-        store.setDefault(DEFAULT_WEAP_SORT_ORDER, Entity.WeaponSortOrder.DEFAULT.ordinal());
+        store.setDefault(DEFAULT_WEAP_SORT_ORDER, Entity.WeaponSortOrder.DEFAULT.ordinal()); // TODO : Ordinal-based I/O
         store.setDefault(SHOW_DAMAGE_LEVEL, false);
         store.setDefault(SHOW_DAMAGE_DECAL, true);
         store.setDefault(SKIN_FILE, "BW - Default.xml");
@@ -463,9 +462,9 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(RAT_PAD_BV, false);
         store.setDefault(RAT_SELECTED_RAT, "");
 
-        setDefault(ALLY_UNIT_COLOR, new Color(60, 140, 240));  // greenish blue
+        setDefault(ALLY_UNIT_COLOR, new Color(60, 140, 240)); // greenish blue
         setDefault(ENEMY_UNIT_COLOR, new Color(200, 40, 40)); // red
-        setDefault(MY_UNIT_COLOR, new Color(40, 210, 40));  // light green
+        setDefault(MY_UNIT_COLOR, new Color(40, 210, 40)); // light green
         setDefault(TEAM_COLORING, true);
 
         setDefault(SHOW_KEYBINDS_OVERLAY, true);

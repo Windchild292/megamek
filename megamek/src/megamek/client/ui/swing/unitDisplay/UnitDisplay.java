@@ -1,30 +1,18 @@
-/**
+/*
  * MegaMek - Copyright (C) 2000,2001,2002,2003,2004,2006 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing.unitDisplay;
-
-import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 import megamek.client.event.MechDisplayEvent;
 import megamek.client.event.MechDisplayListener;
@@ -35,17 +23,18 @@ import megamek.client.ui.swing.util.MegaMekController;
 import megamek.client.ui.swing.widget.MechPanelTabStrip;
 import megamek.common.Entity;
 import megamek.common.annotations.Nullable;
+import org.apache.logging.log4j.LogManager;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 /**
  * Displays the info for a mech. This is also a sort of interface for special
  * movement and firing actions.
  */
 public class UnitDisplay extends JPanel {
-    // buttons & gizmos for top level
-
-    /**
-     *
-     */
     private static final long serialVersionUID = -2060993542227677984L;
 
     private MechPanelTabStrip tabStrip;
@@ -74,8 +63,7 @@ public class UnitDisplay extends JPanel {
         this(clientgui, null);
     }
         
-    public UnitDisplay(@Nullable ClientGUI clientgui,
-            @Nullable MegaMekController controller) {
+    public UnitDisplay(@Nullable ClientGUI clientgui, @Nullable MegaMekController controller) {
         super(new GridBagLayout());
         this.clientgui = clientgui;
 
@@ -118,151 +106,96 @@ public class UnitDisplay extends JPanel {
 
     /**
      * Register the keyboard commands that the UnitDisplay should process
-     *
-     * @param ud
-     * @param controller
      */
     private void registerKeyboardCommands(final UnitDisplay ud,
-            final MegaMekController controller) {
+                                          final MegaMekController controller) {
         // Display General Tab
-        controller.registerCommandAction(KeyCommandBind.UD_GENERAL.cmd,
-                new CommandAction() {
+        controller.registerCommandAction(KeyCommandBind.UD_GENERAL.cmd, new CommandAction() {
+            @Override
+            public boolean shouldPerformAction() {
+                return ud.isVisible();
+            }
 
-                    @Override
-                    public boolean shouldPerformAction() {
-                        if (ud.isVisible()) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void performAction() {
-                        ((CardLayout) displayP.getLayout()).show(displayP,
-                                "movement");
-                        tabStrip.setTab(0);
-                    }
-
-                });
+            @Override
+            public void performAction() {
+                ((CardLayout) displayP.getLayout()).show(displayP, "movement");
+                tabStrip.setTab(0);
+            }
+        });
 
         // Display Pilot Tab
-        controller.registerCommandAction(KeyCommandBind.UD_PILOT.cmd,
-                new CommandAction() {
+        controller.registerCommandAction(KeyCommandBind.UD_PILOT.cmd, new CommandAction() {
+            @Override
+            public boolean shouldPerformAction() {
+                return ud.isVisible();
+            }
 
-                    @Override
-                    public boolean shouldPerformAction() {
-                        if (ud.isVisible()) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void performAction() {
-                        ((CardLayout) displayP.getLayout()).show(displayP,
-                                "pilot");
-                        tabStrip.setTab(1);
-                    }
-
-                });
+            @Override
+            public void performAction() {
+                ((CardLayout) displayP.getLayout()).show(displayP, "pilot");
+                tabStrip.setTab(1);
+            }
+        });
 
         // Display Armor Tab
-        controller.registerCommandAction(KeyCommandBind.UD_ARMOR.cmd,
-                new CommandAction() {
+        controller.registerCommandAction(KeyCommandBind.UD_ARMOR.cmd, new CommandAction() {
+            @Override
+            public boolean shouldPerformAction() {
+                return ud.isVisible();
+            }
 
-                    @Override
-                    public boolean shouldPerformAction() {
-                        if (ud.isVisible()) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void performAction() {
-                        ((CardLayout) displayP.getLayout()).show(displayP,
-                                "armor");
-                        tabStrip.setTab(2);
-                    }
-
-                });
+            @Override
+            public void performAction() {
+                ((CardLayout) displayP.getLayout()).show(displayP, "armor");
+                tabStrip.setTab(2);
+            }
+        });
 
         // Display Systems Tab
-        controller.registerCommandAction(KeyCommandBind.UD_SYSTEMS.cmd,
-                new CommandAction() {
+        controller.registerCommandAction(KeyCommandBind.UD_SYSTEMS.cmd, new CommandAction() {
+            @Override
+            public boolean shouldPerformAction() {
+                return ud.isVisible();
+            }
 
-                    @Override
-                    public boolean shouldPerformAction() {
-                        if (ud.isVisible()) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void performAction() {
-                        ((CardLayout) displayP.getLayout()).show(displayP,
-                                "systems");
-                        tabStrip.setTab(3);
-                    }
-
-                });
+            @Override
+            public void performAction() {
+                ((CardLayout) displayP.getLayout()).show(displayP, "systems");
+                tabStrip.setTab(3);
+            }
+        });
 
         // Display Weapons Tab
-        controller.registerCommandAction(KeyCommandBind.UD_WEAPONS.cmd,
-                new CommandAction() {
+        controller.registerCommandAction(KeyCommandBind.UD_WEAPONS.cmd, new CommandAction() {
+            @Override
+            public boolean shouldPerformAction() {
+                return ud.isVisible();
+            }
 
-                    @Override
-                    public boolean shouldPerformAction() {
-                        if (ud.isVisible()) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void performAction() {
-                        ((CardLayout) displayP.getLayout()).show(displayP,
-                                "weapons");
-                        tabStrip.setTab(4);
-                    }
-
-                });
+            @Override
+            public void performAction() {
+                ((CardLayout) displayP.getLayout()).show(displayP, "weapons");
+                tabStrip.setTab(4);
+            }
+        });
 
         // Display Extras Tab
-        controller.registerCommandAction(KeyCommandBind.UD_EXTRAS.cmd,
-                new CommandAction() {
+        controller.registerCommandAction(KeyCommandBind.UD_EXTRAS.cmd, new CommandAction() {
+            @Override
+            public boolean shouldPerformAction() {
+                return ud.isVisible();
+            }
 
-                    @Override
-                    public boolean shouldPerformAction() {
-                        if (ud.isVisible()) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void performAction() {
-                        ((CardLayout) displayP.getLayout()).show(displayP,
-                                "extras");
-                        tabStrip.setTab(5);
-                    }
-
-                });
+            @Override
+            public void performAction() {
+                ((CardLayout) displayP.getLayout()).show(displayP, "extras");
+                tabStrip.setTab(5);
+            }
+        });
     }
 
-    /**
-     *
-     */
     @Override
-    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e,
-            int condition, boolean pressed) {
+    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed) {
         if (!e.isConsumed()) {
             return super.processKeyBinding(ks, e, condition, pressed);
         } else {
@@ -270,11 +203,6 @@ public class UnitDisplay extends JPanel {
         }
     }
 
-    /**
-     *
-     * @param comp
-     * @param c
-     */
     private void addBag(JComponent comp, GridBagConstraints c) {
         ((GridBagLayout) getLayout()).setConstraints(comp, c);
         add(comp);
@@ -284,11 +212,11 @@ public class UnitDisplay extends JPanel {
      * Displays the specified entity in the panel.
      */
     public void displayEntity(Entity en) {
-
         String enName = en.getShortName();
         if (clientgui != null) {
             clientgui.getUnitDetailPane().setTitle(enName);
         }
+
         switch (en.getDamageLevel()) {
             case Entity.DMG_CRIPPLED:
                 enName += " [CRIPPLED]";
@@ -305,6 +233,7 @@ public class UnitDisplay extends JPanel {
             default:
                 enName += " [UNDAMAGED]";
         }
+
         if (clientgui != null) {
             clientgui.getUnitDetailPane().getWindow().setTitle(enName);
         }
@@ -320,9 +249,8 @@ public class UnitDisplay extends JPanel {
     }
 
     /**
-     * Returns the entity we'return currently displaying
+     * @return the entity we are currently displaying
      */
-
     public Entity getCurrentEntity() {
         return currentlyDisplaying;
     }
@@ -350,7 +278,6 @@ public class UnitDisplay extends JPanel {
     
     /**
      * Used to force the display to the Systems tab, on a specific location
-     * @param loc
      */
     public void showSpecificSystem(int loc) {
         ((CardLayout) displayP.getLayout()).show(displayP, "systems");
@@ -359,8 +286,7 @@ public class UnitDisplay extends JPanel {
     }
 
     /**
-     * Adds the specified mech display listener to receive events from this
-     * view.
+     * Adds the specified mech display listener to receive events from this view.
      *
      * @param listener the listener.
      */
@@ -374,23 +300,20 @@ public class UnitDisplay extends JPanel {
      * @param event the mech display event.
      */
     void processMechDisplayEvent(MechDisplayEvent event) {
-        for (int i = 0; i < eventListeners.size(); i++) {
-            MechDisplayListener lis = eventListeners.get(i);
+        for (MechDisplayListener lis : eventListeners) {
             switch (event.getType()) {
                 case MechDisplayEvent.WEAPON_SELECTED:
                     lis.weaponSelected(event);
                     break;
                 default:
-                    System.err.println("unknown event " + event.getType()
-                            + " in processMechDisplayEvent");
+                    LogManager.getLogger().error("Unknown event " + event.getType());
                     break;
             }
         }
     }
 
     /**
-     * Returns the UnitDisplay's ClientGUI reference, which can be null.
-     * @return
+     * @return the UnitDisplay's ClientGUI reference, which can be null.
      */
     @Nullable
     public ClientGUI getClientGUI() {

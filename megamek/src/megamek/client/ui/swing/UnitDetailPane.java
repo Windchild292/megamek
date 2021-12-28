@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 - The MegaMek Team. All Rights Reserved.
+ * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,21 +29,20 @@ public class UnitDetailPane extends DetachablePane {
         super(Messages.getString("ClientGUI.MechDisplay"), detail);
         this.detail = detail;
 
-        var prefs = GUIPreferences.getInstance();
         var window = getWindow();
         window.setLocation(
-            prefs.getUnitDetailPosX(),
-            prefs.getUnitDetailPosY()
+                GUIPreferences.getInstance().getUnitDetailPosX(),
+                GUIPreferences.getInstance().getUnitDetailPosY()
         );
         window.setSize(
-            prefs.getUnitDetailSizeWidth(),
-            prefs.getUnitDetailSizeHeight()
+                GUIPreferences.getInstance().getUnitDetailSizeWidth(),
+                GUIPreferences.getInstance().getUnitDetailSizeHeight()
         );
         window.setResizable(true);
         UIUtil.updateWindowBounds(window);
 
         try {
-            setState(prefs.getUnitDetailState());
+            setState(GUIPreferences.getInstance().getUnitDetailState());
         } catch (Exception e) {
             LogManager.getLogger().error("Error setting unit detail state", e);
         }
