@@ -84,9 +84,7 @@ public class Aero extends Entity implements IAero, IBomber {
     public static final int CRIT_WEAPON_BROAD = 21;
 
     // aeros have no critical slot limitations
-    // this needs to be larger, it is too easy to go over when you get to
-    // warships
-    // and bombs and such
+    // this needs to be larger, it is too easy to go over when you get to warships and bombs and such
     private static final int[] NUM_OF_SLOTS = { 100, 100, 100, 100, 100, 100, 100 };
 
     private static String[] LOCATION_ABBRS = { "NOS", "LWG", "RWG", "AFT", "WNG", "FSLG" };
@@ -120,7 +118,7 @@ public class Aero extends Entity implements IAero, IBomber {
     private int ignoredCrewHits = 0;
     private int cockpitType = COCKPIT_STANDARD;
     
-    //Autoejection
+    // Autoejection
     private boolean autoEject = true;
     private boolean condEjectAmmo = true;
     private boolean condEjectFuel = true;
@@ -209,10 +207,10 @@ public class Aero extends Entity implements IAero, IBomber {
 
     private int eccmRoll = 0;
     
-    //List of escape craft used by this ship
+    // List of escape craft used by this ship
     private Set<String> escapeCraftList = new HashSet<>();
     
-    //Maps unique id of each assigned marine to marine point value
+    // Maps unique id of each assigned marine to marine point value
     private Map<UUID,Integer> marines;
 
     public Aero() {
@@ -349,7 +347,7 @@ public class Aero extends Entity implements IAero, IBomber {
         }
         // partially repaired engine
         if (getPartialRepairs().booleanOption("aero_engine_crit")) {
-        	j--;
+            j--;
         }
 
         // if they are not airborne, then they get MP halved (aerodyne) or no MP
@@ -735,39 +733,39 @@ public class Aero extends Entity implements IAero, IBomber {
         if (gearHit) {
             return vTakeoff ? 1 : 5;
         } else {
-        	return 0;
+            return 0;
         }
     }
 
     //Landing mods for partial repairs
     @Override
     public int getLandingGearPartialRepairs() {
-    	if (getPartialRepairs().booleanOption("aero_gear_crit")) {
+        if (getPartialRepairs().booleanOption("aero_gear_crit")) {
         return 2;
-    	} else if (getPartialRepairs().booleanOption("aero_gear_replace")) {
+        } else if (getPartialRepairs().booleanOption("aero_gear_replace")) {
         return 1;
-    	} else {
-    	return 0;
-    	}
+        } else {
+        return 0;
+        }
     }
 
     //Avionics mods for partial repairs
     @Override
     public int getAvionicsMisreplaced() {
-    	if (getPartialRepairs().booleanOption("aero_avionics_replace")) {
+        if (getPartialRepairs().booleanOption("aero_avionics_replace")) {
         return 1;
-    	} else {
-    	return 0;
-    	}
+        } else {
+        return 0;
+        }
     }
 
     @Override
     public int getAvionicsMisrepaired() {
-    	if (getPartialRepairs().booleanOption("aero_avionics_crit")) {
+        if (getPartialRepairs().booleanOption("aero_avionics_crit")) {
         return 1;
-    	} else {
-    	return 0;
-    	}
+        } else {
+        return 0;
+        }
     }
 
     public void setOHeatSinks(int hs) {
@@ -833,20 +831,20 @@ public class Aero extends Entity implements IAero, IBomber {
     @Override
     public int getFuel() {
         if ((getPartialRepairs().booleanOption("aero_asf_fueltank_crit"))
-        		|| (getPartialRepairs().booleanOption("aero_fueltank_crit"))) {
-        	return (int) (fuel * 0.9);
+                || (getPartialRepairs().booleanOption("aero_fueltank_crit"))) {
+            return (int) (fuel * 0.9);
         } else {
-        	return fuel;
+            return fuel;
         }
     }
 
     @Override
     public int getCurrentFuel() {
         if ((getPartialRepairs().booleanOption("aero_asf_fueltank_crit"))
-            	|| (getPartialRepairs().booleanOption("aero_fueltank_crit"))) {
+                || (getPartialRepairs().booleanOption("aero_fueltank_crit"))) {
             return (int) (currentfuel * 0.9);
         } else {
-        	return currentfuel;
+            return currentfuel;
         }
     }
 
@@ -864,7 +862,7 @@ public class Aero extends Entity implements IAero, IBomber {
 
     @Override
     public void setCurrentFuel(int gas) {
-    	currentfuel = gas;
+        currentfuel = gas;
     }
 
     @Override
@@ -2183,7 +2181,7 @@ public class Aero extends Entity implements IAero, IBomber {
             // heatefficiency is reached or passed with one weapon
 
             // sort the heat-using weapons by modified BV
-            Collections.sort(heatBVs, (obj1, obj2) -> {
+            heatBVs.sort((obj1, obj2) -> {
                 Double obj1BV = (Double) obj1.get(0); // BV
                 Double obj2BV = (Double) obj2.get(0); // BV
 
@@ -2612,7 +2610,7 @@ public class Aero extends Entity implements IAero, IBomber {
     public PilotingRollData addEntityBonuses(PilotingRollData prd) {
         // this is a control roll. Affected by:
         // avionics damage
-    	// partial repairs
+        // partial repairs
         // pilot damage
         // current velocity
         int avihits = getAvionicsHits();
@@ -3068,19 +3066,13 @@ public class Aero extends Entity implements IAero, IBomber {
             return CRIT_NONE;
         }
 
-        int critical = getPotCrit();
-        return critical;
+        return getPotCrit();
     }
 
-    /**
-
-     */
     @Override
     public void setOmni(boolean omni) {
-
         // Perform the superclass' action.
         super.setOmni(omni);
-
     }
 
     /**
@@ -3118,7 +3110,6 @@ public class Aero extends Entity implements IAero, IBomber {
      */
     @Override
     public boolean hasCase() {
-
         boolean hasCase = false;
 
         for (int x = 0; x < locations(); x++) {
@@ -3932,20 +3923,20 @@ public class Aero extends Entity implements IAero, IBomber {
         }
         // Cargo bays and bay doors for large craft
         for (Bay next : getTransportBays()) {
-        	if (next.getBayDamage() > 0) {
-        	    if (!first) {
+            if (next.getBayDamage() > 0) {
+                if (!first) {
                     toReturn.append(", ");
                 }
-        	toReturn.append(String.format(Messages.getString("Aero.bayDamageString"), next.getType(), next.getBayNumber()));
-        	first = false;
-        	}
-        	if (next.getCurrentDoors() < next.getDoors()) {
-        	    if (!first) {
+            toReturn.append(String.format(Messages.getString("Aero.bayDamageString"), next.getType(), next.getBayNumber()));
+            first = false;
+            }
+            if (next.getCurrentDoors() < next.getDoors()) {
+                if (!first) {
                     toReturn.append(", ");
                 }
-        	toReturn.append(String.format(Messages.getString("Aero.bayDoorDamageString"), next.getType(), next.getBayNumber(), (next.getDoors() - next.getCurrentDoors())));
-        	first = false;
-        	}
+            toReturn.append(String.format(Messages.getString("Aero.bayDoorDamageString"), next.getType(), next.getBayNumber(), (next.getDoors() - next.getCurrentDoors())));
+            first = false;
+            }
         }
         return toReturn.toString();
     }
@@ -4256,7 +4247,7 @@ public class Aero extends Entity implements IAero, IBomber {
     }
 
     /**
-     * @return The number battlearmored marines available to vessels for boarding actions.
+     * @return The number battle armored marines available to vessels for boarding actions.
      */
     public int getNBattleArmor() {
         return 0;
@@ -4276,13 +4267,13 @@ public class Aero extends Entity implements IAero, IBomber {
      */
     @Override
     public void setNMarines(int marines) {
+
     }
     
     /**
-     * Returns our list of unique individuals being transported as marines
-     * @return
+     * @return our list of unique individuals being transported as marines
      */
-    public Map<UUID,Integer> getMarines() {
+    public Map<UUID, Integer> getMarines() {
         return marines;
     }
     
@@ -4306,9 +4297,8 @@ public class Aero extends Entity implements IAero, IBomber {
     }
     
     /**
-     * Returns the number of marines assigned to a unit
      * Used for abandoning a unit
-     * @return
+     * @return the number of marines assigned to a unit
      */
     public int getMarineCount() {
         return 0;
