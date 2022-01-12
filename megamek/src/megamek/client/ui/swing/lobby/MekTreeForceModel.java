@@ -19,6 +19,7 @@
 package megamek.client.ui.swing.lobby;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import javax.swing.tree.*;
 
 import megamek.client.ui.swing.lobby.sorters.MekTreeTopLevelSorter;
@@ -120,11 +121,11 @@ public class MekTreeForceModel extends DefaultTreeModel {
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        if (parent == null || child == null || child == root 
-                || !(parent instanceof Force) 
+        if ((Objects.equals(child, root)) || !(parent instanceof Force)
                 || !((child instanceof Force) || (child instanceof Entity))) {
             return -1;
         }
+
         Force pnt = (Force) parent;
         if (child instanceof Entity) {
             return pnt.entityIndex((Entity) child);

@@ -1848,23 +1848,27 @@ public class CEntity {
                 if ((base_range > 0) && (base_range <= 4)) {
                     total_mod -= 2;
                 }
-                if ((base_range > 0) && (base_range > 4)) {
+
+                if (base_range > 4) {
                     total_mod -= 1;
                 }
             }
+
             if (cur_range > base_range) {
                 total_mod += 2;
             }
+
             if (cur_range > (base_range * 2)) {
                 total_mod += 2;
             }
+
             if (cur_range > (base_range * 3)) {
                 total_mod += 4;
             }
 
             boolean aptGunnery = attacker.hasAbility(OptionsConstants.PILOT_APTITUDE_GUNNERY);
             modified_damages[cur_range] = (raw_damage
-                                           * Compute.oddsAbove(total_mod, aptGunnery)) / 100.0;
+                    * Compute.oddsAbove(total_mod, aptGunnery)) / 100.0;
 
         }
 

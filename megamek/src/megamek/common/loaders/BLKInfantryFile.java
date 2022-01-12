@@ -99,7 +99,7 @@ public class BLKInfantryFile extends BLKFile implements IMechLoader {
         }
         String primaryName = dataFile.getDataAsString("Primary")[0];
         EquipmentType ptype = EquipmentType.get(primaryName);
-        if ((null == ptype) || !(ptype instanceof InfantryWeapon)) {
+        if (!(ptype instanceof InfantryWeapon)) {
             throw new EntityLoadingException("primary weapon is not an infantry weapon");
         }
         t.setPrimaryWeapon((InfantryWeapon) ptype);

@@ -2427,12 +2427,12 @@ public class Compute {
     /**
      * Modifier to attacks due to spotter movement
      */
-    public static ToHitData getSpotterMovementModifier(Game game,
-                                                       int entityId, EntityMovementType movement) {
+    public static ToHitData getSpotterMovementModifier(Game game, int entityId,
+                                                       EntityMovementType movement) {
         ToHitData toHit = new ToHitData();
 
         Entity e = game.getEntity(entityId);
-        if ((e != null) && (e instanceof Infantry)) {
+        if (e instanceof Infantry) {
             return toHit;
         }
 

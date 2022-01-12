@@ -358,17 +358,18 @@ public final class UIUtil {
         Component[] allComps = contentPane.getComponents();
         for (Component comp: allComps) {
             if ((comp instanceof JButton) || (comp instanceof JLabel)
-                    || (comp instanceof JComboBox<?>) || (comp instanceof JCheckBox)
-                    || (comp instanceof JTextField) || (comp instanceof JSlider)
-                    || (comp instanceof JSpinner) || (comp instanceof JRadioButton)
+                    || (comp instanceof JComboBox<?>) || (comp instanceof JTextField)
+                    || (comp instanceof JSlider) || (comp instanceof JSpinner)
                     || (comp instanceof JTextArea) || (comp instanceof JTextPane)
                     || (comp instanceof JToggleButton)) {
                 comp.setFont(scaledFont);
             }
-            if (comp instanceof JScrollPane 
+
+            if (comp instanceof JScrollPane
                     && ((JScrollPane) comp).getViewport().getView() instanceof JComponent) {
                 adjustDialog(((JScrollPane) comp).getViewport());
             }
+
             if (comp instanceof JPanel) {
                 JPanel panel = (JPanel) comp;
                 Border border = panel.getBorder();
@@ -386,10 +387,11 @@ public final class UIUtil {
                 }
                 adjustDialog((JPanel) comp);
             }
+
             if (comp instanceof JTabbedPane) {
                 comp.setFont(scaledFont);
                 JTabbedPane tpane = (JTabbedPane) comp;
-                for (int i=0; i<tpane.getTabCount();i++) {
+                for (int i = 0; i < tpane.getTabCount(); i++) {
                     Component sc = tpane.getTabComponentAt(i);
                     if (sc instanceof JPanel) {
                         adjustDialog((JPanel) sc);

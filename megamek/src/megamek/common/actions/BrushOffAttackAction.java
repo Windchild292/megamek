@@ -107,14 +107,11 @@ public class BrushOffAttackAction extends AbstractAttackAction {
             te = (Entity) target;
             targetId = target.getTargetId();
         }
-        final int armLoc = (arm == BrushOffAttackAction.RIGHT) ? Mech.LOC_RARM
-                                                               : Mech.LOC_LARM;
-        ToHitData toHit;
+        final int armLoc = (arm == BrushOffAttackAction.RIGHT) ? Mech.LOC_RARM : Mech.LOC_LARM;
 
         // non-mechs can't BrushOff
         if (!(ae instanceof Mech)) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Only mechs can brush off swarming infantry or iNarc Pods");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Only mechs can brush off swarming infantry or iNarc Pods");
         }
 
         // arguments legal?
@@ -122,10 +119,9 @@ public class BrushOffAttackAction extends AbstractAttackAction {
             && (arm != BrushOffAttackAction.LEFT)) {
             throw new IllegalArgumentException("Arm must be LEFT or RIGHT");
         }
-        if (((targetId != ae.getSwarmAttackerId()) || (te == null) || !(te instanceof Infantry))
-            && (target.getTargetType() != Targetable.TYPE_INARC_POD)) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Can only brush off swarming infantry or iNarc Pods");
+        if (((targetId != ae.getSwarmAttackerId()) || !(te instanceof Infantry))
+                && (target.getTargetType() != Targetable.TYPE_INARC_POD)) {
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Can only brush off swarming infantry or iNarc Pods");
         }
 
         // Quads can't brush off.
@@ -135,8 +131,7 @@ public class BrushOffAttackAction extends AbstractAttackAction {
 
         // Can't brush off with flipped arms
         if (ae.getArmsFlipped()) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Arms are flipped to the rear. Can not punch.");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Arms are flipped to the rear. Can not punch.");
         }
 
         // check if arm is present
@@ -156,14 +151,12 @@ public class BrushOffAttackAction extends AbstractAttackAction {
 
         // check if attacker has fired arm-mounted weapons
         if (ae.weaponFiredFrom(armLoc)) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Weapons fired from arm this turn");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Weapons fired from arm this turn");
         }
 
         // can't physically attack mechs making dfa attacks
         if ((te != null) && te.isMakingDfa()) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Target is making a DFA attack");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Target is making a DFA attack");
         }
 
         // Can't brush off while prone.
@@ -173,16 +166,16 @@ public class BrushOffAttackAction extends AbstractAttackAction {
 
         // Can't target woods or a building with a brush off attack.
         if ((target.getTargetType() == Targetable.TYPE_BUILDING)
-            || (target.getTargetType() == Targetable.TYPE_BLDG_IGNITE)
-            || (target.getTargetType() == Targetable.TYPE_FUEL_TANK)
-            || (target.getTargetType() == Targetable.TYPE_FUEL_TANK_IGNITE)
-            || (target.getTargetType() == Targetable.TYPE_HEX_CLEAR)
-            || (target.getTargetType() == Targetable.TYPE_HEX_IGNITE)) {
+                || (target.getTargetType() == Targetable.TYPE_BLDG_IGNITE)
+                || (target.getTargetType() == Targetable.TYPE_FUEL_TANK)
+                || (target.getTargetType() == Targetable.TYPE_FUEL_TANK_IGNITE)
+                || (target.getTargetType() == Targetable.TYPE_HEX_CLEAR)
+                || (target.getTargetType() == Targetable.TYPE_HEX_IGNITE)) {
             return new ToHitData(TargetRoll.IMPOSSIBLE, "Invalid attack");
         }
 
         // okay, modifiers...
-        toHit = new ToHitData(ae.getCrew().getPiloting(), "base PSR");
+        ToHitData toHit = new ToHitData(ae.getCrew().getPiloting(), "base PSR");
         toHit.addModifier(4, "brush off swarming infantry");
 
         // damaged or missing actuators
@@ -203,14 +196,11 @@ public class BrushOffAttackAction extends AbstractAttackAction {
         // the normal +1 bth for missing hand actuator.
         // Damn if you do damned if you dont. --Torren.
         final boolean hasClaws = ((Mech) ae).hasClaw(armLoc);
-        final boolean hasLowerArmActuator =
-                ae.hasSystem(Mech.ACTUATOR_LOWER_ARM, armLoc);
-        final boolean hasHandActuator =
-                ae.hasSystem(Mech.ACTUATOR_HAND, armLoc);
+        final boolean hasLowerArmActuator = ae.hasSystem(Mech.ACTUATOR_LOWER_ARM, armLoc);
+        final boolean hasHandActuator = ae.hasSystem(Mech.ACTUATOR_HAND, armLoc);
         // Missing hand actuator is not cumulative with missing actuator,
         //  but critical damage is cumulative
-        if (!hasClaws && !hasHandActuator &&
-            hasLowerArmActuator) {
+        if (!hasClaws && !hasHandActuator && hasLowerArmActuator) {
             toHit.addModifier(1, "Hand actuator missing");
             // Check for present but damaged hand actuator
         } else if (hasHandActuator && !hasClaws &&
@@ -225,15 +215,14 @@ public class BrushOffAttackAction extends AbstractAttackAction {
         // It gets a =4 penalty for being blind!
         if (((Mech) ae).getCockpitType() == Mech.COCKPIT_TORSO_MOUNTED) {
             int sensorHits = ae.getBadCriticals(CriticalSlot.TYPE_SYSTEM,
-                                                Mech.SYSTEM_SENSORS, Mech.LOC_HEAD);
+                    Mech.SYSTEM_SENSORS, Mech.LOC_HEAD);
             int sensorHits2 = ae.getBadCriticals(CriticalSlot.TYPE_SYSTEM,
-                                                 Mech.SYSTEM_SENSORS, Mech.LOC_CT);
+                    Mech.SYSTEM_SENSORS, Mech.LOC_CT);
             if ((sensorHits + sensorHits2) == 3) {
                 return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                     "Sensors Completely Destroyed for Torso-Mounted Cockpit");
+                        "Sensors Completely Destroyed for Torso-Mounted Cockpit");
             } else if (sensorHits == 2) {
-                toHit.addModifier(4,
-                                  "Head Sensors Destroyed for Torso-Mounted Cockpit");
+                toHit.addModifier(4, "Head Sensors Destroyed for Torso-Mounted Cockpit");
             }
         }
 
@@ -254,5 +243,4 @@ public class BrushOffAttackAction extends AbstractAttackAction {
         // done!
         return toHit;
     }
-
 }

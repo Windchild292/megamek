@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2002, 2003 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (c) 2002-2003 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,65 +13,30 @@
  */
 package megamek.client.ui.swing;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Label;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Vector;
+import megamek.client.ui.Messages;
+import megamek.client.ui.swing.table.MegamekTable;
+import megamek.common.*;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultRowSorter;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
+import javax.swing.*;
 import javax.swing.RowSorter.SortKey;
-import javax.swing.SortOrder;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
-
-import megamek.client.ui.Messages;
-import megamek.client.ui.swing.table.MegamekTable;
-import megamek.common.EquipmentType;
-import megamek.common.Mech;
-import megamek.common.MechSearchFilter;
-import megamek.common.MiscType;
-import megamek.common.TechConstants;
-import megamek.common.UnitType;
-import megamek.common.WeaponType;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Vector;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * JDialog that allows the user to create a unit filter.
  *
  * @author Arlith
- * @author  Jay Lawson
+ * @author Jay Lawson
  */
 public class AdvancedSearchDialog extends JDialog implements ActionListener, ItemListener,
         KeyListener, ListSelectionListener {
@@ -724,7 +689,7 @@ public class AdvancedSearchDialog extends JDialog implements ActionListener, Ite
                 || (t1 == t2)
                 || ((t1 == TechConstants.T_IS_TW_ALL)
                     && ((t2 <= TechConstants.T_IS_TW_NON_BOX)
-                     || ((t2) == TechConstants.T_INTRO_BOXSET))))
+                     || (t2 == TechConstants.T_INTRO_BOXSET))))
                 || ((t1 == TechConstants.T_TW_ALL)
                     && ((t2 <= TechConstants.T_IS_TW_NON_BOX)
                      || (t2 <= TechConstants.T_INTRO_BOXSET)
@@ -806,7 +771,7 @@ public class AdvancedSearchDialog extends JDialog implements ActionListener, Ite
         final int techLevel = cboTechLevel.getSelectedIndex();
         final String techClass = (String) cboTechClass.getSelectedItem();
         final int unitType = cboUnitType.getSelectedIndex() - 1;
-        //If current expression doesn't parse, don't update.
+        // If current expression doesn't parse, don't update.
         try {
             weaponFilter = new RowFilter<>() {
                 @Override
@@ -821,7 +786,7 @@ public class AdvancedSearchDialog extends JDialog implements ActionListener, Ite
                     return techLvlMatch && techClassMatch && unitTypeMatch;
                 }
             };
-        } catch (java.util.regex.PatternSyntaxException e) {
+        } catch (PatternSyntaxException e) {
             return;
         }
         weaponsSorter.setRowFilter(weaponFilter);
@@ -839,7 +804,7 @@ public class AdvancedSearchDialog extends JDialog implements ActionListener, Ite
                     return techLvlMatch && techClassMatch && unitTypeMatch;
                 }
             };
-        } catch (java.util.regex.PatternSyntaxException e) {
+        } catch (PatternSyntaxException e) {
             return;
         }
         equipmentSorter.setRowFilter(equipmentFilter);

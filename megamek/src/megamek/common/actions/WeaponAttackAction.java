@@ -2458,7 +2458,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             }
             
             // The TAG system cannot target infantry.
-            if (isTAG && (te != null) && (te instanceof Infantry)) {
+            if (isTAG && (te instanceof Infantry)) {
                 return Messages.getString("WeaponAttackAction.CantTAGInf");
             }
             
@@ -4110,9 +4110,9 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         }
         
         // Infantry taking cover per TacOps special rules
-        if (te != null && (te instanceof Infantry) && ((Infantry) te).isTakingCover()) {
+        if ((te instanceof Infantry) && ((Infantry) te).isTakingCover()) {
             if (te.getPosition().direction(ae.getPosition()) == te.getFacing()) {
-                toHit.addModifier(+3, Messages.getString("WeaponAttackAction.FireThruCover"));
+                toHit.addModifier(3, Messages.getString("WeaponAttackAction.FireThruCover"));
             }
         }
         
@@ -4268,7 +4268,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         // Unit-specific modifiers
         
         // -1 to hit a SuperHeavy mech
-        if ((te != null) && (te instanceof Mech) && ((Mech) te).isSuperHeavy()) {
+        if ((te instanceof Mech) && te.isSuperHeavy()) {
             toHit.addModifier(-1, Messages.getString("WeaponAttackAction.TeSuperheavyMech"));
         }
         
@@ -4451,9 +4451,10 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
 
         // target in water?
         int partialWaterLevel = 1;
-        if (te != null && (te instanceof Mech) && ((Mech) te).isSuperHeavy()) {
+        if ((te instanceof Mech) && te.isSuperHeavy()) {
             partialWaterLevel = 2;
         }
+
         if ((te != null) && targetHexContainsWater
                 // target in partial water
                 && (targHex.terrainLevel(Terrains.WATER) == partialWaterLevel) && (targEl == 0) && (te.height() > 0)) { 
@@ -4461,8 +4462,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             losMods = los.losModifiers(game, eistatus, underWater);
         }
         
-        // Change hit table for partial cover, accomodate for partial
-        // underwater(legs)
+        // Change hit table for partial cover, accommodate for partial underwater(legs)
         if (los.getTargetCover() != LosEffects.COVER_NONE) {
             if (underWater && (targetHexContainsWater && (targEl == 0) 
                     && (te != null && te.height() > 0))) {
@@ -4866,7 +4866,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             // target in partial water - depth 1 for most units
             int partialWaterLevel = 1;
             // Depth 2 for superheavy mechs
-            if (target != null && (target instanceof Mech) && ((Mech) target).isSuperHeavy()) {
+            if ((target instanceof Mech) && ((Mech) target).isSuperHeavy()) {
                 partialWaterLevel = 2;
             }
             if (targHex.containsTerrain(Terrains.WATER)

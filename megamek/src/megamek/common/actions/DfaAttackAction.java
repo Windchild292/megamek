@@ -63,11 +63,9 @@ public class DfaAttackAction extends DisplacementAttackAction {
     }
 
     /**
-     * Checks if a death from above attack can hit the target, including
-     * movement
+     * Checks if a death from above attack can hit the target, including movement
      */
-    public static ToHitData toHit(Game game, int attackerId,
-                                  Targetable target, MovePath md) {
+    public static ToHitData toHit(Game game, int attackerId, Targetable target, MovePath md) {
         final Entity ae = game.getEntity(attackerId);
 
         // Do to pretreatment of physical attacks, the target may be null.
@@ -88,50 +86,42 @@ public class DfaAttackAction extends DisplacementAttackAction {
         }
 
         if (ae.getJumpType() == Mech.JUMP_BOOSTER) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Can't D.F.A. using mechanical jump boosters.");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Can't D.F.A. using mechanical jump boosters.");
         }
 
         // let's just check this
         if (!md.contains(MoveStepType.DFA)) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "D.F.A. action not found in movement path");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "D.F.A. action not found in movement path");
         }
 
         // have to jump
         if (!md.contains(MoveStepType.START_JUMP)) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "D.F.A. must involve jumping");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "D.F.A. must involve jumping");
         }
 
         // can't target airborne units
         if ((te != null) && te.isAirborne()) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Cannot D.F.A. an airborne target.");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Cannot D.F.A. an airborne target.");
         }
 
         // can't target dropships
-        if ((te != null) && (te instanceof Dropship)) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Cannot D.F.A. a dropship.");
+        if (te instanceof Dropship) {
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Cannot D.F.A. a dropship.");
         }
 
         // Can't target a transported entity.
         if ((te != null) && (Entity.NONE != te.getTransportId())) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Target is a passenger.");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Target is a passenger.");
         }
 
         // no evading
         if (md.contains(MoveStepType.EVADE)) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "No evading while charging");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "No evading while charging");
         }
 
         // Can't target a entity conducting a swarm attack.
         if ((te != null) && (Entity.NONE != te.getSwarmTargetId())) {
-            return new ToHitData(TargetRoll.IMPOSSIBLE,
-                                 "Target is swarming a Mek.");
+            return new ToHitData(TargetRoll.IMPOSSIBLE, "Target is swarming a Mek.");
         }
 
         // determine last valid step
