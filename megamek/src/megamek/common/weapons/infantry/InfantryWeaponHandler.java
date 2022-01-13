@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2004,2005 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2004-2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,15 +28,12 @@ import java.util.Vector;
  * @since Sept 24, 2004
  */
 public class InfantryWeaponHandler extends WeaponHandler {
-    private static final long serialVersionUID = 1425176802065536326L;
-
     /**
      * @param t
      * @param w
      * @param g
      */
-    public InfantryWeaponHandler(ToHitData t, WeaponAttackAction w, Game g,
-            Server s) {
+    public InfantryWeaponHandler(ToHitData t, WeaponAttackAction w, Game g, Server s) {
         super(t, w, g, s);
         bSalvo = true;
     }
@@ -85,8 +82,7 @@ public class InfantryWeaponHandler extends WeaponHandler {
         } else if (!(ae instanceof Infantry)) {
             troopersHit = 1;
         } else {
-            troopersHit = Compute.missilesHit(((Infantry) ae)
-                .getShootingStrength(), nHitMod);
+            troopersHit = Compute.missilesHit(((Infantry) ae).getShootingStrength(), nHitMod);
         }
         double damage;
         if (ae.isConventionalInfantry()) {
@@ -103,6 +99,7 @@ public class InfantryWeaponHandler extends WeaponHandler {
         } else {
             damage = ((InfantryWeapon) wtype).getInfantryDamage();
         }
+
         if ((ae instanceof Infantry)
                 && nRange == 0
                 && ae.hasAbility(OptionsConstants.MD_TSM_IMPLANT)) {
@@ -111,11 +108,11 @@ public class InfantryWeaponHandler extends WeaponHandler {
         int damageDealt = (int) Math.round(damage * troopersHit);
         
         // conventional infantry weapons with high damage get treated as if they have the infantry burst mod
-        if (target.isConventionalInfantry() && 
-                (wtype.hasFlag(WeaponType.F_INF_BURST) || 
-                (ae.isConventionalInfantry() && ((Infantry) ae).primaryWeaponDamageCapped()))) {
+        if (target.isConventionalInfantry() && (wtype.hasFlag(WeaponType.F_INF_BURST)
+                || (ae.isConventionalInfantry() && ((Infantry) ae).primaryWeaponDamageCapped()))) {
             damageDealt += Compute.d6();
         }
+
         if ((target instanceof Infantry) && ((Infantry) target).isMechanized()) {
             damageDealt /= 2;
         }
@@ -123,6 +120,7 @@ public class InfantryWeaponHandler extends WeaponHandler {
         if ((target instanceof Building) && (wtype.hasFlag(WeaponType.F_INF_NONPENETRATING))) {
             damageDealt = 0;
         }
+
         if (wtype.hasFlag(WeaponType.F_INF_NONPENETRATING)) {
             damageType = DamageType.NONPENETRATING;
         }
@@ -166,6 +164,7 @@ public class InfantryWeaponHandler extends WeaponHandler {
             // Small fixed wing support
             av = super.calcAttackValue();
         }
+
         if (bDirect) {
             av = Math.min(av + (toHit.getMoS() / 3), av * 2);
         }
@@ -181,10 +180,11 @@ public class InfantryWeaponHandler extends WeaponHandler {
                 ae.loadWeapon(weapon);
                 ammo = weapon.getLinked();
             }
+
             if (ammo == null) {// Can't happen. w/o legal ammo, the weapon
                 // *shouldn't* fire.
                 LogManager.getLogger().error(String.format("Handler can't find any ammo for %s firing %s",
-                                ae.getShortName(), weapon.getName()));
+                        ae.getShortName(), weapon.getName()));
                 return;
             }
 
