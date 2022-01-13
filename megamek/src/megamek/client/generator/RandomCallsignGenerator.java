@@ -25,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,10 +36,8 @@ import java.util.Scanner;
  * Callsign is a String that does not include a ','
  * Weight is an integer weight that is used during generation
  */
-public class RandomCallsignGenerator implements Serializable {
+public class RandomCallsignGenerator {
     //region Variable Declarations
-    private static final long serialVersionUID = 4721410214327210288L;
-
     private static WeightedIntMap<String> weightedCallsigns;
 
     private static RandomCallsignGenerator rcg;

@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2003-2004 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,13 +13,11 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
-
 /**
  * @author Deric "Netzilla" Page (deric dot page at usa dot net)
  * @since 8/17/13 10:21 AM
  */
-public interface ITurnOrdered extends Serializable {
+public interface ITurnOrdered {
     /**
      * Return the number of "normal" turns that this item requires. This is
      * normally the sum of multi-unit turns and the other turns. <p/> Subclasses

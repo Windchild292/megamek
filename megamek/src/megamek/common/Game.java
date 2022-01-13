@@ -33,7 +33,6 @@ import megamek.server.victory.Victory;
 import megamek.server.victory.VictoryResult;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
@@ -43,9 +42,7 @@ import java.util.stream.Stream;
  * Client and the Server should have one of these objects, and it is their job to
  * keep it synched.
  */
-public class Game implements Serializable {
-    private static final long serialVersionUID = 8376320092671792532L;
-
+public class Game {
     /**
      * A UUID to identify this game instance.
      */

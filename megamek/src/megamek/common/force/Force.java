@@ -24,7 +24,6 @@ import megamek.common.Player;
 import megamek.common.annotations.Nullable;
 import megamek.common.icons.Camouflage;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,10 +35,7 @@ import java.util.stream.Collectors;
  * A Force in MM belongs to a player. It can hold units of the owner's team.
  * @author Simon
  */
-public final class Force implements Serializable {
-
-    private static final long serialVersionUID = -3870731687743542253L;
-
+public final class Force {
     public static final int NO_FORCE = -1;
 
     private String name;

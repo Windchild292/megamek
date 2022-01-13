@@ -20,7 +20,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,10 +27,8 @@ import java.util.Set;
  * @author Deric "Netzilla" Page (deric dot page at usa dot net)
  * @since 17-Aug-2013 10:47 PM
  */
-public class BehaviorSettings implements Serializable {
+public class BehaviorSettings {
     //region Variable Declarations
-    private static final long serialVersionUID = -1895924639830817372L;
-
     static final double[] SELF_PRESERVATION_VALUES = {
             2.5,
             5,

@@ -28,7 +28,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
-import java.io.Serializable;
 
 /**
  * An AbstractIcon is an abstract class that ensures standardized and isolated image code for icons
@@ -36,10 +35,8 @@ import java.io.Serializable;
  * handles base comparisons and object overrides, and implements basic File I/O. It also gracefully
  * handles any failures to prevent a hard crash when an image or icon cannot be created.
  */
-public abstract class AbstractIcon implements Serializable {
+public abstract class AbstractIcon {
     //region Variable Declarations
-    private static final long serialVersionUID = 870271199001476289L;
-
     public static final String ROOT_CATEGORY = "-- General --";
     public static final String DEFAULT_ICON_FILENAME = "None";
 

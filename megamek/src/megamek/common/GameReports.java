@@ -15,15 +15,12 @@ package megamek.common;
 
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.Vector;
 
 /**
- * This class is a container for the various reports created by the server
- * during a game.
+ * This class is a container for the various reports created by the server during a game.
  */
-public class GameReports implements Serializable {
-    private static final long serialVersionUID = -2388197938278797669L;
+public class GameReports {
     private Vector<Vector<Report>> reports;
 
     GameReports() {
@@ -35,6 +32,7 @@ public class GameReports implements Serializable {
             // Combine round 0 (deployment) with round one's reports.
             round = 1;
         }
+
         if (round > reports.size()) {
             // First reports for the round.
             reports.addElement(new Vector<>(v));
@@ -53,6 +51,7 @@ public class GameReports implements Serializable {
             // Round 0 (deployment) reports are lumped in with round one.
             round = 1;
         }
+
         if (round <= reports.size()) {
             return reports.elementAt(round - 1);
         }
@@ -80,5 +79,4 @@ public class GameReports implements Serializable {
     public void clear() {
         reports = new Vector<>();
     }
-
 }

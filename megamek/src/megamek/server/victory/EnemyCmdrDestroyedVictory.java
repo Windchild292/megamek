@@ -17,16 +17,13 @@ import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 
 /**
  * implements "enemy commander destroyed"
  */
-public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializable {
-    private static final long serialVersionUID = 2525190210964235691L;
-
+public class EnemyCmdrDestroyedVictory implements IVictoryConditions {
     public EnemyCmdrDestroyedVictory() {
 
     }

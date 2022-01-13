@@ -13,7 +13,6 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
 import java.util.Vector;
 
 /**
@@ -23,8 +22,7 @@ import java.util.Vector;
  * @author Ben
  * @since April 25, 2002, 12:21 PM
  */
-public class InitiativeRoll implements Comparable<InitiativeRoll>, Serializable {
-    private static final long serialVersionUID = -1850190415242027657L;
+public class InitiativeRoll implements Comparable<InitiativeRoll> {
     private Vector<Integer> rolls = new Vector<>();
     private Vector<Integer> originalRolls = new Vector<>();
     private Vector<Boolean> wasRollReplaced = new Vector<>();

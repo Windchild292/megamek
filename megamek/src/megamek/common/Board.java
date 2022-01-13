@@ -24,10 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import java.io.*;
 import java.util.*;
 
-public class Board implements Serializable {
+public class Board {
     //region Variable Declarations
-    private static final long serialVersionUID = -5744058872091016636L;
-
     public static final String BOARD_REQUEST_ROTATION = "rotate:";
 
     // starting positions

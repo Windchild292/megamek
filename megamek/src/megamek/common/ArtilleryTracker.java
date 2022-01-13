@@ -1,19 +1,18 @@
-/**
+/*
  * MegaMek - Copyright (C) 2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -22,12 +21,7 @@ import java.util.Vector;
  * ArtilleryTracker--one held by every entity, it holds a list of the artillery
  * weapons an entity controls, and the mods they get to hit certain hexes.
  */
-public class ArtilleryTracker implements Serializable {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = -6913144265531983734L;
+public class ArtilleryTracker {
     /**
      * Maps WeaponID's of artillery weapons to a Vector of ArtilleryModifiers,
      * for all the different coords it's got mods to.
@@ -146,12 +140,7 @@ public class ArtilleryTracker implements Serializable {
      * Small collector...just holds a Coords and a modifier (either
      * ToHitData.AUTOMATIC_SUCCESS or just a modifier.
      */
-    public static class ArtilleryModifier implements Serializable {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = 4913880091708068708L;
+    public static class ArtilleryModifier {
         private Coords coords;
         private int modifier;
 

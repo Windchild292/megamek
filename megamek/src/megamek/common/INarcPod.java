@@ -15,7 +15,6 @@
 */
 package megamek.common;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -24,8 +23,7 @@ import java.util.Objects;
  *         entity. This class is immutable. Once it is created, it can not be
  *         changed. An iNarc pod can be targeted for a "brush off" attack.
  */
-public class INarcPod implements Serializable, Targetable {
-    private static final long serialVersionUID = -3566809840132774242L;
+public class INarcPod implements Targetable {
     public static final int HOMING = 1;
     public static final int ECM = 2;
     public static final int HAYWIRE = 4;

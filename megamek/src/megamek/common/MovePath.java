@@ -23,15 +23,12 @@ import megamek.common.pathfinder.DestructionAwareDestinationPathfinder;
 import megamek.common.pathfinder.ShortestPathFinder;
 import megamek.common.preference.PreferenceManager;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
  * Holds movement path for an entity.
  */
-public class MovePath implements Cloneable, Serializable {
-    private static final long serialVersionUID = -4258296679177532986L;
-
+public class MovePath implements Cloneable {
     private Set<Coords> coordsSet = null;
     private final transient Object COORD_SET_LOCK = new Object();
     private transient CachedEntityState cachedEntityState;
@@ -386,10 +383,10 @@ public class MovePath implements Cloneable, Serializable {
         // record this fact - it is useful for debugging thus we leave the commented out code here
         // but for performance reasons, we don't actually do it.
         /*if (step.useAeroAtmosphere(game, entity)
-        		&& game.getBoard().onGround()
-        		&& (step.getPosition() != null)
-        		&& (game.getFirstEnemyEntity(step.getPosition(), entity) != null)) {
-        	fliesOverEnemy = true;
+                && game.getBoard().onGround()
+                && (step.getPosition() != null)
+                && (game.getFirstEnemyEntity(step.getPosition(), entity) != null)) {
+            fliesOverEnemy = true;
         }*/
 
         // having checked for illegality and other things, add it to the set of contained step types
@@ -772,9 +769,9 @@ public class MovePath implements Cloneable, Serializable {
      * @return Whether or not this path will result in the unit moving off board
      */
     public boolean fliesOffBoard() {
-    	return contains(MoveStepType.OFF) || 
-    	        contains(MoveStepType.RETURN) || 
-    	        contains(MoveStepType.FLEE);
+        return contains(MoveStepType.OFF) ||
+                contains(MoveStepType.RETURN) ||
+                contains(MoveStepType.FLEE);
     }
     
     /**
@@ -785,7 +782,7 @@ public class MovePath implements Cloneable, Serializable {
      * @return Whether or not this flight path takes us over an enemy unit
      */
     /*public boolean getFliesOverEnemy() {
-    	return fliesOverEnemy;
+        return fliesOverEnemy;
     }*/
     
     /**
@@ -1816,7 +1813,7 @@ public class MovePath implements Cloneable, Serializable {
      * Convenience method to determine whether this path is happening on a ground map with an atmosphere
      */
     public boolean isOnAtmosphericGroundMap() {
-    	return getEntity().isOnAtmosphericGroundMap(); 
+        return getEntity().isOnAtmosphericGroundMap();
     }
     
     /**

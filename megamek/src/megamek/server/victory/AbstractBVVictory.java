@@ -16,14 +16,10 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 
-import java.io.Serializable;
-
 /**
  * abstract baseclass for bv-checking victory implementations
  */
-public abstract class AbstractBVVictory implements IVictoryConditions, Serializable {
-    private static final long serialVersionUID = -689891568905531049L;
-
+public abstract class AbstractBVVictory implements IVictoryConditions {
     public int getFriendlyBV(Game game, Player player) {
         int ret = 0;
         for (Player other : game.getPlayersVector()) {

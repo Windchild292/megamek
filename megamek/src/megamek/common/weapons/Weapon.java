@@ -13,13 +13,7 @@
  */
 package megamek.common.weapons;
 
-import java.io.Serializable;
-
-import megamek.common.AmmoType;
-import megamek.common.Game;
-import megamek.common.TargetRoll;
-import megamek.common.ToHitData;
-import megamek.common.WeaponType;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.options.GameOptions;
@@ -33,9 +27,7 @@ import megamek.server.Server;
  * @author Andrew Hunter 
  * @since May 10, 2004
  */
-public abstract class Weapon extends WeaponType implements Serializable {
-    private static final long serialVersionUID = -8781224279449654544L;
-
+public abstract class Weapon extends WeaponType {
     public Weapon() {
         this.ammoType = AmmoType.T_NA;
         this.minimumRange = WEAPON_NA;

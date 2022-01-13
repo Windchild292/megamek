@@ -1,4 +1,4 @@
-/**
+/*
  * A class for representing board sizes.
  *
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
@@ -18,21 +18,12 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
-
 /**
  * Type-safe, immutable, dimensions class for handling board sizes.
  *
  * @author Edward Cullen
  */
-public class BoardDimensions implements Cloneable, Serializable,
-        Comparable<BoardDimensions> {
-
-    /**
-     * See {@link java.io.Serializable}.
-     */
-    private static final long serialVersionUID = -3562335656969231217L;
-
+public class BoardDimensions implements Cloneable, Comparable<BoardDimensions> {
     /**
      * Construct a new BoardDimensions object.
      *

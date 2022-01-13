@@ -1,13 +1,6 @@
 package megamek.common;
 
-import java.io.Serializable;
-
-public class TargetRollModifier implements Serializable {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = -7228584817530534507L;
+public class TargetRollModifier {
     private int value;
     private String desc;
     private boolean cumulative = true;

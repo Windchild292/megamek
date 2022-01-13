@@ -21,7 +21,10 @@ import megamek.common.enums.Gender;
 import megamek.common.util.weightedMaps.WeightedIntMap;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,10 +77,8 @@ import java.util.Set;
  * @author Justin "Windchild" Bowen (current version - April 29th, 2020)
  * @author Jay Lawson (original version)
  */
-public class RandomNameGenerator implements Serializable {
+public class RandomNameGenerator {
     //region Variable Declarations
-    private static final long serialVersionUID = 5765118329881301375L;
-
     private static RandomNameGenerator rng; // This is using a singleton, because only a single usage of this class is required
 
     //region Data Maps

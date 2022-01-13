@@ -24,7 +24,6 @@ import megamek.common.options.OptionsConstants;
 import megamek.common.options.PilotOptions;
 import megamek.common.util.CrewSkillSummaryUtil;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -35,10 +34,8 @@ import java.util.*;
  * and skills of each crew member independently. These are referred to as "slots" and the slot
  * number corresponds to an array index for the appropriate field.
  */
-public class Crew implements Serializable {
+public class Crew {
     //region Variable Declarations
-    private static final long serialVersionUID = -141169182388269619L;
-
     private Map<Integer, Map<String, String>> extraData;
 
     private final CrewType crewType;
@@ -202,7 +199,7 @@ public class Crew implements Serializable {
      * @param piloting the crew's Piloting or Driving skill.
      * @deprecated by gender support. Replaced by {@link #Crew(CrewType, String, int, int, int, Gender, Map)}.
      */
-    @Deprecated //18-Feb-2020 as part of the addition of gender to MegaMek
+    @Deprecated // 18-Feb-2020 as part of the addition of gender to MegaMek
     public Crew(CrewType crewType, String name, int size, int gunnery, int piloting) {
         this(crewType, name, size, gunnery, gunnery, gunnery, piloting, null);
     }
@@ -315,8 +312,8 @@ public class Crew implements Serializable {
         pilotPos = crewType.getPilotPos();
         gunnerPos = crewType.getGunnerPos();
 
-        //For 2-slot crews, this will designate the other crew member as backup. For superheavy tripods,
-        //this will designate the pilot and gunner as backups for each other.
+        // For 2-slot crews, this will designate the other crew member as backup. For superheavy tripods,
+        // this will designate the pilot and gunner as backups for each other.
         if (getSlotCount() > 1) {
             backupPilot = 1 - pilotPos;
             backupGunner = 1 - gunnerPos;
@@ -324,8 +321,8 @@ public class Crew implements Serializable {
         actedThisTurn = new boolean[slots];
         resetActedFlag();
 
-        //set a random UUID for external ID, this will help us sort enemy salvage and prisoners in MHQ
-        //and should have no effect on MM (but need to make sure it doesn't screw up MekWars)
+        // set a random UUID for external ID, this will help us sort enemy salvage and prisoners in MHQ
+        // and should have no effect on MM (but need to make sure it doesn't screw up MekWars)
         externalId = new String[slots];
         for (int i = 0; i < slots; i++) {
             externalId[i] = UUID.randomUUID().toString();

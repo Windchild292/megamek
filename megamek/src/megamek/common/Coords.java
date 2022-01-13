@@ -1,26 +1,25 @@
 /*
  * MegaMek - Copyright (C) 2000-2002 Ben Mazur (bmazur@sev.org)
  * MegaMek - Copyright (C) 2020 - The MegaMek Team  
- * 
- *  This program is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU General Public License as published by the Free 
- *  Software Foundation; either version 2 of the License, or (at your option) 
- *  any later version.
- * 
- *  This program is distributed in the hope that it will be useful, but 
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
- *  for more details.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
 import megamek.client.bot.princess.BotGeometry.HexLine;
 import megamek.common.annotations.Nullable;
+
+import javax.xml.bind.annotation.XmlElement;
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Coords stores x and y values. Since these are hexes, coordinates with odd x
@@ -37,10 +36,7 @@ import megamek.common.annotations.Nullable;
  *       3
  *      +y
  */
-public class Coords implements Serializable {
-
-    private static final long serialVersionUID = -4451256806040563030L;
-
+public class Coords {
     public static final double HEXSIDE = Math.PI / 3.0;
     public static final int[] ALL_DIRECTIONS = {0, 1, 2, 3, 4, 5};
 

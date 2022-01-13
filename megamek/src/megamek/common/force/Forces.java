@@ -25,7 +25,6 @@ import megamek.common.annotations.Nullable;
 import megamek.common.icons.Camouflage;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -40,11 +39,8 @@ import static megamek.common.force.Force.NO_FORCE;
  * 
  * @author Simon
  */
-public final class Forces implements Serializable {
-
-    private static final long serialVersionUID = -1382468145554363945L;
-    
-    private HashMap<Integer, Force> forces = new HashMap<>();
+public final class Forces {
+    private Map<Integer, Force> forces = new HashMap<>();
     private transient Game game;
     
     public Forces(Game g) {

@@ -1,5 +1,6 @@
 /*
- * MegaMek - Copyright (C) 2002, 2003 Ben Mazur (bmazur@sev.org)
+ * MegaMek
+ * Copyright (c) 2002-2003 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,7 +28,6 @@ import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -40,10 +40,8 @@ import java.util.List;
  * @since March 27, 2002, 1:07 PM
  */
 @XmlRootElement(name = "ENVIRONMENT")
-@XmlAccessorType(XmlAccessType.NONE)
-public class MapSettings implements Serializable {
-    private static final long serialVersionUID = -6163977970758303066L;
-
+@XmlAccessorType(value = XmlAccessType.NONE)
+public class MapSettings {
     @Deprecated
     public static final String BOARD_RANDOM = "[RANDOM]";
     public static final String BOARD_SURPRISE = "[SURPRISE]";
@@ -1593,9 +1591,9 @@ public class MapSettings implements Serializable {
             // The default header has the encoding and standalone properties
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
             try {
-            	marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders", "<?xml version=\"1.0\"?>");
+                marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders", "<?xml version=\"1.0\"?>");
             } catch (PropertyException ex) {
-            	marshaller.setProperty("com.sun.xml.bind.xmlHeaders", "<?xml version=\"1.0\"?>");
+                marshaller.setProperty("com.sun.xml.bind.xmlHeaders", "<?xml version=\"1.0\"?>");
             }
 
             JAXBElement<MapSettings> element = new JAXBElement<>(new QName("ENVIRONMENT"), MapSettings.class, this);

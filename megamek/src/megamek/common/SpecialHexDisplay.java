@@ -14,20 +14,17 @@
  */
 package megamek.common;
 
-import java.awt.Image;
-import java.io.Serializable;
-import java.util.Objects;
-
 import megamek.common.enums.GamePhase;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
 
+import java.awt.*;
+import java.util.Objects;
+
 /**
  * @author dirk
  */
-public class SpecialHexDisplay implements Serializable {
-    private static final long serialVersionUID = 27470795993329492L;
-
+public class SpecialHexDisplay {
     public enum Type {
         ARTILLERY_AUTOHIT(new MegaMekFile(Configuration.hexesDir(), "artyauto.gif").toString()) {
             @Override

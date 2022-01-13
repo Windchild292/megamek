@@ -14,7 +14,6 @@
 package megamek.common;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -23,8 +22,7 @@ import java.util.Vector;
 /**
  * Contains minimal information about a single entity
  */
-public class MechSummary implements Serializable {
-    private static final long serialVersionUID = -6635709122122038237L;
+public class MechSummary {
     private String m_sName;
     private String m_sChassis;
     private String m_sModel;
@@ -89,8 +87,7 @@ public class MechSummary implements Serializable {
      * Stores the armor tech type for each location.
      */
     private int[] armorLocTech;
-    
-    
+
     public MechSummary() {
         armorTypeSet = new HashSet<>();
     }
@@ -99,7 +96,7 @@ public class MechSummary implements Serializable {
      * Store a unique list of the names of the equipment mounted on this unit.
      */
     private Vector<String> equipmentNames;
-    
+
     /**
      * The number of times the piece of equipment in the corresponding 
      * <code>equipmentNames</code> list appears.
@@ -165,7 +162,7 @@ public class MechSummary implements Serializable {
         }
         return Entity.getEntityMajorTypeName(-1);
     }
-    
+
     // This is here for legacy purposes to not break the API
     @Deprecated
     public static String determineUnitType(Entity e) {
@@ -173,19 +170,19 @@ public class MechSummary implements Serializable {
     }
 
     public File getSourceFile() {
-        return (m_sSourceFile);
+        return m_sSourceFile;
     }
 
     public String getEntryName() {
-        return (m_sEntryName);
+        return m_sEntryName;
     }
 
     public int getYear() {
-        return (m_nYear);
+        return m_nYear;
     }
 
     public int getType() {
-        return (m_nType);
+        return m_nType;
     }
     
     public int[] getAltTypes() {
@@ -203,39 +200,39 @@ public class MechSummary implements Serializable {
     }
 
     public double getTons() {
-        return (m_nTons);
+        return m_nTons;
     }
 
     public double getTOweight() {
-        return (m_TOsuitTons);
+        return m_TOsuitTons;
     }
 
     public double getTWweight() {
-        return (m_TWsuitTons);
+        return m_TWsuitTons;
     }
 
     public int getBV() {
-        return (m_nBV);
+        return m_nBV;
     }
 
     public long getCost() {
-        return (m_nCost);
+        return m_nCost;
     }
 
     public long getUnloadedCost() {
-        return (m_nUnloadedCost);
+        return m_nUnloadedCost;
     }
 
     public long getAlternateCost() {
-        return (m_aCost);
+        return m_aCost;
     }
 
     public long getModified() {
-        return (m_lModified);
+        return m_lModified;
     }
 
     public String getLevel() {
-        return (m_sLevel);
+        return m_sLevel;
     }
     
     public int getAdvancedTechYear() {
@@ -395,34 +392,34 @@ public class MechSummary implements Serializable {
     public void setJumpMp(int jumpMp) {
         this.jumpMp = jumpMp;
     }
-    
+
     /**
      * Given the list of equipment mounted on this unit, parse it into a unique
      * list of names and the number of times that name appears.
      * 
      * @param mountedList A collection of <code>Mounted</code> equipment
      */
-    public void setEquipment(List<Mounted> mountedList)
-    {
+    public void setEquipment(List<Mounted> mountedList) {
         equipmentNames = new Vector<>(mountedList.size());
         equipmentQuantities = new Vector<>(mountedList.size());
-        for (Mounted mnt : mountedList)
-        {
+        for (Mounted mnt : mountedList) {
             // Ignore weapon groups, as they aren't actually real equipment
             if (mnt.isWeaponGroup()) {
                 continue;
             }
             String eqName = mnt.getType().getInternalName();
             int index = equipmentNames.indexOf(eqName);
-            if (index == -1) { //We haven't seen this piece of equipment before
+            if (index == -1) {
+                // We haven't seen this piece of equipment before
                 equipmentNames.add(eqName);
                 equipmentQuantities.add(1);
-            } else { //We've seen this before, update count
+            } else {
+                // We've seen this before, update count
                 equipmentQuantities.set(index, equipmentQuantities.get(index)+1);
             }               
         }
     }
-    
+
     public Vector<String> getEquipmentNames()
     {
         return equipmentNames;
@@ -468,25 +465,24 @@ public class MechSummary implements Serializable {
         for (int value : locsArmor) {
             armorTypeSet.add(value);
         }
-        
     }
 
     public HashSet<Integer> getArmorType() {
         return armorTypeSet;
     }
-    
+
     public int[] getArmorTypes() {
         return armorLoc;
     }
-    
+
     public void setArmorTypes(int[] al) {
         armorLoc = al;
     }
-    
+
     public int[] getArmorTechTypes() {
         return armorLocTech;
     }
-    
+
     public void setArmorTechTypes(int[] att) {
         armorLocTech = att;
     }
@@ -498,7 +494,6 @@ public class MechSummary implements Serializable {
     public int getCockpitType() {
         return cockpitType;
     }
-
 
     public String getEngineName() {
         return engineName;
@@ -560,16 +555,18 @@ public class MechSummary implements Serializable {
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        }
-        if ((null == obj) || (getClass() != obj.getClass())) {
+        } else if ((null == obj) || (getClass() != obj.getClass())) {
             return false;
+        } else {
+            final MechSummary other = (MechSummary) obj;
+            // we match on chassis + model + unittype + sourcefile
+            return Objects.equals(m_sChassis, other.m_sChassis)
+                    && Objects.equals(m_sModel, other.m_sModel)
+                    && Objects.equals(m_sUnitType, other.m_sUnitType)
+                    && Objects.equals(m_sSourceFile, other.m_sSourceFile);
         }
-        final MechSummary other = (MechSummary) obj;
-        // we match on chassis + model + unittype + sourcefile
-        return Objects.equals(m_sChassis, other.m_sChassis) && Objects.equals(m_sModel, other.m_sModel)
-                && Objects.equals(m_sUnitType, other.m_sUnitType) && Objects.equals(m_sSourceFile, other.m_sSourceFile);
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(m_sChassis, m_sModel, m_sUnitType, m_sSourceFile);

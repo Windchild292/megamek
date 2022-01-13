@@ -13,30 +13,20 @@
  */
 package megamek.common.actions;
 
-import java.io.Serializable;
-import java.util.Vector;
-
-import megamek.common.Board;
-import megamek.common.Compute;
-import megamek.common.Coords;
-import megamek.common.EquipmentType;
-import megamek.common.Game;
-import megamek.common.Mounted;
-import megamek.common.RangeType;
-import megamek.common.WeaponType;
+import megamek.common.*;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.bayweapons.CapitalMissileBayWeapon;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;
+
+import java.util.Vector;
 
 /**
  * ArtilleryAttackAction Holds the data needed for an artillery attack in
  * flight.
  */
-public class ArtilleryAttackAction extends WeaponAttackAction implements Serializable {
-    private static final long serialVersionUID = -3893844894076028005L;
+public class ArtilleryAttackAction extends WeaponAttackAction {
     private int turnsTilHit;
-    private Vector<Integer> spotterIds; // IDs of possible spotters, won't know
-    // until it lands.
+    private Vector<Integer> spotterIds; // IDs of possible spotters, won't know until it lands.
     protected int playerId;
     private Coords firingCoords;
     private Coords oldTargetCoords;

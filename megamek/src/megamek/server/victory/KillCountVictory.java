@@ -18,7 +18,6 @@ import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
 
-import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -29,8 +28,7 @@ import java.util.Map;
  * teams/players achieve the kill condition in a turn, victory is awarded to the
  * player/team with the highest kill count.
  */
-public class KillCountVictory implements IVictoryConditions, Serializable {
-    private static final long serialVersionUID = -6622529899835634696L;
+public class KillCountVictory implements IVictoryConditions {
     protected int killCondition;
 
     public KillCountVictory(int kc) {
@@ -81,21 +79,18 @@ public class KillCountVictory implements IVictoryConditions, Serializable {
             r.add(killCount);
             vr.addReport(r);
         }
-        
-        if (victory)
-            return vr;
-        return VictoryResult.noResult();
+
+        return victory ? vr : VictoryResult.noResult();
     }
     
     private void updateKillTables(Game game,
             Hashtable<Integer, Integer> teamKills,
             Hashtable<Integer, Integer> playerKills,
             Enumeration<Entity> victims) {
-        while (victims.hasMoreElements())
-        {
+        while (victims.hasMoreElements()) {
             Entity wreck = victims.nextElement();
             Entity killer = game.getEntityFromAllSources(wreck.getKillerId());
-            
+
             if (killer == null) {
                 continue;
             }            

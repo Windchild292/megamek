@@ -14,6 +14,7 @@
  */
 package megamek.common.verifier;
 
+import megamek.MegaMekConstants;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.util.StringUtil;
@@ -30,7 +31,6 @@ import java.util.stream.Collectors;
  * Author: arlith
  */
 public class TestSupportVehicle extends TestEntity {
-
     /**
      * Support vehicle categories for construction purposes. Most of these match with a particular movement
      * mode, but the construction rules treat naval and rail units as single types.
@@ -884,7 +884,7 @@ public class TestSupportVehicle extends TestEntity {
         }
         double weight = getWeightCrewAccomodations();
         String crewStr = weight > 0 ?
-                StringUtil.makeLength("Crew Accomodations:", getPrintSize() - 5)
+                StringUtil.makeLength("Crew Accommodations:", getPrintSize() - 5)
                     + TestEntity.makeWeightString(weight, usesKgStandard()) + "\n" : "";
         return fireCon + crewStr;
     }
@@ -934,19 +934,23 @@ public class TestSupportVehicle extends TestEntity {
 
     @Override
     public boolean correctEntity(StringBuffer buff, int ammoTechLvl) {
-        boolean correct = true;
         if (skip()) {
             return true;
         }
+
+        boolean correct = true;
+
         if (!correctWeight(buff)) {
             buff.insert(0, printTechLevel() + printShortMovement());
             buff.append(printWeightCalculation()).append("\n");
             correct = false;
         }
+
         if (!engine.engineValid) {
             buff.append(engine.problem.toString()).append("\n\n");
             correct = false;
         }
+
         if ((supportVee instanceof Tank) && (((Tank) supportVee).fuelTonnagePer100km() > 0.0)
                 && (((Tank) supportVee).getFuelTonnage() <= 0.0)) {
             buff.append("Support vehicles with ").append(engine.getEngineName())
@@ -958,6 +962,7 @@ public class TestSupportVehicle extends TestEntity {
             buff.append("Aerospace units must allocate some weight for fuel.\n");
             correct = false;
         }
+
         if (occupiedSlotCount() > totalSlotCount()) {
             buff.append("Not enough item slots available! Using ");
             buff.append(Math.abs(occupiedSlotCount() - totalSlotCount()));
@@ -978,6 +983,7 @@ public class TestSupportVehicle extends TestEntity {
             buff.append(".\n\n");
             correct = false;
         }
+
         if (supportVee.hasBARArmor(supportVee.firstArmorIndex())) {
             int bar = supportVee.getBARRating(supportVee.firstArmorIndex());
             if ((bar < 2) || (bar > 10)) {
@@ -993,6 +999,7 @@ public class TestSupportVehicle extends TestEntity {
                 }
             }
         }
+
         if (supportVee instanceof VTOL) {
             if (!supportVee.hasWorkingMisc(MiscType.F_MAST_MOUNT)) {
                 for (Mounted m : supportVee.getEquipment()) {
@@ -1002,10 +1009,11 @@ public class TestSupportVehicle extends TestEntity {
                     }
                 }
             }
-            if (supportVee.getOArmor(VTOL.LOC_ROTOR) > TestTank.VTOL_MAX_ROTOR_ARMOR) {
+
+            if (supportVee.getOArmor(VTOL.LOC_ROTOR) > MegaMekConstants.VTOL_MAX_ROTOR_ARMOR) {
                 buff.append(supportVee.getOArmor(VTOL.LOC_ROTOR));
                 buff.append(" points of VTOL rotor armor exceed ");
-                buff.append(TestTank.VTOL_MAX_ROTOR_ARMOR);
+                buff.append(MegaMekConstants.VTOL_MAX_ROTOR_ARMOR);
                 buff.append("-point limit.\n\n");
                 correct = false;
             }
@@ -1016,7 +1024,7 @@ public class TestSupportVehicle extends TestEntity {
         for (Mounted m : supportVee.getMisc()) {
             if (m.getType().hasFlag(MiscType.F_ARMORED_MOTIVE_SYSTEM)
                     && (getEntity() instanceof Aero || getEntity() instanceof VTOL)) {
-                buff.append("Armored Motive system and incompatible movemement mode!\n\n");
+                buff.append("Armored Motive system and incompatible movement mode!\n\n");
                 correct = false;
             } else if (m.getType().hasFlag(MiscType.F_LIFEBOAT)
                     && m.getType().hasSubType(MiscType.S_MARITIME_ESCAPE_POD | MiscType.S_MARITIME_LIFEBOAT)
@@ -1032,18 +1040,22 @@ public class TestSupportVehicle extends TestEntity {
                 pintle = true;
             }
         }
+
         if (hardpoints > supportVee.getWeight() / 10.0) {
             buff.append("Exceeds maximum of one external stores hardpoint per 10 tons.\n");
             correct = false;
         }
+
         if (sponson && !canUseSponsonTurret()) {
             buff.append("Only medium and large surface vehicles can use a sponson turret.\n");
             correct = false;
         }
-        if (sponson && supportVee.getOriginalJumpMP() > 0) {
+
+        if (sponson && (supportVee.getOriginalJumpMP() > 0)) {
             buff.append("Cannot mount both jump jets and sponson turrets.\n");
             correct = false;
         }
+
         if (pintle && !canUsePintleTurret()) {
             buff.append("Only small surface support vehicles can use a pintle turret.\n");
             correct = false;
@@ -1056,12 +1068,14 @@ public class TestSupportVehicle extends TestEntity {
             }
             weaponWeight += m.getTonnage();
         }
+
         if (supportVee.isOmni() && (supportVee.hasWorkingMisc(MiscType.F_BASIC_FIRECONTROL)
                     || supportVee.hasWorkingMisc(MiscType.F_ADVANCED_FIRECONTROL))
                 && (weaponWeight / 10.0 > supportVee.getBaseChassisFireConWeight())) {
             buff.append("Omni configuration exceeds weapon capacity of base chassis fire control system.\n");
             correct = false;
         }
+
         for (Mounted m : supportVee.getEquipment()) {
             if ((m.getType() instanceof MiscType) && !m.getType().hasFlag(MiscType.F_SUPPORT_TANK_EQUIPMENT)) {
                 buff.append(m.getType().getName()).append(" cannot be used by support vehicles.\n");
@@ -1084,6 +1098,7 @@ public class TestSupportVehicle extends TestEntity {
                 correct = false;
             }
         }
+
         for (int loc = 0; loc < supportVee.locations(); loc++) {
             int count = 0;
             for (Mounted misc : supportVee.getMisc()) {
@@ -1091,12 +1106,14 @@ public class TestSupportVehicle extends TestEntity {
                     count++;
                 }
             }
+
             if (count > 2) {
                 buff.append("max of 2 manipulators per location");
                 correct = false;
                 break;
             }
         }
+
         if (supportVee.isAero() && testAero.hasMismatchedLateralWeapons(buff)) {
             correct = false;
         }
@@ -1104,18 +1121,23 @@ public class TestSupportVehicle extends TestEntity {
         if (hasIllegalChassisMods(buff)) {
             correct = false;
         }
+
         if (hasInsufficientSeating(buff)) {
             correct = false;
         }
+
         if (showFailedEquip() && hasFailedEquipment(buff)) {
             correct = false;
         }
+
         if (hasIllegalTechLevels(buff, ammoTechLvl)) {
             correct = false;
         }
+
         if (showIncorrectIntroYear() && hasIncorrectIntroYear(buff)) {
             correct = false;
         }
+
         if (hasIllegalEquipmentCombinations(buff)) {
             correct = false;
         }
@@ -1123,6 +1145,7 @@ public class TestSupportVehicle extends TestEntity {
         if (!correctCriticals(buff)) {
             correct = false;
         }
+
         return correct;
     }
 
@@ -1140,6 +1163,7 @@ public class TestSupportVehicle extends TestEntity {
                     if (supportVee.isAero() && (loc >= FixedWingSupport.LOC_WINGS)) {
                         break;
                     }
+
                     if (supportVee.getOArmor(loc) == 0) {
                         buffer.append(mounted.getType().getName())
                                 .append(" requires at least one point of armor in every location.\n");
@@ -1164,6 +1188,7 @@ public class TestSupportVehicle extends TestEntity {
                 buff.append("Advanced armor requires the Armored Chassis Mod.\n");
                 illegal = true;
             }
+
             if (EquipmentType.getSupportVehicleArmorWeightPerPoint(
                     supportVee.getBARRating(supportVee.firstArmorIndex()),
                             supportVee.getArmorTechRating()) > 0.05) {
@@ -1171,26 +1196,31 @@ public class TestSupportVehicle extends TestEntity {
                 illegal = true;
             }
         }
+
         if (supportVee.isAero() && SVEngine.getEngineType(supportVee.getEngine()).electric
                 && !chassisMods.contains(ChassisModification.PROP)) {
             buff.append("Fixed Wing and Airship support vehicles with electric engines requires the Prop Chassis Mod.\n");
             illegal = true;
         }
+
         if ((supportVee.getEngine().getEngineType() == Engine.EXTERNAL)
                 && !chassisMods.contains(ChassisModification.EXTERNAL_POWER_PICKUP)) {
             buff.append("An external engine requires the External Power Pickup Chassis Mod.\n");
             illegal = true;
         }
+
         if (chassisMods.contains(ChassisModification.HYDROFOIL)
                 && (supportVee.getWeight() > 100.0)) {
             buff.append("The Hydrofoil Chassis Mod may not be used on naval support vehicles larger than 100 tons.\n");
             illegal = true;
         }
+
         if (chassisMods.contains(ChassisModification.CONVERTIBLE)
                 && (supportVee instanceof Tank) && !((Tank) supportVee).hasNoTurret()) {
             buff.append("The Convertible Chassis Mod may not be used with a turret.\n");
             illegal = true;
         }
+
         for (ChassisModification mod : chassisMods) {
             if (!mod.allowedTypes.contains(SVType.getVehicleType(supportVee))) {
                 buff.append(mod.equipment.getName())
@@ -1199,22 +1229,22 @@ public class TestSupportVehicle extends TestEntity {
                         .append("\n");
                 illegal = true;
             }
+
             if (mod.smallOnly && (supportVee.getWeightClass() != EntityWeightClass.WEIGHT_SMALL_SUPPORT)) {
                 buff.append(mod.equipment.getName())
                         .append(" is only valid with small support vehicles.\n");
                 illegal = true;
             }
+
             if (!mod.validFor(supportVee)) {
-                buff.append("Incompatible chassis mod: ")
-                        .append(mod.equipment.getName())
-                        .append("\n");
+                buff.append("Incompatible chassis mod: ").append(mod.equipment.getName()).append("\n");
                 illegal = true;
             }
+
             for (ChassisModification mod2 : chassisMods) {
                 // Only compare to mods with higher ordinals to make sure each combination
                 // only gets checked once.
-                if ((mod2.ordinal() > mod.ordinal())
-                        && !mod.compatibleWith(mod2)) {
+                if ((mod2.ordinal() > mod.ordinal()) && !mod.compatibleWith(mod2)) {
                     buff.append(mod.equipment.getName())
                             .append(" is incompatible with ")
                             .append(mod2.equipment.getName())
@@ -1265,15 +1295,16 @@ public class TestSupportVehicle extends TestEntity {
                 unallocated.add(mount);
             }
         }
+
         for (Mounted mount : supportVee.getWeaponList()) {
             if (mount.getLocation() == Entity.LOC_NONE) {
                 unallocated.add(mount);
             }
         }
+
         if (supportVee.getWeightClass() != EntityWeightClass.WEIGHT_SMALL_SUPPORT) {
             for (Mounted mount : supportVee.getAmmo()) {
-                if ((mount.getLocation() == Entity.LOC_NONE) &&
-                        !mount.isOneShotAmmo()) {
+                if ((mount.getLocation() == Entity.LOC_NONE) && !mount.isOneShotAmmo()) {
                     unallocated.add(mount);
                 }
             }
@@ -1345,6 +1376,7 @@ public class TestSupportVehicle extends TestEntity {
                 buff.append(mount.getType().getSupportVeeSlots(supportVee)).append("\n");
             }
         }
+
         if (getCrewSlots() > 0) {
             buff.append(StringUtil.makeLength("Crew Seats/Quarters:", 30));
             buff.append(getCrewSlots()).append("\n");
@@ -1378,6 +1410,7 @@ public class TestSupportVehicle extends TestEntity {
                 }
             }
         }
+
         if (armorSlots != 0) {
             buff.append(StringUtil.makeLength("Armor", 30));
             buff.append(armorSlots).append("\n");
@@ -1397,8 +1430,7 @@ public class TestSupportVehicle extends TestEntity {
                 foundAmmo.add(at.getAmmoType() + ":" + at.getRackSize());
             }
         }
-        // if a tank has an infantry bay, add 1 slots (multiple bays take 1 slot
-        // total)
+        // if a tank has an infantry bay, add 1 slots (multiple bays take 1 slot total)
         boolean troopspaceFound = false;
         for (Transporter transport : supportVee.getTransports()) {
             if ((transport instanceof TroopSpace) && !troopspaceFound) {
@@ -1406,8 +1438,7 @@ public class TestSupportVehicle extends TestEntity {
                 buff.append("1\n");
                 troopspaceFound = true;
             } else if ((transport instanceof Bay) && !((Bay) transport).isQuarters()) {
-                buff.append(StringUtil.makeLength(((Bay) transport).getType(), 30))
-                        .append("1\n");
+                buff.append(StringUtil.makeLength(((Bay) transport).getType(), 30)).append("1\n");
             }
         }
         return buff;
@@ -1424,7 +1455,7 @@ public class TestSupportVehicle extends TestEntity {
     }
 
     /**
-     * @return   The total slot space
+     * @return The total slot space
      */
     public int totalSlotCount() {
         return 5 + (int) Math.floor(supportVee.getWeight() / 10.0);
@@ -1564,10 +1595,12 @@ public class TestSupportVehicle extends TestEntity {
             retVal[INDEX_STEERAGE] = Math.min(extraCrew, steerage);
             extraCrew -= retVal[INDEX_STEERAGE];
         }
+
         if ((extraCrew > 0) && (stdCrew > 0)) {
             retVal[INDEX_STD_CREW] = Math.min(extraCrew, stdCrew);
             extraCrew -= retVal[INDEX_STD_CREW];
         }
+
         if ((extraCrew > 0) && (firstClass > 0)) {
             retVal[INDEX_FIRST_CLASS] = Math.min(extraCrew, firstClass);
         }

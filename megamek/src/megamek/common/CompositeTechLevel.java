@@ -9,7 +9,6 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,11 +18,8 @@ import java.util.stream.Collectors;
  * Determines tech level dates based on tech progression of components.
  * 
  * @author Neoancient
- *
  */
-public class CompositeTechLevel implements ITechnology, Serializable {
-    private static final long serialVersionUID = -2591881133085092725L;    
-
+public class CompositeTechLevel implements ITechnology {
     private final boolean clan;
     private final boolean mixed;
     private final int introYear;
@@ -307,9 +303,7 @@ public class CompositeTechLevel implements ITechnology, Serializable {
         extinct = merged;
     }
     
-    private static class DateRange implements Serializable, Comparable<DateRange> {
-        private static final long serialVersionUID = 3144194494591950878L;
-        
+    private static class DateRange implements Comparable<DateRange> {
         Integer start = null;
         Integer end = null;
         boolean startApproximate = false;

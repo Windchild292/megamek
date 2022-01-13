@@ -16,15 +16,12 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
  * implementation of "last player/team standing"
  */
-public class LastManStandingVictory implements IVictoryConditions, Serializable {
-    private static final long serialVersionUID = 3372431109525075853L;
-
+public class LastManStandingVictory implements IVictoryConditions {
     public LastManStandingVictory() {
 
     }

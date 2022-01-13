@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -36,9 +35,7 @@ import java.util.Vector;
  * to support special rules.
  * @author Andrew Hunter
  */
-public class WeaponHandler implements AttackHandler, Serializable {
-
-    private static final long serialVersionUID = 7137408139594693559L;
+public class WeaponHandler implements AttackHandler {
     public ToHitData toHit;
     protected HitData hit;
     public WeaponAttackAction waa;

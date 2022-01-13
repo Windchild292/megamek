@@ -13,7 +13,6 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -23,7 +22,7 @@ import java.util.List;
  * vehicle garages. Other possible classes include cargo bays and Dropship
  * docks.
  */
-public interface Transporter extends Serializable {
+public interface Transporter {
 
     /**
      * Determines if this object can accept the given unit. The unit may not be

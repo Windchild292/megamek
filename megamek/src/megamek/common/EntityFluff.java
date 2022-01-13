@@ -13,26 +13,20 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
+import megamek.common.annotations.Nullable;
+
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import megamek.common.annotations.Nullable;
 
 /**
  * Tracks fluff details for entities.
  *
  * @author Neoancient
- *
  */
-public class EntityFluff implements Serializable {
-    /**
-     *
-     */
-    private static final long serialVersionUID = -8018098140016149185L;
-
+public class EntityFluff {
     public enum System {
         CHASSIS, ENGINE, ARMOR, JUMPJET, COMMUNICATIONS, TARGETING;
 
@@ -88,11 +82,7 @@ public class EntityFluff implements Serializable {
     }
 
     public void setOverview(String newOverview) {
-        if (null != newOverview) {
-            overview = newOverview;
-        } else {
-            overview = "";
-        }
+        overview = Objects.requireNonNullElse(newOverview, "");
     }
 
     public String getDeployment() {

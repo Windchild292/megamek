@@ -39,7 +39,6 @@ import megamek.common.weapons.other.TSEMPWeapon;
 import megamek.common.weapons.srms.SRTWeapon;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -48,9 +47,7 @@ import java.util.Vector;
 /**
  * Represents intention to fire a weapon at the target.
  */
-public class WeaponAttackAction extends AbstractAttackAction implements Serializable {
-    private static final long serialVersionUID = -9096603813317359351L;
-    
+public class WeaponAttackAction extends AbstractAttackAction {
     public static final int STRATOPS_SENSOR_SHADOW_WEIGHT_DIFF = 100000;
     
     private int weaponId;

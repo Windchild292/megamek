@@ -13,7 +13,6 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +24,11 @@ import java.util.List;
  * @author Ben
  * @since April 19, 2002, 1:05 AM
  */
-public class TargetRoll implements Serializable {
-    private static final long serialVersionUID = -7453086182585457422L;
+public class TargetRoll {
     public static final int IMPOSSIBLE = Integer.MAX_VALUE;
     public static final int AUTOMATIC_FAIL = Integer.MAX_VALUE - 1;
     public static final int AUTOMATIC_SUCCESS = Integer.MIN_VALUE;
+
     /*
      * The CHECK_FALSE value is returned when a function that normally would
      * return a target roll number determines that the roll wasn't needed after

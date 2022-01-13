@@ -25,7 +25,6 @@ import megamek.common.weapons.bayweapons.AmmoBayWeapon;
 import megamek.common.weapons.gaussrifles.GaussWeapon;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -33,9 +32,7 @@ import java.util.*;
  * @author Ben
  * @since April 1, 2002, 1:29 PM
  */
-public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
-
-    private static final long serialVersionUID = 6438017987074691566L;
+public class Mounted implements RoundUpdated, PhaseUpdated {
     private boolean usedThisRound = false;
     private boolean destroyed = false;
     private boolean hit = false;

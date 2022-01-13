@@ -1,11 +1,10 @@
 package megamek.common.util;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import megamek.common.Building;
 import megamek.common.Coords;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Building template, for placing on the map during map generation. Currently
@@ -14,12 +13,7 @@ import megamek.common.Coords;
  * 
  * @author coelocanth
  */
-public class BuildingTemplate implements Serializable {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -911419490135815472L;
-
+public class BuildingTemplate {
     public static final int BASEMENT_RANDOM = -1;
 
     private ArrayList<Coords> coordsList = new ArrayList<>();

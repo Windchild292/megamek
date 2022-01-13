@@ -16,7 +16,6 @@ package megamek.common;
 
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -60,14 +59,12 @@ import java.util.Vector;
  * @version $Revision$
  * @since 0.30
  */
-public class Report implements Serializable {
+public class Report {
     /*
      * Note: some fields are marked transient because they are only used by the
      * server (or only the client). This shaves a few bytes off the packet size,
      * helping the dial-up people :)
      */
-
-    private static final long serialVersionUID = -5586008091586682078L;
         
     private static final int MESSAGE_NONE = -1;
     

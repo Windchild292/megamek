@@ -25,12 +25,8 @@ import megamek.common.Infantry;
 import megamek.common.LAMPilot;
 import megamek.common.enums.SkillLevel;
 
-import java.io.Serializable;
-
-public abstract class AbstractSkillGenerator implements Serializable {
+public abstract class AbstractSkillGenerator {
     //region Variable Declarations
-    private static final long serialVersionUID = 8475341940660043659L;
-
     private final SkillGeneratorMethod method;
     private SkillLevel level;
     private SkillGeneratorType type;

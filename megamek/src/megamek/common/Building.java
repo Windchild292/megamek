@@ -17,7 +17,6 @@ package megamek.common;
 
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -25,9 +24,7 @@ import java.util.*;
  *
  * @author Suvarov454@sourceforge.net (James A. Damour)
  */
-public class Building implements Serializable {
-    private static final long serialVersionUID = -8236017592012683793L;
-
+public class Building {
     /**
      * Generic flag for uninitialized values.
      */
@@ -110,8 +107,7 @@ public class Building implements Serializable {
      */
     private Map<Coords, Boolean> burning = new HashMap<>();
 
-    public static class DemolitionCharge implements Serializable {
-        private static final long serialVersionUID = -6655782801564155668L;
+    public static class DemolitionCharge {
         public int damage;
         public int playerId;
         public Coords pos;

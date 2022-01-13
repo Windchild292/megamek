@@ -13,24 +13,17 @@
  */  
 package megamek.common;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
+import megamek.utils.MegaMekXmlUtil;
 
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
 import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
-
-import megamek.utils.MegaMekXmlUtil;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 
 /** 
  * A helper class that is used for storing and retrieving map setups in the 
@@ -47,11 +40,8 @@ import megamek.utils.MegaMekXmlUtil;
  * @author Simon (SJuliez)
  */
 @XmlRootElement(name = "MAPSETUP")
-@XmlAccessorType(XmlAccessType.NONE)
-public class MapSetup implements Serializable {
-
-    private static final long serialVersionUID = 5219340035488553080L;
-
+@XmlAccessorType(value = XmlAccessType.NONE)
+public class MapSetup {
     @XmlElement(name = "BOARDWIDTH")
     private int boardWidth = 16;
     @XmlElement(name = "BOARDHEIGHT")

@@ -14,16 +14,12 @@
  */
 package megamek.server;
 
-import java.io.Serializable;
+import megamek.common.Coords;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import megamek.common.Coords;
-
-public class SmokeCloud implements Serializable {
-
-    private static final long serialVersionUID = -8937331680271675046L;
-
+public class SmokeCloud {
     public static final int SMOKE_NONE = 0;
     public static final int SMOKE_LIGHT = 1;
     public static final int SMOKE_HEAVY = 2;

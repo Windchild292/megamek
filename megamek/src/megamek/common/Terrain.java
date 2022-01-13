@@ -13,10 +13,9 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
-import java.util.Objects;
-
 import megamek.common.options.OptionsConstants;
+
+import java.util.Objects;
 
 /**
  * Represents a single type of terrain or condition in a hex. The type of a
@@ -25,9 +24,8 @@ import megamek.common.options.OptionsConstants;
  *
  * @author Ben
  */
-public class Terrain implements Serializable {
+public class Terrain {
     //region Variable Declarations
-    private static final long serialVersionUID = -7624691566755134033L;
     public static final int LEVEL_NONE = Integer.MIN_VALUE;
     public static final int WILDCARD = Integer.MAX_VALUE;
     public static final int ATLEAST = Integer.MAX_VALUE - 1000;
@@ -264,9 +262,6 @@ public class Terrain implements Serializable {
         }
         final Terrain other = (Terrain) object;
         return (type == other.type) && (level == other.level);
-        // Ints don't need special handling. For more complex objects use:
-        // return Objects.equals(level, other.level) && Objects.equals(type,
-        // other.type);
     }
 
     @Override

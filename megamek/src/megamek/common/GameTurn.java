@@ -14,13 +14,13 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Iterator;
-
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.stream.IntStream;
 
 /**
  * Represents a single turn within a phase of the game, where a specific player
@@ -30,9 +30,7 @@ import megamek.common.options.OptionsConstants;
  * @author Ben
  * @since September 6, 2002, 11:52 AM
  */
-public class GameTurn implements Serializable {
-    private static final long serialVersionUID = -8340385894504735190L;
-
+public class GameTurn {
     private int playerId;
     
     /**
@@ -125,10 +123,6 @@ public class GameTurn implements Serializable {
      * A type of game turn that allows only one specific entity to move.
      */
     public static class SpecificEntityTurn extends GameTurn {
-        /**
-         *
-         */
-        private static final long serialVersionUID = -4209080275946913689L;
         private int entityId;
 
         public SpecificEntityTurn(int playerId, int entityId) {
@@ -166,12 +160,6 @@ public class GameTurn implements Serializable {
      * Anti-Personell pods against attacking infantry.
      */
     public static class TriggerAPPodTurn extends SpecificEntityTurn {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = -5104845305165987340L;
-
         public TriggerAPPodTurn(int playerId, int entityId) {
             super(playerId, entityId);
         }
@@ -197,11 +185,6 @@ public class GameTurn implements Serializable {
      * Anti-Battle Armor pods against attacking infantry/BA.
      */
     public static class TriggerBPodTurn extends SpecificEntityTurn {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = -9082006433957145275L;
         private String attackType = "";
 
         public TriggerBPodTurn(int playerId, int entityId, String attackType) {
@@ -235,12 +218,6 @@ public class GameTurn implements Serializable {
      * a break grapple by original attacker
      */
     public static class CounterGrappleTurn extends SpecificEntityTurn {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = 5248356977626018582L;
-
         public CounterGrappleTurn(int playerId, int entityId) {
             super(playerId, entityId);
         }
@@ -335,7 +312,6 @@ public class GameTurn implements Serializable {
      * A type of game turn that allows only certain types of units to move.
      */
     public static class EntityClassTurn extends GameTurn {
-        private static final long serialVersionUID = 1305684619846966124L;
         private final int mask;
 
         /**
@@ -401,10 +377,6 @@ public class GameTurn implements Serializable {
      * dismount at the start of the turn.
      */
     public static class UnloadStrandedTurn extends GameTurn {
-        /**
-         *
-         */
-        private static final long serialVersionUID = 2403095752478007872L;
         private int[] entityIds = null;
 
         /**
@@ -437,11 +409,10 @@ public class GameTurn implements Serializable {
          * Any player that owns an entity in the passed enumeration should be
          * given a chance to unload it.
          *
-         * @param entities the <code>Enumeration</code> of stranded entities.
-         *            This value must not be <code>null</code> or empty.
-         * @exception <code>IllegalArgumentException</code> if a
-         *                <code>null</code> or empty value is passed for
-         *                entities.
+         * @param entities the <code>Enumeration</code> of stranded entities. This value must not be
+         *                 <code>null</code> or empty.
+         * @exception IllegalArgumentException if a <code>null</code> or empty value is passed for
+         * entities.
          */
         public UnloadStrandedTurn(Iterator<Entity> entities) {
             super(Player.PLAYER_NONE);
@@ -450,6 +421,7 @@ public class GameTurn implements Serializable {
             if (null == entities) {
                 throw new IllegalArgumentException("the passed enumeration of entities is null");
             }
+
             if (!entities.hasNext()) {
                 throw new IllegalArgumentException("the passed enumeration of entities is empty");
             }
@@ -497,18 +469,11 @@ public class GameTurn implements Serializable {
             boolean retVal = false;
             // Null entities don't need to be checked.
             if (null != entity) {
-
                 // Any entity in the array is valid.
                 // N.B. Stop looking after we've found the match.
                 final int entityId = entity.getId();
-                for (int index = 0; (index < entityIds.length) && !retVal; index++) {
-                    if (entityId == entityIds[index]) {
-                        retVal = true;
-                        break;
-                    }
-                }
-
-            } // End entity-isn't-null
+                retVal = IntStream.range(0, entityIds.length).anyMatch(index -> entityId == entityIds[index]);
+            }
 
             return retVal;
         }
@@ -552,7 +517,6 @@ public class GameTurn implements Serializable {
      * to move.
      */
     public static class UnitNumberTurn extends GameTurn {
-        private static final long serialVersionUID = -681892308327846884L;
         private final short unitNumber;
 
         /**
@@ -560,8 +524,7 @@ public class GameTurn implements Serializable {
          * class mask to move.
          *
          * @param playerId the <code>int</code> ID of the player
-         * @param unit the <code>int</code> unit number of the entities
-         *            allowed to move.
+         * @param unit the <code>int</code> unit number of the entities allowed to move.
          */
         public UnitNumberTurn(int playerId, short unit) {
             super(playerId);
@@ -573,8 +536,7 @@ public class GameTurn implements Serializable {
          * turn.
          */
         @Override
-        public boolean isValidEntity(Entity entity, Game game,
-                boolean useValidNonInfantryCheck) {
+        public boolean isValidEntity(Entity entity, Game game, boolean useValidNonInfantryCheck) {
             return (super.isValidEntity(entity, game, useValidNonInfantryCheck) 
                     && (unitNumber == entity.getUnitNumber()));
         }
@@ -587,5 +549,4 @@ public class GameTurn implements Serializable {
     public void setMultiTurn(boolean isMultiTurn) {
         this.isMultiTurn = isMultiTurn;
     }
-
 }

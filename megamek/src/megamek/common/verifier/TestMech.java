@@ -477,8 +477,8 @@ public class TestMech extends TestEntity {
         return true;
     }
 
-    public boolean criticalSlotsAllocated(Entity entity, Mounted mounted,
-            Vector<Serializable> allocation, StringBuffer buff) {
+    public boolean criticalSlotsAllocated(Entity entity, Mounted mounted, Vector<Object> allocation,
+                                          StringBuffer buff) {
         int location = mounted.getLocation();
         EquipmentType et = mounted.getType();
         int criticals = 0;
@@ -495,12 +495,10 @@ public class TestMech extends TestEntity {
 
         if (et.isSpreadable() && !et.getName().equals("Targeting Computer")) {
             for (int locations = 0; locations < entity.locations(); locations++) {
-                count += countCriticalSlotsFromEquipInLocation(entity, mounted,
-                        locations);
+                count += countCriticalSlotsFromEquipInLocation(entity, mounted, locations);
             }
         } else {
-            count = countCriticalSlotsFromEquipInLocation(entity, mounted,
-                    location);
+            count = countCriticalSlotsFromEquipInLocation(entity, mounted, location);
         }
 
         if ((et instanceof WeaponType) && mounted.isSplit()) {
@@ -510,11 +508,8 @@ public class TestMech extends TestEntity {
                     continue;
                 }
 
-                secCound = countCriticalSlotsFromEquipInLocation(entity, mounted,
-                        locations);
-                if ((secCound != 0)
-                        && (location == Mech.mostRestrictiveLoc(locations,
-                                location))) {
+                secCound = countCriticalSlotsFromEquipInLocation(entity, mounted, locations);
+                if ((secCound != 0) && (location == Mech.mostRestrictiveLoc(locations, location))) {
                     count += secCound;
                     break;
                 }
@@ -623,14 +618,11 @@ public class TestMech extends TestEntity {
             for (Enumeration<Serializable> serializableEnum = allocation
                     .elements(); serializableEnum.hasMoreElements();) {
                 Mounted mount = (Mounted) serializableEnum.nextElement();
-                int needCrits = ((Integer) serializableEnum.nextElement())
-                        .intValue();
-                int aktCrits = ((Integer) serializableEnum.nextElement())
-                        .intValue();
+                int needCrits = (Integer) serializableEnum.nextElement();
+                int aktCrits = (Integer) serializableEnum.nextElement();
                 buff.append(mount.getType().getInternalName()).append(" has ")
                         .append(needCrits).append(" Slots, but ")
-                        .append(aktCrits).append(" Slots are allocated!")
-                        .append("\n");
+                        .append(aktCrits).append(" Slots are allocated!\n");
             }
             correct = false;
         }
@@ -653,14 +645,12 @@ public class TestMech extends TestEntity {
         if ((requiredSideCrits != mech.getNumberOfCriticals(
                 CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE, Mech.LOC_LT))
                 || (requiredSideCrits != mech.getNumberOfCriticals(
-                        CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE,
-                        Mech.LOC_RT))) {
+                        CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE, Mech.LOC_RT))) {
             engineCorrect = false;
         }
         int requiredCTCrits = engine.getCenterTorsoCriticalSlots(mech.getGyroType()).length;
-        if (requiredCTCrits != mech
-                .getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM,
-                        Mech.SYSTEM_ENGINE, Mech.LOC_CT)) {
+        if (requiredCTCrits != mech.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM,
+                Mech.SYSTEM_ENGINE, Mech.LOC_CT)) {
             engineCorrect = false;
         }
         if (!engineCorrect) {

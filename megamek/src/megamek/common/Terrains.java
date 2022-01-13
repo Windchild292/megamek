@@ -13,16 +13,13 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
+import megamek.server.SmokeCloud;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 
-import megamek.server.SmokeCloud;
-
-public class Terrains implements Serializable {
-    private static final long serialVersionUID = -4333807226569945079L;
-
+public class Terrains {
     // base terrain types
     public static final int WOODS = 1; // 1: light 2: heavy 3: ultra
     public static final int WATER = 2; // level = depth

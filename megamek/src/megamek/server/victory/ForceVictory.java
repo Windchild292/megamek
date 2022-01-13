@@ -16,16 +16,13 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * implementation of player-agreed victory
  */
-public class ForceVictory implements IVictoryConditions, Serializable {
-    private static final long serialVersionUID = 1782762191476942976L;
-
+public class ForceVictory implements IVictoryConditions {
     public ForceVictory() {
 
     }

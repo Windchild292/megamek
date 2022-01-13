@@ -23,7 +23,6 @@ import megamek.common.options.OptionsConstants;
 import megamek.common.pathfinder.CachedEntityState;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
@@ -35,8 +34,7 @@ import java.util.Vector;
  * class needs to be agnostic of what path it belongs to.
  * @since Aug 28, 2003
  */
-public class MoveStep implements Serializable {
-    private static final long serialVersionUID = -6075640793056182285L;
+public class MoveStep {
     private MoveStepType type = MoveStepType.NONE;
     private int targetId = Entity.NONE;
     private int targetType = Targetable.TYPE_ENTITY;

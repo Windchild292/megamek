@@ -4,7 +4,6 @@ import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -154,8 +153,7 @@ public class ShortestPathFinder extends MovePathFinder<MovePath> {
      * This comparator is used by A* algorithm.
      * 
      */
-    public static class MovePathAStarComparator implements Comparator<MovePath>, Serializable {
-        private static final long serialVersionUID = -2116704925028576850L;
+    public static class MovePathAStarComparator implements Comparator<MovePath> {
         Coords destination;
         MoveStepType stepType;
         Board board;

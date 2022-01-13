@@ -13,19 +13,16 @@
  */
 package megamek.server.victory;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import megamek.common.Game;
 import megamek.common.Report;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
 
-public class Victory implements Serializable {
-    private static final long serialVersionUID = -8633873540471130320L;
-    
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class Victory {
     private boolean checkForVictory;
     private int neededVictoryConditions;
 

@@ -16,7 +16,6 @@ package megamek.common;
 import megamek.common.Building.BasementType;
 import megamek.common.annotations.Nullable;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -25,9 +24,8 @@ import java.util.StringTokenizer;
  * Hex represents a single hex on the board.
  * @author Ben
  */
-public class Hex implements Serializable {
+public class Hex {
     //region Variable Declarations
-    private static final long serialVersionUID = 82483704768044698L;
     private Coords coords;
     private int level;
     private Map<Integer, Terrain> terrains = new HashMap<>(1);

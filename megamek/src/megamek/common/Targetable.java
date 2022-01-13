@@ -13,12 +13,11 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import megamek.common.annotations.Nullable;
 
-public interface Targetable extends Serializable {
+import java.util.Map;
+
+public interface Targetable {
     int TYPE_ENTITY = 0;
     int TYPE_HEX_CLEAR = 1;
     int TYPE_HEX_IGNITE = 2;

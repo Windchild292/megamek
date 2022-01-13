@@ -1,15 +1,11 @@
 package megamek.common;
- 
-import megamek.common.annotations.Nullable;
 
-import java.io.Serializable;
+import megamek.common.annotations.Nullable;
 
  /**
   * Some static methods for called shots
   */
-public class CalledShot implements Serializable {
-    private static final long serialVersionUID = 8746351140726246311L;
-    
+public class CalledShot {
     // locations for called shots
     public static final int CALLED_NONE = 0;
     public static final int CALLED_HIGH = 1;

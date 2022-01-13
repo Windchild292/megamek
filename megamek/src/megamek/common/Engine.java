@@ -14,15 +14,11 @@
  */
 package megamek.common;
 
-import java.io.Serializable;
-
 /**
  * This class represents an engine, such as those driving 'Meks.
  * @author Reinhard Vicinus
  */
-public class Engine implements Serializable, ITechnology {
-    private static final long serialVersionUID = -246032529363109609L;
-
+public class Engine implements ITechnology {
     public static final double[] ENGINE_RATINGS = { 0.0, 0.25, 0.5, 0.5,
             0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0,
             2.0, 2.5, 2.5, 3.0, 3.0, 3.0, 3.5, 3.5, 4.0, 4.0, 4.0,
@@ -38,8 +34,7 @@ public class Engine implements Serializable, ITechnology {
             56.5, 61.0, 66.5, 72.5, 79.5, 87.5, 97.0, 107.5, 119.5,
             133.5, 150.0, 168.5, 190.0, 214.5, 243.0, 275.5, 313.0,
             356.0, 405.5, 462.5 };
-    
-  
+
     // flags
     public static final int CLAN_ENGINE = 0x1;
     public static final int TANK_ENGINE = 0x2;
@@ -69,10 +64,10 @@ public class Engine implements Serializable, ITechnology {
             "ICE", "Fusion", "XL", "XXL", "FuelCell", "Light", "Compact", "Fission", "None",
             "MagLev", "Steam", "Battery", "Solar", "External"
     };
-    
-    //These are the SUPPORT VEHICLE ENGINE WEIGHT MULTIPLIERS from TM PG 127
-    //The other engine types are assumed to have a value of ) in the array
-    //if not listed.
+
+    // These are the SUPPORT VEHICLE ENGINE WEIGHT MULTIPLIERS from TM PG 127
+    // The other engine types are assumed to have a value of ) in the array
+    // if not listed.
     private static final double[][] SV_ENGINE_RATINGS = new double[NUM_ENGINE_TYPES][6];
     static { 
         SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_A] = 4.0;
@@ -154,7 +149,7 @@ public class Engine implements Serializable, ITechnology {
      * @param engineRating the rating of the engine
      * @param engineType the type of the engine, either combustion or a type of
      *            fusion engine.
-     * @param engineFlags Wether the engine is a tank engine, a clan engine, or
+     * @param engineFlags Whether the engine is a tank engine, a clan engine, or
      *            large engine, or any combination of those.
      */
     public Engine(int engineRating, int engineType, int engineFlags) {

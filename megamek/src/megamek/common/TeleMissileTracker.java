@@ -1,32 +1,26 @@
 /* MegaMek - Copyright (C) 2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common;
 
-import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * TeleMissile Tracker  - holds a list of tele-missiles controled by this entity and
+ * TeleMissile Tracker  - holds a list of tele-missiles controlled by this entity and
  * information on what particular weapon controls them
  */
-public class TeleMissileTracker implements Serializable {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -6913144265531983734L;
+public class TeleMissileTracker {
     /**
      * map the entity id of the missile to the weapon that it came from
      */
@@ -56,8 +50,8 @@ public class TeleMissileTracker implements Serializable {
     }
     
     public Vector<Integer> getMissiles() {
-        //I could probably do this more directly with a Collection
-        //but I don't know how to work with collections
+        // I could probably do this more directly with a Collection
+        // but I don't know how to work with collections
         Vector<Integer> m = new Vector<>();
         for (Enumeration<Integer> k = missiles.keys() ; k.hasMoreElements();) {
             int wId = k.nextElement();

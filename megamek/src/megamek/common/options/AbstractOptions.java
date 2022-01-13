@@ -15,18 +15,12 @@ package megamek.common.options;
 
 import megamek.common.annotations.Nullable;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Parent class for options settings
  */
-public abstract class AbstractOptions implements Serializable {
-    private static final long serialVersionUID = 6406883135074654379L;
+public abstract class AbstractOptions {
     private Hashtable<String, IOption> optionsHash = new Hashtable<>();
 
     protected AbstractOptions() {

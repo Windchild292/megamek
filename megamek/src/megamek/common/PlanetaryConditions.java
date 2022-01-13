@@ -13,19 +13,13 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common;
-
-import java.io.Serializable;
 
 /**
  * This class will hold all the information on planetary conditions and a variety of helper functions
  * for those conditions
  */
-public class PlanetaryConditions implements Serializable {
-
-    private static final long serialVersionUID = 6838624193286089781L;
-
+public class PlanetaryConditions {
     //light
     public static final int L_DAY          = 0;
     public static final int L_DUSK         = 1;
