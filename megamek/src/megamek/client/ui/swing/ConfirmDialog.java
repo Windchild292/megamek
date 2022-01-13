@@ -1,49 +1,31 @@
 /*
  * MegaMek - Copyright (C) 2000-2003 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import megamek.client.ui.Messages;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-
-import megamek.client.ui.Messages;
-
 /**
  * A simple yes/no confirmation dialog.
  */
 public class ConfirmDialog extends JDialog{
-
-    private static final long serialVersionUID = -8491332593940944224L;
     private GridBagLayout gridbag = new GridBagLayout();
     private GridBagConstraints c = new GridBagConstraints();
 
@@ -130,38 +112,33 @@ public class ConfirmDialog extends JDialog{
 
     private void setupButtons() {
         Action yesAction = new AbstractAction() {
-            private static final long serialVersionUID = -5442315938595454381L;
-
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent evt) {
                 confirmation = true;
                 setVisible(false);
             }
         };
         butYes = new JButton(yesAction);
         butYes.setText(Messages.getString("Yes"));
-	butYes.setMnemonic(KeyEvent.VK_Y);
-        KeyStroke ks = null;
-        ks = KeyStroke.getKeyStroke(KeyEvent.VK_Y, 0);
 
-        InputMap imap = butYes
-        .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        butYes.setMnemonic(KeyEvent.VK_Y);
+        KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_Y, 0);
+
+        InputMap imap = butYes.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap amap = butYes.getActionMap();
         imap.put(ks, YESACTION);
         amap.put(YESACTION, yesAction);
 
         Action noAction = new AbstractAction() {
-            private static final long serialVersionUID = -952830599469731009L;
-
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent evt) {
                 confirmation = false;
                 setVisible(false);
             }
         };
         butNo = new JButton(noAction);
         butNo.setText(Messages.getString("No"));
-	butNo.setMnemonic(KeyEvent.VK_N);
+        butNo.setMnemonic(KeyEvent.VK_N);
         ks = KeyStroke.getKeyStroke(KeyEvent.VK_N, 0);
         imap = butNo.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         amap = butNo.getActionMap();
@@ -212,7 +189,7 @@ public class ConfirmDialog extends JDialog{
     private void finishSetup(JFrame p) {
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
+            public void windowClosing(WindowEvent evt) {
                 setVisible(false);
             }
         });

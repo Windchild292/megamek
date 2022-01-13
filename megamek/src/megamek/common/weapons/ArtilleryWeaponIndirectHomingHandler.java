@@ -459,13 +459,13 @@ public class ArtilleryWeaponIndirectHomingHandler extends
     
     @Override
     protected int calcCapMissileAMSMod() {
-        CapMissileAMSMod = (int) Math.ceil(CounterAV / 10.0);
-        return CapMissileAMSMod;
+        capMissileAMSMod = (int) Math.ceil(counterAV / 10.0);
+        return capMissileAMSMod;
     }
     
     @Override
     protected int getCapMissileAMSMod() {
-        return CapMissileAMSMod;
+        return capMissileAMSMod;
     }
     
     protected int handleAMS(Vector<Report> vPhaseReport) {
@@ -492,13 +492,13 @@ public class ArtilleryWeaponIndirectHomingHandler extends
             }
             //PD/AMS bays should engage using AV and missile armor per SO Errata
             if (amsBayEngagedCap || pdBayEngagedCap) {
-                CapMissileArmor = wtype.getMissileArmor() - CounterAV;
-                CapMissileAMSMod = calcCapMissileAMSMod();
+                capMissileArmor = wtype.getMissileArmor() - counterAV;
+                capMissileAMSMod = calcCapMissileAMSMod();
                 Report r = new Report(3235);
                 r.subject = subjectId;
                 r.indent(1);
                 vPhaseReport.add(r);
-                if (CapMissileArmor <= 0) {
+                if (capMissileArmor <= 0) {
                     r = new Report(3356);
                     r.subject = subjectId;
                     vPhaseReport.add(r);
@@ -507,9 +507,9 @@ public class ArtilleryWeaponIndirectHomingHandler extends
                 } else {
                     r = new Report(3358);
                     r.subject = subjectId;
-                    r.add(CapMissileAMSMod);
+                    r.add(capMissileAMSMod);
                     vPhaseReport.add(r);
-                    toHit.addModifier(CapMissileAMSMod, "damage from AMS");
+                    toHit.addModifier(capMissileAMSMod, "damage from AMS");
                     // If the damage was enough to make us miss, record it for reporting and set 0 hits
                     if (roll < toHit.getValue()) {
                         bMissed = true;

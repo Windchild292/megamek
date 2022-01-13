@@ -1,4 +1,4 @@
-/* MegaMek - Copyright (C) 2004, 2005 Ben Mazur (bmazur@sev.org)
+/* MegaMek - Copyright (c) 2004-2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the Free 
@@ -40,27 +40,25 @@ public class AMSBayWeapon extends AmmoBayWeapon {
         this.bv = 0;
         this.cost = 0;
         this.atClass = CLASS_AMS;
-		flags = flags.or(F_AUTO_TARGET).or(F_AMSBAY).or(F_AERO_WEAPON);
-		setModes(new String[] { "On", "Off" });
-		setInstantModeSwitch(false);
-		techAdvancement.setTechBase(TECH_BASE_ALL)
+        flags = flags.or(F_AUTO_TARGET).or(F_AMSBAY).or(F_AERO_WEAPON);
+        setModes(new String[] { "On", "Off" });
+        setInstantModeSwitch(false);
+        techAdvancement.setTechBase(TECH_BASE_ALL)
                 .setTechRating(RATING_E)
                 .setAvailability(RATING_E, RATING_F, RATING_D, RATING_C)
                 .setISAdvancement(2613, 2617, 3048, 2835, 3045)
                 .setISApproximate(true, false, false, false, false)
                 .setClanAdvancement(2824, 2831, 2835, DATE_NONE, DATE_NONE)
                 .setClanApproximate(true, false, false, false, false)
-                .setPrototypeFactions(F_TH,F_CSA)
-                .setProductionFactions(F_TH,F_CSA)
+                .setPrototypeFactions(F_TH, F_CSA)
+                .setProductionFactions(F_TH, F_CSA)
                 .setReintroductionFactions(F_CC)
                 .setStaticTechLevel(SimpleTechLevel.STANDARD);
     }
-    
+
     @Override
     protected AttackHandler getCorrectHandler(ToHitData toHit, WeaponAttackAction waa, Game game,
                                               Server server) {
         return new AmmoBayWeaponHandler(toHit, waa, game, server);
     }
 }
-
-

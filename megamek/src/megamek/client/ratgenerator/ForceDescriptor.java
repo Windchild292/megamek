@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
  * @author Neoancient
  */
 public class ForceDescriptor {
-
     public static final int REINFORCED = 1;
     public static final int UNDERSTRENGTH = -1;
 
@@ -627,6 +626,7 @@ public class ForceDescriptor {
                         }
                     }
                 }
+
                 if (!foundUnit && weights.contains(baseModel.getWeightClass())) {
                     av = RATGenerator.getInstance().findChassisAvailabilityRecord(era, baseModel.getChassisKey(), faction, getYear());
                     if (av == null) {
@@ -637,6 +637,7 @@ public class ForceDescriptor {
                             }
                         }
                     }
+
                     if (Compute.d6(2) >= target - ((av == null) ? 0 : av.adjustForRating(ratingLevel, totalLevels))) {
                         sub.getChassis().add(baseModel.getChassis());
                         sub.setWeightClass(-1);
@@ -668,6 +669,7 @@ public class ForceDescriptor {
                     }
                 }
             }
+
             if (!foundUnit) {
                 if (!weights.contains(sub.getWeightClass())) {
                     sub.setWeightClass(weights.get(0));
@@ -677,6 +679,7 @@ public class ForceDescriptor {
                     sub.getMovementModes().clear();
                     unit = sub.generate();
                 }
+
                 if (unit != null) {
                     sub.setUnit(unit);
                     if (useWeights) {
@@ -684,6 +687,7 @@ public class ForceDescriptor {
                     }
                 }
             }
+
             if (ut == null || ut == UnitType.MEK) {
                 baseModel = null;
             }
@@ -705,6 +709,7 @@ public class ForceDescriptor {
         if (useWeightClass()) {
             weightClass = unit.getWeightClass();
         }
+
         if (subforces.isEmpty()) {
             element = true;
             movementModes.clear();
@@ -712,20 +717,25 @@ public class ForceDescriptor {
             if (null == unitType) {
                 unitType = unit.getUnitType();
             }
+
             if (((unitType == UnitType.MEK) || (unitType == UnitType.AERO)
                     || (unitType == UnitType.TANK))
                     && unit.isOmni()) {
                 flags.add("omni");
             }
+
             if (unit.getRoles().contains(MissionRole.ARTILLERY)) {
                 roles.add(MissionRole.ARTILLERY);
             }
+
             if (unit.getRoles().contains(MissionRole.MISSILE_ARTILLERY)) {
                 roles.add(MissionRole.MISSILE_ARTILLERY);
             }
+
             if (unit.getRoles().contains(MissionRole.ANTI_MEK)) {
                 roles.add(MissionRole.ANTI_MEK);
             }
+
             if (unit.getRoles().contains(MissionRole.FIELD_GUN)) {
                 roles.add(MissionRole.FIELD_GUN);
             }
@@ -787,13 +797,15 @@ public class ForceDescriptor {
                     return RATGenerator.getInstance().getModelRecord(ms.getName());
                 }
 
-                if ((!useWeightClass() || wtIndex == 2) && fd.getRoles().size() > 0) {
+                if ((!useWeightClass() || wtIndex == 2) && !fd.getRoles().isEmpty()) {
                     fd.getRoles().clear();
-                } else if ((!useWeightClass() || wtIndex == 1)
-                        && fd.getMovementModes().size() > 0) {
+                } else if ((!useWeightClass() || (wtIndex == 1))
+                        && !fd.getMovementModes().isEmpty()) {
                     fd.getMovementModes().clear();
                 } else {
-                    if (useWeightClass() && null != weightClass && weightClass != -1 && weightClass < altWeights.length && wtIndex < altWeights[weightClass].length) {
+                    if (useWeightClass() && (weightClass != null) && (weightClass != -1)
+                            && (weightClass < altWeights.length)
+                            && (wtIndex < altWeights[weightClass].length)) {
                         fd.setWeightClass(altWeights[weightClass][wtIndex]);
                     }
                     wtIndex++;
@@ -823,7 +835,7 @@ public class ForceDescriptor {
         int count = subforces.size() + attached.size();
         subforces.forEach(fd -> fd.loadEntities(l, progress / count));
         attached.forEach(fd -> fd.loadEntities(l, progress / count));
-        if (count == 0 && null != l) {
+        if ((count == 0) && (null != l)) {
             l.updateProgress(progress, "Loading entities");
         }
     }
@@ -865,19 +877,17 @@ public class ForceDescriptor {
                 rules = Ruleset.findRuleset(rules.getParent());
             }
         }
-        //If none is found, assign crew without assigning rank or title.
+
+        // If none is found, assign crew without assigning rank or title.
         if (coNode == null) {
             setCo(new CrewDescriptor(this));
             return;
         }
 
         if (subforces.size() > 0) {
-            int coPos = 0;
-            if (coNode != null) {
-                coPos = (coNode.getPosition() == null) ? 1 : Math.min(coNode.getPosition(), 1);
-            }
+            int coPos = (coNode.getPosition() == null) ? 1 : Math.min(coNode.getPosition(), 1);
             int xoPos = 0;
-            if (xoNode != null && (xoNode.getPosition() == null || xoNode.getPosition() > 0)) {
+            if ((xoNode != null) && ((xoNode.getPosition() == null) || (xoNode.getPosition() > 0))) {
                 xoPos = (xoNode.getPosition() == null) ? coPos + 1 : Math.max(coPos, xoNode.getPosition());
             }
             if (coPos + xoPos > 0) {
@@ -892,6 +902,7 @@ public class ForceDescriptor {
                             }
                         }
                     }
+
                     if (coFound == null) {
                         coFound = forces[0];
                     }
@@ -909,6 +920,7 @@ public class ForceDescriptor {
                     if (coPos == xoPos) {
                         subforces = this.subforces.get(0).getSubforces();
                     }
+
                     if (subforces.size() > coPos) {
                         if (xoNode.getUnitType() != null) {
                             for (int i = coPos; i < subforces.size(); i++) {
@@ -921,6 +933,7 @@ public class ForceDescriptor {
                                 }
                             }
                         }
+
                         if (xoFound == null) {
                             xoFound = subforces.get(1);
                         }
@@ -961,26 +974,33 @@ public class ForceDescriptor {
                         !fd.getFlags().contains("omni")) {
                     isOmni = false;
                 }
+
                 if (!fd.getRoles().contains(MissionRole.MISSILE_ARTILLERY)) {
                     isMissileArtillery = false;
                 }
+
                 if (!fd.getRoles().contains(MissionRole.ARTILLERY)
                         && !fd.getRoles().contains(MissionRole.MISSILE_ARTILLERY)) {
                     isArtillery = false;
                 }
+
                 if (!fd.getRoles().contains(MissionRole.FIELD_GUN)) {
                     isFieldGun = false;
                 }
             }
+
             if (isOmni) {
                 flags.add("omni");
             }
+
             if (isArtillery) {
                 roles.add(MissionRole.ARTILLERY);
             }
+
             if (isMissileArtillery) {
                 roles.add(MissionRole.MISSILE_ARTILLERY);
             }
+
             if (isFieldGun) {
                 roles.add(MissionRole.FIELD_GUN);
             }
@@ -1004,8 +1024,6 @@ public class ForceDescriptor {
         }
 
         attached.forEach(ForceDescriptor::assignCommanders);
-
-        //		setIcon();
     }
 
     public void assignPositions() {
@@ -1053,6 +1071,7 @@ public class ForceDescriptor {
             if (fd.getWeightClass() != null) {
                 retVal += fd.getWeightClass();
             }
+
             if (fd.getUnitType() != null) {
                 switch (fd.getUnitType()) {
                     case UnitType.MEK:
@@ -1062,6 +1081,7 @@ public class ForceDescriptor {
                         retVal -= 2;
                 }
             }
+
             if (fd.getCo() != null) {
                 retVal -= fd.getCo().getGunnery() + fd.getCo().getPiloting();
                 ModelRecord mRec = RATGenerator.getInstance().getModelRecord(fd.getCo().getAssignment().getModelName());
@@ -1069,6 +1089,7 @@ public class ForceDescriptor {
                     if (mRec.isSL()) {
                         retVal += 2;
                     }
+
                     if (mRec.isClan()) {
                         retVal += 5;
                     }
@@ -1082,9 +1103,11 @@ public class ForceDescriptor {
             if (arg0.getRoles().contains(MissionRole.COMMAND) && !arg1.getRoles().contains(MissionRole.COMMAND)) {
                 return -1;
             }
+
             if (!arg0.getRoles().contains(MissionRole.COMMAND) && arg1.getRoles().contains(MissionRole.COMMAND)) {
                 return 1;
             }
+
             if (arg0.getRatingLevel() != arg1.getRatingLevel()) {
                 return arg1.getRatingLevel() - arg0.getRatingLevel();
             }
@@ -1125,27 +1148,27 @@ public class ForceDescriptor {
     }
 
     /*
-	public void assignBloodnames() {
-		assignBloodnames(getFactionRec());
-	}
+    public void assignBloodnames() {
+        assignBloodnames(getFactionRec());
+    }
 
-	public void assignBloodnames(FactionRecord fRec) {
-		if (fRec != null && fRec.isClan()) {
-			for (ForceDescriptor fd : subforces) {
-				fd.assignBloodnames();
-			}
-			for (ForceDescriptor fd : attached) {
-				fd.assignBloodnames();
-			}
+    public void assignBloodnames(FactionRecord fRec) {
+        if (fRec != null && fRec.isClan()) {
+            for (ForceDescriptor fd : subforces) {
+                fd.assignBloodnames();
+            }
+            for (ForceDescriptor fd : attached) {
+                fd.assignBloodnames();
+            }
 
-			if (co != null && (element || !(co.getAssignment() != null && co.getAssignment().isElement()))) {
-				co.assignBloodname();
-			}
-			if (xo != null && !(xo.getAssignment() != null && xo.getAssignment().isElement())) {
-				xo.assignBloodname();
-			}
-		}
-	}
+            if (co != null && (element || !(co.getAssignment() != null && co.getAssignment().isElement()))) {
+                co.assignBloodname();
+            }
+            if (xo != null && !(xo.getAssignment() != null && xo.getAssignment().isElement())) {
+                xo.assignBloodname();
+            }
+        }
+    }
      */
 
     public static int decodeWeightClass(String code) {

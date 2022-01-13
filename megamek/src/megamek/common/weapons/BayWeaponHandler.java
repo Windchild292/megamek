@@ -124,10 +124,10 @@ public class BayWeaponHandler extends WeaponHandler {
                 && (target.getTargetType() != Targetable.TYPE_HEX_CLEAR 
                 &&  target.getTargetType() != Targetable.TYPE_HEX_IGNITE
                 &&  target.getTargetType() != Targetable.TYPE_BUILDING)) 
-        		|| game.getBoard().inSpace()
-        		// Capital missile launchers should return the root handler...
-        		|| (wtype.getAtClass() == (WeaponType.CLASS_CAPITAL_MISSILE))
-        		|| (wtype.getAtClass() == (WeaponType.CLASS_AR10))) {
+                || game.getBoard().inSpace()
+                // Capital missile launchers should return the root handler...
+                || (wtype.getAtClass() == (WeaponType.CLASS_CAPITAL_MISSILE))
+                || (wtype.getAtClass() == (WeaponType.CLASS_AR10))) {
             return super.handle(phase, vPhaseReport);
         }
 
@@ -382,36 +382,36 @@ public class BayWeaponHandler extends WeaponHandler {
         vPhaseReport.addElement(r);
         
         // Handle point defense fire. For cluster hit missile launchers, we'll report later.
-        CounterAV = calcCounterAV();
+        counterAV = calcCounterAV();
         
         // We need this for thunderbolt bays
-        CapMissileAMSMod = calcCapMissileAMSMod();
+        capMissileAMSMod = calcCapMissileAMSMod();
         
         // Set up Capital Missile (thunderbolt) armor
-        CapMissileArmor = initializeCapMissileArmor();
+        capMissileArmor = initializeCapMissileArmor();
         
         // and now damage it
-        CapMissileArmor = (CapMissileArmor - CounterAV);
+        capMissileArmor = (capMissileArmor - counterAV);
         
         // Only do this if the missile wasn't destroyed
-        if (CapMissileAMSMod > 0 && CapMissileArmor > 0) {
-            toHit.addModifier(CapMissileAMSMod, "Damage from Point Defenses");
+        if (capMissileAMSMod > 0 && capMissileArmor > 0) {
+            toHit.addModifier(capMissileAMSMod, "Damage from Point Defenses");
             if (roll < toHit.getValue()) {
                 CapMissileMissed = true;
             }
         }
         
         // Report any AMS bay action against Capital missiles that doesn't destroy them all.
-        if (amsBayEngagedCap && CapMissileArmor > 0) {
+        if (amsBayEngagedCap && capMissileArmor > 0) {
             r = new Report(3358);
-            r.add(CapMissileAMSMod);
+            r.add(capMissileAMSMod);
             r.subject = subjectId;
             vPhaseReport.addElement(r);
                     
         // Report any PD bay action against Capital missiles that doesn't destroy them all.
-        } else if (pdBayEngagedCap && CapMissileArmor > 0) {
+        } else if (pdBayEngagedCap && capMissileArmor > 0) {
             r = new Report(3357);
-            r.add(CapMissileAMSMod);
+            r.add(capMissileAMSMod);
             r.subject = subjectId;
             vPhaseReport.addElement(r);
         }
@@ -487,7 +487,7 @@ public class BayWeaponHandler extends WeaponHandler {
         
         //Large missiles
         //use this if AMS counterfire destroys all the missiles
-        if (amsBayEngagedCap && (CapMissileArmor <= 0)) {
+        if (amsBayEngagedCap && (capMissileArmor <= 0)) {
             r = new Report(3356);
             r.indent();
             r.subject = subjectId;
@@ -495,7 +495,7 @@ public class BayWeaponHandler extends WeaponHandler {
             return false;
         }
         //use this if PD counterfire destroys all the Capital missiles
-        if (pdBayEngagedCap && (CapMissileArmor <= 0)) {
+        if (pdBayEngagedCap && (capMissileArmor <= 0)) {
             r = new Report(3355);
             r.indent();
             r.subject = subjectId;

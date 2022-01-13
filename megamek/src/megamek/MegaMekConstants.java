@@ -22,6 +22,7 @@ package megamek;
 
 public final class MegaMekConstants extends SuiteConstants {
 
+    //region File Paths
     // This holds all required file paths not saved as part of MegaMek Options
     public static final String NAME_FACTIONS_DIRECTORY_PATH = "data/names/factions/";
     public static final String USER_NAME_FACTIONS_DIRECTORY_PATH = "userdata/data/names/factions/";
@@ -35,4 +36,8 @@ public final class MegaMekConstants extends SuiteConstants {
     public static final String USER_GIVEN_NAME_MALE_FILE = "userdata/data/names/maleGivenNames.csv";
     public static final String SURNAME_FILE = "data/names/surnames.csv";
     public static final String USER_SURNAME_FILE = "userdata/data/names/surnames.csv";
+    //endregion File Paths
+
+    // Defines the maximum amount of armor a VTOL can mount on its rotor.
+    public static final int VTOL_MAX_ROTOR_ARMOR = 2;
 }

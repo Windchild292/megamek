@@ -130,8 +130,8 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
         //Point Defenses engage the missiles still aimed at us
         counterAV = calcCounterAV();
         if (isTbolt()) {
-            CapMissileArmor = weaponarmor - (int) counterAV;
-            CapMissileAMSMod = calcCapMissileAMSMod();
+            capMissileArmor = weaponarmor - (int) counterAV;
+            capMissileAMSMod = calcCapMissileAMSMod();
         } else {
             av = av - counterAV;
         }
@@ -197,11 +197,11 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
     
     @Override
     protected int calcCapMissileAMSMod() {
-        CapMissileAMSMod = 0;
+        capMissileAMSMod = 0;
         if (isTbolt()) {
-            CapMissileAMSMod = (int) Math.ceil(CounterAV / 10.0);
+            capMissileAMSMod = (int) Math.ceil(counterAV / 10.0);
         }
-        return CapMissileAMSMod;
+        return capMissileAMSMod;
     }
 
     /*
@@ -372,7 +372,7 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
         // Report any AMS bay action against standard missiles.
         // This only gets used in atmosphere/ground battles
         // Non AMS point defenses only work in space
-        CounterAV = getCounterAV();
+        counterAV = getCounterAV();
         //use this if counterfire destroys all the missiles
         if (amsBayEngaged && (attackValue <= 0)) {
         	r = new Report(3356);
@@ -382,7 +382,7 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
         } else if (amsBayEngaged) {
         	r = new Report(3354);
         	r.indent();
-        	r.add(CounterAV);
+        	r.add(counterAV);
         	r.subject = subjectId;
         	vPhaseReport.addElement(r);
         }
@@ -456,7 +456,7 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
                 }
             }
             
-            nDamPerHit = (int) (Math.ceil(av) - CounterAV);
+            nDamPerHit = (int) (Math.ceil(av) - counterAV);
             if (nDamPerHit <= 0) {
                 continue;
             }

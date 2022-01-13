@@ -12,7 +12,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package megamek.client.ui.swing.widget;
 
 import java.awt.Color;
@@ -34,8 +33,7 @@ import megamek.common.SmallCraft;
 import megamek.common.util.fileUtils.MegaMekFile;
 
 /**
- * Class which keeps set of all areas required to represent ASF unit in
- * MechDisplay.ArmorPanel class.
+ * Class which keeps set of all areas required to represent ASF unit in MechDisplay.ArmorPanel class.
  */
 public class AeroMapSet implements DisplayMapSet {
 
@@ -133,18 +131,18 @@ public class AeroMapSet implements DisplayMapSet {
         }
         
         if (t instanceof Dropship) {
-        	// add kf boom and docking collar
-        	Dropship ds = (Dropship) t;
-        	int kfboom = 0;
-        	int collar = 0;
-        	if (ds.isKFBoomDamaged()) {
-        		kfboom = 1;
-        	}
-        	vLabels[11].setValue(getCriticalHitTally(kfboom, 1));
-        	if (ds.isDockCollarDamaged()) {
-        		collar = 1;
-        	}
-        	vLabels[12].setValue(getCriticalHitTally(collar, 1));
+            // add kf boom and docking collar
+            Dropship ds = (Dropship) t;
+            int kfboom = 0;
+            int collar = 0;
+            if (ds.isKFBoomDamaged()) {
+                kfboom = 1;
+            }
+            vLabels[11].setValue(getCriticalHitTally(kfboom, 1));
+            if (ds.isDockCollarDamaged()) {
+                collar = 1;
+            }
+            vLabels[12].setValue(getCriticalHitTally(collar, 1));
         }
 
     }

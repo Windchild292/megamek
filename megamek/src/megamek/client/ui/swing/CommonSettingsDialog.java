@@ -44,8 +44,7 @@ import java.util.*;
 
 /** The Client Settings Dialog offering GUI options concerning tooltips, map display, keybinds etc. */
 public class CommonSettingsDialog extends AbstractButtonDialog implements
-        ItemListener, FocusListener, ListSelectionListener,
-        ChangeListener {
+        ItemListener, FocusListener, ListSelectionListener, ChangeListener {
 
     /**
      * A class for storing information about an GUIPreferences advanced option.
@@ -582,8 +581,8 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
                 }
             }
 
-	        gameSummaryBV.setSelected(gs.getGameSummaryBoardView());
-	        gameSummaryMM.setSelected(gs.getGameSummaryMiniMap());
+            gameSummaryBV.setSelected(gs.getGameSummaryBoardView());
+            gameSummaryMM.setSelected(gs.getGameSummaryMiniMap());
 
             skinFiles.removeAllItems();
             List<String> xmlFiles = new ArrayList<>(Arrays

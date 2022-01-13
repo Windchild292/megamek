@@ -14,28 +14,19 @@
  */
 package megamek.common.verifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import megamek.MegaMekConstants;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.util.StringUtil;
 import megamek.common.weapons.flamers.VehicleFlamerWeapon;
 import megamek.common.weapons.lasers.CLChemicalLaserWeapon;
 
+import java.util.*;
+
 /**
  * @author Reinhard Vicinus
  */
 public class TestTank extends TestEntity {
-
-    /**
-     * Defines the maximum amount of armor a VTOL can mount on its rotor.
-     */
-    public static int VTOL_MAX_ROTOR_ARMOR = 2;
-
     private final Tank tank;
 
     public TestTank(Tank tank, TestEntityOption options, String fileString) {
@@ -373,10 +364,10 @@ public class TestTank extends TestEntity {
                     }
                 }
             }
-            if (tank.getOArmor(VTOL.LOC_ROTOR) > VTOL_MAX_ROTOR_ARMOR) {
+            if (tank.getOArmor(VTOL.LOC_ROTOR) > MegaMekConstants.VTOL_MAX_ROTOR_ARMOR) {
                 buff.append(tank.getOArmor(VTOL.LOC_ROTOR));
                 buff.append(" points of VTOL rotor armor exceed ")
-                        .append(VTOL_MAX_ROTOR_ARMOR).append("-point limit.\n\n");
+                        .append(MegaMekConstants.VTOL_MAX_ROTOR_ARMOR).append("-point limit.\n\n");
                 correct = false;
             }
         }
@@ -573,11 +564,13 @@ public class TestTank extends TestEntity {
                 unallocated.add(mount);
             }
         }
+
         for (Mounted mount : tank.getWeaponList()) {
             if (mount.getLocation() == Entity.LOC_NONE) {
                 unallocated.add(mount);
             }
         }
+
         for (Mounted mount : tank.getAmmo()) {
             int ammoType = ((AmmoType) mount.getType()).getAmmoType();
             if ((mount.getLocation() == Entity.LOC_NONE) &&
@@ -764,20 +757,23 @@ public class TestTank extends TestEntity {
         if (getEntity().isSupportVehicle() && (getEntity().getWeight() < 5)) {
             return 0;
         }
-    	
+
         if (!engine.isFusion() && (engine.getEngineType() != Engine.FISSION)) {
             double weight = 0;
             for (Mounted m : tank.getWeaponList()) {
                 WeaponType wt = (WeaponType) m.getType();
-                if (wt.hasFlag(WeaponType.F_ENERGY) && !(wt instanceof CLChemicalLaserWeapon) && !(wt instanceof VehicleFlamerWeapon)) {
+                if (wt.hasFlag(WeaponType.F_ENERGY) && !(wt instanceof CLChemicalLaserWeapon)
+                        && !(wt instanceof VehicleFlamerWeapon)) {
                     weight += m.getTonnage();
                 }
+
                 if ((m.getLinkedBy() != null) && (m.getLinkedBy().getType() instanceof
                         MiscType) && m.getLinkedBy().getType().
                         hasFlag(MiscType.F_PPC_CAPACITOR)) {
                     weight += m.getLinkedBy().getTonnage();
                 }
             }
+
             for (Mounted m : tank.getMisc()) {
                 if (m.getType().hasFlag(MiscType.F_CLUB) && m.getType().hasSubType(MiscType.S_SPOT_WELDER)) {
                     weight += m.getTonnage();
@@ -787,7 +783,7 @@ public class TestTank extends TestEntity {
         }
         return 0;
     }
-    
+
     /**
      * Check if the unit has combinations of equipment which are not allowed in
      * the construction rules.

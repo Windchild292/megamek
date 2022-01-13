@@ -109,27 +109,27 @@ public class AR10Handler extends AmmoWeaponHandler {
             attackValue = calcAttackValue();
         
             //CalcAttackValue triggers counterfire, so now we can safely get this
-            CapMissileAMSMod = getCapMissileAMSMod();
+            capMissileAMSMod = getCapMissileAMSMod();
         
             //Only do this if the missile wasn't destroyed
-            if (CapMissileAMSMod > 0 && CapMissileArmor > 0) {
-                toHit.addModifier(CapMissileAMSMod, "Damage from Point Defenses");
+            if (capMissileAMSMod > 0 && capMissileArmor > 0) {
+                toHit.addModifier(capMissileAMSMod, "Damage from Point Defenses");
                 if (roll < toHit.getValue()) {
                     CapMissileMissed = true;
                 }
             }
         
             // Report any AMS bay action against Capital missiles that doesn't destroy them all.
-            if (amsBayEngagedCap && CapMissileArmor > 0) {
+            if (amsBayEngagedCap && capMissileArmor > 0) {
                 r = new Report(3358);
-                r.add(CapMissileAMSMod);
+                r.add(capMissileAMSMod);
                 r.subject = subjectId;
                 vPhaseReport.addElement(r);
                     
                 // Report any PD bay action against Capital missiles that doesn't destroy them all.
-            } else if (pdBayEngagedCap && CapMissileArmor > 0) {
+            } else if (pdBayEngagedCap && capMissileArmor > 0) {
                 r = new Report(3357);
-                r.add(CapMissileAMSMod);
+                r.add(capMissileAMSMod);
                 r.subject = subjectId;
                 vPhaseReport.addElement(r);
             }
@@ -183,16 +183,16 @@ public class AR10Handler extends AmmoWeaponHandler {
                 }
             }
 
-            CounterAV = getCounterAV();
+            counterAV = getCounterAV();
             //use this if AMS counterfire destroys all the Capital missiles
-            if (amsBayEngagedCap && (CapMissileArmor <= 0)) {
+            if (amsBayEngagedCap && (capMissileArmor <= 0)) {
                 r = new Report(3356);
                 r.indent();
                 r.subject = subjectId;
                 vPhaseReport.addElement(r);
             }
             //use this if PD counterfire destroys all the Capital missiles
-            if (pdBayEngagedCap && (CapMissileArmor <= 0)) {
+            if (pdBayEngagedCap && (capMissileArmor <= 0)) {
                 r = new Report(3355);
                 r.indent();
                 r.subject = subjectId;
@@ -224,7 +224,7 @@ public class AR10Handler extends AmmoWeaponHandler {
                 int[] aeroResults = calcAeroDamage(entityTarget, vPhaseReport);
                 hits = aeroResults[0];
                 // If our capital missile was destroyed, it shouldn't hit
-                if ((amsBayEngagedCap || pdBayEngagedCap) && (CapMissileArmor <= 0)) {
+                if ((amsBayEngagedCap || pdBayEngagedCap) && (capMissileArmor <= 0)) {
                     hits = 0;
                 }
                 nCluster = aeroResults[1];

@@ -503,7 +503,7 @@ public class MissileWeaponHandler extends AmmoWeaponHandler {
     protected int getAMSHitsMod(Vector<Report> vPhaseReport) {
         if ((target == null)
                 || (target.getTargetType() != Targetable.TYPE_ENTITY)
-                || CounterAV > 0) {
+                || counterAV > 0) {
             return 0;
         }
         int apdsMod = 0;
@@ -758,30 +758,30 @@ public class MissileWeaponHandler extends AmmoWeaponHandler {
         }
         
         attackValue = calcAttackValue();
-        CounterAV = getCounterAV();
+        counterAV = getCounterAV();
         
         //CalcAttackValue triggers counterfire, so now we can safely get this
-        CapMissileAMSMod = getCapMissileAMSMod();
+        capMissileAMSMod = getCapMissileAMSMod();
         
         //Only do this if a flight of large missiles wasn't destroyed
-        if (CapMissileAMSMod > 0 && CapMissileArmor > 0) {
-            toHit.addModifier(CapMissileAMSMod, "Damage from Point Defenses");
+        if (capMissileAMSMod > 0 && capMissileArmor > 0) {
+            toHit.addModifier(capMissileAMSMod, "Damage from Point Defenses");
             if (roll < toHit.getValue()) {
                 CapMissileMissed = true;
             }
         }
         
         // Report any AMS bay action against Large missiles that doesn't destroy them all.
-        if (amsBayEngagedCap && CapMissileArmor > 0) {
+        if (amsBayEngagedCap && capMissileArmor > 0) {
             r = new Report(3358);
-            r.add(CapMissileAMSMod);
+            r.add(capMissileAMSMod);
             r.subject = subjectId;
             vPhaseReport.addElement(r);
                     
         // Report any PD bay action against Large missiles that doesn't destroy them all.
-        } else if (pdBayEngagedCap && CapMissileArmor > 0) {
+        } else if (pdBayEngagedCap && capMissileArmor > 0) {
             r = new Report(3357);
-            r.add(CapMissileAMSMod);
+            r.add(capMissileAMSMod);
             r.subject = subjectId;
             vPhaseReport.addElement(r);
         }
@@ -940,10 +940,10 @@ public class MissileWeaponHandler extends AmmoWeaponHandler {
                     vPhaseReport.addElement(r);
                 } else if (amsBayEngaged) {
                     //use this if AMS counterfire destroys some of the missiles
-                    CounterAV = getCounterAV();
+                    counterAV = getCounterAV();
                     r = new Report(3354);
                     r.indent();
-                    r.add(CounterAV);
+                    r.add(counterAV);
                     r.subject = subjectId;
                     vPhaseReport.addElement(r);
                     
@@ -957,7 +957,7 @@ public class MissileWeaponHandler extends AmmoWeaponHandler {
                 } else if (pdBayEngaged) {
                     //use this if PD counterfire destroys some of the missiles
                     r = new Report(3353);
-                    r.add(CounterAV);
+                    r.add(counterAV);
                     r.subject = subjectId;
                     vPhaseReport.addElement(r);
                 } else if (amsBayEngagedCap || pdBayEngagedCap) {

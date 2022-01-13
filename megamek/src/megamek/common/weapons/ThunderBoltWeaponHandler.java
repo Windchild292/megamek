@@ -102,8 +102,8 @@ public class ThunderBoltWeaponHandler extends MissileWeaponHandler {
         if (ae.isCapitalFighter()) {
             armor = armor * nweapons;
         }
-        CapMissileArmor = armor - (int) counterAV;
-        CapMissileAMSMod = calcCapMissileAMSMod();
+        capMissileArmor = armor - (int) counterAV;
+        capMissileAMSMod = calcCapMissileAMSMod();
                         
         if (bDirect) {
             av = Math.min(av + (toHit.getMoS() / 3), av * 2);
@@ -117,13 +117,13 @@ public class ThunderBoltWeaponHandler extends MissileWeaponHandler {
     
     @Override
     protected int calcCapMissileAMSMod() {
-        CapMissileAMSMod = (int) Math.ceil(CounterAV / 10.0);
-        return CapMissileAMSMod;
+        capMissileAMSMod = (int) Math.ceil(counterAV / 10.0);
+        return capMissileAMSMod;
     }
     
     @Override
     protected int getCapMissileAMSMod() {
-        return CapMissileAMSMod;
+        return capMissileAMSMod;
     }
     
     @Override

@@ -7,16 +7,16 @@ Bot History:
 Version 1 - Michael Hanson - Original implementation
 Version 2 - Steve Hawkins - Utility model improved, Genetic Algorithm added
 Version 3 - Sebastian Brocks <beerockxs@users.sourceforge.net> / Jeff Wang - General 
-			speed improvements, gui-less client
+            speed improvements, gui-less client
 
 Known issues:
 The Bot does some dumb things, such as using MASC without being in danger, or 
-	running on pavement when not necessary.
+    running on pavement when not necessary.
 The Bot is slow, as compared to many games out there.  But still faster than a 
-	human on tabletop games. :)
+    human on tabletop games. :)
 The Bot crashes sometimes. (Boo!)
 The Bot can't handle alternative victory conditions.  It still tries to kill you, 
-	no matter what.
+    no matter what.
 The Bot can't handle Double-Blind. (It just sits there, having no target to attack.)
 
 Usage:
@@ -28,23 +28,23 @@ trace associated with the error in megamek.log, please save this log, and post i
 as a bug on Github.  You can restart your game from the last save.
 
 Using the gui-less client (preferred)-
-	a) start your own game normally
-	b) go to the players list and click add bot
-	c) set up units, teams, etc. normally.
-	d) hit done and play.
-	 
+    a) start your own game normally
+    b) go to the players list and click add bot
+    c) set up units, teams, etc. normally.
+    d) hit done and play.
+
 Using the gui client (new or saved game) -
-	a) start your own game normally, and get to the lobby, set up your units.
-	b) start another MM instance (you can start multiple copies of MM from one install)
-	c) click on Connect as Computer Player and enter the connection parameters you 
-		specified in (a)
-	d) get to the lobby, add your units and click done on both clients.
+    a) start your own game normally, and get to the lobby, set up your units.
+    b) start another MM instance (you can start multiple copies of MM from one install)
+    c) click on Connect as Computer Player and enter the connection parameters you
+        specified in (a)
+    d) get to the lobby, add your units and click done on both clients.
 
 Starting from a saved game (gui-less client)-
-	a) load your saved game normally
-	b) on the chat line, enter "/replacePlayer <botname>" (No quotes, and replace 
-		<botname> with the name of the bot.)
-	c) play on normally.
+    a) load your saved game normally
+    b) on the chat line, enter "/replacePlayer <botname>" (No quotes, and replace
+        <botname> with the name of the bot.)
+    c) play on normally.
 
 Other Possibilities:
 

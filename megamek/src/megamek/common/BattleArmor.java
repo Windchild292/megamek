@@ -1826,9 +1826,7 @@ public class BattleArmor extends Infantry {
     }
 
     /**
-     * return if this BA has laser reflective armor
-     *
-     * @return
+     * @return if this BA has laser reflective armor
      */
     public boolean isReflective() {
         for (Mounted equip : getMisc()) {
@@ -1840,8 +1838,7 @@ public class BattleArmor extends Infantry {
     }
 
     /**
-     * return if this BA has reactive armor
-     * @return
+     * @return if this BA has reactive armor
      */
     public boolean isReactive() {
         for (Mounted equip : getMisc()) {
@@ -1853,9 +1850,7 @@ public class BattleArmor extends Infantry {
     }
 
     /**
-     * return if this BA has improved sensors
-     *
-     * @return
+     * @return if this BA has improved sensors
      */
     public boolean hasImprovedSensors() {
         for (Mounted equip : getMisc()) {
@@ -1871,9 +1866,7 @@ public class BattleArmor extends Infantry {
     }
 
     /**
-     * return if the BA has any kind of active probe
-     *
-     * @return
+     * @return if the BA has any kind of active probe
      */
     public boolean hasActiveProbe() {
         for (Mounted equip : getMisc()) {
@@ -2011,7 +2004,7 @@ public class BattleArmor extends Infantry {
     @Override
     public void setBattleForceMovement(Map<String,Integer> movement) {
         if (hasDWP()) {
-        	movement.put("", getWalkMP());
+            movement.put("", getWalkMP());
         }
         int move = Math.max(getWalkMP(true, false, false, true, false),
                 getJumpMP(true, true, true));
