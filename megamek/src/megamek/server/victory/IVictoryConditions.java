@@ -1,15 +1,15 @@
 /*
  * MegaMek - Copyright (C) 2007-2008 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.server.victory;
 
@@ -41,8 +41,8 @@ import megamek.common.Game;
 public interface IVictoryConditions {
     /**
      * @param game - the game (state) we are playing
-     * @param context - a map Strings to simple serializable objects (preferably
-     *            Integers , Strings ,Doubles etc) which are used to store state
+     * @param context - a map Strings to simple objects (preferably
+     *            Integers, Strings, Doubles etc) which are used to store state
      *            between executions if such feature is absolutely required.. as
      *            a key you should use something atleast class- specific to
      *            limit namespace collisions

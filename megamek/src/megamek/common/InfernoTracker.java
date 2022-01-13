@@ -23,22 +23,11 @@ import java.io.Serializable;
  * be directly accessed, but instead refered to by the constants:
  * <code>STANDARD_ROUND</code> and <code>INFERNO_IV_ROUND</code>.
  */
-public class InfernoTracker implements Serializable, RoundUpdated {
-    // Private helper classes, methods, and attributes.
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -5256053831078922473L;
-
+public class InfernoTracker implements RoundUpdated {
     /**
      * This class defines the effects of a single hit by an Inferno round.
      */
-    /* package */static class Inferno implements Serializable {
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 1799687411697517801L;
+    static class Inferno {
         private int heatPerRound;
         private int burnRoundsPerHit;
 
@@ -59,8 +48,7 @@ public class InfernoTracker implements Serializable, RoundUpdated {
         public int getBurnRoundsPerHit() {
             return burnRoundsPerHit;
         }
-
-    } // End /* package */ class Inferno implements Serializable
+    }
 
     /**
      * The number of turns of standard Inferno burn remaining.
@@ -71,8 +59,6 @@ public class InfernoTracker implements Serializable, RoundUpdated {
      * The number of turns of Inferno IV burn remaining.
      */
     private int turnsIVLeftToBurn = 0;
-
-    // Public constants, constructors, and methods.
 
     /**
      * The hit from a standard Inferno round.
@@ -150,10 +136,7 @@ public class InfernoTracker implements Serializable, RoundUpdated {
      *         yet, or if they have burned out.
      */
     public boolean isStillBurning() {
-        if (turnsLeftToBurn > 0 || turnsIVLeftToBurn > 0) {
-            return true;
-        }
-        return false;
+        return (turnsLeftToBurn > 0) || (turnsIVLeftToBurn > 0);
     }
 
     /**
@@ -161,14 +144,11 @@ public class InfernoTracker implements Serializable, RoundUpdated {
      */
     @Override
     public void newRound(int roundNumber) {
-
-        // BMRr, pg. 77 makes me think that Inferno IVs
-        // burn in parallel with standard rounds.
         if (turnsIVLeftToBurn > 0) {
+            // BMRr, pg. 77 makes me think that Inferno IVs burn in parallel with standard rounds.
             turnsIVLeftToBurn--;
-        }
-        // Decrement the standard rounds' track.
-        else if (turnsLeftToBurn > 0) {
+        } else if (turnsLeftToBurn > 0) {
+            // Decrement the standard rounds' track.
             turnsLeftToBurn--;
         }
     }
@@ -183,17 +163,13 @@ public class InfernoTracker implements Serializable, RoundUpdated {
      *         It will not be negative.
      */
     public int getTurnsLeftToBurn() {
-        int result = 0;
-
         // Add the number of standard burn turns to Inferno IV turns.
-        result = turnsLeftToBurn + turnsIVLeftToBurn;
-
-        return result;
+        return turnsLeftToBurn + turnsIVLeftToBurn;
     }
 
     /**
      * Determine just the number of turns left for Arrow IV Infernos to burn.
-     * 
+     *
      * @return The <code>int</code> number of turns that this unit or hex will
      *         suffer the effects of an Inferno IV round (ignore any standard
      *         inferno rounds). This number will be positive when the

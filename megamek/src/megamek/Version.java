@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
+ * Copyright (c) 2021-2022 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
  *
@@ -25,15 +25,12 @@ import org.apache.logging.log4j.LogManager;
 
 import javax.swing.*;
 import java.io.PrintWriter;
-import java.io.Serializable;
 
 /**
  * This is used for versioning, and to track the current Version the suite is running at.
  */
-public final class Version implements Comparable<Version>, Serializable {
+public final class Version implements Comparable<Version> {
     //region Variable Declarations
-    private static final long serialVersionUID = 3121116859864232639L;
-
     private int release;
     private int major;
     private int minor;
