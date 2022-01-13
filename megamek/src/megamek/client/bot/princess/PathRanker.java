@@ -165,16 +165,16 @@ public abstract class PathRanker implements IPathRanker {
 
             try {
                 // if we are an aero unit on the ground map, we want to discard paths that keep us at altitude 1 with no bombs
-            	if (isAirborneAeroOnGroundMap) {
-            		// if we have no bombs, we want to make sure our altitude is above 1
-            		// if we do have bombs, we may consider altitude bombing (in the future)
-            		if (path.getEntity().getBombs(BombType.F_GROUND_BOMB).isEmpty()
+                if (isAirborneAeroOnGroundMap) {
+                    // if we have no bombs, we want to make sure our altitude is above 1
+                    // if we do have bombs, we may consider altitude bombing (in the future)
+                    if (path.getEntity().getBombs(BombType.F_GROUND_BOMB).isEmpty()
                             && (path.getFinalAltitude() < 2)) {
-            		    msg.append("\n\tNo bombs but at altitude 1. No way.");
-            		    continue;
-            		}
-            	}
-            	
+                        msg.append("\n\tNo bombs but at altitude 1. No way.");
+                        continue;
+                    }
+                }
+
                 Coords finalCoords = path.getFinalCoords();
 
                 // Make sure I'm trying to get/stay in range of a target.
@@ -231,13 +231,9 @@ public abstract class PathRanker implements IPathRanker {
      * @return "Best" out of those paths
      */
     @Override
-    public RankedPath getBestPath(List<RankedPath> ps) {
-        if (ps.size() == 0) {
-            return null;
-        }
-        return Collections.max(ps);
+    public @Nullable RankedPath getBestPath(List<RankedPath> ps) {
+        return ps.isEmpty() ? null : Collections.max(ps);
     }
-
 
     /**
      * Performs initialization to help speed later calls of rankPath for this

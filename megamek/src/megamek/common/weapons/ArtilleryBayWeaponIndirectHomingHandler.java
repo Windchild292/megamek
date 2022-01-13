@@ -42,13 +42,7 @@ import megamek.common.options.OptionsConstants;
 import megamek.server.Server;
 import megamek.server.Server.DamageType;
 
-public class ArtilleryBayWeaponIndirectHomingHandler extends
-        ArtilleryBayWeaponIndirectFireHandler {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = -7243477723032010917L;
+public class ArtilleryBayWeaponIndirectHomingHandler extends ArtilleryBayWeaponIndirectFireHandler {
     boolean advancedPD = false;
     boolean advancedAMS = false;
     boolean multiAMS = false;
@@ -387,7 +381,7 @@ public class ArtilleryBayWeaponIndirectHomingHandler extends
             }
         }
         assert (newTarget != null);
-        if (v.size() == 0) {
+        if (v.isEmpty()) {
             aaa.setTargetId(newTarget.getTargetId());
             aaa.setTargetType(newTarget.getTargetType());
             target = newTarget;
@@ -405,7 +399,7 @@ public class ArtilleryBayWeaponIndirectHomingHandler extends
             }
         }
         
-        if (allowed.size() == 0) {
+        if (allowed.isEmpty()) {
             aaa.setTargetId(newTarget.getTargetId());
             aaa.setTargetType(newTarget.getTargetType());
             target = newTarget;
@@ -455,7 +449,6 @@ public class ArtilleryBayWeaponIndirectHomingHandler extends
      * @return 1 hit if this missile survives any AMS fire, 0 if it is destroyed
      */
     protected int handleAMS(Vector<Report> vPhaseReport, Mounted ammoUsed) {
-        
         int hits = 1;
         if (((AmmoType) ammoUsed.getType()).getAmmoType() == AmmoType.T_ARROW_IV
                 || ((AmmoType) ammoUsed.getType()).getAmmoType() == BombType.B_HOMING) {

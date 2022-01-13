@@ -13,26 +13,17 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.BattleArmor;
-import megamek.common.Building;
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.Game;
-import megamek.common.Report;
-import megamek.common.TargetRoll;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.Server;
 import megamek.server.Server.DamageType;
+
+import java.util.Vector;
 
 /**
  * @author Sebastian Brocks
  */
 public class LRMFragHandler extends LRMHandler {
-    private static final long serialVersionUID = 2308151080895016663L;
-
     /**
      * @param t
      * @param w
@@ -84,8 +75,7 @@ public class LRMFragHandler extends LRMHandler {
      * megamek.common.Building, int, boolean)
      */
     @Override
-    protected void handleClearDamage(Vector<Report> vPhaseReport,
-            Building bldg, int nDamage) {
+    protected void handleClearDamage(Vector<Report> vPhaseReport, Building bldg, int nDamage) {
         if (!bSalvo) {
             // hits!
             Report r = new Report(2270);
@@ -116,11 +106,10 @@ public class LRMFragHandler extends LRMHandler {
 
         Vector<Report> clearReports = server.tryClearHex(target.getPosition(),
                 nDamage, subjectId);
-        if (clearReports.size() > 0) {
+        if (!clearReports.isEmpty()) {
             vPhaseReport.lastElement().newlines = 0;
         }
         vPhaseReport.addAll(clearReports);
-        return;
     }
 
     /*
@@ -131,8 +120,8 @@ public class LRMFragHandler extends LRMHandler {
      * , megamek.common.Building, int, boolean, Coords)
      */
     @Override
-    protected void handleBuildingDamage(Vector<Report> vPhaseReport,
-            Building bldg, int nDamage, Coords coords) {
-        return;
+    protected void handleBuildingDamage(Vector<Report> vPhaseReport, Building bldg, int nDamage,
+                                        Coords coords) {
+
     }
 }

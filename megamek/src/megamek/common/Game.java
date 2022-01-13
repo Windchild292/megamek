@@ -17,6 +17,7 @@ package megamek.common;
 import megamek.MegaMekConstants;
 import megamek.Version;
 import megamek.client.bot.princess.BehaviorSettings;
+import megamek.common.GameTurn.EntityClassTurn;
 import megamek.common.GameTurn.SpecificEntityTurn;
 import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.AttackAction;
@@ -829,8 +830,7 @@ public class Game {
 
     public boolean shouldDeployForRound(int round) {
         Vector<Entity> vec = getEntitiesToDeployForRound(round);
-
-        return (((null == vec) || (vec.size() == 0)) ? false : true);
+        return (null != vec) && !vec.isEmpty();
     }
 
     private Vector<Entity> getEntitiesToDeployForRound(int round) {
@@ -1363,10 +1363,12 @@ public class Game {
                 lastEntityId = id;
             }
 
-            processGameEvent(
-                    new GameEntityChangeEvent(this, entity, movePath, oldEntity));
+            processGameEvent(new GameEntityChangeEvent(this, entity, movePath, oldEntity));
         }
-        assert (entities.size() == entityIds.size()) : "Set Entity Failed";
+
+        if (entities.size() == entityIds.size()) {
+            throw new Error("Set Entity Failed");
+        }
     }
 
     /**
@@ -1410,7 +1412,7 @@ public class Game {
 
         // We also need to remove it from the list of things to be deployed...
         // we might still be in this list if we never joined the game
-        if (deploymentTable.size() > 0) {
+        if (!deploymentTable.isEmpty()) {
             Enumeration<Vector<Entity>> iter = deploymentTable.elements();
 
             while (iter.hasMoreElements()) {
@@ -2081,7 +2083,7 @@ public class Game {
      * Used when, say, an entity dies mid-phase.
      */
     public void removeTurnFor(Entity entity) {
-        if (turnVector.size() == 0) {
+        if (turnVector.isEmpty()) {
             return;
         }
         // If the game option "move multiple infantry per mech" is selected,
@@ -2096,11 +2098,10 @@ public class Game {
                 // contrived, but may come up e.g. one inf accidentally kills another
                 if (hasMoreTurns()) {
                     GameTurn nextTurn = turnVector.elementAt(turnIndex + 1);
-                    if (nextTurn instanceof GameTurn.EntityClassTurn) {
-                        GameTurn.EntityClassTurn ect =
-                                (GameTurn.EntityClassTurn) nextTurn;
+                    if (nextTurn instanceof EntityClassTurn) {
+                        EntityClassTurn ect = (EntityClassTurn) nextTurn;
                         if (ect.isValidClass(GameTurn.CLASS_INFANTRY)
-                            && !ect.isValidClass(~GameTurn.CLASS_INFANTRY)) {
+                                && !ect.isValidClass(~GameTurn.CLASS_INFANTRY)) {
                             turnVector.removeElementAt(turnIndex + 1);
                         }
                     }
@@ -2117,11 +2118,10 @@ public class Game {
                 // contrived, but may come up e.g. one inf accidently kills another
                 if (hasMoreTurns()) {
                     GameTurn nextTurn = turnVector.elementAt(turnIndex + 1);
-                    if (nextTurn instanceof GameTurn.EntityClassTurn) {
-                        GameTurn.EntityClassTurn ect =
-                                (GameTurn.EntityClassTurn) nextTurn;
+                    if (nextTurn instanceof EntityClassTurn) {
+                        EntityClassTurn ect = (EntityClassTurn) nextTurn;
                         if (ect.isValidClass(GameTurn.CLASS_PROTOMECH)
-                            && !ect.isValidClass(~GameTurn.CLASS_PROTOMECH)) {
+                                && !ect.isValidClass(~GameTurn.CLASS_PROTOMECH)) {
                             turnVector.removeElementAt(turnIndex + 1);
                         }
                     }
@@ -2139,11 +2139,10 @@ public class Game {
                 // contrived, but may come up e.g. one tank accidentally kills another
                 if (hasMoreTurns()) {
                     GameTurn nextTurn = turnVector.elementAt(turnIndex + 1);
-                    if (nextTurn instanceof GameTurn.EntityClassTurn) {
-                        GameTurn.EntityClassTurn ect =
-                                (GameTurn.EntityClassTurn) nextTurn;
+                    if (nextTurn instanceof EntityClassTurn) {
+                        EntityClassTurn ect = (EntityClassTurn) nextTurn;
                         if (ect.isValidClass(GameTurn.CLASS_TANK)
-                            && !ect.isValidClass(~GameTurn.CLASS_TANK)) {
+                                && !ect.isValidClass(~GameTurn.CLASS_TANK)) {
                             turnVector.removeElementAt(turnIndex + 1);
                         }
                     }
@@ -2161,11 +2160,10 @@ public class Game {
                 // contrived, but may come up e.g. one mech accidentally kills another
                 if (hasMoreTurns()) {
                     GameTurn nextTurn = turnVector.elementAt(turnIndex + 1);
-                    if (nextTurn instanceof GameTurn.EntityClassTurn) {
-                        GameTurn.EntityClassTurn ect =
-                                (GameTurn.EntityClassTurn) nextTurn;
+                    if (nextTurn instanceof EntityClassTurn) {
+                        EntityClassTurn ect = (EntityClassTurn) nextTurn;
                         if (ect.isValidClass(GameTurn.CLASS_MECH)
-                            && !ect.isValidClass(~GameTurn.CLASS_MECH)) {
+                                && !ect.isValidClass(~GameTurn.CLASS_MECH)) {
                             turnVector.removeElementAt(turnIndex + 1);
                         }
                     }

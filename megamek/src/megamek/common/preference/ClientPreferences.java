@@ -13,14 +13,15 @@
  */
 package megamek.common.preference;
 
+import megamek.common.MovePath;
+import megamek.common.util.LocaleParser;
+import org.apache.logging.log4j.LogManager;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Locale;
-
-import megamek.common.MovePath;
-import megamek.common.util.LocaleParser;
 
 public class ClientPreferences extends PreferenceStoreProxy {
     //region Variable Declarations
@@ -311,11 +312,11 @@ public class ClientPreferences extends PreferenceStoreProxy {
             return "";
         }
         StringBuilder result = new StringBuilder();
-        if (locale.getLanguage().length() != 0) {
+        if (!locale.getLanguage().isEmpty()) {
             result.append(locale.getLanguage());
-            if (locale.getCountry().length() != 0) {
+            if (!locale.getCountry().isEmpty()) {
                 result.append("_").append(locale.getCountry());
-                if (locale.getVariant().length() != 0) {
+                if (!locale.getVariant().isEmpty()) {
                     result.append("_").append(locale.getVariant());
                 }
             }
@@ -325,12 +326,12 @@ public class ClientPreferences extends PreferenceStoreProxy {
 
     protected void setMekHitLocLog() {
         String name = store.getString(MEK_HIT_LOC_LOG);
-        if (name.length() != 0) {
+        if (!name.isBlank()) {
             try {
                 mekHitLocLog = new PrintWriter(new BufferedWriter(new FileWriter(name)));
                 mekHitLocLog.println("Table\tSide\tRoll");
-            } catch (Throwable thrown) {
-                thrown.printStackTrace();
+            } catch (Exception ex) {
+                LogManager.getLogger().error("", ex);
                 mekHitLocLog = null;
             }
         }

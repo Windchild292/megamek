@@ -35,7 +35,7 @@ public class BoardClusterTracker {
      * Movement types that are relevant for "destruction-aware pathfinding"
      * Have a close relationship but are not exactly one to one with entity movement modes.
      */
-    public static enum MovementType {
+    public enum MovementType {
         Walker,
         Wheeled,
         WheeledAmphi,
@@ -180,7 +180,7 @@ public class BoardClusterTracker {
         }
         
         // try with bridges
-        if (retVal.size() == 0) {
+        if (retVal.isEmpty()) {
             if (terrainReduction) {
                 entityCluster = movableAreasBridgesWithTerrainReduction.get(movementType).get(entity.getPosition());
             } else {
@@ -191,7 +191,7 @@ public class BoardClusterTracker {
                 retVal = entityCluster.getIntersectingHexes(actualEdge, entity.getGame().getBoard());
             }
         }
-        
+
         return retVal;
     }
     

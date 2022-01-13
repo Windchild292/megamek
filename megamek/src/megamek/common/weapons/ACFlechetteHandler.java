@@ -31,15 +31,12 @@ import megamek.server.Server.DamageType;
  * @since Sep 25, 2004
  */
 public class ACFlechetteHandler extends AmmoWeaponHandler {
-    private static final long serialVersionUID = 7965585014230084304L;
-
     /**
      * @param t
      * @param w
      * @param g
      */
-    public ACFlechetteHandler(ToHitData t, WeaponAttackAction w, Game g,
-                              Server s) {
+    public ACFlechetteHandler(ToHitData t, WeaponAttackAction w, Game g, Server s) {
         super(t, w, g, s);
         damageType = DamageType.FLECHETTE;
     }
@@ -79,8 +76,7 @@ public class ACFlechetteHandler extends AmmoWeaponHandler {
      * megamek.common.Building, int, boolean)
      */
     @Override
-    protected void handleClearDamage(Vector<Report> vPhaseReport,
-                                     Building bldg, int nDamage) {
+    protected void handleClearDamage(Vector<Report> vPhaseReport, Building bldg, int nDamage) {
         if (!bSalvo) {
             // hits!
             Report r = new Report(2270);
@@ -102,19 +98,15 @@ public class ACFlechetteHandler extends AmmoWeaponHandler {
         // weapons that can't normally start fires. that's weird.
         // Buildings can't be accidentally ignited.
         if ((bldg != null)
-            && server.tryIgniteHex(target.getPosition(), subjectId, false,
-                                   false,
-                                   new TargetRoll(wtype.getFireTN(), wtype.getName()), 5,
-                                   vPhaseReport)) {
+            && server.tryIgniteHex(target.getPosition(), subjectId, false, false,
+                new TargetRoll(wtype.getFireTN(), wtype.getName()), 5, vPhaseReport)) {
             return;
         }
 
-        Vector<Report> clearReports = server.tryClearHex(target.getPosition(),
-                                                         nDamage, subjectId);
-        if (clearReports.size() > 0) {
+        Vector<Report> clearReports = server.tryClearHex(target.getPosition(), nDamage, subjectId);
+        if (!clearReports.isEmpty()) {
             vPhaseReport.lastElement().newlines = 0;
         }
         vPhaseReport.addAll(clearReports);
-        return;
     }
 }

@@ -3256,7 +3256,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
     }
 
     public boolean isMovingUnits() {
-        return movingUnits.size() > 0;
+        return !movingUnits.isEmpty();
     }
 
     /**
@@ -4171,7 +4171,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             return;
         }
         EntitySprite eSprite = entitySpriteIds.get(getIdAndLoc(ae.getId(),
-                ae.getSecondaryPositions().size() > 0 ? 0 : -1));
+                !ae.getSecondaryPositions().isEmpty() ? 0 : -1));
         if (eSprite != null && eSprite.onlyDetectedBySensors()) {
             return;
         }
@@ -4974,7 +4974,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             if (game.getPhase() == GamePhase.MOVEMENT) {
                 refreshMoveVectors();
             }
-            if ((mp != null) && (mp.size() > 0) && guip.getShowMoveStep()
+            if ((mp != null) && !mp.isEmpty() && guip.getShowMoveStep()
                     && !gopts.booleanOption(OptionsConstants.INIT_SIMULTANEOUS_MOVEMENT)) {
                 if ((localPlayer == null)
                         || !game.getOptions().booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND)
@@ -5220,7 +5220,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             }
             // Update Entity sprite's ECM status
             int secondaryIdx = -1;
-            if (e.getSecondaryPositions().size() > 0) {
+            if (!e.getSecondaryPositions().isEmpty()) {
                 secondaryIdx = 0;
             }
             EntitySprite eSprite = entitySpriteIds.get(getIdAndLoc(e.getId(), secondaryIdx));
@@ -5854,15 +5854,14 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
         // Setup background icons
         try {
             File file;
-            if (bvSkinSpec.backgrounds.size() > 0) {
+            if (!bvSkinSpec.backgrounds.isEmpty()) {
                 file = new MegaMekFile(Configuration.widgetsDir(),
                         bvSkinSpec.backgrounds.get(0)).getFile();
                 if (!file.exists()) {
                     LogManager.getLogger().error("BoardView1 Error: icon doesn't exist: "
                             + file.getAbsolutePath());
                 } else {
-                    bvBgImage = (BufferedImage) ImageUtil.loadImageFromFile(
-                            file.getAbsolutePath());
+                    bvBgImage = (BufferedImage) ImageUtil.loadImageFromFile(file.getAbsolutePath());
                     bvBgShouldTile = bvSkinSpec.tileBackground;
                 }
             }

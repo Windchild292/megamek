@@ -22,8 +22,6 @@ import megamek.server.Server;
 import java.util.Vector;
 
 public class PlasmaCannonHandler extends AmmoWeaponHandler {
-    private static final long serialVersionUID = 2304364403526293671L;
-
     /**
      * @param toHit
      * @param waa
@@ -326,8 +324,7 @@ public class PlasmaCannonHandler extends AmmoWeaponHandler {
     }
 
     @Override
-    protected void handleClearDamage(Vector<Report> vPhaseReport,
-            Building bldg, int nDamage) {
+    protected void handleClearDamage(Vector<Report> vPhaseReport, Building bldg, int nDamage) {
         if (!bSalvo) {
             // hits!
             Report r = new Report(2270);
@@ -351,26 +348,22 @@ public class PlasmaCannonHandler extends AmmoWeaponHandler {
         // a 5 or less
         // you do a normal ignition as though for intentional fires
         if ((bldg != null)
-                && server.tryIgniteHex(target.getPosition(), subjectId, true,
-                        false,
+                && server.tryIgniteHex(target.getPosition(), subjectId, true, false,
                         new TargetRoll(wtype.getFireTN(), wtype.getName()), 5,
                         vPhaseReport)) {
             return;
         }
-        Vector<Report> clearReports = server.tryClearHex(target.getPosition(),
-                nDamage, subjectId);
-        if (clearReports.size() > 0) {
+        Vector<Report> clearReports = server.tryClearHex(target.getPosition(), nDamage, subjectId);
+        if (!clearReports.isEmpty()) {
             vPhaseReport.lastElement().newlines = 0;
         }
         vPhaseReport.addAll(clearReports);
-        return;
     }
 
     @Override
-    protected void handleBuildingDamage(Vector<Report> vPhaseReport,
-            Building bldg, int nDamage, Coords coords) {
+    protected void handleBuildingDamage(Vector<Report> vPhaseReport, Building bldg, int nDamage,
+                                        Coords coords) {
         // Plasma weapons deal double damage to buildings.
         super.handleBuildingDamage(vPhaseReport, bldg, nDamage * 2, coords);
     }
-
 }

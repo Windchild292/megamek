@@ -86,7 +86,7 @@ public class BuildingBlock {
 
                 // check for blank lines & comment lines...
                 // don't add them to the rawData if they are
-                if ((data.length() > 0) && !data.startsWith("" + BuildingBlock.comment)) {
+                if (!data.isEmpty() && !data.startsWith("" + BuildingBlock.comment)) {
                     rawData.add(data);
                 }
             }
@@ -110,7 +110,6 @@ public class BuildingBlock {
      * @see getAllDataAsVector()
      */
     public int findStartIndex(String blockName) {
-
         String line;
         int startIndex = -1;
         StringBuffer buf = new StringBuffer();

@@ -11,7 +11,6 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
 package megamek.common;
 
 import java.util.Vector;
@@ -20,11 +19,7 @@ import java.util.Vector;
  * Represents a volume of space set aside for carrying and launching ASFs
  * aboard large spacecraft and mobile structures
  */
-
 public final class ASFBay extends Bay {
-
-    private static final long serialVersionUID = -4110012474950158433L;
-
     private final boolean arts;
 
     /**
@@ -191,9 +186,9 @@ public final class ASFBay extends Bay {
     public Vector<Integer> initializeRecoverySlots() {
 
         Vector<Integer> slots = new Vector<>();
-        	// We have to account for changes in the number of doors, so remove all slots first.
-        	slots.removeAllElements();
-        	//now add 2 slots back on for each functional door.
+            // We have to account for changes in the number of doors, so remove all slots first.
+            slots.removeAllElements();
+            //now add 2 slots back on for each functional door.
         for (int i = 0; i < currentdoors; i++) {
             slots.add(0);
             slots.add(0);
@@ -231,16 +226,17 @@ public final class ASFBay extends Bay {
     @Override
     public void destroyDoorNext() {
 
-    	if (getDoorsNext() > 0) {
-    		setDoorsNext(getDoorsNext() - 1);
-    	}
+        if (getDoorsNext() > 0) {
+            setDoorsNext(getDoorsNext() - 1);
+        }
 
         // get rid of two empty recovery slots
         // it doesn't matter which ones
-        if (recoverySlots.size() > 0) {
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
-        if (recoverySlots.size() > 0) {
+
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
     }
@@ -248,17 +244,17 @@ public final class ASFBay extends Bay {
     // destroy a door
     @Override
     public void destroyDoor() {
-
-    	if (getCurrentDoors() > 0) {
-    		setCurrentDoors(getCurrentDoors() - 1);
-    	}
+        if (getCurrentDoors() > 0) {
+            setCurrentDoors(getCurrentDoors() - 1);
+        }
 
         // get rid of two empty recovery slots
         // it doesn't matter which ones
-        if (recoverySlots.size() > 0) {
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
-        if (recoverySlots.size() > 0) {
+
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
     }

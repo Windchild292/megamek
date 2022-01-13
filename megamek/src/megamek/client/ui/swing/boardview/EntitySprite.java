@@ -519,11 +519,11 @@ class EntitySprite extends Sprite {
             }
 
             // Transporting
-            if (entity.getLoadedUnits().size() > 0) {
+            if (!entity.getLoadedUnits().isEmpty()) {
                 stStr.add(new Status(Color.YELLOW, "T", SMALL));
             }
             
-            if (entity.getAllTowedUnits().size() > 0) {
+            if (!entity.getAllTowedUnits().isEmpty()) {
                 stStr.add(new Status(Color.YELLOW, "TOWING"));
             }
 
@@ -548,7 +548,10 @@ class EntitySprite extends Sprite {
             }
 
             // Crew
-            if (entity.getCrew().isDead()) stStr.add(new Status(Color.RED, "CrewDead"));
+            if (entity.getCrew().isDead()) {
+                stStr.add(new Status(Color.RED, "CrewDead"));
+            }
+
             if (crewStunned > 0)  {
                 stStr.add(new Status(Color.YELLOW, "STUNNED", new Object[] { crewStunned }));
             }
@@ -575,9 +578,17 @@ class EntitySprite extends Sprite {
             // Aero
             if (isAero) {
                 IAero a = (IAero) entity;
-                if (a.isRolled()) stStr.add(new Status(Color.YELLOW, "ROLLED"));
-                if (a.getCurrentFuel() <= 0) stStr.add(new Status(Color.RED, "FUEL"));
-                if (entity.isEvading()) stStr.add(new Status(Color.GREEN, "EVADE"));
+                if (a.isRolled()) {
+                    stStr.add(new Status(Color.YELLOW, "ROLLED"));
+                }
+
+                if (a.getCurrentFuel() <= 0) {
+                    stStr.add(new Status(Color.RED, "FUEL"));
+                }
+
+                if (entity.isEvading()) {
+                    stStr.add(new Status(Color.GREEN, "EVADE"));
+                }
                 
                 if (a.isOutControlTotal() & a.isRandomMove()) {
                     stStr.add(new Status(Color.RED, "RANDOM"));

@@ -1773,7 +1773,7 @@ public class Board {
     }
 
     public boolean hasBoardBackground() {
-        return (backgroundPaths != null) && backgroundPaths.size() > 0;
+        return (backgroundPaths != null) && !backgroundPaths.isEmpty();
     }
 
     /**

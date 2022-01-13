@@ -1,5 +1,6 @@
 package megamek.client.ratgenerator;
 
+import megamek.client.ratgenerator.UnitTable.Parameters;
 import megamek.common.*;
 import megamek.common.weapons.artillery.ArtilleryWeapon;
 import megamek.common.weapons.autocannons.ACWeapon;
@@ -222,8 +223,8 @@ public class FormationType {
         return mRec == null? ModelRecord.NETWORK_NONE : mRec.getNetworkMask();
     }
     
-    public List<MechSummary> generateFormation(UnitTable.Parameters params, int numUnits,
-            int networkMask, boolean bestEffort) {
+    public List<MechSummary> generateFormation(Parameters params, int numUnits, int networkMask,
+                                               boolean bestEffort) {
         List<UnitTable.Parameters> p = new ArrayList<>();
         p.add(params);
         List<Integer> n = new ArrayList<>();
@@ -231,13 +232,14 @@ public class FormationType {
         return generateFormation(p, n, networkMask, bestEffort, -1, -1);
     }
     
-    public List<MechSummary> generateFormation(List<UnitTable.Parameters> params, List<Integer> numUnits,
-            int networkMask, boolean bestEffort) {
+    public List<MechSummary> generateFormation(List<Parameters> params, List<Integer> numUnits,
+                                               int networkMask, boolean bestEffort) {
         return generateFormation(params, numUnits, networkMask, bestEffort, -1, -1);
     }
     
-    public List<MechSummary> generateFormation(List<UnitTable.Parameters> params, List<Integer> numUnits,
-            int networkMask, boolean bestEffort, int groupSize, int nGroups) {
+    public List<MechSummary> generateFormation(List<Parameters> params, List<Integer> numUnits,
+                                               int networkMask, boolean bestEffort, int groupSize,
+                                               int nGroups) {
         if (params.size() != numUnits.size() || params.isEmpty()) {
             throw new IllegalArgumentException("Formation parameter list and numUnit list must have the same number of elements.");
         }
@@ -357,8 +359,7 @@ public class FormationType {
         }
         for (String veeMode : veeModeAttemptOrder) {
             for (String infMode : infModeAttemptOrder) {
-                List<UnitTable.Parameters> tempParams = params.stream().map(UnitTable.Parameters::copy)
-                        .collect(Collectors.toList());
+                List<Parameters> tempParams = params.stream().map(Parameters::copy).collect(Collectors.toList());
                 for (int index : undeterminedVees) {
                     tempParams.get(index).getMovementModes().add(EntityMovementMode.parseFromString(veeMode));
                 }
@@ -478,12 +479,12 @@ public class FormationType {
          */
         
         do {
-            List<Map<Integer,Integer>> combinations;
+            List<Map<Integer, Integer>> combinations;
             /* We can get here with an empty otherCriteria if there is a groupingConstraint,
              * which is the case with the Order formation.
              */
             if (otherCriteria.isEmpty()) {
-                Map<Integer,Integer> combo = new HashMap<>();
+                Map<Integer, Integer> combo = new HashMap<>();
                 combo.put(0, cUnits);
                 combinations = new ArrayList<>();
                 combinations.add(combo);
@@ -491,12 +492,12 @@ public class FormationType {
                 combinations = findCombinations(cUnits);
             }
             //Group units by param index so they can be returned in the order requested.
-            Map<Integer,List<MechSummary>> list = new TreeMap<>();
+            Map<Integer, List<MechSummary>> list = new TreeMap<>();
             final int POS_C3S = 0;
             final int POS_C3M = 1;
             final int POS_C3MM = 2;
             final int POS_C3_NUM = 3;
-            while (combinations.size() > 0) {
+            while (!combinations.isEmpty()) {
                 int index = Compute.randomInt(combinations.size());
                 Map<Integer,Integer> baseCombo = combinations.get(index);
 
@@ -515,7 +516,7 @@ public class FormationType {
                     networkGroups[POS_C3MM] = 0;
                     networkGroupings.addAll(findGroups(baseCombo, networkGroups, otherCriteria.size()));
                 }
-                while (networkGroupings.size() > 0) {
+                while (!networkGroupings.isEmpty()) {
                     list.clear();
                     int networkIndex = Compute.randomInt(networkGroupings.size());
                     Map<Integer,Integer> combo = networkGroupings.get(networkIndex);
@@ -526,7 +527,7 @@ public class FormationType {
                     }
                     List<Map<Integer,Integer>> unitTypeGroupings = findGroups(combo, unitsPerGroup,
                             otherCriteria.size() + POS_C3_NUM);
-                    while (unitTypeGroupings.size() > 0) {
+                    while (!unitTypeGroupings.isEmpty()) {
                         list.clear();
                         int utIndex = Compute.randomInt(unitTypeGroupings.size());
                         combo = unitTypeGroupings.get(utIndex);
@@ -546,7 +547,7 @@ public class FormationType {
                             }
                             List<List<Map<Integer,Integer>>> groups = findMatchedGroups(groupedUnits, useGrouping);
 
-                            while (groups.size() > 0) {
+                            while (!groups.isEmpty()) {
                                 int gIndex = Compute.randomInt(groups.size());
                                 list.clear();
                                 Map<Integer,List<MechSummary>> found = new TreeMap<>();
@@ -566,7 +567,7 @@ public class FormationType {
                                             if (g.containsKey(i)) {
                                                 // Decode unit type
                                                 int tableIndex = 0;
-                                                if (params.size() > 0) {
+                                                if (!params.isEmpty()) {
                                                     int tmp = i >> (otherCriteria.size() + POS_C3_NUM);
                                                     while (tmp != 0 && (tmp & 1) == 0) {
                                                         tableIndex++;
@@ -608,10 +609,12 @@ public class FormationType {
                                             break;
                                         }
                                     }
+
                                     for (Map.Entry<Integer, List<MechSummary>> e : found.entrySet()) {
                                         list.putIfAbsent(e.getKey(), new ArrayList<>());
                                         list.get(e.getKey()).addAll(e.getValue());
                                     }
+
                                     for (Integer k : g.keySet()) {
                                         workingCombo.merge(k, -g.get(k), Integer::sum);
                                     }
@@ -620,7 +623,7 @@ public class FormationType {
                                     if (workingCombo.get(i) > 0) {
                                         // Decode unit type
                                         int tableIndex = 0;
-                                        if (params.size() > 0) {
+                                        if (!params.isEmpty()) {
                                             int tmp = i >> (otherCriteria.size() + POS_C3_NUM);
                                             while (tmp != 0 && (tmp & 1) == 0) {
                                                 tableIndex++;
@@ -649,7 +652,7 @@ public class FormationType {
                             for (int i : combo.keySet()) {
                                 // Decode unit type
                                 int tableIndex = 0;
-                                if (params.size() > 0) {
+                                if (!params.isEmpty()) {
                                     int tmp = i >> (otherCriteria.size() + POS_C3_NUM);
                                     while (tmp != 0 && (tmp & 1) == 0) {
                                         tableIndex++;
@@ -722,12 +725,11 @@ public class FormationType {
     /**
      * Attempts to build unit entirely on ideal role. Returns null if unsuccessful.
      */
-    private List<MechSummary> tryIdealRole(List<UnitTable.Parameters> params, List<Integer> numUnits) {
+    private List<MechSummary> tryIdealRole(List<Parameters> params, List<Integer> numUnits) {
         if (idealRole.equals(UnitRole.UNDETERMINED)) {
             return null;
         }
-        List<UnitTable.Parameters> tmpParams = params.stream()
-                .map(UnitTable.Parameters::copy).collect(Collectors.toList());
+        List<Parameters> tmpParams = params.stream().map(Parameters::copy).collect(Collectors.toList());
         tmpParams.forEach(p -> p.getWeightClasses().clear());
         List<MechSummary> retVal = new ArrayList<>();
         for (int i = 0; i < tmpParams.size(); i++) {
@@ -747,23 +749,23 @@ public class FormationType {
      * highest order bit being the first constraint in the list, and the value mapped to that key being
      * the number of units that must meet the constraint.
      */
-    private List<Map<Integer,Integer>> findCombinations(int numUnits) {
+    private List<Map<Integer, Integer>> findCombinations(int numUnits) {
         /* This list is remade with each additional constraint, building on the previous values */
-        List<Map<Integer,Integer>> frequencies = new ArrayList<>();
+        List<Map<Integer, Integer>> frequencies = new ArrayList<>();
 
         for (Constraint c : otherCriteria) {
             int req = c.getMinimum(numUnits);
             /* If this is the first pass, we simply need to initialize the frequencies list */
             if (frequencies.isEmpty()) {
-                Map<Integer,Integer> freq = new LinkedHashMap<>();
+                Map<Integer, Integer> freq = new LinkedHashMap<>();
                 freq.put(0, numUnits - req);
                 freq.put(1, req);
                 frequencies.add(freq);
             } else {
                 /* Create a new list to hold the values built off the previous one */
-                List<Map<Integer,Integer>> newFrequencies = new ArrayList<>();
+                List<Map<Integer, Integer>> newFrequencies = new ArrayList<>();
                 /* Iterate through all the values from the previous pass and extend them */
-                for (Map<Integer,Integer> freq : frequencies) {
+                for (Map<Integer, Integer> freq : frequencies) {
                     /* We need to be able to access the keys by position */
                     List<Integer> keyList = new ArrayList<>(freq.keySet());
                     /* For each position, note how many total slots there are in later positions */
@@ -796,9 +798,11 @@ public class FormationType {
                                 if (c.isPairedWithPrevious()) {
                                     key &= ~1;
                                 }
+
                                 if (freq.get(keyList.get(i)) > current[i]) {
                                     result.merge(key << 1, freq.get(keyList.get(i)) - current[i], Integer::sum);
                                 }
+
                                 if (current[i] > 0) {
                                     result.merge((key << 1) + 1, current[i], Integer::sum);
                                 }
@@ -941,7 +945,7 @@ public class FormationType {
      * @return	A list of possible groupings. Each entry is a list of size() equal to numGroups.
      * 			The entry for each group is a map of the same format as <code>combination</code>. 
      */
-    private List<List<Map<Integer,Integer>>> findMatchedGroups(Map<Integer,Integer> combination,
+    private List<List<Map<Integer,Integer>>> findMatchedGroups(Map<Integer, Integer> combination,
             GroupingConstraint groupingCriteria) {
         int numUnits = combination.values().stream().mapToInt(Integer::intValue).sum();
         int size = Math.min(groupingCriteria.getGroupSize(), numUnits);
@@ -1031,11 +1035,11 @@ public class FormationType {
             /* Replace the old list with one from this iteration */
             list = newList;
         }
-        List<List<Map<Integer,Integer>>> retVal = new ArrayList<>();
+        List<List<Map<Integer, Integer>>> retVal = new ArrayList<>();
         for (int[][] grouping : list) {
-            List<Map<Integer,Integer>> newGrouping = new ArrayList<>();
+            List<Map<Integer, Integer>> newGrouping = new ArrayList<>();
             for (int g = 0; g < grouping.length; g++) {
-                Map<Integer,Integer> map = new HashMap<>();
+                Map<Integer, Integer> map = new HashMap<>();
                 for (int p = 0; p < grouping[g].length; p++) {
                     map.put(keyList.get(p), grouping[g][p]);
                 }
@@ -1057,11 +1061,13 @@ public class FormationType {
         if (units.stream().anyMatch(ms -> !isAllowedUnitType(ModelRecord.parseUnitType(ms.getUnitType())))) {
             return false;
         }
+
         if (!idealRole.equals(UnitRole.UNDETERMINED)) {
             if (units.stream().allMatch(ms -> idealRole.equals(UnitRoleHandler.getRoleFor(ms)))) {
                 return true;
             }
         }
+
         for (MechSummary ms : units) {
             if (!mainCriteria.test(ms)
                     || ms.getWeightClass() < minWeightClass
@@ -1069,6 +1075,7 @@ public class FormationType {
                 return false;
             }
         }
+
         for (int i = 0; i < otherCriteria.size(); i++) {
             final Constraint c = otherCriteria.get(i);
             if (c.isPairedWithPrevious()) {
@@ -1083,13 +1090,14 @@ public class FormationType {
                 }
             }
         }
+
         if (groupingCriteria != null) {
             /* First group by chassis, then test whether each group fulfills the requirement.
              * If not, regroup by name. */
             List<MechSummary> groupedUnits = units.stream()
                     .filter(ms -> groupingCriteria.appliesTo(ModelRecord.parseUnitType(ms.getUnitType())))
                     .collect(Collectors.toList());
-            if (groupedUnits.size() > 0) {
+            if (!groupedUnits.isEmpty()) {
                 Map<String,List<MechSummary>> groups = groupedUnits.stream()
                         .collect(Collectors.groupingBy(MechSummary::getChassis));
                 GROUP_LOOP: for (List<MechSummary> group : groups.values()) {
@@ -1228,7 +1236,7 @@ public class FormationType {
                 sb.append("</font>");
             }
 
-            if (other.get(i).size() > 0) {
+            if (!other.get(i).isEmpty()) {
                 sb.append("&nbsp;&nbsp;&nbsp;").append(other.get(i).stream().map(MechSummary::getName)
                         .collect(Collectors.joining("<br/>\n&nbsp;&nbsp;&nbsp;"))).append("<br/><br/>\n");
             } else {
@@ -1240,7 +1248,7 @@ public class FormationType {
             List<MechSummary> groupedUnits = units.stream()
                     .filter(ms -> groupingCriteria.appliesTo(ModelRecord.parseUnitType(ms.getUnitType())))
                     .collect(Collectors.toList());
-            if (groupedUnits.size() > 0) {
+            if (!groupedUnits.isEmpty()) {
                 Map<String,List<MechSummary>> groups = groupedUnits.stream()
                         .collect(Collectors.groupingBy(MechSummary::getChassis));
                 GROUP_LOOP: for (List<MechSummary> group : groups.values()) {

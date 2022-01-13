@@ -22,12 +22,9 @@ import java.util.stream.IntStream;
 /**
  * Primarily concerned with calculating AlphaStrike values for an undamaged entity, and exporting
  * stats in csv form.
-
  * @author Neoancient
- *
  */
 public class AlphaStrikeElement extends BattleForceElement {
-    
     // AP weapon mounts have a set damage value.
     static final double AP_MOUNT_DAMAGE = 0.05;
 
@@ -93,7 +90,7 @@ public class AlphaStrikeElement extends BattleForceElement {
         for (int loc = 0; loc < locationNames.length; loc++) {
             weaponLocations[loc] = new WeaponLocation();
             locationNames[loc] = en.getAlphaStrikeLocationName(loc);
-            if (locationNames[loc].length() > 0) {
+            if (!locationNames[loc].isEmpty()) {
                 locationNames[loc] += ":";
             }
         }
@@ -142,8 +139,7 @@ public class AlphaStrikeElement extends BattleForceElement {
     @Override
     protected double getConvInfantryStandardDamage(int range, Infantry inf) {
         if (inf.getPrimaryWeapon() == null) {
-            return inf.getDamagePerTrooper() * TROOP_FACTOR[Math.min(inf.getShootingStrength(), 30)]
-                    / 10.0;
+            return inf.getDamagePerTrooper() * TROOP_FACTOR[Math.min(inf.getShootingStrength(), 30)] / 10.0;
         } else {
             return 0;
         }
@@ -177,7 +173,7 @@ public class AlphaStrikeElement extends BattleForceElement {
             return "";
         }
         StringBuilder str = new StringBuilder(locationNames[loc]);
-        if (locationNames[loc].length() > 0) {
+        if (!locationNames[loc].isEmpty()) {
             str.append("(");
         }
         str.append(weaponLocations[loc].formatDamageRounded(true));
@@ -187,16 +183,19 @@ public class AlphaStrikeElement extends BattleForceElement {
                     .append(weaponLocations[loc].formatDamageRounded(i, true));
             }
         }
+
         for (int i = 1; i < WeaponType.BFCLASS_CAPITAL; i++) {
             if (weaponLocations[loc].hasDamageClass(i)) {
                 str.append(";").append(WeaponType.BF_CLASS_NAMES[i])
                     .append(weaponLocations[loc].formatDamageRounded(i, true));
             }
         }
+
         if (weaponLocations[loc].getIF() >= 0.5) {
             str.append(";IF").append((int) Math.round(weaponLocations[loc].getIF()));
         }
-        if (locationNames[loc].length() > 0) {
+
+        if (!locationNames[loc].isEmpty()) {
             str.append(")");
         }
         return str.toString();
@@ -223,7 +222,7 @@ public class AlphaStrikeElement extends BattleForceElement {
         for (int loc = 0; loc < weaponLocations.length; loc++) {
             StringBuilder str = new StringBuilder();
             String damStr = getASDamageString(loc, false);
-            if (damStr.length() > 0) {
+            if (!damStr.isEmpty()) {
                 str.append(damStr);
                 sj.add(str.toString());
             }
@@ -249,8 +248,7 @@ public class AlphaStrikeElement extends BattleForceElement {
         w.write(Integer.toString(getFinalPoints()));
         w.write("\t");
         w.write(specialAbilities.keySet().stream()
-                .filter(spa -> spa.usedByAlphaStrike()
-                        && !spa.isDoor())
+                .filter(spa -> spa.usedByAlphaStrike() && !spa.isDoor())
                 .map(this::formatSPAString)
                 .collect(Collectors.joining(", ")));
         w.newLine();
@@ -264,8 +262,7 @@ public class AlphaStrikeElement extends BattleForceElement {
             return spa.toString() + (specialAbilities.get(spa) - 1);
         }
         if (spa.equals(BattleForceSPA.HT)) {
-            return spa
-                    + IntStream.range(0, rangeBands)
+            return spa + IntStream.range(0, rangeBands)
                     .mapToObj(String::valueOf).collect(Collectors.joining("/"));
         }
         return super.formatSPAString(spa);

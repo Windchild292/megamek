@@ -17,7 +17,6 @@ package megamek.common;
 import megamek.client.generator.RandomNameGenerator;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.Gender;
-import megamek.common.loaders.EntityLoadingException;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.infantry.InfantryWeapon;
@@ -35,8 +34,7 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * Class for reading in and parsing MUL XML files. The MUL xsl is defined in
- * the docs directory.
+ * Class for reading in and parsing MUL XML files. The MUL xsl is defined in the docs directory.
  *
  * @author arlith
  */
@@ -769,11 +767,11 @@ public class MULParser {
 
         // Setup for C3 Relinking
         String c3masteris = entityTag.getAttribute(C3MASTERIS);
-        if (c3masteris.length() > 0) {
+        if (!c3masteris.isEmpty()) {
             entity.setC3MasterIsUUIDAsString(c3masteris);
         }
         String c3uuid = entityTag.getAttribute(C3UUID);
-        if (c3uuid.length() > 0) {
+        if (!c3uuid.isEmpty()) {
             entity.setC3UUIDAsString(c3uuid);
         }
 
@@ -781,34 +779,34 @@ public class MULParser {
         if (entity.isConventionalInfantry()) {
             Infantry inf = (Infantry) entity;
             String armorDiv = entityTag.getAttribute(ARMOR_DIVISOR);
-            if (armorDiv.length() > 0) {
+            if (!armorDiv.isEmpty()) {
                 inf.setArmorDamageDivisor(Double.parseDouble(armorDiv));
             }
-            if (entityTag.getAttribute(ARMOR_ENC).length() > 0) {
+            if (!entityTag.getAttribute(ARMOR_ENC).isEmpty()) {
                 inf.setArmorEncumbering(true);
             }
-            if (entityTag.getAttribute(SPACESUIT).length() > 0) {
+            if (!entityTag.getAttribute(SPACESUIT).isEmpty()) {
                 inf.setSpaceSuit(true);
             }
-            if (entityTag.getAttribute(DEST_ARMOR).length() > 0) {
+            if (!entityTag.getAttribute(DEST_ARMOR).isEmpty()) {
                 inf.setDEST(true);
             }
-            if (entityTag.getAttribute(SNEAK_CAMO).length() > 0) {
+            if (!entityTag.getAttribute(SNEAK_CAMO).isEmpty()) {
                 inf.setSneakCamo(true);
             }
-            if (entityTag.getAttribute(SNEAK_IR).length() > 0) {
+            if (!entityTag.getAttribute(SNEAK_IR).isEmpty()) {
                 inf.setSneakIR(true);
             }
-            if (entityTag.getAttribute(SNEAK_ECM).length() > 0) {
+            if (!entityTag.getAttribute(SNEAK_ECM).isEmpty()) {
                 inf.setSneakECM(true);
             }
             String infSpec = entityTag.getAttribute(INF_SPEC);
-            if (infSpec.length() > 0) {
+            if (!infSpec.isEmpty()) {
                 inf.setSpecializations(Integer.parseInt(infSpec));
             }
             
             String infSquadNum = entityTag.getAttribute(INF_SQUAD_NUM);
-            if (infSquadNum.length() > 0) {
+            if (!infSquadNum.isEmpty()) {
                 inf.setSquadN(Integer.parseInt(infSquadNum));
                 inf.autoSetInternal();
             }
@@ -1487,10 +1485,10 @@ public class MULParser {
         String bayIndex = slotTag.getAttribute(WEAPONS_BAY_INDEX);
 
         // Did we find required attributes?
-        if ((index == null) || (index.length() == 0)) {
+        if (index.isEmpty()) {
             warning.append("Could not find index for slot.\n");
             return locAmmoCount;
-        } else if ((type == null) || (type.length() == 0)) {
+        } else if (type.isEmpty()) {
             warning.append("Could not find type for slot.\n");
             return locAmmoCount;
         } else {
@@ -1500,36 +1498,29 @@ public class MULParser {
             try {
                 indexVal = Integer.parseInt(index);
                 indexVal -= 1;
-            } catch (NumberFormatException excep) {
+            } catch (NumberFormatException ignored) {
                 // Handled by the next if test.
             }
-            if (index.equals(NA)) {
-                indexVal = IArmorState.ARMOR_NA;
 
-                // Protomechs only have system slots,
+            if (index.equals(NA)) {
+                // ProtoMeks only have system slots,
                 // so we have to handle the ammo specially.
                 if (entity instanceof Protomech || entity instanceof GunEmplacement) {
                     // Get the saved ammo load.
                     EquipmentType newLoad = EquipmentType.get(type);
                     if (newLoad instanceof AmmoType) {
                         int counter = -1;
-                        Iterator<Mounted> ammo = entity.getAmmo()
-                                .iterator();
-                        while (ammo.hasNext()
-                                && (counter < locAmmoCount)) {
-
+                        Iterator<Mounted> ammo = entity.getAmmo().iterator();
+                        while (ammo.hasNext() && (counter < locAmmoCount)) {
                             // Is this mounted in the current location?
                             Mounted mounted = ammo.next();
                             if (mounted.getLocation() == loc) {
-
-                                // Increment the loop counter.
+                                // Increment the loop counter
                                 counter++;
 
                                 // Is this the one we want to handle?
                                 if (counter == locAmmoCount) {
-
-                                    // Increment the counter of ammo
-                                    // handled for this location.
+                                    // Increment the counter of ammo handled for this location.
                                     locAmmoCount++;
 
                                     // Reset transient values.
@@ -1538,56 +1529,36 @@ public class MULParser {
                                     // Try to get a good shots value.
                                     int shotsVal = -1;
                                     try {
-                                        shotsVal = Integer
-                                                .parseInt(shots);
-                                    } catch (NumberFormatException excep) {
+                                        shotsVal = Integer.parseInt(shots);
+                                    } catch (NumberFormatException ignored) {
                                         // Handled by the next if test.
                                     }
+
                                     if (shots.equals(NA)) {
-                                        shotsVal = IArmorState.ARMOR_NA;
-                                        warning.append(
-                                                "Expected to find number of " +
-                                                "shots for ")
-                                                .append(type)
-                                                .append(", but found ")
-                                                .append(shots)
+                                        warning.append("Expected to find number of shots for ")
+                                                .append(type).append(", but found ").append(shots)
                                                 .append(" instead.\n");
-                                    } else if ((shotsVal < 0)
-                                            || (shotsVal > 200)) {
-                                        warning.append(
-                                                "Found invalid shots value " +
-                                                "for slot: ")
-                                                .append(shots)
-                                                .append(".\n");
+                                    } else if ((shotsVal < 0) || (shotsVal > 200)) {
+                                        warning.append("Found invalid shots value for slot: ")
+                                                .append(shots).append(".\n");
                                     } else {
-
-                                        // Change to the saved
-                                        // ammo type and shots.
-                                        mounted.changeAmmoType((AmmoType)
-                                                newLoad);
+                                        // Change to the saved ammo type and shots.
+                                        mounted.changeAmmoType((AmmoType) newLoad);
                                         mounted.setShotsLeft(shotsVal);
-
-                                    } // End have-good-shots-value
-
+                                    }
                                     // Stop looking for a match.
                                     break;
-
-                                } // End found-match-for-slot
-
-                            } // End ammo-in-this-loc
-
-                        } // Check the next ammo.
+                                }
+                            }
+                        }
 
                     } else {
                         // Bad XML equipment.
-                        warning.append("XML file lists ")
-                                .append(type)
-                                .append(" equipment at location ")
-                                .append(loc)
+                        warning.append("XML file lists ").append(type)
+                                .append(" equipment at location ").append(loc)
                                 .append(".  XML parser expected ammo.\n");
-                    } // End not-ammo-type
-
-                } // End is-tank
+                    }
+                }
 
                 // TODO: handle slotless equipment.
                 return locAmmoCount;
@@ -1660,7 +1631,7 @@ public class MULParser {
                 mounted.restore();
 
                 // quirks
-                if ((null != quirks) && (quirks.trim().length() > 0)) {
+                if (!quirks.isEmpty()) {
                     StringTokenizer st = new StringTokenizer(quirks, "::");
                     while (st.hasMoreTokens()) {
                         String quirk = st.nextToken();
@@ -1676,9 +1647,8 @@ public class MULParser {
                 }
 
                 // trooper missing equipment
-                if ((null != trooperMiss) && (trooperMiss.trim().length() > 0)) {
-                    StringTokenizer st = new StringTokenizer(trooperMiss,
-                            "::");
+                if (!trooperMiss.isEmpty()) {
+                    StringTokenizer st = new StringTokenizer(trooperMiss, "::");
                     int i = BattleArmor.LOC_TROOPER_1;
                     while (st.hasMoreTokens() && i <= BattleArmor.LOC_TROOPER_6) {
                         String tmiss = st.nextToken();
@@ -1703,34 +1673,30 @@ public class MULParser {
                         int shotsVal = -1;
                         try {
                             shotsVal = Integer.parseInt(shots);
-                        } catch (NumberFormatException excep) {
+                        } catch (Exception ignored) {
                             // Handled by the next if test.
                         }
+
                         if (shots.equals(NA)) {
-                            shotsVal = IArmorState.ARMOR_NA;
-                            warning.append(
-                                    "Expected to find number of shots for ")
-                                    .append(type)
-                                    .append(", but found ")
-                                    .append(shots)
+                            warning.append("Expected to find number of shots for ")
+                                    .append(type).append(", but found ").append(shots)
                                     .append(" instead.\n");
                         } else if ((shotsVal < 0) || (shotsVal > 200)) {
-                            warning.append(
-                                    "Found invalid shots value for slot: ")
+                            warning.append("Found invalid shots value for slot: ")
                                     .append(shots).append(".\n");
                         } else {
-
                             // Change to the saved ammo type and shots.
                             mounted.changeAmmoType((AmmoType) newLoad);
                             mounted.setShotsLeft(shotsVal);
+                        }
 
-                        } // End have-good-shots-value
                         try {
                             double capVal = Double.parseDouble(capacity);
                             mounted.setAmmoCapacity(capVal);
-                        } catch (NumberFormatException excep) {
+                        } catch (NumberFormatException ignored) {
                             // Handled by the next if test.
                         }
+
                         if (capacity.equals(NA)) {
                             if (entity.hasETypeFlag(Entity.ETYPE_BATTLEARMOR)
                                     || entity.hasETypeFlag(Entity.ETYPE_PROTOMECH)) {
@@ -1742,8 +1708,6 @@ public class MULParser {
                                         / ((AmmoType) mounted.getType()).getShots());
                             }
                         }
-
-
                     } else {
                         // Bad XML equipment.
                         warning.append("XML file expects ")
@@ -1757,12 +1721,10 @@ public class MULParser {
                                         .getInternalName())
                                 .append("there .\n");
                     }
-
-                } // End slot-for-ammo
+                }
 
                 // Not an ammo slot... does file agree with template?
-                else if (!mounted.getType().getInternalName()
-                        .equals(type)) {
+                else if (!mounted.getType().getInternalName().equals(type)) {
                     // Bad XML equipment.
                     warning.append("XML file expects ")
                             .append(type)
@@ -1776,22 +1738,20 @@ public class MULParser {
                 }
 
                 // Check for munition attribute.
-                if (munition.length() > 0) {
+                if (!munition.isEmpty()) {
                     // Retrieve munition by name.
                     EquipmentType munType = EquipmentType.get(munition);
 
                     // Make sure munition is a type of ammo.
                     if (munType instanceof AmmoType) {
                         // Change to the saved munition type.
-                        mounted.getLinked().changeAmmoType(
-                                (AmmoType) munType);
+                        mounted.getLinked().changeAmmoType((AmmoType) munType);
                     } else {
                         // Bad XML equipment.
-                        warning.append("XML file expects")
-                                .append(" ammo for munition argument of")
-                                .append(" slot tag.\n");
+                        warning.append("XML file expects ammo for munition argument of slot tag.\n");
                     }
                 }
+
                 if (entity.isSupportVehicle() && (mounted.getType() instanceof InfantryWeapon)) {
                     for (Mounted ammo = mounted.getLinked(); ammo != null; ammo = ammo.getLinked()) {
                         if (((AmmoType) ammo.getType()).getMunitionType() == AmmoType.M_INFERNO) {
@@ -1809,15 +1769,13 @@ public class MULParser {
                         }
                     }
                 }
-
-            } // End have-equipment
+            }
 
             // Hit and destroy the slot, according to the flags.
             slot.setHit(hitFlag);
             slot.setDestroyed(destFlag);
             slot.setRepairable(repairFlag);
-
-        } // End have-required-fields
+        }
         return locAmmoCount;
     }
 
@@ -1832,18 +1790,18 @@ public class MULParser {
         try {
             int motiveDamage = Integer.parseInt(value);
             ((Tank) entity).setMotiveDamage(motiveDamage);
-            if (motiveDamage >= ((Tank) entity).getOriginalWalkMP()) {
+            if (motiveDamage >= entity.getOriginalWalkMP()) {
                 ((Tank) entity).immobilize();
-                ((Tank) entity).applyDamage();
+                entity.applyDamage();
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             warning.append("Invalid motive damage value in movement tag.\n");
         }
         value = movementTag.getAttribute(MPENALTY);
         try {
             int motivePenalty = Integer.parseInt(value);
             ((Tank) entity).setMotivePenalty(motivePenalty);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             warning.append("Invalid motive penalty value in movement tag.\n");
         }
     }
@@ -1983,39 +1941,39 @@ public class MULParser {
 
         Aero a = (Aero) entity;
 
-        if (avionics.length() > 0) {
+        if (!avionics.isEmpty()) {
             a.setAvionicsHits(Integer.parseInt(avionics));
         }
 
-        if (sensors.length() > 0) {
+        if (!sensors.isEmpty()) {
             a.setSensorHits(Integer.parseInt(sensors));
         }
 
-        if (engine.length() > 0) {
+        if (!engine.isEmpty()) {
             a.setEngineHits(Integer.parseInt(engine));
         }
 
-        if (fcs.length() > 0) {
+        if (!fcs.isEmpty()) {
             a.setFCSHits(Integer.parseInt(fcs));
         }
 
-        if (cic.length() > 0) {
+        if (!cic.isEmpty()) {
             a.setCICHits(Integer.parseInt(cic));
         }
 
-        if (leftThrust.length() > 0) {
+        if (!leftThrust.isEmpty()) {
             a.setLeftThrustHits(Integer.parseInt(leftThrust));
         }
 
-        if (rightThrust.length() > 0) {
+        if (!rightThrust.isEmpty()) {
             a.setRightThrustHits(Integer.parseInt(rightThrust));
         }
 
-        if (lifeSupport.length() > 0) {
+        if (!lifeSupport.isEmpty()) {
             a.setLifeSupport(false);
         }
 
-        if (gear.length() > 0) {
+        if (!gear.isEmpty()) {
             a.setGearHit(true);
         }
     }
@@ -2026,17 +1984,18 @@ public class MULParser {
      *  @param entity
      */
     private void parseDropCrit(Element dropCritTag, Entity entity) {
-    	String dockingcollar = dropCritTag.getAttribute(DOCKING_COLLAR);
-    	String kfboom = dropCritTag.getAttribute(KFBOOM);
+        String dockingcollar = dropCritTag.getAttribute(DOCKING_COLLAR);
+        String kfboom = dropCritTag.getAttribute(KFBOOM);
 
-    	Dropship d = (Dropship) entity;
+        Dropship d = (Dropship) entity;
 
-    	if (dockingcollar.length() > 0) {
-    		d.setDamageDockCollar(true);
-    	}
-    	if (kfboom.length() > 0) {
-    		d.setDamageKFBoom(true);
-    	}
+        if (!dockingcollar.isEmpty()) {
+            d.setDamageDockCollar(true);
+        }
+
+        if (!kfboom.isEmpty()) {
+            d.setDamageKFBoom(true);
+        }
     }
 
     /**
@@ -2046,55 +2005,55 @@ public class MULParser {
      *  @param entity
      */
     private void parseTransportBay (Element bayTag, Entity entity) {
-    	// Look for the element's attributes.
-    	String index = bayTag.getAttribute(INDEX);
+        // Look for the element's attributes.
+        String index = bayTag.getAttribute(INDEX);
 
-    	int bay;
-    	// Did we find the required index?
-    	if ((index == null) || (index.length() == 0)) {
-    		warning.append("Could not find index for bay.\n");
-    		return;
-    	} else {
-    	// Try to get a good index value.
-    		bay = -1;
-    		try {
-    			bay = Integer.parseInt(index);
-    		} catch (NumberFormatException excep) {
-    			// Handled by the next if test
-    		}
-    		if (bay < 0) {
-    			warning.append("Found invalid index value for bay: ").append(index).append(".\n");
-    			return;
-    		} else if (entity.getBayById(bay) == null) {
-    			warning.append("The entity, ")
-    			.append(entity.getShortName())
-    			.append(" does not have a bay at index: ")
-    			.append(bay).append(".\n");
-    			return;
-    		}
-    	} // End check for required fields
+        int bay;
+        // Did we find the required index?
+        if (index.isEmpty()) {
+            warning.append("Could not find index for bay.\n");
+            return;
+        } else {
+        // Try to get a good index value.
+            bay = -1;
+            try {
+                bay = Integer.parseInt(index);
+            } catch (NumberFormatException excep) {
+                // Handled by the next if test
+            }
+            if (bay < 0) {
+                warning.append("Found invalid index value for bay: ").append(index).append(".\n");
+                return;
+            } else if (entity.getBayById(bay) == null) {
+                warning.append("The entity, ")
+                .append(entity.getShortName())
+                .append(" does not have a bay at index: ")
+                .append(bay).append(".\n");
+                return;
+            }
+        } // End check for required fields
 
-    	Bay currentbay = entity.getBayById(bay);
+        Bay currentbay = entity.getBayById(bay);
 
-    	// Handle children for each bay.
-    	NodeList nl = bayTag.getChildNodes();
-    	for (int i = 0; i < nl.getLength(); i++) {
-    		Node currNode = nl.item(i);
+        // Handle children for each bay.
+        NodeList nl = bayTag.getChildNodes();
+        for (int i = 0; i < nl.getLength(); i++) {
+            Node currNode = nl.item(i);
 
-    		if (currNode.getParentNode() != bayTag) {
-    			continue;
-    		}
-    		int nodeType = currNode.getNodeType();
-    		if (nodeType == Node.ELEMENT_NODE) {
-    			String nodeName = currNode.getNodeName();
-    			if (nodeName.equalsIgnoreCase(BAYDAMAGE)) {
-    				currentbay.setBayDamage(Double.parseDouble(currNode.getTextContent()));
-    			} else if (nodeName.equalsIgnoreCase(BAYDOORS)) {
+            if (currNode.getParentNode() != bayTag) {
+                continue;
+            }
+            int nodeType = currNode.getNodeType();
+            if (nodeType == Node.ELEMENT_NODE) {
+                String nodeName = currNode.getNodeName();
+                if (nodeName.equalsIgnoreCase(BAYDAMAGE)) {
+                    currentbay.setBayDamage(Double.parseDouble(currNode.getTextContent()));
+                } else if (nodeName.equalsIgnoreCase(BAYDOORS)) {
                     currentbay.setCurrentDoors(Integer.parseInt(currNode.getTextContent()));
-    		    } else if (nodeName.equalsIgnoreCase(LOADED)) {
+                } else if (nodeName.equalsIgnoreCase(LOADED)) {
                     currentbay.troops.add(Integer.parseInt(currNode.getTextContent()));
                 }
-    	    }
+            }
         }
     } // End parseTransportBay
 
@@ -2112,7 +2071,7 @@ public class MULParser {
 
         Tank t = (Tank) entity;
 
-        if (sensors.length() > 0) {
+        if (!sensors.isEmpty()) {
             t.setSensorHits(Integer.parseInt(sensors));
         }
 
@@ -2417,9 +2376,8 @@ public class MULParser {
         String manipTypeName = meaTag.getAttribute(BA_MEA_TYPE_NAME);
 
         // Make sure we got a mount number
-        if (meaMountLocString.length() == 0) {
-            warning.append("antiPersonnelMount tag does not specify " +
-                    "a baMeaMountLoc!\n");
+        if (meaMountLocString.isEmpty()) {
+            warning.append("antiPersonnelMount tag does not specify a baMeaMountLoc!\n");
             return;
         }
 
@@ -2487,9 +2445,8 @@ public class MULParser {
         String apTypeName = apmTag.getAttribute(BA_APM_TYPE_NAME);
 
         // Make sure we got a mount number
-        if (mountNumber.length() == 0) {
-            warning.append("antiPersonnelMount tag does not specify " +
-                    "a baAPMountNum!\n");
+        if (mountNumber.isEmpty()) {
+            warning.append("antiPersonnelMount tag does not specify a baAPMountNum!\n");
             return;
         }
 

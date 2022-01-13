@@ -66,7 +66,7 @@ public class DedicatedServer {
         // start server
         Server dedicated;
         try {
-            if (password == null || password.length() == 0) {
+            if (password == null || password.isEmpty()) {
                 password = PreferenceManager.getClientPreferences().getLastServerPass();
             }
             dedicated = new Server(password, usePort, !announceUrl.isBlank(), announceUrl, mailer);

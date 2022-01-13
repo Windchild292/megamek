@@ -415,14 +415,15 @@ public class CityBuilder {
 
         if (end != null) {
             // got start and end, can we make a bridge?
-            if (hexes.size() == 0)
+            if (hexes.isEmpty())
                 return null;
             int elev1 = board.getHex(start).getLevel();
             int elev2 = board.getHex(end).getLevel();
             int elevBridge = board.getHex(end).terrainLevel(Terrains.BRIDGE);
             if (elevBridge >= 0) {
-                if (Math.abs(elev2 + elevBridge - elev1) > 2)
+                if (Math.abs(elev2 + elevBridge - elev1) > 2) {
                     return null;
+                }
                 elev1 = elev2 + elevBridge;
             } else {
                 if (Math.abs(elev1 - elev2) > 4) {
@@ -477,8 +478,9 @@ public class CityBuilder {
             Coords next = extendRoad(coords, direction, roadStyle);
             if (next == null) {
                 coords = resumeAfterObstacle(coords, direction);
-            } else
+            } else {
                 coords = next;
+            }
         }
 
     }
@@ -490,13 +492,15 @@ public class CityBuilder {
      * @return building type
      */
     public static int getBuildingTypeByCF(int cf) {
-        if (cf <= 15)
+        if (cf <= 15) {
             return Building.LIGHT;
-        if (cf <= 40)
+        } else if (cf <= 40) {
             return Building.MEDIUM;
-        if (cf <= 90)
+        } else if (cf <= 90) {
             return Building.HEAVY;
-        return Building.HARDENED;
+        } else {
+            return Building.HARDENED;
+        }
     }
 
     /**

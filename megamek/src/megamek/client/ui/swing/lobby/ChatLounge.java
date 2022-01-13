@@ -2162,7 +2162,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                     players.add(bc.getLocalPlayer().getName());
                 }
             }
-            if (players.size() > 0) {
+            if (!players.isEmpty()) {
                 String title = Messages.getString("ChatLounge.noCmdr.title"); 
                 String msg = Messages.getString("ChatLounge.noCmdr.msg"); 
                 for (String player : players) {

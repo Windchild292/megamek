@@ -23,7 +23,6 @@ import java.util.Vector;
  * implements functions that gather the number of units each team has.
  */
 public final class Team extends TurnOrdered {
-    private static final long serialVersionUID = 2270215552964191597L;
     private Vector<Player> players = new Vector<>();
     private int id;
     private Boolean ObserverTeam = null;
@@ -124,7 +123,7 @@ public final class Team extends TurnOrdered {
     public int getId() {
         // If Team Initiative is not turned on, id will be 0 for all teams,
         //  however the players accurately store their team id
-        if (players.size() > 0) {
+        if (!players.isEmpty()) {
             return players.get(0).getTeam();
         } else {
             return id;

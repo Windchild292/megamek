@@ -578,7 +578,7 @@ public class BattleForceElement {
     
     public String getBFDamageString(int loc) {
         StringBuilder str = new StringBuilder(locationNames[loc]);
-        if (locationNames[loc].length() > 0) {
+        if (!locationNames[loc].isEmpty()) {
             str.append("(");
         }
         str.append(weaponLocations[loc].formatDamageUp(WeaponType.BFCLASS_STANDARD));
@@ -588,16 +588,19 @@ public class BattleForceElement {
                     .append(weaponLocations[loc].formatDamageUp(i));
             }
         }
+
         for (int i = 1; i < WeaponType.BFCLASS_CAPITAL; i++) {
             if (weaponLocations[loc].hasDamageClassRounded(i)) {
                 str.append(";").append(WeaponType.BF_CLASS_NAMES[i])
                     .append(weaponLocations[loc].formatDamageRounded(i, false));
             }
         }
+
         if (weaponLocations[loc].getIF() >= 0.5) {
             str.append(";IF").append((int) Math.round(weaponLocations[loc].getIF()));
         }
-        if (locationNames[loc].length() > 0) {
+
+        if (!locationNames[loc].isEmpty()) {
             str.append(")");
         }
         return str.toString();

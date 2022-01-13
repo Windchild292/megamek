@@ -484,7 +484,7 @@ public class LobbyActions {
     void forceCreateEmpty() {
         // Ask for a name
         String name = JOptionPane.showInputDialog(frame(), "Choose a force designation");
-        if ((name == null) || (name.trim().length() == 0)) {
+        if ((name == null) || name.isEmpty()) {
             return;
         }
         client().sendAddForce(Force.createToplevelForce(name, localPlayer()), new ArrayList<>());
@@ -517,7 +517,7 @@ public class LobbyActions {
     void forceCreateSub(int parentId) {
         // Ask for a name
         String name = JOptionPane.showInputDialog(frame(), "Choose a force designation");
-        if ((name == null) || (name.trim().length() == 0)) {
+        if ((name == null) || name.isEmpty()) {
             return;
         }
         client().sendAddForce(Force.createSubforce(name, game().getForces().getForce(parentId)), new ArrayList<>());

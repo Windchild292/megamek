@@ -341,9 +341,8 @@ public class WeaponFireInfo {
 
     private WeaponAttackAction buildBombAttackAction(final int[] bombPayload) {
         final WeaponAttackAction diveBomb = new WeaponAttackAction(getShooter().getId(),
-                                                                   getTarget().getTargetType(),
-                                                                   getTarget().getTargetId(),
-                                                                   getShooter().getEquipmentNum(getWeapon()));
+                getTarget().getTargetType(), getTarget().getTargetId(),
+                getShooter().getEquipmentNum(getWeapon()));
         
         diveBomb.setBombPayload(bombPayload);
         
@@ -359,7 +358,7 @@ public class WeaponFireInfo {
         // bay weapons require special consideration, by looping through all weapons and adding up the damage
         // A bay's weapons may have different ranges, most noticeable in laser bays, where the damage potential
         // varies with distance to target.
-        if ((null != weapon.getBayWeapons()) && (weapon.getBayWeapons().size() > 0)) {
+        if ((null != weapon.getBayWeapons()) && !weapon.getBayWeapons().isEmpty()) {
             int bayDamage = 0;
             for (int weaponID : weapon.getBayWeapons()) {
                 Mounted bayWeapon = weapon.getEntity().getEquipment(weaponID);
@@ -422,7 +421,7 @@ public class WeaponFireInfo {
      // bay weapons require special consideration, by looping through all weapons and adding up the damage
         // A bay's weapons may have different ranges, most noticeable in laser bays, where the damage potential
         // varies with distance to target.
-        if ((null != weapon.getBayWeapons()) && (weapon.getBayWeapons().size() > 0)) {
+        if ((null != weapon.getBayWeapons()) && !weapon.getBayWeapons().isEmpty()) {
             int bayHeat = 0;
             for (int weaponID : weapon.getBayWeapons()) {
                 Mounted bayWeapon = weapon.getEntity().getEquipment(weaponID);
@@ -432,7 +431,7 @@ public class WeaponFireInfo {
             
             return bayHeat;
         } else {
-            return ((WeaponType) weapon.getType()).getHeat();
+            return weapon.getType().getHeat();
         }
     }
     
@@ -443,8 +442,7 @@ public class WeaponFireInfo {
      * @param bombedHex The target hex.
      * @return The expected damage of the attack.
      */
-    private double computeExpectedBombDamage(final Entity shooter,
-                                             final Mounted weapon,
+    private double computeExpectedBombDamage(final Entity shooter, final Mounted weapon,
                                              final Coords bombedHex) {
         double damage = 0D; //lol double damage I wish
         
@@ -487,10 +485,8 @@ public class WeaponFireInfo {
      *                              path.
      * @param guess Set TRUE to estimate the chance to hit rather than doing the full calculation.
      */
-    void initDamage(@Nullable final MovePath shooterPath,
-                    final boolean assumeUnderFlightPath,
-                    final boolean guess,
-                    final int[] bombPayload) {
+    void initDamage(@Nullable final MovePath shooterPath, final boolean assumeUnderFlightPath,
+                    final boolean guess, final int[] bombPayload) {
         boolean debugging = false;
         
         final StringBuilder msg =
@@ -545,7 +541,7 @@ public class WeaponFireInfo {
         String currentFireMode = getWeapon().curMode().getName();
         int spinMode = Compute.spinUpCannon(getGame(), getAction(), owner.getSpinupThreshold());
         if (!currentFireMode.equals(getWeapon().curMode().getName())) {
-        	setUpdatedFiringMode(spinMode);
+            setUpdatedFiringMode(spinMode);
         }
         
         setHeat(computeHeat(weapon));
@@ -665,10 +661,10 @@ public class WeaponFireInfo {
      * Null if no update required.
      */
     public Integer getUpdatedFiringMode() {
-    	return updatedFiringMode;
+        return updatedFiringMode;
     }
     
     public void setUpdatedFiringMode(int mode) {
-    	updatedFiringMode = mode;
+        updatedFiringMode = mode;
     }
 }

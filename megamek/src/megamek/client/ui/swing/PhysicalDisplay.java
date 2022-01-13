@@ -344,9 +344,10 @@ public class PhysicalDisplay extends StatusBarPhaseDisplay {
      */
     @Override
     public void clear() {
-        if (attacks.size() > 0) {
+        if (!attacks.isEmpty()) {
             attacks.removeAllElements();
         }
+
         if (ce() != null) {
             clientgui.mechD.wPan.displayMech(ce());
         }

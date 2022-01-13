@@ -305,7 +305,7 @@ public class MtfFile implements IMechLoader {
             }
 
             String thisStructureType = internalType.substring(internalType.indexOf(':') + 1);
-            if (thisStructureType.length() > 0) {
+            if (!thisStructureType.isEmpty()) {
                 mech.setStructureType(thisStructureType);
             } else {
                 mech.setStructureType(EquipmentType.T_STRUCTURE_STANDARD);
@@ -359,7 +359,7 @@ public class MtfFile implements IMechLoader {
                 mech.setArmorTechLevel(mech.getTechLevel());
                 mech.setArmorType(thisArmorType);
             }
-            if (!(thisArmorType.length() > 0)) {
+            if (!(!thisArmorType.isEmpty())) {
                 mech.setArmorType(EquipmentType.T_ARMOR_STANDARD);
             }
             mech.recalculateTechAdvancement();

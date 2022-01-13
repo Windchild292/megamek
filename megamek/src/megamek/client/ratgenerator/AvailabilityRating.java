@@ -165,7 +165,7 @@ public class AvailabilityRating {
 
     public String getFactionCode() {
         String retVal = faction;
-        if (ratings != null && ratings.length() > 0) {
+        if ((ratings != null) && !ratings.isEmpty()) {
             retVal += "!" + ratings;
         }
         return retVal;

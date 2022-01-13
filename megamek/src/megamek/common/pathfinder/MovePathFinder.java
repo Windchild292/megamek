@@ -12,29 +12,15 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common.pathfinder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.EntityMovementType;
-import megamek.common.Facing;
-import megamek.common.Game;
-import megamek.common.MovePath;
+import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
-import megamek.common.MoveStep;
-import megamek.common.Tank;
+import megamek.common.pathfinder.AbstractPathFinder.AdjacencyMap;
+import megamek.common.pathfinder.AbstractPathFinder.Filter;
+import megamek.common.pathfinder.MovePathFinder.CoordsWithFacing;
+
+import java.util.*;
 
 /**
  * Generic implementation of AbstractPathFinder when we restrict graph nodes to
@@ -42,15 +28,11 @@ import megamek.common.Tank;
  * implementations of functional interfaces defined in AbstractPathFinder.
  *
  * @param <C>
+ * @author Saginatio
  */
-public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsWithFacing, C, MovePath> {
-
+public class MovePathFinder<C> extends AbstractPathFinder<CoordsWithFacing, C, MovePath> {
     /**
      * Node defined by coordinates and unit facing.
-     *
-     */
-    /**
-     * @author Saginatio
      */
     public static class CoordsWithFacing {
         /**
@@ -118,7 +100,7 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
      * broken :( It does not work properly for movement paths that use running
      * mp.
      */
-    public static class MovePathRiskFilter extends AbstractPathFinder.Filter<MovePath> {
+    public static class MovePathRiskFilter extends Filter<MovePath> {
         @Override
         public boolean shouldStay(MovePath mp) {
             MoveStep step = mp.getLastStep();
@@ -132,8 +114,7 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
     /**
      * Returns the final CoordsWithFacing for a given MovePath.
      */
-    public static class MovePathDestinationMap
-            implements AbstractPathFinder.DestinationMap<CoordsWithFacing, MovePath> {
+    public static class MovePathDestinationMap implements DestinationMap<CoordsWithFacing, MovePath> {
         @Override
         public CoordsWithFacing getDestination(MovePath e) {
             MoveStep lastStep = e.getLastStep();
@@ -159,7 +140,7 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
      * Current implementation uses MoveStep.isMovementPossible() to verify
      * legality.
      */
-    public static class MovePathLegalityFilter extends AbstractPathFinder.Filter<MovePath> {
+    public static class MovePathLegalityFilter extends Filter<MovePath> {
         Game game;
 
         public MovePathLegalityFilter(Game game) {
@@ -210,7 +191,6 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
         @Override
         public boolean shouldStay(MovePath mp) {
             return (mp.getMpUsed() <= maxMP);
-
         }
     }
 
@@ -236,8 +216,7 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
      *
      * Order paths with fewer steps first.
      */
-    public static class MovePathLengthComparator implements
-            Comparator<MovePath> {
+    public static class MovePathLengthComparator implements Comparator<MovePath> {
         @Override
         public int compare(final MovePath first, final MovePath second) {
             final int firstSteps = first.getStepVector().size();
@@ -270,7 +249,7 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
          * set.
          *
          * @param mp the MovePath to be extended
-         * @see AbstractPathFinder.AdjacencyMap
+         * @see AdjacencyMap
          */
         @Override
         public Collection<MovePath> getAdjacent(MovePath mp) {
@@ -283,6 +262,7 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
             if (lType != MoveStepType.TURN_LEFT) {
                 result.add(mp.clone().addStep(MoveStepType.TURN_RIGHT));
             }
+
             if (lType != MoveStepType.TURN_RIGHT) {
                 result.add(mp.clone().addStep(MoveStepType.TURN_LEFT));
             }
@@ -379,7 +359,6 @@ public class MovePathFinder<C> extends AbstractPathFinder<MovePathFinder.CoordsW
             }
         }
 
-        return paths.size() > 0 ? Collections.min(paths, comp) : null;
+        return !paths.isEmpty() ? Collections.min(paths, comp) : null;
     }
-
 }

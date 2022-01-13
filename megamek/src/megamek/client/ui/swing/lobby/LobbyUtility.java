@@ -146,11 +146,11 @@ public class LobbyUtility {
      * lower edge of the image for which the graphics g is given.
      */
     static void drawMinimapLabel(String text, int w, int h, Graphics g, boolean invalid) {
-        if (text.length() == 0) {
+        if (text.isEmpty()) {
             return;
         }
         GUIPreferences.AntiAliasifSet(g);
-        // The text size may grow with the width of the image, but no bigger than 16*guiscale
+        // The text size may grow with the width of the image, but no bigger than 16 * guiscale
         // to avoid huge text
         int fontSize = Math.min(w / 10, UIUtil.scaleForGUI(16));
         Font font = new Font("Dialog", Font.PLAIN, fontSize);

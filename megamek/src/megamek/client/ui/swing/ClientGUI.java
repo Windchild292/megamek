@@ -830,7 +830,7 @@ public class ClientGUI extends JPanel implements BoardViewListener,
                 destroyed.add(entity);
             }
         }
-        if (destroyed.size() > 0) {
+        if (!destroyed.isEmpty()) {
             String sLogDir = PreferenceManager.getClientPreferences().getLogDirectory();
             File logDir = new File(sLogDir);
             if (!logDir.exists()) {
@@ -1810,7 +1810,7 @@ public class ClientGUI extends JPanel implements BoardViewListener,
                     destroyed.add(entity);
                 }
             }
-            if (destroyed.size() > 0) {
+            if (!destroyed.isEmpty()) {
                 String sLogDir = PreferenceManager.getClientPreferences().getLogDirectory();
                 File logDir = new File(sLogDir);
                 if (!logDir.exists()) {

@@ -34,10 +34,8 @@ import megamek.common.verifier.TestAdvancedAerospace;
  * warships, space stations)
  *
  * @author Neoancient
- *
  */
 public class CapitalShipTROView extends AeroTROView {
-
     private final Jumpship aero;
 
     public CapitalShipTROView(Jumpship aero) {
@@ -88,6 +86,7 @@ public class CapitalShipTROView extends AeroTROView {
         if (aero.getDriveCoreType() != Jumpship.DRIVE_CORE_NONE) {
             setModelData("kfIntegrity", aero.getKFIntegrity());
         }
+
         if (aero.getDriveCoreType() == Jumpship.DRIVE_CORE_PRIMITIVE) {
             setModelData("jumpRange", aero.getJumpRange());
         }
@@ -110,19 +109,23 @@ public class CapitalShipTROView extends AeroTROView {
     private void addFluff() {
         addEntityFluff(aero);
         final Map<String, String> dimensions = new HashMap<>();
-        if (aero.getFluff().getLength().length() > 0) {
+        if (!aero.getFluff().getLength().isEmpty()) {
             dimensions.put("length", aero.getFluff().getLength());
         }
-        if (aero.getFluff().getWidth().length() > 0) {
+
+        if (!aero.getFluff().getWidth().isEmpty()) {
             dimensions.put("width", aero.getFluff().getWidth());
         }
-        if (aero.getFluff().getHeight().length() > 0) {
+
+        if (!aero.getFluff().getHeight().isEmpty()) {
             dimensions.put("height", aero.getFluff().getHeight());
         }
+
         if (!dimensions.isEmpty()) {
             setModelData("dimensions", dimensions);
         }
-        if (aero.getFluff().getUse().length() > 0) {
+
+        if (!aero.getFluff().getUse().isEmpty()) {
             setModelData("use", aero.getFluff().getUse());
         }
     }
@@ -169,18 +172,23 @@ public class CapitalShipTROView extends AeroTROView {
         if (nEnlisted > 0) {
             addCrewEntry("enlisted", nEnlisted);
         }
+
         if (aero.getNGunners() > 0) {
             addCrewEntry("gunner", aero.getNGunners());
         }
+
         if (aero.getBayPersonnel() > 0) {
             addCrewEntry("bayPersonnel", aero.getBayPersonnel());
         }
+
         if (aero.getNPassenger() > 0) {
             addCrewEntry("passenger", aero.getNPassenger());
         }
+
         if (aero.getNMarines() > 0) {
             addCrewEntry("marine", aero.getNMarines());
         }
+
         if (aero.getNBattleArmor() > 0) {
             addCrewEntry("baMarine", aero.getNBattleArmor());
         }

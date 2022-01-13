@@ -235,7 +235,7 @@ public class BLKFile {
                             // been set yet, so if the unit carries multiple clips the number of
                             // shots needs to be adjusted.
                             mount.setSize(size);
-                            assert(mount.getLinked() != null);
+                            Objects.requireNonNull(mount.getLinked());
                             mount.getLinked().setOriginalShots((int) size
                                 * ((InfantryWeapon) mount.getType()).getShots());
                             mount.getLinked().setShotsLeft(mount.getLinked().getOriginalShots());
@@ -791,27 +791,27 @@ public class BLKFile {
             blk.writeBlockData("structural_integrity", ((Aero) t).get0SI());
         }
 
-        if (t.getFluff().getCapabilities().trim().length() > 0) {
+        if (!t.getFluff().getCapabilities().isEmpty()) {
             blk.writeBlockData("capabilities", t.getFluff().getCapabilities());
         }
 
-        if (t.getFluff().getOverview().trim().length() > 0) {
+        if (!t.getFluff().getOverview().isEmpty()) {
             blk.writeBlockData("overview", t.getFluff().getOverview());
         }
 
-        if (t.getFluff().getDeployment().trim().length() > 0) {
+        if (!t.getFluff().getDeployment().isEmpty()) {
             blk.writeBlockData("deployment", t.getFluff().getDeployment());
         }
 
-        if (t.getFluff().getHistory().trim().length() > 0) {
+        if (!t.getFluff().getHistory().isEmpty()) {
             blk.writeBlockData("history", t.getFluff().getHistory());
         }
 
-        if (t.getFluff().getManufacturer().trim().length() > 0) {
+        if (!t.getFluff().getManufacturer().isEmpty()) {
             blk.writeBlockData("manufacturer", t.getFluff().getManufacturer());
         }
 
-        if (t.getFluff().getPrimaryFactory().trim().length() > 0) {
+        if (!t.getFluff().getPrimaryFactory().isEmpty()) {
             blk.writeBlockData("primaryFactory", t.getFluff().getPrimaryFactory());
         }
         
@@ -825,31 +825,31 @@ public class BLKFile {
             blk.writeBlockData("systemModels", list);
         }
 
-        if (t.getFluff().getMMLImagePath().trim().length() > 0) {
+        if (!t.getFluff().getMMLImagePath().isEmpty()) {
             blk.writeBlockData("imagepath", t.getFluff().getMMLImagePath());
         }
 
-        if (t.getFluff().getNotes().trim().length() > 0) {
+        if (!t.getFluff().getNotes().isEmpty()) {
             blk.writeBlockData("notes", t.getFluff().getNotes());
         }
 
-        if (t.getFluff().getUse().trim().length() > 0) {
+        if (!t.getFluff().getUse().isEmpty()) {
             blk.writeBlockData("use", t.getFluff().getUse());
         }
 
-        if (t.getFluff().getLength().trim().length() > 0) {
+        if (!t.getFluff().getLength().isEmpty()) {
             blk.writeBlockData("length", t.getFluff().getLength());
         }
 
-        if (t.getFluff().getWidth().trim().length() > 0) {
+        if (!t.getFluff().getWidth().isEmpty()) {
             blk.writeBlockData("width", t.getFluff().getWidth());
         }
 
-        if (t.getFluff().getHeight().trim().length() > 0) {
+        if (!t.getFluff().getHeight().isEmpty()) {
             blk.writeBlockData("height", t.getFluff().getHeight());
         }
 
-        if (t.getSource().trim().length() > 0) {
+        if (!t.getSource().isEmpty()) {
             blk.writeBlockData("source", t.getSource());
         }
 
@@ -896,28 +896,36 @@ public class BLKFile {
             if (et != null) {
                 blk.writeBlockData("armorKit", et.getInternalName());
             }
+
             if (infantry.getArmorDamageDivisor() != 1) {
                 blk.writeBlockData("armordivisor",
                         Double.toString(infantry.getArmorDamageDivisor()));
             }
+
             if (infantry.isArmorEncumbering()) {
                 blk.writeBlockData("encumberingarmor", "true");
             }
+
             if (infantry.hasSpaceSuit()) {
                 blk.writeBlockData("spacesuit", "true");
             }
+
             if (infantry.hasDEST()) {
                 blk.writeBlockData("dest", "true");
             }
+
             if (infantry.hasSneakCamo()) {
                 blk.writeBlockData("sneakcamo", "true");
             }
+
             if (infantry.hasSneakIR()) {
                 blk.writeBlockData("sneakir", "true");
             }
+
             if (infantry.hasSneakECM()) {
                 blk.writeBlockData("sneakecm", "true");
             }
+
             if (infantry.hasSpecialization()) {
                 blk.writeBlockData("specialization", infantry.getSpecializations());
             }
@@ -929,8 +937,9 @@ public class BLKFile {
                     augmentations.add(o.getName());
                 }
             }
-            if (augmentations.size() > 0) {
-                blk.writeBlockData("augmentation", augmentations.toArray(new String[augmentations.size()]));
+
+            if (!augmentations.isEmpty()) {
+                blk.writeBlockData("augmentation", augmentations.toArray(new String[0]));
             }
         } else {
             blk.writeBlockData("tonnage", t.getWeight());
@@ -943,22 +952,19 @@ public class BLKFile {
         if ((t instanceof Tank) && t.isOmni()) {
             Tank tank = (Tank) t;
             if (tank.getBaseChassisTurretWeight() >= 0) {
-                blk.writeBlockData("baseChassisTurretWeight",
-                        tank.getBaseChassisTurretWeight());
+                blk.writeBlockData("baseChassisTurretWeight", tank.getBaseChassisTurretWeight());
             }
+
             if (tank.getBaseChassisTurret2Weight() >= 0) {
-                blk.writeBlockData("baseChassisTurret2Weight",
-                        tank.getBaseChassisTurret2Weight());
+                blk.writeBlockData("baseChassisTurret2Weight", tank.getBaseChassisTurret2Weight());
             }
             if (tank.getBaseChassisSponsonPintleWeight() >= 0) {
-                blk.writeBlockData("baseChassisSponsonPintleWeight",
-                        tank.getBaseChassisSponsonPintleWeight());
+                blk.writeBlockData("baseChassisSponsonPintleWeight", tank.getBaseChassisSponsonPintleWeight());
             }
         }
 
         if (t.isSupportVehicle() && t.isOmni()) {
-            blk.writeBlockData("baseChassisFireConWeight",
-                    t.getBaseChassisFireConWeight());
+            blk.writeBlockData("baseChassisFireConWeight", t.getBaseChassisFireConWeight());
         }
 
         if (t instanceof Tank) {
@@ -966,15 +972,19 @@ public class BLKFile {
             if (tank.isSupportVehicle()) {
                 blk.writeBlockData("fuel", tank.getFuelTonnage());
             }
+
             if (tank.getEngine().getEngineType() == Engine.COMBUSTION_ENGINE) {
                 blk.writeBlockData("fuelType", tank.getICEFuelType().toString());
             }
+
             if (tank.hasNoControlSystems()) {
                 blk.writeBlockData("hasNoControlSystems", 1);
             }
+
             if (!t.isSupportVehicle() && t.isTrailer()) {
                 blk.writeBlockData("trailer", 1);
             }
+
             if (tank.getExtraCrewSeats() > 0) {
                 blk.writeBlockData(BLK_EXTRA_SEATS, tank.getExtraCrewSeats());
             }
@@ -1000,8 +1010,7 @@ public class BLKFile {
             if (ws.getDriveCoreType() == Warship.DRIVE_CORE_PRIMITIVE) {
                 blk.writeBlockData("jump_range", ws.getJumpRange());
             }
-        } else if ((t instanceof SpaceStation)
-                && ((SpaceStation) t).isModular()) {
+        } else if ((t instanceof SpaceStation) && ((SpaceStation) t).isModular()) {
             blk.writeBlockData("modular", 1);
         }
         
@@ -1010,6 +1019,7 @@ public class BLKFile {
             if (js.hasHPG()) {
                 blk.writeBlockData("hpg", 1);
             }
+
             if (js.hasLF()) {
                 blk.writeBlockData("lithium-fusion", 1);
             }

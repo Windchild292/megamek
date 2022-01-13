@@ -48,11 +48,12 @@ public class OptionGroupNode extends RulesetNode {
                 }
             }
         }
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             ValueNode n = list.get(Compute.randomInt(list.size()));
             if (apply) {
                 n.apply(fd);
             }
+
             if (n.getContent() == null) {
                 return null;
             }

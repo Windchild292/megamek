@@ -57,7 +57,6 @@ public class ACAPHandler extends ACWeaponHandler {
             Vector<Report> vPhaseReport, Building bldg, int hits, int nCluster,
             int bldgAbsorbs) {
         AmmoType atype = (AmmoType) weapon.getLinked().getType();
-        int nDamage;
         HitData hit = entityTarget.rollHitLocation(toHit.getHitTable(),
                 toHit.getSideTable(), waa.getAimedLocation(),
                 waa.getAimingMode(), toHit.getCover());
@@ -85,13 +84,13 @@ public class ACAPHandler extends ACWeaponHandler {
             vPhaseReport.addElement(r);
         }
         // Resolve damage normally.
-        nDamage = nDamPerHit * Math.min(nCluster, hits);
+        int nDamage = nDamPerHit * Math.min(nCluster, hits);
         if (bDirect && !target.isConventionalInfantry()) {
             hit.makeDirectBlow(toHit.getMoS() / 3);
         }
 
         // Report calcDmgPerHitReports here
-        if (calcDmgPerHitReport.size() > 0) {
+        if (!calcDmgPerHitReport.isEmpty()) {
             vPhaseReport.addAll(calcDmgPerHitReport);
         }
 

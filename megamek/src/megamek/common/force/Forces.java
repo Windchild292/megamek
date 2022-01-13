@@ -234,7 +234,7 @@ public final class Forces {
      * be empty or contain "|" or "\".
      */
     public boolean verifyForceName(String name) {
-        return name != null && name.trim().length() > 0 && !name.contains("|") && !name.contains("\\");
+        return name != null && !name.trim().isEmpty() && !name.contains("|") && !name.contains("\\");
     }
     
     /** 

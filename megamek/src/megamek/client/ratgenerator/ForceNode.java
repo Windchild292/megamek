@@ -80,8 +80,7 @@ public class ForceNode extends RulesetNode {
                         }
                         break;
                     case "chassis":
-                        if (fd.getChassis().size() == 0
-                        || rule.predicates.containsKey("ifChassis")) {
+                        if (fd.getChassis().isEmpty() || rule.predicates.containsKey("ifChassis")) {
                             ValueNode n = rule.selectOption(fd, true);
                             if (n != null) {
                                 for (String c : n.getContent().split(",")) {
@@ -91,8 +90,7 @@ public class ForceNode extends RulesetNode {
                         }
                         break;
                     case "variant":
-                        if (fd.getVariants().size() == 0
-                        || rule.predicates.containsKey("ifVariant")) {
+                        if (fd.getVariants().isEmpty() || rule.predicates.containsKey("ifVariant")) {
                             ValueNode n = rule.selectOption(fd, true);
                             if (n != null) {
                                 for (String c : n.getContent().split(",")) {
@@ -113,18 +111,19 @@ public class ForceNode extends RulesetNode {
                             }
                             break;
                         }
+
                         if (content.startsWith("+")) {
                             content = content.replace("+", "");
                         } else {
                             fd.getMovementModes().clear();
                         }
+
                         for (String p : content.split(",")) {
                             fd.getMovementModes().add(EntityMovementMode.parseFromString(p));
                         }
                         break;
                     case "formation":
-                        if (null == fd.getFormation()
-                        || rule.predicates.containsKey("ifFormation")) {
+                        if (fd.getFormation() == null) || rule.predicates.containsKey("ifFormation")) {
                             n = rule.selectOption(fd, true);
                             if (n == null) {
                                 break;
@@ -148,17 +147,20 @@ public class ForceNode extends RulesetNode {
                         if (content == null) {
                             break;
                         }
+
                         if (content.startsWith("-")) {
                             for (String p : content.replaceFirst("\\-", "").split(",")) {
                                 fd.getRoles().remove(MissionRole.parseRole(p));
                             }
                             break;
                         }
+
                         if (content.startsWith("+")) {
                             content = content.replace("+", "");
                         } else {
                             fd.getRoles().clear();
                         }
+
                         for (String p : content.split(",")) {
                             MissionRole role = MissionRole.parseRole(p);
                             if (role != null) {
@@ -177,17 +179,20 @@ public class ForceNode extends RulesetNode {
                         if (content == null) {
                             break;
                         }
+
                         if (content.startsWith("-")) {
                             for (String p : content.replaceFirst("\\-", "").split(",")) {
                                 fd.getFlags().remove(p);
                             }
                             break;
                         }
+
                         if (content.startsWith("+")) {
                             content = content.replace("+", "");
                         } else {
                             fd.getFlags().clear();
                         }
+
                         for (String p : content.split(",")) {
                             fd.getFlags().add(p);
                         }
@@ -201,6 +206,7 @@ public class ForceNode extends RulesetNode {
                         if (content == null) {
                             break;
                         }
+
                         if (content.endsWith("+")) {
                             fd.setSizeMod(ForceDescriptor.REINFORCED);
                         } else if (content.endsWith("-")) {
@@ -217,7 +223,7 @@ public class ForceNode extends RulesetNode {
         }
 
         String generate = assertions.getProperty("generate");
-        if (subforces.size() == 0) {
+        if (subforces.isEmpty()) {
             generate = "model";
         }
 
@@ -251,6 +257,7 @@ public class ForceNode extends RulesetNode {
                     if (n.useParentFaction()) {
                         faction = ruleset.getParent();
                     }
+
                     if (faction != null) {
                         Ruleset rs = null;
                         ForceNode fn = null;
@@ -269,6 +276,7 @@ public class ForceNode extends RulesetNode {
                 } else {
                     subs = n.generateSubforces(fd, false);
                 }
+
                 if (subs != null) {
                     for (ForceDescriptor sub : subs) {
                         fd.addSubforce(sub);
@@ -329,9 +337,7 @@ public class ForceNode extends RulesetNode {
         try {
             eschelon = Integer.parseInt(assertions.getProperty("eschelon"));
             assertions.remove("eschelon");
-        } catch (NullPointerException ex) {
-            throw new IllegalArgumentException("Force Generator: force node is missing eschelon attribute.");
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             throw new IllegalArgumentException("Force Generator: force node is missing eschelon attribute.");
         }
 

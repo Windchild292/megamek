@@ -230,7 +230,7 @@ public class PacketTool extends Frame implements Runnable {
     public void boardLoad() {
         FileDialog fd = new FileDialog(this, "Load Board...", FileDialog.LOAD);
         fd.setDirectory("data" + File.separator + "boards");
-        if (boardName.getText().length() > 0) {
+        if (!boardName.getText().isEmpty()) {
             fd.setFile(boardName.getText());
         }
         fd.setLocation(this.getLocation().x + 150, this.getLocation().y + 100);
@@ -254,9 +254,8 @@ public class PacketTool extends Frame implements Runnable {
 
             // Enable the send button.
             butSend.setEnabled(true);
-        } catch (IOException ex) {
-            System.err.println("error opening file to save!");
-            System.err.println(ex);
+        } catch (Exception ex) {
+            LogManager.getLogger().error("Failed opening file to save", ex);
         }
     }
 

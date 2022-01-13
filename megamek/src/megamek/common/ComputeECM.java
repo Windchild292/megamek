@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import megamek.common.ECMInfo.ECCMComparator;
+import megamek.common.ECMInfo.ECMComparator;
 import megamek.common.options.OptionsConstants;
 import megamek.server.SmokeCloud;
 
@@ -159,7 +161,7 @@ public class ComputeECM {
         }
     
         // none? get out of here
-        if (vEnemyECMCoords.size() == 0) {
+        if (vEnemyECMCoords.isEmpty()) {
             return 0;
         }
     
@@ -282,14 +284,13 @@ public class ComputeECM {
         }
     
         // none? get out of here
-        if (vEnemyECMCoords.size() == 0) {
+        if (vEnemyECMCoords.isEmpty()) {
             return 0;
         }
     
         // get intervening Coords.
         ArrayList<Coords> coords = Coords.intervening(a, b);
-        // loop through all intervening coords, check each if they are ECM
-        // affected
+        // loop through all intervening coords, check each if they are ECM affected
         int totalECM = 0;
         boolean bDivided = ((a.degree(b) % 60) == 30);
         int x = 0;
@@ -327,8 +328,7 @@ public class ComputeECM {
                 if (nDist <= range) {
                     // still might need to check for right arc if using medium range
                     if ((range < 7)
-                        || Compute.isInArc(friendlyBAPCoords, facing, c,
-                                           Compute.ARC_NOSE)) {
+                        || Compute.isInArc(friendlyBAPCoords, facing, c, Compute.ARC_NOSE)) {
                         ecmStatus = ecmStatus - 2;
                     }
                 }
@@ -359,10 +359,8 @@ public class ComputeECM {
      * @param entities  The list of entities to compute information for
      * @return          An ECMInfo entry for each active ECM and ECCM fielded.
      */
-    public static List<ECMInfo> computeAllEntitiesECMInfo(
-            List<Entity> entities) {
-        Comparator<ECMInfo> ecmComparator;
-        ecmComparator = new ECMInfo.ECCMComparator();
+    public static List<ECMInfo> computeAllEntitiesECMInfo(List<Entity> entities) {
+        Comparator<ECMInfo> ecmComparator = new ECCMComparator();
         
         ArrayList<ECMInfo> allEcmInfo = new ArrayList<>(entities.size());
         ArrayList<ECMInfo> allEccmInfo = new ArrayList<>(entities.size());
@@ -380,6 +378,7 @@ public class ComputeECM {
                 allEcmInfo.add(eccmInfo);
                 allEccmInfo.add(eccmInfo);
             }
+
             if (game == null) {
                 game = e.getGame();
             }
@@ -409,7 +408,7 @@ public class ComputeECM {
         
         // If ECCM is on, we may have to remove some ECM that is negated
         if (game.getOptions().booleanOption(OptionsConstants.ADVANCED_TACOPS_ECCM) 
-                && allEccmInfo.size() > 0) {
+                && !allEccmInfo.isEmpty()) {
             Iterator<ECMInfo> ecmIterator = allEcmInfo.iterator();
             Iterator<ECMInfo> eccmIterator;
             while (ecmIterator.hasNext()) {
@@ -436,8 +435,7 @@ public class ComputeECM {
                             ecmIterator.remove();
                             ecmNegated = true;
                         // Angel vs Angel
-                        } else if (eccmInfo.getAngelECCMStrength() 
-                                        >= ecmInfo.getAngelECMStrength()) {
+                        } else if (eccmInfo.getAngelECCMStrength() >= ecmInfo.getAngelECMStrength()) {
                             // Remove the ECM and ECCM
                             ecmIterator.remove();
                             eccmIterator.remove();
@@ -445,8 +443,7 @@ public class ComputeECM {
                             // Keep track of this eccm to remove it again later
                             eccmToRemove.add(eccmInfo);
                         } else if (!ecmInfo.isAngelECM() 
-                                && (eccmInfo.getECCMStrength() 
-                                        >= ecmInfo.getECMStrength())) {
+                                && (eccmInfo.getECCMStrength() >= ecmInfo.getECMStrength())) {
                             // Remove the ECM and ECCM
                             ecmIterator.remove();
                             eccmIterator.remove();
@@ -471,15 +468,10 @@ public class ComputeECM {
      * @param b
      * @return
      */
-    public static ECMInfo getECMEffects(Entity ae, Coords a, Coords b,
-            boolean compareECM, List<ECMInfo> allEcmInfo) {
-        Comparator<ECMInfo> ecmComparator;
-        if (compareECM) {
-            ecmComparator = new ECMInfo.ECMComparator();
-        } else {
-            ecmComparator = new ECMInfo.ECCMComparator();
-        }
-        
+    public static ECMInfo getECMEffects(Entity ae, Coords a, Coords b, boolean compareECM,
+                                        List<ECMInfo> allEcmInfo) {
+        Comparator<ECMInfo> ecmComparator = compareECM ? new ECMComparator() : new ECCMComparator();
+
         if (ae.isSpaceborne()) {
             // normal ECM effects don't apply in space
             return null;
@@ -489,8 +481,7 @@ public class ComputeECM {
         }
 
         if (allEcmInfo == null) {
-            allEcmInfo = computeAllEntitiesECMInfo(ae.getGame()
-                    .getEntitiesVector());
+            allEcmInfo = computeAllEntitiesECMInfo(ae.getGame().getEntitiesVector());
         }
         
         // Get intervening Coords
@@ -512,14 +503,11 @@ public class ComputeECM {
                     affectedInfo.addOpposingECMEffects(ecmInfo);
                 }
             }
-            if ((worstECMEffects == null && affectedInfo != null)
-                    || (affectedInfo != null && ecmComparator.compare(
-                            affectedInfo, worstECMEffects) > 0)) {
+            if (((worstECMEffects == null) && (affectedInfo != null))
+                    || ((affectedInfo != null) && ecmComparator.compare(affectedInfo, worstECMEffects) > 0)) {
                 worstECMEffects = affectedInfo;
             }
         }       
         return worstECMEffects;
     }
-    
-
 }

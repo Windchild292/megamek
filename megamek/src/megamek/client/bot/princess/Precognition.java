@@ -515,7 +515,7 @@ public class Precognition implements Runnable {
                     toDirty.remove(i);
                 }
 
-                if (toDirty.size() != 0) {
+                if (!toDirty.isEmpty()) {
                     StringBuilder msg = new StringBuilder("The following units have become dirty");
                     if (getGame().getEntity(id) != null) {
                         msg.append(" as a result of a nearby move of ")
@@ -750,7 +750,7 @@ public class Precognition implements Runnable {
                 newMines.add(mf);
             }
         }
-        if (newMines.size() > 0) {
+        if (!newMines.isEmpty()) {
             getGame().resetMinefieldDensity(newMines);
         }
     }

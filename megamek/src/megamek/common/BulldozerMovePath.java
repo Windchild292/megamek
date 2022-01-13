@@ -31,8 +31,6 @@ import megamek.common.pathfinder.BoardClusterTracker.MovementType;
  * @author NickAragua
  */
 public class BulldozerMovePath extends MovePath {
-    private static final long serialVersionUID = 1346716014573707012L;
-
     public static final int CANNOT_LEVEL = -1;
 
     Map<Coords, Integer> coordLevelingCosts = new HashMap<>();
@@ -260,7 +258,7 @@ public class BulldozerMovePath extends MovePath {
      * Whether this path will require terrain reduction to fully accomplish
      */
     public boolean needsLeveling() {
-        return coordLevelingCosts.size() > 0;
+        return !coordLevelingCosts.isEmpty();
     }
     
     /**

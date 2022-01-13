@@ -44,10 +44,11 @@ class VTOLAttackSprite extends Sprite {
             targets = Collections.emptyList();
         }
         int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-        if (targets.size() > 0) {
+        if (!targets.isEmpty()) {
             x1 = x2 = (int) bv.getHexLocation(targets.get(0)).getX();
             y1 = y2 = (int) bv.getHexLocation(targets.get(0)).getX();
         }
+
         if (targets.size() > 1) {
             for (int i = 1; i < targets.size(); i++) {
                 x1 = Math.min(x1, (int) bv.getHexLocation(targets.get(i)).getX());

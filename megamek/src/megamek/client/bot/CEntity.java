@@ -1061,7 +1061,7 @@ public class CEntity {
         discovered.put(base); // Add the base movement option to the movement
         // option table
 
-        while (possible.size() > 0) { // Keep going until the arraylist is
+        while (!possible.isEmpty()) { // Keep going until the arraylist is
             // empty (why?)
 
             // Get the first movement option, while stripping it from the
@@ -1138,7 +1138,7 @@ public class CEntity {
                 }
             }
             String pilotChecks = SharedUtility.doPSRCheck(next);
-            if (pilotChecks.length() > 0) {
+            if (!pilotChecks.isEmpty()) {
                 next.inDanger = true;
             }
         }

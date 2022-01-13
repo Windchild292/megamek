@@ -269,7 +269,7 @@ public class AbstractPathFinder<N, C, E> {
      */
     public void run(Collection<E> startingEdges) {
         try {
-            if (candidates.size() > 0) {
+            if (!candidates.isEmpty()) {
                 candidates.clear();
                 pathsCosts.clear();
             }
@@ -285,21 +285,22 @@ public class AbstractPathFinder<N, C, E> {
                 if (newCost != null) {
                     // we have a better path to this node, so we can update it
                     pathsCosts.put(node, newCost);
-                    Collection<E> neighbours = adjacencyMap.getAdjacent(e);
-                    Collection<E> filteredNeighbours = neighbours;
+                    Collection<E> filteredNeighbours = adjacencyMap.getAdjacent(e);
                     for (Filter<E> f : filters) {
                         filteredNeighbours = f.doFilter(filteredNeighbours);
                     }
                     candidates.addAll(filteredNeighbours);
                 }
-                if (stopCondition.shouldStop(e))
+
+                if (stopCondition.shouldStop(e)) {
                     break;
+                }
             }
         } catch (OutOfMemoryError e) {
             final String memoryMessage = "Not enough memory to analyse all options."
                     + " Try setting time limit to lower value, or "
                     + "increase java memory limit.";
-            
+
             LogManager.getLogger().error(memoryMessage, e);
         } catch (Exception e) {
             LogManager.getLogger().error("", e); //do something, don't just swallow the exception, good lord

@@ -1137,7 +1137,8 @@ public class Client implements IClientCommandHandler {
                 newMines.add(mf);
             }
         }
-        if (newMines.size() > 0) {
+
+        if (!newMines.isEmpty()) {
             game.resetMinefieldDensity(newMines);
         }
     }
@@ -1214,7 +1215,7 @@ public class Client implements IClientCommandHandler {
         //add all instances to a hashset to prevent duplicates
         while (m.find()) {
             String cleanedText = m.group(1).replaceAll("\\D", "");
-            if (cleanedText.length() > 0) {
+            if (!cleanedText.isEmpty()) {
                 set.add(Integer.parseInt(cleanedText));
             }
         }

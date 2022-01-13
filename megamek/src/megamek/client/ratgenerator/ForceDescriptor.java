@@ -144,7 +144,7 @@ public class ForceDescriptor {
         if (cRec.getUnitType() != unitType) {
             return false;
         }
-        if (chassis.size() > 0 && !chassis.contains(cRec.getChassis())) {
+        if (!chassis.isEmpty() && !chassis.contains(cRec.getChassis())) {
             return false;
         }
         return true;
@@ -159,13 +159,13 @@ public class ForceDescriptor {
      *
      */
     public boolean matches(ModelRecord mRec) {
-        if (chassis.size() > 0 && !chassis.contains(mRec.getChassis())) {
+        if (!chassis.isEmpty() && !chassis.contains(mRec.getChassis())) {
             return false;
         }
-        if (variants.size() > 0 && !variants.contains(mRec.getModel())) {
+        if (!variants.isEmpty() && !variants.contains(mRec.getModel())) {
             return false;
         }
-        if (models.size() > 0 && !models.contains(mRec.getKey())) {
+        if (!models.isEmpty() && !models.contains(mRec.getKey())) {
             return false;
         }
         return true;
@@ -174,18 +174,19 @@ public class ForceDescriptor {
     /**
      * Goes through the force tree structure and generates units for all leaf nodes.
      */
-    public void generateUnits(Ruleset.ProgressListener l, double progress) {
-        //If the parent node has a chassis or model assigned, it carries through to the children.
+    public void generateUnits(ProgressListener l, double progress) {
+        // If the parent node has a chassis or model assigned, it carries through to the children.
         if (null != parent) {
             chassis.addAll(parent.getChassis());
             models.addAll(parent.getModels());
         }
-        //First see if a formation has been assigned. If unable to fulfill the formation requirements, generate using default parameters.
+        // First see if a formation has been assigned. If unable to fulfill the formation requirements, generate using default parameters.
         if (subforces.isEmpty()) {
             ModelRecord mr = generate();
             if (null == mr && !models.isEmpty()) {
                 mr = RATGenerator.getInstance().getModelRecord(getModelName());
             }
+
             if (null != mr) {
                 setUnit(mr);
             } else {
@@ -434,7 +435,7 @@ public class ForceDescriptor {
         //If there is any conventional infantry we'll generate it first, then assign the APC role
         //to as many vehicles (if any) in the base units as we have foot infantry. Any remaining vehicles
         //will get the infantry support role.
-        if (infSubs.size() > 0) {
+        if (!infSubs.isEmpty()) {
             generateLance(infSubs);
             int footCount = (int) infSubs.stream().filter(fd -> fd.getMovementModes()
                     .contains(EntityMovementMode.INF_LEG)).count();
@@ -462,7 +463,7 @@ public class ForceDescriptor {
                     .filter(Objects::nonNull).collect(Collectors.toList());
         }
 
-        //Any BA in exceess of the number of omni base units will require mag clamps, up to the number of base units.
+        // Any BA in exceess of the number of omni base units will require mag clamps, up to the number of base units.
         int magReq = Math.min((int) (baSubs.size() - baseUnitList.stream().filter(AbstractUnitRecord::isOmni).count()),
                 baSubs.size());
         for (int i = 0; i < baSubs.size(); i++) {
@@ -486,11 +487,11 @@ public class ForceDescriptor {
      * @param subs The subforces that describe the indiviual elements of the lance
      */
     public void generateLance(List<ForceDescriptor> subs) {
-        if (subs.size() == 0) {
+        if (subs.isEmpty()) {
             return;
         }
         ModelRecord unit = null;
-        if (chassis.size() > 0 || models.size() > 0) {
+        if (!chassis.isEmpty() || !models.isEmpty()) {
             for (ForceDescriptor sub : subs) {
                 unit = sub.generate();
                 if (unit != null) {
@@ -886,12 +887,13 @@ public class ForceDescriptor {
             return;
         }
 
-        if (subforces.size() > 0) {
+        if (!subforces.isEmpty()) {
             int coPos = (coNode.getPosition() == null) ? 1 : Math.min(coNode.getPosition(), 1);
             int xoPos = 0;
             if ((xoNode != null) && ((xoNode.getPosition() == null) || (xoNode.getPosition() > 0))) {
                 xoPos = (xoNode.getPosition() == null) ? coPos + 1 : Math.max(coPos, xoNode.getPosition());
             }
+
             if (coPos + xoPos > 0) {
                 ForceDescriptor[] forces = subforces.toArray(new ForceDescriptor[0]);
                 Arrays.sort(forces, forceSorter);
@@ -912,6 +914,7 @@ public class ForceDescriptor {
                     subforces.remove(coFound);
                     subforces.add(0, coFound);
                 }
+
                 if (xoPos != 0) {
                     /* If the XO is a field officer, the position is assigned to the first subforce that doesn't contain the CO
                      * (which is the first if the CO is not a field officer). If the CO and XO positions are the same, the
@@ -962,6 +965,7 @@ public class ForceDescriptor {
             getXo().setRank(xoNode.getRank());
             getXo().setTitle(xoNode.getTitle());
         }
+
         if (!element) {
             movementModes.clear();
             boolean isOmni = true;
@@ -1234,9 +1238,9 @@ public class ForceDescriptor {
      */
     public double recalcWeightClass() {
         double wc;
-        if (subforces.size() > 0) {
-            wc = subforces.stream().mapToDouble(ForceDescriptor::recalcWeightClass)
-                    .sum() / subforces.size();
+        if (!subforces.isEmpty()) {
+            wc = subforces.stream().mapToDouble(ForceDescriptor::recalcWeightClass).sum()
+                    / subforces.size();
         } else if (null != weightClass && weightClass >= 0) {
             wc = weightClass;
         } else {
@@ -1326,7 +1330,7 @@ public class ForceDescriptor {
     public String getDescription() {
         StringBuilder retVal = new StringBuilder();
         if (unitType != null) {
-            if (weightClass != null && weightClass >= 0) {
+            if ((weightClass != null) && (weightClass >= 0)) {
                 retVal.append(EntityWeightClass.getClassName(weightClass)).append(" ");
             }
 
@@ -1368,6 +1372,7 @@ public class ForceDescriptor {
         if (eschName != null) {
             retVal.append(" ").append(eschName);
         }
+
         if (null != formationType) {
             retVal.append(" (").append(formationType.getName()).append(")");
         }
