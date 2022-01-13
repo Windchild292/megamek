@@ -205,7 +205,7 @@ public class AeroPathUtil {
                 
                 // going down doesn't use MP, but if we drop down more than 2 altitude it causes a
                 // massive difficulty PSR, which is just not worth it.
-                if ((childPath.getFinalAltitude() < 1) || childPath.length() > 2) {
+                if ((childPath.getFinalAltitude() < 1) || (childPath.length() > 2)) {
                     break;
                 }
                 

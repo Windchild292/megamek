@@ -14,6 +14,7 @@
 */
 package megamek.client.ratgenerator;
 
+import megamek.client.ratgenerator.Ruleset.ProgressListener;
 import megamek.common.*;
 import megamek.common.loaders.EntityLoadingException;
 import org.apache.logging.log4j.LogManager;
@@ -688,7 +689,7 @@ public class ForceDescriptor {
                 }
             }
 
-            if (ut == null || ut == UnitType.MEK) {
+            if ((ut == null) || (ut == UnitType.MEK)) {
                 baseModel = null;
             }
         }
@@ -773,12 +774,12 @@ public class ForceDescriptor {
         fd.getRoles().clear();
         fd.getRoles().addAll(roles.stream().filter(r -> r.fitsUnitType(unitType)).collect(Collectors.toList()));
 
-        int wtIndex = (useWeightClass() && weightClass != null && weightClass != -1) ? 0 : 4;
+        int wtIndex = (useWeightClass() && (weightClass != null) && (weightClass != -1)) ? 0 : 4;
 
         while (wtIndex < 5) {
             for (int roleStrictness = 3; roleStrictness >= 0; roleStrictness--) {
                 List<Integer> wcs = new ArrayList<>();
-                if (useWeightClass() && null != fd.getWeightClass() && fd.getWeightClass() >= 0) {
+                if (useWeightClass() && (fd.getWeightClass() != null) && (fd.getWeightClass() >= 0)) {
                     wcs.add(fd.getWeightClass());
                 }
                 String ratGenRating = ratGeneratorRating();
@@ -793,11 +794,12 @@ public class ForceDescriptor {
                 } else {
                     ms = table.generateUnit();
                 }
-                if (ms != null && RATGenerator.getInstance().getModelRecord(ms.getName()) != null) {
+
+                if ((ms != null) && (RATGenerator.getInstance().getModelRecord(ms.getName()) != null)) {
                     return RATGenerator.getInstance().getModelRecord(ms.getName());
                 }
 
-                if ((!useWeightClass() || wtIndex == 2) && !fd.getRoles().isEmpty()) {
+                if ((!useWeightClass() || (wtIndex == 2)) && !fd.getRoles().isEmpty()) {
                     fd.getRoles().clear();
                 } else if ((!useWeightClass() || (wtIndex == 1))
                         && !fd.getMovementModes().isEmpty()) {
@@ -817,7 +819,7 @@ public class ForceDescriptor {
         return null;
     }
 
-    public void loadEntities(Ruleset.ProgressListener l, double progress) {
+    public void loadEntities(ProgressListener l, double progress) {
         if (element) {
             MechSummary ms = MechSummaryCache.getInstance().getMech(getModelName());
             if (ms != null) {
