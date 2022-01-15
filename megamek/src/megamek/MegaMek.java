@@ -85,8 +85,8 @@ public class MegaMek {
             if (cp.ratGenEditor()) {
                 RATGeneratorEditor.main(restArgs);
             } else {
-                // Load button ordering
                 ButtonOrderPreferences.getInstance().setButtonPriorities();
+                // Load button ordering
                 startGUI();
             }
         } catch (CommandLineParser.ParseException e) {
