@@ -191,6 +191,8 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
     
     private JLabel stampFormatLabel;
     private JLabel gameLogFilenameLabel;
+    private JCheckBox chkParanoidAutosave;
+    private JCheckBox chkAutosaveMessage;
 
     private final JCheckBox gameSummaryBV = new JCheckBox(Messages.getString("CommonSettingsDialog.gameSummaryBV.name"));
     private final JCheckBox gameSummaryMM = new JCheckBox(Messages.getString("CommonSettingsDialog.gameSummaryMM.name"));
@@ -446,14 +448,21 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         addSpacer(comps, 5);
         comps.add(checkboxEntry(stampFilenames, null));
 
-        stampFormatLabel = new JLabel(Messages.getString("CommonSettingsDialog.stampFormat")); 
+        stampFormatLabel = new JLabel(Messages.getString("CommonSettingsDialog.stampFormat"));
         stampFormat = new JTextField(15);
-        stampFormat.setMaximumSize(new Dimension(15*13, 40));
         row = new ArrayList<>();
-        row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(stampFormatLabel);
         row.add(stampFormat);
         comps.add(row);
+
+        chkParanoidAutosave = new JCheckBox(Messages.getString("chkParanoidAutosave.text"));
+        chkParanoidAutosave.setToolTipText(Messages.getString("chkParanoidAutosave.toolTipText"));
+        comps.add(checkboxEntry(chkParanoidAutosave, chkParanoidAutosave.getToolTipText()));
+
+
+        chkAutosaveMessage = new JCheckBox(Messages.getString("chkAutosaveMessage.text"));
+        chkAutosaveMessage.setToolTipText(Messages.getString("chkAutosaveMessage.toolTipText"));
+        comps.add(checkboxEntry(chkAutosaveMessage, chkAutosaveMessage.getToolTipText()));
 
         addLineSpacer(comps);
         comps.add(checkboxEntry(showIPAddressesInChat, Messages.getString("CommonSettingsDialog.showIPAddressesInChat.tooltip")));
@@ -535,11 +544,12 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
             keepGameLog.setSelected(cs.keepGameLog());
             gameLogFilename.setEnabled(keepGameLog.isSelected());
             gameLogFilename.setText(cs.getGameLogFilename());
-            // gameLogMaxSize.setEnabled(keepGameLog.isSelected());
-            // gameLogMaxSize.setText( Integer.toString(cs.getGameLogMaxSize()) );
             stampFilenames.setSelected(cs.stampFilenames());
             stampFormat.setEnabled(stampFilenames.isSelected());
             stampFormat.setText(cs.getStampFormat());
+            chkParanoidAutosave.setSelected(cs.getParanoidAutosave());
+            chkAutosaveMessage.setSelected(cs.getAutosaveMessage());
+
             showIPAddressesInChat.setSelected(cs.getShowIPAddressesInChat());
 
             defaultAutoejectDisabled.setSelected(cs.defaultAutoejectDisabled());
@@ -738,6 +748,8 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         // cs.setGameLogMaxSize(Integer.parseInt(gameLogMaxSize.getText()));
         cs.setStampFilenames(stampFilenames.isSelected());
         cs.setStampFormat(stampFormat.getText());
+        cs.setParanoidAutosave(chkParanoidAutosave.isSelected());
+        cs.setAutosaveMessage(chkAutosaveMessage.isSelected());
         cs.setShowIPAddressesInChat(showIPAddressesInChat.isSelected());
 
         cs.setDefaultAutoejectDisabled(defaultAutoejectDisabled.isSelected());

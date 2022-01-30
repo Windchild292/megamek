@@ -13,14 +13,14 @@
  */
 package megamek.common.preference;
 
+import megamek.common.MovePath;
+import megamek.common.util.LocaleParser;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Locale;
-
-import megamek.common.MovePath;
-import megamek.common.util.LocaleParser;
 
 public class ClientPreferences extends PreferenceStoreProxy {
     //region Variable Declarations
@@ -42,6 +42,8 @@ public class ClientPreferences extends PreferenceStoreProxy {
     public static final String GAMELOG_FILENAME = "GameLogFilename";
     public static final String STAMP_FILENAMES = "StampFilenames";
     public static final String STAMP_FORMAT = "StampFormat";
+    private static final String PARANOID_AUTOSAVE = "paranoidAutosave";
+    private static final String AUTOSAVE_MESSAGE = "autosaveMessage";
     public static final String SHOW_UNIT_ID = "ShowUnitId";
     public static final String UNIT_START_CHAR = "UnitStartChar";
     public static final String DEFAULT_AUTOEJECT_DISABLED = "DefaultAutoejectDisabled";
@@ -72,7 +74,10 @@ public class ClientPreferences extends PreferenceStoreProxy {
         store.setDefault(METASERVER_NAME, "https://api.megamek.org/servers/announce");
         store.setDefault(GAMELOG_KEEP, true);
         store.setDefault(GAMELOG_FILENAME, "gamelog.html");
+        store.setDefault(STAMP_FILENAMES, false);
         store.setDefault(STAMP_FORMAT, "_yyyy-MM-dd_HH-mm-ss");
+        store.setDefault(PARANOID_AUTOSAVE, false);
+        store.setDefault(AUTOSAVE_MESSAGE, true);
         store.setDefault(UNIT_START_CHAR, 'A');
         store.setDefault(GUI_NAME, "swing");
         store.setDefault(USE_AVERAGE_SKILLS, true);
@@ -183,6 +188,22 @@ public class ClientPreferences extends PreferenceStoreProxy {
 
     public String getStampFormat() {
         return store.getString(STAMP_FORMAT);
+    }
+
+    public boolean getParanoidAutosave() {
+        return store.getBoolean(PARANOID_AUTOSAVE);
+    }
+
+    public void setParanoidAutosave(final boolean paranoidAutosave) {
+        store.setValue(PARANOID_AUTOSAVE, paranoidAutosave);
+    }
+
+    public boolean getAutosaveMessage() {
+        return store.getBoolean(AUTOSAVE_MESSAGE);
+    }
+
+    public void setAutosaveMessage(final boolean autosaveMessage) {
+        store.setValue(AUTOSAVE_MESSAGE, autosaveMessage);
     }
 
     public boolean getShowUnitId() {

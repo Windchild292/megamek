@@ -271,7 +271,7 @@ public class OptionsConstants {
     public static final String MD_PROTO_DNI = "proto_dni";  
     
     
-    //GAME OPTIONS TO BE MOVED.
+    // TODO : GAME OPTIONS TO BE MOVED.
     public static final String BASE_FRIENDLY_FIRE= "friendly_fire";  
     public static final String BASE_TURN_TIMER = "turn_timer"; 
     public static final String BASE_SKIP_INELIGABLE_MOVEMENT= "skip_ineligable_movement";  
@@ -279,9 +279,7 @@ public class OptionsConstants {
     public static final String BASE_SKIP_INELIGABLE_PHYSICAL= "skip_ineligable_physical";  
     public static final String BASE_PUSH_OFF_BOARD= "push_off_board";  
     public static final String BASE_TEAM_INITIATIVE= "team_initiative";  
-    public static final String BASE_AUTOSAVE_MSG= "autosave_msg";  
-    public static final String BASE_PARANOID_AUTOSAVE= "paranoid_autosave";  
-    public static final String BASE_EXCLUSIVE_DB_DEPLOYMENT= "exclusive_db_deployment";  
+    public static final String BASE_EXCLUSIVE_DB_DEPLOYMENT= "exclusive_db_deployment";
     public static final String BASE_DEEP_DEPLOYMENT= "deep_deployment";  
     public static final String BASE_BLIND_DROP= "blind_drop";  
     public static final String BASE_REAL_BLIND_DROP= "real_blind_drop";  

@@ -54,9 +54,7 @@ public class GameOptions extends AbstractOptions {
         addOption(base, OptionsConstants.BASE_SKIP_INELIGABLE_PHYSICAL, true); 
         addOption(base, OptionsConstants.BASE_PUSH_OFF_BOARD, true); 
         addOption(base, OptionsConstants.BASE_TEAM_INITIATIVE, true); 
-        addOption(base, OptionsConstants.BASE_AUTOSAVE_MSG, true); 
-        addOption(base, OptionsConstants.BASE_PARANOID_AUTOSAVE, false); 
-        addOption(base, OptionsConstants.BASE_EXCLUSIVE_DB_DEPLOYMENT, true); 
+        addOption(base, OptionsConstants.BASE_EXCLUSIVE_DB_DEPLOYMENT, true);
         addOption(base, OptionsConstants.BASE_DEEP_DEPLOYMENT, false); 
         addOption(base, OptionsConstants.BASE_BLIND_DROP, false); 
         addOption(base, OptionsConstants.BASE_REAL_BLIND_DROP, false); 

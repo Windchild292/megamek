@@ -17,8 +17,8 @@
 package megamek.server;
 
 import com.thoughtworks.xstream.XStream;
-import megamek.MegaMek;
 import megamek.MMConstants;
+import megamek.MegaMek;
 import megamek.Version;
 import megamek.client.bot.princess.BehaviorSettings;
 import megamek.client.ui.swing.util.PlayerColour;
@@ -39,6 +39,7 @@ import megamek.common.options.GameOptions;
 import megamek.common.options.IBasicOption;
 import megamek.common.options.IOption;
 import megamek.common.options.OptionsConstants;
+import megamek.common.preference.ClientPreferences;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.BoardUtilities;
 import megamek.common.util.EmailService;
@@ -1096,7 +1097,7 @@ public class Server implements Runnable {
         if (PreferenceManager.getClientPreferences().stampFilenames()) {
             fileName = StringUtil.addDateTimeStamp(fileName);
         }
-        saveGame(fileName, game.getOptions().booleanOption(OptionsConstants.BASE_AUTOSAVE_MSG));
+        saveGame(fileName, PreferenceManager.getClientPreferences().getAutosaveMessage());
     }
 
     /**
@@ -2363,7 +2364,7 @@ public class Server implements Runnable {
             case END_REPORT:
                 resetActivePlayersDone();
                 sendReport();
-                if (game.getOptions().booleanOption(OptionsConstants.BASE_PARANOID_AUTOSAVE)) {
+                if (PreferenceManager.getClientPreferences().getParanoidAutosave()) {
                     autoSave();
                 }
                 break;
@@ -2473,7 +2474,7 @@ public class Server implements Runnable {
             case TARGETING:
             case OFFBOARD:
                 changeToNextTurn(-1);
-                if (game.getOptions().booleanOption(OptionsConstants.BASE_PARANOID_AUTOSAVE)) {
+                if (PreferenceManager.getClientPreferences().getParanoidAutosave()) {
                     autoSave();
                 }
                 break;
