@@ -459,7 +459,6 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         chkParanoidAutosave.setToolTipText(Messages.getString("chkParanoidAutosave.toolTipText"));
         comps.add(checkboxEntry(chkParanoidAutosave, chkParanoidAutosave.getToolTipText()));
 
-
         chkAutosaveMessage = new JCheckBox(Messages.getString("chkAutosaveMessage.text"));
         chkAutosaveMessage.setToolTipText(Messages.getString("chkAutosaveMessage.toolTipText"));
         comps.add(checkboxEntry(chkAutosaveMessage, chkAutosaveMessage.getToolTipText()));
