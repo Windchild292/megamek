@@ -13252,8 +13252,10 @@ public class Server implements Runnable {
             //region Temporary Log
             if (turn != null) {
                 final String invalidEntityMessage;
-                if (((entity == null) ? Entity.NONE : entity.getOwnerId()) == connId) {
-                    invalidEntityMessage = String.format("Entity %s is not owned by %s", ((entity == null) ? Entity.NONE : entity.getOwnerId()), connId);
+                if (entity == null) {
+                    invalidEntityMessage = "Null entity";
+                } else if (entity.getOwnerId() == connId) {
+                    invalidEntityMessage = String.format("Entity %s is not owned by %s", entity.getOwnerId(), connId);
                 } else if (!entity.isSelectableThisTurn()) {
                     if (entity.isDone()) {
                         invalidEntityMessage = "Entity has already completed phase " + game.getPhase();
@@ -13266,7 +13268,7 @@ public class Server implements Runnable {
                     } else if (entity.isCarcass()) {
                         invalidEntityMessage = "Entity is a carcass.";
                     } else {
-                        invalidEntityMessage = "This can't occur, just needed for .";
+                        invalidEntityMessage = "This can't occur, just needed for IDE.";
                     }
                 } else {
                     invalidEntityMessage = "This shouldn't be possible... it's currently the " + game.getPhase() + " and so the other checks shouldn't affect this";
