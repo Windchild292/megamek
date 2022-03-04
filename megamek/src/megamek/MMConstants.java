@@ -49,4 +49,28 @@ public final class MMConstants extends SuiteConstants {
     public static final String USER_GIVEN_NAME_MALE_FILE = "userdata/data/names/maleGivenNames.csv";
     public static final String USER_SURNAME_FILE = "userdata/data/names/surnames.csv";
     //endregion File Paths
+
+    //region ClientServer
+    public static final int DEFAULT_PORT = 2346;
+    public static final int MIN_PORT = 1024;
+    public static final int MAX_PORT = 65535;
+    public static final String DEFAULT_PLAYERNAME = "Player";
+    public static final String LOCALHOST = "localhost";
+    //endregion ClientServer
+
+    //region SaveGame
+    public static final String SAVEGAME_DIR = "savegames";
+    public static final String DEFAULT_SAVEGAME_NAME = "savegame.sav";
+    public static final String QUICKSAVE_FILE = "quicksave";
+    public static final String QUICKSAVE_PATH = "./" + SAVEGAME_DIR;
+    public static final String SAVE_FILE_EXT = ".sav";
+    public static final String GZ_FILE_EXT = ".gz";
+    public static final String SAVE_FILE_GZ_EXT = SAVE_FILE_EXT + GZ_FILE_EXT;
+    //endregion SaveGame
+
+    //region Unsorted Constants
+    public static final int DIVE_BOMB_MIN_ALTITUDE = 3;
+    public static final int DIVE_BOMB_MAX_ALTITUDE = 5;
+    public static final double INFANTRY_PRIMARY_WEAPON_DAMAGE_CAP = 0.6;
+    //endregion Unsorted Constants
 }

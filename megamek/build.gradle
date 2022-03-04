@@ -28,7 +28,7 @@ sourceSets {
 
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
-    implementation 'com.formdev:flatlaf:2.0.1'
+    implementation 'com.formdev:flatlaf:2.0.2'
     implementation 'com.github.ikkisoft:SerialKiller:master-SNAPSHOT'
     implementation 'com.sun.mail:jakarta.mail:2.0.1'
     implementation 'com.thoughtworks.xstream:xstream:1.4.14'
@@ -350,7 +350,6 @@ publishing {
             artifactId = "megamek${mmBranchTag}"
             from components.java
             artifact sourcesJar
-// Javadoc is full of errors
 //            artifact javadocJar
 
             pom {
