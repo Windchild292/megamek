@@ -139,7 +139,12 @@ public class MegaMekXmlUtil {
     public static Source createSafeXmlSource(InputStream inputStream) {
         return new SAXSource(createSafeXMLReader(), new InputSource(inputStream));
     }
+
     //region XML Writing
+    public static void writeXMLHeader(final PrintWriter pw) {
+        pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    }
+
     //region Open Tag
     /**
      * This writes an open XML tag
@@ -186,26 +191,55 @@ public class MegaMekXmlUtil {
      * @param pw the PrintWriter to use
      * @param indent the indent to write at
      * @param name the name of the XML tag
-     * @param attributeName the attribute to write as part of the XML tag
-     * @param attributeValue the value of the attribute
+     * @param attribute1Name the first attribute to write as part of the XML tag
+     * @param attribute1Value the value of the first attribute
      * @param classAttribute the class attribute to write as part of the tag
      * @param c the class to write as part of the tag
      */
     public static <T> void writeSimpleXMLOpenTag(final PrintWriter pw, final int indent,
                                                  final String name,
-                                                 final @Nullable String attributeName,
-                                                 @Nullable T attributeValue,
+                                                 final @Nullable String attribute1Name,
+                                                 @Nullable T attribute1Value,
                                                  final @Nullable String classAttribute,
                                                  final @Nullable Class<?> c) {
-        final boolean hasValue = attributeValue != null;
+        writeSimpleXMLOpenTag(pw, indent, name, attribute1Name, attribute1Value, null, null, classAttribute, c);
+    }
+
+    /**
+     * This writes an open XML tag, with the possible addition of an attribute and its value
+     * and/or the possible addition of a class attribute and its class
+     * @param pw the PrintWriter to use
+     * @param indent the indent to write at
+     * @param name the name of the XML tag
+     * @param attribute1Name the first attribute to write as part of the XML tag
+     * @param attribute1Value the value of the first attribute
+     * @param attribute2Name the second attribute to write as part of the XML tag
+     * @param attribute2Value the value of the second attribute
+     * @param classAttribute the class attribute to write as part of the tag
+     * @param c the class to write as part of the tag
+     */
+    public static <T> void writeSimpleXMLOpenTag(final PrintWriter pw, final int indent,
+                                                 final String name,
+                                                 final @Nullable String attribute1Name,
+                                                 @Nullable T attribute1Value,
+                                                 final @Nullable String attribute2Name,
+                                                 @Nullable T attribute2Value,
+                                                 final @Nullable String classAttribute,
+                                                 final @Nullable Class<?> c) {
+        final boolean hasValue1 = attribute1Value != null;
+        final boolean hasValue2 = attribute2Value != null;
         final boolean hasClass = c != null;
-        pw.print(indentStr(indent) + "<" + name);
-        if (hasValue) {
-            pw.print(" " + attributeName + "=\"" + escape(attributeValue.toString()) + "\"");
+        pw.print(String.format("%s<%s", indentStr(indent), name));
+        if (hasValue1) {
+            pw.print(String.format(" %s=\"%s\"", attribute1Name, escape(attribute1Value.toString())));
+        }
+
+        if (hasValue2) {
+            pw.print(String.format(" %s=\"%s\"", attribute2Name, escape(attribute2Value.toString())));
         }
 
         if (hasClass) {
-            pw.print(" " + classAttribute + "=\"" + c.getName() + "\"");
+            pw.print(String.format(" %s=\"%s\"", classAttribute, c.getName()));
         }
         pw.print(">\n");
     }
@@ -288,7 +322,7 @@ public class MegaMekXmlUtil {
     }
 
     /**
-     * This writes a String or an array of Strings to file, with an the possible addition of an
+     * This writes a String or an array of Strings to file, with the possible addition of an
      * attribute and its value
      * @param pw the PrintWriter to use
      * @param indent the indent to write at
@@ -310,6 +344,26 @@ public class MegaMekXmlUtil {
             }
             pw.print(">" + escape(StringUtils.join(values, ',')) + "</" + name + ">\n");
         }
+    }
+
+    /**
+     * This writes a String or an array of Strings to file, with the addition of a comment at the
+     * end of the line.
+     * @param pw the PrintWriter to use
+     * @param indent the indent to write at
+     * @param name the name of the XML tag
+     * @param comment the comment text
+     * @param values the String or String[] to write to XML
+     */
+    public static <T> void writeCommentedTag(final PrintWriter pw, final int indent,
+                                             final String name, final String comment,
+                                             final String... values) {
+        if (values.length == 0) {
+            return;
+        }
+
+        pw.print(String.format("%s<%s>%s</%s> <!-- %s -->\n", indentStr(indent), name,
+                escape(StringUtils.join(values, ',')), name, comment));
     }
 
     /**

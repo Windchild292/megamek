@@ -41,6 +41,7 @@ public final class MMConstants extends SuiteConstants {
     public static final String HISTORICAL_ETHNICITY_FILE = "data/names/historicalEthnicity.csv";
     public static final String GIVEN_NAME_MALE_FILE = "data/names/maleGivenNames.csv";
     public static final String SURNAME_FILE = "data/names/surnames.csv";
+    public static final String DEFAULT_KEY_BINDINGS_FILE = "defaultKeyBinds.xml";
     public static final String USER_NAME_FACTIONS_DIRECTORY_PATH = "userdata/data/names/factions/";
     public static final String USER_CALLSIGN_FILE_PATH = "userdata/data/names/callsigns.csv";
     public static final String USER_GIVEN_NAME_FEMALE_FILE = "userdata/data/names/femaleGivenNames.csv";

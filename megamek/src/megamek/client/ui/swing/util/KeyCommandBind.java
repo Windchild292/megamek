@@ -20,6 +20,10 @@
  */
 package megamek.client.ui.swing.util;
 
+import megamek.utils.MegaMekXmlUtil;
+
+import java.awt.event.KeyEvent;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -201,4 +205,17 @@ public enum KeyCommandBind {
     public static KeyStroke keyStroke(KeyCommandBind bind) {
         return KeyStroke.getKeyStroke(bind.key, bind.modifiers);
     }
+
+    //region File I/O
+    public void writeToXML(final PrintWriter pw, int indent) {
+        MegaMekXmlUtil.writeSimpleXMLOpenTag(pw, indent++, "keyBind");
+        MegaMekXmlUtil.writeCommentedTag(pw, indent, "command",
+                ((modifiers == 0) ? "" : (KeyEvent.getModifiersExText(modifiers) + '-')) + KeyEvent.getKeyText(key),
+                cmd);
+        MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "keyCode", key);
+        MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "modifier", modifiers);
+        MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "isRepeatable", isRepeatable);
+        MegaMekXmlUtil.writeSimpleXMLCloseTag(pw, --indent, "keyBind");
+    }
+    //endregion File I/O
 }
