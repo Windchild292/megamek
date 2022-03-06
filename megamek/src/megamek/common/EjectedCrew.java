@@ -24,7 +24,7 @@ public class EjectedCrew extends Infantry {
     protected int currentVelocity = 0;
     protected int nextVelocity = currentVelocity;
     
-    // Maps "transported" crew,passengers to a host ship so we can match them up again post-game
+    // Maps "transported" crew, passengers to a host ship, so we can match them up again post-game
     private Map<String,Integer> nOtherCrew = new HashMap<>();
     private Map<String,Integer> passengers = new HashMap<>();
     
@@ -104,7 +104,7 @@ public class EjectedCrew extends Infantry {
         setCrew(new Crew(CrewType.CREW));
         setChassis(VEE_EJECT_NAME);
         //this constructor is just so that the MUL parser can read these units in so
-        //assign some arbitrarily large number here for the internal so that locations will get 
+        // assign some arbitrarily large number here for the internal so that locations will get 
         //the actual current number of trooper correct.
         initializeInternal(Integer.MAX_VALUE, Infantry.LOC_INFANTRY);
     }

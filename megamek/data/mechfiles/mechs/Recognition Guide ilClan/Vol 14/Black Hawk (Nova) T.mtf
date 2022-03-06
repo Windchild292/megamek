@@ -1,11 +1,12 @@
 Version:1.0
 Black Hawk (Nova)
 T
+mul id:8164
 
 Config:Biped Omnimech
 techbase:Clan
 era:3142
-source:ilClan Rec Guide 13 - Dark Age
+source:Rec Guide:ilClan #14 - Dark Age
 rules level:2
 
 mass:50

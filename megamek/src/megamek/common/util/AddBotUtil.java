@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,7 @@ import megamek.client.bot.princess.BehaviorSettings;
 import megamek.client.bot.princess.BehaviorSettingsFactory;
 import megamek.client.bot.princess.Princess;
 import megamek.client.bot.ui.swing.BotGUI;
+import megamek.codeUtilities.StringUtility;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.annotations.Nullable;
@@ -103,7 +104,7 @@ public class AddBotUtil {
             }
         }
 
-        if (StringUtil.isNullOrEmpty(playerName)) {
+        if (StringUtility.isNullOrEmpty(playerName)) {
             String argLine = fullLine.toString();
             argLine = argLine.replaceFirst("/replacePlayer", "");
             argLine = argLine.replaceFirst("-b:" + botName, "");
@@ -133,7 +134,7 @@ public class AddBotUtil {
         final BotClient botClient;
         if ("Princess".equalsIgnoreCase(botName.toString())) {
             botClient = makeNewPrincessClient(target, host, port);
-            if (!StringUtil.isNullOrEmpty(configName)) {
+            if (!StringUtility.isNullOrEmpty(configName)) {
                 final BehaviorSettings behavior = BehaviorSettingsFactory.getInstance()
                         .getBehavior(configName.toString());
                 if (null != behavior) {

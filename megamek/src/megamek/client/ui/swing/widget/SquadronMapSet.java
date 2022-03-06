@@ -1,18 +1,17 @@
-/**
- * MegaMek - Copyright (C) 2000,2001,2002,2004 Ben Mazur (bmazur@sev.org)
+/*
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing.widget;
 
 import java.awt.Color;
@@ -35,7 +34,7 @@ import megamek.common.util.fileUtils.MegaMekFile;
 
 /**
  * Class which keeps set of all areas required to represent Capital Fighter unit
- * in MechDsiplay.ArmorPanel class.
+ * in MechDisplay.ArmorPanel class.
  */
 public class SquadronMapSet implements DisplayMapSet {
 
@@ -63,7 +62,7 @@ public class SquadronMapSet implements DisplayMapSet {
     private PMSimpleLabel[] fcsCritLabel;
     private PMSimpleLabel[] sensorCritLabel;
     private PMSimpleLabel[] pilotCritLabel;
-    private Vector<BackGroundDrawer> bgDrawers = new Vector<BackGroundDrawer>();
+    private Vector<BackGroundDrawer> bgDrawers = new Vector<>();
     private PMAreasGroup content = new PMAreasGroup();
 
     private int stepY = 11;
@@ -73,7 +72,7 @@ public class SquadronMapSet implements DisplayMapSet {
 
     private int max_size;
 
-    private static final Font FONT_LABEL = new Font("SansSerif", Font.PLAIN, 9); //$NON-NLS-1$
+    private static final Font FONT_LABEL = new Font("SansSerif", Font.PLAIN, 9);
 
     public SquadronMapSet(JComponent c, Game g) {
         comp = c;
@@ -119,14 +118,17 @@ public class SquadronMapSet implements DisplayMapSet {
     public void setRest() {
     }
 
+    @Override
     public PMAreasGroup getContentGroup() {
         return content;
     }
 
+    @Override
     public Vector<BackGroundDrawer> getBackgroundDrawers() {
         return bgDrawers;
     }
 
+    @Override
     public void setEntity(Entity e) {
         List<Entity> fighters = e.getSubEntities();
         for (int i = 0; i < max_size; ++ i) {
@@ -222,13 +224,13 @@ public class SquadronMapSet implements DisplayMapSet {
     private void setLabels() {
         FontMetrics fm = comp.getFontMetrics(FONT_LABEL);
         for (int i = 0; i < max_size; i++) {
-            nameLabel[i] = new PMSimpleLabel("Unknown", fm, Color.white); //$NON-NLS-1$
+            nameLabel[i] = new PMSimpleLabel("Unknown", fm, Color.white);
             armorVLabel[i] = new PMValueLabel(fm, Color.red.brighter());
-            avCritLabel[i] = new PMSimpleLabel("Avionics:", fm, Color.white); //$NON-NLS-1$
-            engineCritLabel[i] = new PMSimpleLabel("Engine:", fm, Color.white); //$NON-NLS-1$
-            fcsCritLabel[i] = new PMSimpleLabel("FCS:", fm, Color.white); //$NON-NLS-1$
-            sensorCritLabel[i] = new PMSimpleLabel("Sensors:", fm, Color.white); //$NON-NLS-1$
-            pilotCritLabel[i] = new PMSimpleLabel("Pilot hits:", fm, Color.white); //$NON-NLS-1$
+            avCritLabel[i] = new PMSimpleLabel("Avionics:", fm, Color.white);
+            engineCritLabel[i] = new PMSimpleLabel("Engine:", fm, Color.white);
+            fcsCritLabel[i] = new PMSimpleLabel("FCS:", fm, Color.white);
+            sensorCritLabel[i] = new PMSimpleLabel("Sensors:", fm, Color.white);
+            pilotCritLabel[i] = new PMSimpleLabel("Pilot hits:", fm, Color.white);
         }
     }
 

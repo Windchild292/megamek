@@ -1,23 +1,16 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/*
- * DfaAttackAction.java
- *
- * Created on March 16, 2002, 11:43 AM
- */
-
 package megamek.common.actions;
 
 import java.util.Enumeration;
@@ -28,12 +21,9 @@ import megamek.common.options.OptionsConstants;
 
 /**
  * @author Ben
+ * @since March 16, 2002, 11:43 AM
  */
 public class DfaAttackAction extends DisplacementAttackAction {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 3953889779582616903L;
 
     /**
@@ -73,8 +63,8 @@ public class DfaAttackAction extends DisplacementAttackAction {
     }
 
     /**
-     * Checks if a death from above attack can hit the target, including
-     * movement
+     * Checks if a death from above attack can hit the target, including movement
+     * @param game The current {@link Game}
      */
     public static ToHitData toHit(Game game, int attackerId,
                                   Targetable target, MovePath md) {
@@ -182,8 +172,8 @@ public class DfaAttackAction extends DisplacementAttackAction {
     }
 
     /**
-     * To-hit number for a death from above attack, assuming that movement has
-     * been handled
+     * To-hit number for a death from above attack, assuming that movement has been handled
+     * @param game The current {@link Game}
      */
     public static ToHitData toHit(Game game, int attackerId,
                                   Targetable target, Coords src) {

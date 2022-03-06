@@ -86,10 +86,10 @@ public final class PilotToolTip {
                 continue;
             }
 
-            if ((crew.getNickname(i) != null) && !crew.getNickname(i).equals("")) {
+            if ((crew.getNickname(i) != null) && !crew.getNickname(i).isBlank()) {
                 result.append(guiScaledFontHTML(UIUtil.uiNickColor()) + "<B>'" 
                         + crew.getNickname(i).toUpperCase() + "'</B></FONT>");
-            } else if ((crew.getName(i) != null) && !crew.getName(i).equals("")) {
+            } else if ((crew.getName(i) != null) && !crew.getName(i).isBlank()) {
                 result.append(crew.getName(i));
             } else {
                 result.append("Pilot");
@@ -140,7 +140,7 @@ public final class PilotToolTip {
                 }
                 result.append("<TD VALIGN=TOP><IMG SRC=file:").append(tempPath).append("></TD>");
             } catch (Exception e) {
-                LogManager.getLogger().error(e);
+                LogManager.getLogger().error("", e);
             }
             result.append("<TD WIDTH=3></TD>");
         }
@@ -156,7 +156,7 @@ public final class PilotToolTip {
         Crew crew = entity.getCrew();
         StringBuilder result = new StringBuilder();
         result.append(guiScaledFontHTML(uiQuirksColor(), UnitToolTip.TT_SMALLFONT_DELTA));
-        result.append(getOptionList(crew.getOptions().getGroups(), grp -> crew.countOptions(grp), detailed));
+        result.append(getOptionList(crew.getOptions().getGroups(), crew::countOptions, detailed));
         result.append("</FONT>");
         return result; 
     }

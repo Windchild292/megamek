@@ -21,6 +21,7 @@ import megamek.client.bot.princess.FireControl.FireControlType;
 import megamek.client.bot.princess.PathRanker.PathRankerType;
 import megamek.client.bot.princess.UnitBehavior.BehaviorType;
 import megamek.client.ui.SharedUtility;
+import megamek.codeUtilities.StringUtility;
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.DisengageAction;
@@ -258,7 +259,7 @@ public class Princess extends BotClient {
         try {
             this.behaviorSettings = behaviorSettings.getCopy();
         } catch (final PrincessException e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return;
         }
         getStrategicBuildingTargets().clear();
@@ -1194,13 +1195,10 @@ public class Princess extends BotClient {
 
     @Override
     protected MovePath continueMovementFor(final Entity entity) {
-        if (null == entity) {
-            throw new NullPointerException("Entity is null.");
-        }
+        Objects.requireNonNull(entity, "Entity is null.");
 
         try {
-            // figure out who moved last, and who's move lists need to be 
-            // updated
+            // figure out who moved last, and whose move lists need to be updated
 
             // moves this entity during movement phase
             LogManager.getLogger().debug("Moving " + entity.getDisplayName() + " (ID " + entity.getId() + ")");
@@ -1214,7 +1212,7 @@ public class Princess extends BotClient {
                     msg += " is crippled and withdrawing.";
                 }
                 LogManager.getLogger().debug(msg);
-                sendChat(msg, Level.WARN);
+                sendChat(msg, Level.ERROR);
 
                 // If this entity is falling back, able to flee the board, on 
                 // its home edge, and must flee, do so.
@@ -1228,7 +1226,7 @@ public class Princess extends BotClient {
                 if (isImmobilized(entity) && entity.isEjectionPossible()) {
                     msg = entity.getDisplayName() + " is immobile. Abandoning unit.";
                     LogManager.getLogger().info(msg);
-                    sendChat(msg, Level.WARN);
+                    sendChat(msg, Level.ERROR);
                     final MovePath mp = new MovePath(game, entity);
                     mp.addStep(MovePath.MoveStepType.EJECT);
                     return mp;
@@ -1282,12 +1280,12 @@ public class Princess extends BotClient {
             if (0 == rankedpaths.size()) {
                 return performPathPostProcessing(new MovePath(game, entity), 0);
             }
-            
+
             LogManager.getLogger().debug("Path ranking took " + (stop_time - startTime) + " millis");
-            
+
             final RankedPath bestpath = getPathRanker(entity).getBestPath(rankedpaths);
             LogManager.getLogger().info("Best Path: " + bestpath.getPath() + "  Rank: " + bestpath.getRank());
-            
+
             return performPathPostProcessing(bestpath);
         } finally {
             precognition.unPause();
@@ -1304,7 +1302,7 @@ public class Princess extends BotClient {
             final List<Entity> ents = game.getEntitiesVector();
             for (final Entity ent : ents) {
                 final String errors = getFireControl(ent).checkAllGuesses(ent, game);
-                if (!StringUtil.isNullOrEmpty(errors)) {
+                if (!StringUtility.isNullOrEmpty(errors)) {
                     LogManager.getLogger().warn(errors);
                 }
             }
@@ -1781,9 +1779,8 @@ public class Princess extends BotClient {
     }
 
     public int calculateAdjustment(final String ticks) {
-        
         int adjustment = 0;
-        if (StringUtil.isNullOrEmpty(ticks)) {
+        if (StringUtility.isNullOrEmpty(ticks)) {
             return 0;
         }
         for (final char tick : ticks.toCharArray()) {
@@ -1838,6 +1835,7 @@ public class Princess extends BotClient {
         refreshCrippledUnits();
     }
 
+    @Override
     protected void handlePacket(final Packet c) {
         final StringBuilder msg = new StringBuilder("Received packet, cmd: " + c.getCommand());
         try {
@@ -1852,6 +1850,7 @@ public class Princess extends BotClient {
     /**
      * sends a load game file to the server
      */
+    @Override
     public void sendLoadGame(final File f) {
         precognition.resetGame();
         super.sendLoadGame(f);
@@ -1862,6 +1861,7 @@ public class Princess extends BotClient {
         send(packet);
     }
     
+    @Override
     protected void disconnected() {
         if (null != precognition) {
             precognition.signalDone();
@@ -1980,9 +1980,9 @@ public class Princess extends BotClient {
         if (getBehaviorSettings().shouldAutoFlee()) {
             return;
         }
-        
-        Entity movingEntity = path.getEntity();
-        Coords pathEndpoint = path.getFinalCoords();
+
+        final Entity movingEntity = path.getEntity();
+        final Coords pathEndpoint = path.getFinalCoords();
         Targetable closestEnemy = getPathRanker(movingEntity).findClosestEnemy(movingEntity, pathEndpoint, getGame(), false);
 
         // if there are no enemies on the board, then we're not unloading anything.
@@ -1990,9 +1990,9 @@ public class Princess extends BotClient {
         if ((null == closestEnemy) || (closestEnemy.getTargetType() == Targetable.TYPE_HEX_CLEAR)) {
             return;
         }
-        
+
         int distanceToClosestEnemy = pathEndpoint.distance(closestEnemy.getPosition());
-        
+
         // loop through all entities carried by the current entity
         for (Transporter transport : movingEntity.getTransports()) {
             // this operation is intended for entities on the ground

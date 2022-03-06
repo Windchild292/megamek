@@ -21,7 +21,6 @@ package megamek.client.ui.baseComponents;
 import megamek.MegaMek;
 import megamek.client.ui.preferences.JWindowPreference;
 import megamek.client.ui.preferences.PreferencesNode;
-import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
 import org.apache.logging.log4j.LogManager;
 
@@ -65,7 +64,7 @@ public abstract class AbstractDialog extends JDialog implements WindowListener {
      */
     protected AbstractDialog(final JFrame frame, final boolean modal, final String name, final String title) {
         this(frame, modal, ResourceBundle.getBundle("megamek.client.messages", 
-                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl()), name, title);
+                MegaMek.getMMOptions().getLocale(), new EncodeControl()), name, title);
     }
 
     /**
@@ -140,10 +139,10 @@ public abstract class AbstractDialog extends JDialog implements WindowListener {
     }
 
     /**
-     * Re-sizes the dialog to a maximum width and height of 80% of the screen size
-     * when necessary. Then centers the dialog on the screen.
+     * Re-sizes the dialog to a maximum width and height of 80% of the screen size when necessary.
+     * It then centers the dialog on the screen.
      */
-    private void fitAndCenter() {
+    protected void fitAndCenter() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int maxWidth = (int) (screenSize.width * 0.8);
         int maxHeight = (int) (screenSize.height * 0.8);
@@ -156,7 +155,7 @@ public abstract class AbstractDialog extends JDialog implements WindowListener {
      * for MekHQ usage
      */
     protected void setPreferences() {
-        setPreferences(MegaMek.getPreferences().forClass(getClass()));
+        setPreferences(MegaMek.getMMPreferences().forClass(getClass()));
     }
 
     /**
@@ -187,7 +186,7 @@ public abstract class AbstractDialog extends JDialog implements WindowListener {
         try {
             cancelAction();
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
         } finally {
             setVisible(false);
         }
@@ -210,7 +209,7 @@ public abstract class AbstractDialog extends JDialog implements WindowListener {
         try {
             cancelAction();
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
         }
     }
 

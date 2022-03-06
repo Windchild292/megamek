@@ -23,11 +23,11 @@ import java.util.Map;
 
 /**
  * implements bv-ratio victory checking ratio is defined as
- * friendlybv/enemybv>(bvratiopercent/100)=>win so this comparison is valid for
- * 3 team combat , but you must drop ALL enemies combined to below given ratio.
+ * friendlybv / enemybv &gt; (bvratiopercent / 100) =&gt; win so this comparison is valid for
+ * 3 team combat, but you must drop ALL enemies combined to below given ratio.
  * if multiple players reach this goal at the same time, the result is declared
- * a draw NOTENOTE: this could be improved to take into account ratios which
- * exceed given ratio
+ * a draw
+ * TODO : this could be improved to take into account ratios which exceed given ratio
  */
 public class BVRatioVictory extends AbstractBVVictory {
     private static final long serialVersionUID = -6622529899835634696L;
@@ -37,6 +37,7 @@ public class BVRatioVictory extends AbstractBVVictory {
         this.ratio = ratio;
     }
 
+    @Override
     public VictoryResult victory(Game game, Map<String, Object> ctx) {
         boolean victory = false;
         VictoryResult vr = new VictoryResult(true);
@@ -69,9 +70,7 @@ public class BVRatioVictory extends AbstractBVVictory {
                 r.add(ebv == 0 ? 9999 : (100 * fbv) / ebv);
                 vr.addReport(r);
             }
-        }// end for
-        if (victory)
-            return vr;
-        return VictoryResult.noResult();
+        }
+        return victory ? vr : VictoryResult.noResult();
     }
 }

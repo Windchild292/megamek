@@ -64,7 +64,7 @@ public class TankTrailerHitch implements Transporter {
     /**
      * Get the <code>String</code> to report the presence (or lack thereof) of a
      * towed trailer.
-     * <p/>
+     * <p>
      * Sub-classes are encouraged to override this method.
      *
      * @param isLoaded
@@ -123,12 +123,8 @@ public class TankTrailerHitch implements Transporter {
     /**
      * Load the given unit.
      *
-     * @param unit
-     *            - the <code>Entity</code> to be loaded.
-     * @exception IllegalArgumentException
-     *                - If the unit can't be loaded, an
-     *                <code>IllegalArgumentException</code> exception will be
-     *                thrown.
+     * @param unit the <code>Entity</code> to be loaded.
+     * @throws IllegalArgumentException If the unit can't be loaded
      */
     @Override
     public final void load(Entity unit) throws IllegalArgumentException {
@@ -152,7 +148,7 @@ public class TankTrailerHitch implements Transporter {
     @Override
     public final Vector<Entity> getLoadedUnits() {
         // Return a list of our carried troopers.
-        Vector<Entity> units = new Vector<Entity>(1);
+        Vector<Entity> units = new Vector<>(1);
         if (towed != Entity.NONE) {
             Entity entity = game.getEntity(towed);
             
@@ -237,7 +233,6 @@ public class TankTrailerHitch implements Transporter {
      * more than one unit can be at any single location; that same unit can be
      * "spread" over multiple locations.
      * <p>
-     * Sub-classes should override the <code>getExteriorLocs</code> method.
      *
      * @param loc
      *            - the <code>int</code> location hit by attack.
@@ -248,7 +243,6 @@ public class TankTrailerHitch implements Transporter {
      * @return The <code>Entity</code> being transported on the outside at that
      *         location. This value will be <code>null</code> if no unit is
      *         transported on the outside at that location.
-     * @see megamek.common.TankTrailerHitch#getExteriorLocs(boolean)
      */
     @Override
     public final Entity getExteriorUnitAt(int loc, boolean isRear) {
@@ -257,7 +251,7 @@ public class TankTrailerHitch implements Transporter {
 
     @Override
     public final List<Entity> getExternalUnits() {
-        ArrayList<Entity> rv = new ArrayList<Entity>(1);
+        ArrayList<Entity> rv = new ArrayList<>(1);
         if (towed != Entity.NONE) {
             rv.add(game.getEntity(towed));
         }

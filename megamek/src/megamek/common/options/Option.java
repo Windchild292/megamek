@@ -1,25 +1,25 @@
 /*
- * MegaMek - Copyright (C) 2000-2002 Ben Mazur (bmazur@sev.org)
- * 
- *  This program is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU General Public License as published by the Free 
- *  Software Foundation; either version 2 of the License, or (at your option) 
- *  any later version.
- * 
- *  This program is distributed in the hope that it will be useful, but 
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
- *  for more details.
+ * Copyright (c) 2000-2002 - Ben Mazur (bmazur@sev.org)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common.options;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.util.Vector;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "gameoption")
 @XmlAccessorType(value = XmlAccessType.NONE)
@@ -135,10 +135,7 @@ public class Option implements IOption, Serializable {
             return (Integer) value > 0;
         }
         if (type == CHOICE || type == STRING) {
-            if (value.equals("None") || value.equals("")) { //$NON-NLS-1$ //$NON-NLS-2$
-                return false;
-            }
-            return true;
+            return !value.equals("None") && !value.equals("");
         }
         return ((Boolean) value);
     }
@@ -163,8 +160,7 @@ public class Option implements IOption, Serializable {
         if (isValidValue(value)) {
             this.value = value;
         } else {
-            throw new IllegalArgumentException(
-                    "Tried to give wrong type of value for option type."); //$NON-NLS-1$
+            throw new IllegalArgumentException("Tried to give wrong type of value for option type.");
         }
     }
 
@@ -173,8 +169,7 @@ public class Option implements IOption, Serializable {
         if (type == STRING || type == CHOICE) {
             this.value = value;
         } else {
-            throw new IllegalArgumentException(
-                    "Tried to give String value to non-String option."); //$NON-NLS-1$
+            throw new IllegalArgumentException("Tried to give String value to non-String option.");
         }
     }
 
@@ -183,8 +178,7 @@ public class Option implements IOption, Serializable {
         if (type == BOOLEAN) {
             this.value = value;
         } else {
-            throw new IllegalArgumentException(
-                    "Tried to give boolean value to non-boolean option."); //$NON-NLS-1$
+            throw new IllegalArgumentException("Tried to give boolean value to non-boolean option.");
         }
     }
 
@@ -193,8 +187,7 @@ public class Option implements IOption, Serializable {
         if (type == INTEGER) {
             this.value = value;
         } else {
-            throw new IllegalArgumentException(
-                    "Tried to give integer value to non-integer option."); //$NON-NLS-1$
+            throw new IllegalArgumentException("Tried to give integer value to non-integer option.");
         }
     }
 
@@ -203,8 +196,7 @@ public class Option implements IOption, Serializable {
         if (type == FLOAT) {
             this.value = value;
         } else {
-            throw new IllegalArgumentException(
-                    "Tried to give float value to non-float option."); //$NON-NLS-1$
+            throw new IllegalArgumentException("Tried to give float value to non-float option.");
         }
     }
 
@@ -214,7 +206,7 @@ public class Option implements IOption, Serializable {
         switch (type) {
             case STRING:
             case CHOICE:
-                setValue(""); //$NON-NLS-1$
+                setValue("");
                 break;
             case BOOLEAN:
                 setValue(false);
@@ -223,7 +215,8 @@ public class Option implements IOption, Serializable {
                 setValue(0);
                 break;
             case FLOAT:
-                setValue(0);
+                setValue(0f);
+                break;
         }
     }
 

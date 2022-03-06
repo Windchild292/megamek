@@ -136,7 +136,7 @@ public class PathEnumerator {
                 try {
                     Thread.sleep(Compute.randomInt(1000) + 500);
                 } catch (InterruptedException e) {
-                    LogManager.getLogger().error(e.toString());
+                    LogManager.getLogger().error("", e);
                 }
             }
         }
@@ -147,7 +147,6 @@ public class PathEnumerator {
      */
     private boolean recalculateMovesForWorker(final Entity mover) {
         try {
-    
             // Record it's current position.
             getLastKnownLocations().put(
                     mover.getId(),
@@ -180,7 +179,7 @@ public class PathEnumerator {
                 paths.addAll(apf.getAllComputedPathsUncategorized());
                 
                 // Remove illegal paths.
-                Filter<MovePath> filter = new Filter<MovePath>() {
+                Filter<MovePath> filter = new Filter<>() {
                     @Override
                     public boolean shouldStay(MovePath movePath) {
                         return isLegalAeroMove(movePath);
@@ -244,7 +243,7 @@ public class PathEnumerator {
                 lpf.run(new MovePath(game, mover));
                 paths.addAll(lpf.getLongestComputedPaths());
 
-                //add walking moves
+                // add walking moves
                 lpf = LongestPathFinder.newInstanceOfLongestPath(
                         mover.getWalkMP(), MoveStepType.BACKWARDS, getGame());
                 lpf.setComparator(new MovePathMinefieldAvoidanceMinMPMaxDistanceComparator());
@@ -256,7 +255,7 @@ public class PathEnumerator {
                 ppf.run(new MovePath(getGame(), mover));
                 paths.addAll(ppf.getPronePaths());
                 
-                //add jumping moves
+                // add jumping moves
                 if (mover.getJumpMP() > 0) {
                     ShortestPathFinder spf = ShortestPathFinder
                             .newInstanceOfOneToAll(mover.getJumpMP(),
@@ -270,21 +269,18 @@ public class PathEnumerator {
                 // calling .debug is expensive even if we don't actually log anything
                 // so let's not do this unless we're debugging
                 /* for (MovePath path : paths) {
-	                    getOwner().getLogger().debug(path.toString());
+                        getOwner().getLogger().debug(path.toString());
                 }*/
                 
                 // Try climbing over obstacles and onto bridges
                 adjustPathsForBridges(paths);
 
-                //filter those paths that end in illegal state
-                Filter<MovePath> filter = new Filter<MovePath>() {
+                // filter those paths that end in illegal state
+                Filter<MovePath> filter = new Filter<>() {
                     @Override
                     public boolean shouldStay(MovePath movePath) {
-                        boolean isLegal = movePath.isMoveLegal();
-                        return isLegal
-                                && (Compute.stackingViolation(getGame(),
-                                        mover.getId(),
-                                        movePath.getFinalCoords()) == null);
+                        return movePath.isMoveLegal()
+                                && (Compute.stackingViolation(getGame(), mover.getId(), movePath.getFinalCoords()) == null);
                     }
                 };
                 paths = new ArrayList<>(filter.doFilter(paths));
@@ -305,7 +301,7 @@ public class PathEnumerator {
 
             return true;
         } catch (Exception e) {
-            LogManager.getLogger().error(e.toString());
+            LogManager.getLogger().error("", e);
             return false;
         }
     }

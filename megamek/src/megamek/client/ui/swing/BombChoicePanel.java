@@ -28,7 +28,6 @@ import megamek.common.IBomber;
 
 /**
  * @author Deric "Netzilla" Page (deric dot page at usa dot net)
- * @version %Id%
  * @since 2012-04-07
  */
 public class BombChoicePanel extends JPanel implements Serializable, ItemListener {
@@ -136,6 +135,7 @@ public class BombChoicePanel extends JPanel implements Serializable, ItemListene
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void itemStateChanged(ItemEvent ie) {
 

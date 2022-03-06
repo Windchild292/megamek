@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
- * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
+ * Copyright (c) 2000-2005 - Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2021-2022 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
  *
@@ -27,7 +27,7 @@ import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.util.MegaMekController;
 import megamek.client.ui.swing.util.TurnTimer;
 import megamek.client.ui.swing.widget.MegamekButton;
-import megamek.client.ui.swing.widget.SkinSpecification;
+import megamek.client.ui.swing.widget.SkinSpecification.UIComponents;
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.AirmechRamAttackAction;
@@ -83,9 +83,9 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
     private TurnTimer tt;
 
     /**
-     * This enumeration lists all of the possible ActionCommands that can be
-     * carried out during the movement phase. Each command has a string for the
-     * command plus a flag that determines what unit type it is appropriate for.
+     * This enumeration lists all of the possible ActionCommands that can be carried out during the
+     * movement phase. Each command has a string for the command plus a flag that determines what
+     * unit type it is appropriate for.
      *
      * @author arlith
      */
@@ -118,6 +118,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         MOVE_CLIMB_MODE("moveClimbMode", CMD_MECH | CMD_TANK | CMD_INF),
         MOVE_SWIM("moveSwim", CMD_MECH),
         MOVE_SHAKE_OFF("moveShakeOff", CMD_TANK | CMD_VTOL),
+        MOVE_BRACE("moveBrace", CMD_MECH),
         //Convert command for a single button, which can cycle through modes because MovePath state is available
         MOVE_MODE_CONVERT("moveModeConvert", CMD_CONVERTER),
         //Convert commands used for menus, where the MovePath state is unknown.
@@ -231,27 +232,18 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 advVehicle = opts.booleanOption(OptionsConstants.ADVGRNDMOV_VEHICLE_ADVANCED_MANEUVERS);
                 vtolStrafe = opts.booleanOption(OptionsConstants.ADVCOMBAT_VTOL_STRAFING);
             }
-            ArrayList<MoveCommand> flaggedCmds = new ArrayList<MoveCommand>();
+            ArrayList<MoveCommand> flaggedCmds = new ArrayList<>();
             for (MoveCommand cmd : MoveCommand.values()) {
                 // Check for movements that with disabled game options
-                if ((cmd == MOVE_SHUTDOWN || cmd == MOVE_STARTUP)
-                    && !manualShutdown) {
+                if (((cmd == MOVE_SHUTDOWN) || (cmd == MOVE_STARTUP)) && !manualShutdown) {
                     continue;
-                }
-                if (cmd == MOVE_SELF_DESTRUCT
-                    && !selfDestruct) {
+                } else if ((cmd == MOVE_SELF_DESTRUCT) && !selfDestruct) {
                     continue;
-                }
-
-                if (cmd == MOVE_FORWARD_INI && !forwardIni) {
+                } else if ((cmd == MOVE_FORWARD_INI) && !forwardIni) {
                     continue;
-                }
-                
-                if (cmd == MOVE_BOOTLEGGER && !advVehicle) {
+                } else if ((cmd == MOVE_BOOTLEGGER) && !advVehicle) {
                     continue;
-                }
-                
-                if (cmd == MOVE_STRAFE && !vtolStrafe) {
+                } else if ((cmd == MOVE_STRAFE) && !vtolStrafe) {
                     continue;
                 }
 
@@ -262,7 +254,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             }
             return flaggedCmds.toArray(new MoveCommand[0]);
         }
-
     }
 
     // buttons
@@ -317,24 +308,17 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         setupStatusBar(Messages.getString("MovementDisplay.waitingForMovementPhase"));
 
         // Create all of the buttons
-        buttons = new HashMap<MoveCommand, MegamekButton>(
-                (int) (MoveCommand.values().length * 1.25 + 0.5));
+        buttons = new HashMap<>((int) (MoveCommand.values().length * 1.25 + 0.5));
         for (MoveCommand cmd : MoveCommand.values()) {
-            String title = Messages
-                    .getString("MovementDisplay." + cmd.getCmd());
-            MegamekButton newButton = new MegamekButton(title,
-                    SkinSpecification.UIComponents.PhaseDisplayButton.getComp());
+            String title = Messages.getString("MovementDisplay." + cmd.getCmd());
+            MegamekButton newButton = new MegamekButton(title, UIComponents.PhaseDisplayButton.getComp());
             String ttKey = "MovementDisplay." + cmd.getCmd() + ".tooltip";
             if (Messages.keyExists(ttKey)) {
                 newButton.setToolTipText(Messages.getString(ttKey));
             }
             newButton.addActionListener(this);
             newButton.setActionCommand(cmd.getCmd());
-            if (clientgui != null) {
-                newButton.setEnabled(false);
-            } else {
-                newButton.setEnabled(true);
-            }
+            newButton.setEnabled(clientgui == null);
             buttons.put(cmd, newButton);
         }
 
@@ -383,8 +367,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
                     @Override
                     public void performAction() {
-                        int curDir = cmd.getFinalFacing();
-                        int dir = curDir;
+                        int dir = cmd.getFinalFacing();
                         dir = (dir + 5) % 6;
                         Coords curPos = cmd.getFinalCoords();
                         Coords target = curPos.translated(dir);
@@ -414,8 +397,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
                     @Override
                     public void performAction() {
-                        int curDir = cmd.getFinalFacing();
-                        int dir = curDir;
+                        int dir = cmd.getFinalFacing();
                         dir = (dir + 7) % 6;
                         Coords curPos = cmd.getFinalCoords();
                         Coords target = curPos.translated(dir);
@@ -463,8 +445,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
                     @Override
                     public void performAction() {
-                        selectEntity(clientgui.getClient()
-                                .getNextEntityNum(cen));
+                        selectEntity(clientgui.getClient().getNextEntityNum(cen));
                     }
                 });
 
@@ -539,8 +520,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                             if (gear != MovementDisplay.GEAR_JUMP) {
                                 if (!((cmd.getLastStep() != null)
                                         && cmd.getLastStep().isFirstStep() 
-                                        && (cmd.getLastStep().getType() 
-                                                == MoveStepType.LAY_MINE))) {
+                                        && (cmd.getLastStep().getType() == MoveStepType.LAY_MINE))) {
                                     clear();
                                 }
                                 if (!cmd.isJumping()) {
@@ -592,6 +572,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                             if (!((LandAirMech) ce()).canConvertTo(nextMode)) {
                                 nextMode = ce().nextConversionMode(nextMode);
                             }
+
                             if (!((LandAirMech) ce()).canConvertTo(nextMode)) {
                                 nextMode = ce().getMovementMode();
                             }
@@ -600,18 +581,16 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                         clientgui.getBoardView().drawMovementData(ce(), cmd);
                     }
                 });
-
     }
 
     /**
-     * Return the button list: we need to determine what unit type is selected
-     * and then get a button list appropriate for that unit.
+     * @return the button list: we need to determine what unit type is selected and then get a
+     * button list appropriate for that unit.
      */
+    @Override
     protected ArrayList<MegamekButton> getButtonList() {
-        int flag;
-
         final Entity ce = ce();
-        flag = CMD_MECH;
+        int flag = CMD_MECH;
         if (ce != null) {
             if (ce instanceof Infantry) {
                 flag = CMD_INF;
@@ -620,15 +599,13 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             } else if (ce instanceof Tank) {
                 flag = CMD_TANK;
             } else if (ce.isAero()) {
-                if (ce.isAirborne()
-                    && clientgui.getClient().getGame().useVectorMove()) {
-                    flag = CMD_AERO_VECTORED;
-                } else if (ce.isAirborne()
-                           && !clientgui.getClient().getGame().useVectorMove()) {
-                    flag = CMD_AERO;
+                if (ce.isAirborne()) {
+                    flag = clientgui.getClient().getGame().useVectorMove()
+                            ? CMD_AERO_VECTORED : CMD_AERO;
                 } else {
                     flag = CMD_TANK;
                 }
+
                 if (ce instanceof LandAirMech) {
                     flag |= CMD_CONVERTER;
                 }
@@ -644,9 +621,9 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 } else {
                     flag = CMD_MECH | CMD_CONVERTER;
                 }
-            } else if (ce instanceof Mech && ((Mech) ce).hasTracks()) {
+            } else if ((ce instanceof Mech) && ((Mech) ce).hasTracks()) {
                 flag = CMD_MECH | CMD_CONVERTER;
-            } else if (ce instanceof Protomech && ce.getMovementMode() == EntityMovementMode.WIGE) {
+            } else if ((ce instanceof Protomech) && ce.getMovementMode().isWiGE()) {
                 flag = CMD_MECH | CMD_AIRMECH;
             }
         }
@@ -684,16 +661,14 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 i++;
             }
         }
-        if (!buttonList.get(i - 1).getActionCommand()
-                       .equals(MoveCommand.MOVE_MORE.getCmd())) {
+        if (!buttonList.get(i - 1).getActionCommand().equals(MoveCommand.MOVE_MORE.getCmd())) {
             while ((i + 1) % buttonsPerGroup != 0) {
                 buttonList.add(null);
                 i++;
             }
             buttonList.add(getBtn(MoveCommand.MOVE_MORE));
         }
-        numButtonGroups = (int) Math.ceil((buttonList.size() + 0.0)
-                                          / buttonsPerGroup);
+        numButtonGroups = (int) Math.ceil((buttonList.size() + 0.0) / buttonsPerGroup);
         return buttonList;
     }
 
@@ -704,7 +679,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
      */
     public synchronized void selectNextPlayer() {
         clientgui.getClient().sendNextPlayer();
-        // endMyTurn();
     }
 
     /**
@@ -715,8 +689,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         // hmm, sometimes this gets called when there's no ready entities?
         if (ce == null) {
-            System.err.println("MovementDisplay: tried to "
-                               + "select non-existant entity: " + en);
+            System.err.println("MovementDisplay: tried to " + "select non-existant entity: " + en);
             return;
         }
 
@@ -727,8 +700,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         cen = en;
         clientgui.setSelectedEntityNum(en);
         gear = MovementDisplay.GEAR_LAND;
-        Color walkColor = GUIPreferences.getInstance().getColor(
-                GUIPreferences.ADVANCED_MOVE_DEFAULT_COLOR);
+        Color walkColor = GUIPreferences.getInstance().getColor(GUIPreferences.ADVANCED_MOVE_DEFAULT_COLOR);
         clientgui.getBoardView().setHighlightColor(walkColor);
         clear();
         
@@ -742,18 +714,15 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             clientgui.getBoardView().centerOnHex(ce.getPosition());
         }
 
-        String yourTurnMsg = Messages
-                .getString("MovementDisplay.its_your_turn");
+        String yourTurnMsg = Messages.getString("MovementDisplay.its_your_turn");
         if (ce.hasQuirk(OptionsConstants.QUIRK_NEG_POOR_PERFORMANCE)) {
             String poorPerfMsg;
             if (ce.getMpUsedLastRound() < ce.getWalkMP()) {
-                poorPerfMsg = Messages
-                        .getString("MovementDisplay.NotUpToSpeed");
+                poorPerfMsg = Messages.getString("MovementDisplay.NotUpToSpeed");
             } else {
                 poorPerfMsg = Messages.getString("MovementDisplay.UpToSpeed");
             }
-            setStatusBarText("<html><center>" + yourTurnMsg + "<br>"
-                             + poorPerfMsg + "</center></html>");
+            setStatusBarText("<html><center>" + yourTurnMsg + "<br>" + poorPerfMsg + "</center></html>");
         } else {
             setStatusBarText(yourTurnMsg);
         }
@@ -777,7 +746,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         final Entity ce = ce();
         boolean isMech = (ce instanceof Mech);
         boolean isInfantry = (ce instanceof Infantry);
-        // boolean isProtomech = (ce instanceof Protomech);
         boolean isAero = ce.isAero();
 
         if (numButtonGroups > 1)
@@ -795,22 +763,18 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         setRamEnabled(ce.canRam());
 
         if (isInfantry) {
-            if (clientgui.getClient().getGame()
-                         .containsMinefield(ce.getPosition())) {
-                setClearEnabled(true);
-            } else {
-                setClearEnabled(false);
-            }
+            setClearEnabled(clientgui.getClient().getGame().containsMinefield(ce.getPosition()));
         } else {
             setClearEnabled(false);
         }
+
         if ((ce.getMovementMode() == EntityMovementMode.HYDROFOIL)
-            || (ce.getMovementMode() == EntityMovementMode.NAVAL)
-            || (ce.getMovementMode() == EntityMovementMode.SUBMARINE)
-            || (ce.getMovementMode() == EntityMovementMode.INF_UMU)
-            || (ce.getMovementMode() == EntityMovementMode.VTOL)
-            || (ce.getMovementMode() == EntityMovementMode.BIPED_SWIM)
-            || (ce.getMovementMode() == EntityMovementMode.QUAD_SWIM)) {
+                || (ce.getMovementMode() == EntityMovementMode.NAVAL)
+                || (ce.getMovementMode() == EntityMovementMode.SUBMARINE)
+                || (ce.getMovementMode() == EntityMovementMode.INF_UMU)
+                || (ce.getMovementMode() == EntityMovementMode.VTOL)
+                || (ce.getMovementMode() == EntityMovementMode.BIPED_SWIM)
+                || (ce.getMovementMode() == EntityMovementMode.QUAD_SWIM)) {
             getBtn(MoveCommand.MOVE_CLIMB_MODE).setEnabled(false);
         } else {
             getBtn(MoveCommand.MOVE_CLIMB_MODE).setEnabled(true);
@@ -847,6 +811,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         updateDropButton();
         updateConvertModeButton();
         updateRecklessButton();
+        updateBraceButton();
         updateHoverButton();
         updateManeuverButton();
         updateStrafeButton();
@@ -975,7 +940,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             clientgui.maybeShowUnitDisplay();
         }
         selectEntity(clientgui.getClient().getFirstEntityNum());
-        //check if there should be a turn timer running
+        // check if there should be a turn timer running
         tt = TurnTimer.init(this, clientgui.getClient());
     }
 
@@ -1042,6 +1007,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         setDisconnectEnabled(false);
         setClearEnabled(false);
         setHullDownEnabled(false);
+        setBraceEnabled(false);
         setSwimEnabled(false);
         setModeConvertEnabled(false);
         setAccEnabled(false);
@@ -1143,6 +1109,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         updateDropButton();
         updateConvertModeButton();
         updateRecklessButton();
+        updateBraceButton();
         updateHoverButton();
         updateManeuverButton();
         updateAeroButtons();
@@ -1253,13 +1220,24 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         if (cmd.hasActiveMASC() && GUIPreferences.getInstance().getNagForMASC()) {
             // pop up are you sure dialog
-            if (!((ce() instanceof VTOL) && ce().hasWorkingMisc(
-                    MiscType.F_JET_BOOSTER))) {
+            ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
+                    Messages.getString("MovementDisplay.areYouSure"),
+                    Messages.getString("MovementDisplay.ConfirmMASCRoll", ce().getMASCTarget()),
+                    true);
+            nag.setVisible(true);
+            if (nag.getAnswer()) {
+                // do they want to be bothered again?
+                if (!nag.getShowAgain()) {
+                    GUIPreferences.getInstance().setNagForMASC(false);
+                }
+            }
+        }
+
+        if (cmd.hasActiveSupercharger() && GUIPreferences.getInstance().getNagForMASC()) {
+            if (!(ce() instanceof VTOL)) {
                 ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
                         Messages.getString("MovementDisplay.areYouSure"),
-                        Messages.getString(
-                                "MovementDisplay.ConfirmMoveRoll",
-                                new Object[] { Integer.valueOf(ce().getMASCTarget()) }),
+                        Messages.getString("MovementDisplay.ConfirmSuperchargerRoll", ce().getSuperchargerTarget()),
                         true);
                 nag.setVisible(true);
                 if (nag.getAnswer()) {
@@ -1314,23 +1292,17 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         // Should we nag about taking fall damage with mechanical jump boosters?
         if (cmd.shouldMechanicalJumpCauseFallDamage()
-                && GUIPreferences.getInstance()
-                        .getNagForMechanicalJumpFallDamage()) {
+                && GUIPreferences.getInstance().getNagForMechanicalJumpFallDamage()) {
             ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
                     Messages.getString("MovementDisplay.areYouSure"),
-                    Messages.getString(
-                            "MovementDisplay.ConfirmMechanicalJumpFallDamage",
-                            new Object[] {
-                                    cmd.getJumpMaxElevationChange(),
-                                    ce().getJumpMP(),
-                                    cmd.getJumpMaxElevationChange()
-                                            - ce().getJumpMP() }), true);
+                    Messages.getString("MovementDisplay.ConfirmMechanicalJumpFallDamage",
+                            cmd.getJumpMaxElevationChange(), ce().getJumpMP(),
+                            cmd.getJumpMaxElevationChange() - ce().getJumpMP()), true);
             nag.setVisible(true);
             if (nag.getAnswer()) {
                 // do they want to be bothered again?
                 if (!nag.getShowAgain()) {
-                    GUIPreferences.getInstance()
-                            .setNagForMechanicalJumpFallDamage(false);
+                    GUIPreferences.getInstance().setNagForMechanicalJumpFallDamage(false);
                 }
             } else {
                 return;
@@ -1342,9 +1314,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         if ((check.length() > 0) && GUIPreferences.getInstance().getNagForPSR()) {
             ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
                     Messages.getString("MovementDisplay.areYouSure"),
-                    Messages.getString("MovementDisplay.ConfirmPilotingRoll") +
-                   
-                            check, true);
+                    Messages.getString("MovementDisplay.ConfirmPilotingRoll") + check,
+                    true);
             nag.setVisible(true);
             if (nag.getAnswer()) {
                 // do they want to be bothered again?
@@ -1367,11 +1338,9 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 }
             }
             if (unsecure) {
-                ConfirmDialog nag = new ConfirmDialog(
-                        clientgui.frame,
+                ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
                         Messages.getString("MovementDisplay.areYouSure"),
-                        Messages.getString("MovementDisplay.UnsecuredTakeoff"),
-                        true);
+                        Messages.getString("MovementDisplay.UnsecuredTakeoff"), true);
                 nag.setVisible(true);
                 if (nag.getAnswer()) {
                     // do they want to be bothered again?
@@ -1460,8 +1429,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             if (nag.getAnswer()) {
                 // do they want to be bothered again?
                 if (!nag.getShowAgain()) {
-                    GUIPreferences.getInstance().setNagForCrushingBuildings(
-                            false);
+                    GUIPreferences.getInstance().setNagForCrushingBuildings(false);
                 }
             } else {
                 return;
@@ -1473,9 +1441,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 && cmd.getFinalConversionMode() == EntityMovementMode.AERODYNE) {
             ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
                     Messages.getString("MovementDisplay.areYouSure"),
-                    Messages.getString("MovementDisplay.insufficientAltitudeForConversion") +
-                   
-                            check, false);
+                    Messages.getString("MovementDisplay.insufficientAltitudeForConversion") + check,
+                    false);
             nag.setVisible(true);
             if (!nag.getAnswer()) {
                 return;
@@ -1490,12 +1457,10 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     .terrainLevel(Terrains.BLDG_ELEV) < cmd.getFinalElevation()
                 && ce().getGame().getBoard().getHex(cmd.getFinalCoords())
                     .terrainLevel(Terrains.BRIDGE_ELEV) < cmd.getFinalElevation()) {
-            String title = Messages
-                    .getString("MovementDisplay.MicroliteMove.title");
-            String body = Messages
-                    .getString("MovementDisplay.MicroliteMove.message");
+            String title = Messages.getString("MovementDisplay.MicroliteMove.title");
+            String body = Messages.getString("MovementDisplay.MicroliteMove.message");
             clientgui.doAlertDialog(title, body);
-            return;            	
+            return;
         }
         
         if (cmd.automaticWiGELanding(true)
@@ -1662,16 +1627,12 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
             LongestPathFinder lpf;
             if (ce().isAero()) {
-                lpf = LongestPathFinder.newInstanceOfAeroPath(maxMp, ce()
-                        .getGame());
+                lpf = LongestPathFinder.newInstanceOfAeroPath(maxMp, ce().getGame());
             } else {
-                lpf = LongestPathFinder.newInstanceOfLongestPath(maxMp,
-                                                                 stepType, ce().getGame());
+                lpf = LongestPathFinder.newInstanceOfLongestPath(maxMp, stepType, ce().getGame());
             }
-            final int timeLimit = PreferenceManager.getClientPreferences()
-                                                   .getMaxPathfinderTime();
-            lpf.addStopCondition(new AbstractPathFinder.StopConditionTimeout<MovePath>(
-                    timeLimit * 4));
+            final int timeLimit = PreferenceManager.getClientPreferences().getMaxPathfinderTime();
+            lpf.addStopCondition(new AbstractPathFinder.StopConditionTimeout<>(timeLimit * 4));
 
             lpf.run(cmd);
             MovePath lPath = lpf.getComputedPath(dest);
@@ -1748,7 +1709,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                             + "</b></html>");
                    
                 }
-                return;
             } else {
                 clientgui.getBoardView().select(b.getCoords());
             }
@@ -1872,17 +1832,10 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                         msg = "MovementDisplay.AirmechRamDialog.message";
                     }
                     // Ask the player if they want to charge.
-                    if (clientgui
-                            .doYesNoDialog(Messages.getString(title, new Object[] { target.getDisplayName() }),
-                                    Messages.getString(msg,new Object[] {
-                                            toHit.getValueAsString(),
-                                            Double.valueOf(
-                                                    Compute.oddsAbove(toHit
-                                                            .getValue())),
-                                            toHit.getDesc(),
-                                            toDefender,
-                                            toHit.getTableDesc(),
-                                            Integer.valueOf(toAttacker) }))) {
+                    if (clientgui.doYesNoDialog(Messages.getString(title, target.getDisplayName()),
+                            Messages.getString(msg, toHit.getValueAsString(),
+                                    Compute.oddsAbove(toHit.getValue()), toHit.getDesc(), toDefender,
+                                    toHit.getTableDesc(), toAttacker))) {
                         // if they answer yes, charge the target.
                         cmd.getLastStep().setTarget(target);
                         ready();
@@ -1893,8 +1846,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     return;
                 }
                 // if not valid, tell why
-                clientgui.doAlertDialog(
-                        Messages.getString("MovementDisplay.CantCharge"),
+                clientgui.doAlertDialog(Messages.getString("MovementDisplay.CantCharge"),
                         toHit.getDesc());
                 clear();
                 computeMovementEnvelope(ce);
@@ -1957,6 +1909,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             updateDropButton();
             updateConvertModeButton();
             updateRecklessButton();
+            updateBraceButton();
             updateHoverButton();
             updateManeuverButton();
             updateSpeedButtons();
@@ -2626,6 +2579,24 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             setRecklessEnabled((null == cmd) || (cmd.length() == 0));
         }
     }
+    
+    private void updateBraceButton() {
+        if (null == ce()) {
+            return;
+        }        
+        
+        MovePath movePath = cmd;
+        if (null == movePath) {
+            movePath = new MovePath(this.getClientgui().getClient().getGame(), ce());
+        }
+        
+        if (!movePath.contains(MoveStepType.BRACE) && 
+                movePath.isValidPositionForBrace(movePath.getFinalCoords(), movePath.getFinalFacing())) {
+            setBraceEnabled(true);
+        } else {
+            setBraceEnabled(false);
+        }
+    }
 
     private void updateManeuverButton() {
 
@@ -2778,9 +2749,11 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         // If the current entity has moved, disable "Load" and "Tow" buttons.
         setLoadEnabled(false);
         setTowEnabled(false);
-        if ((cmd.length() == 0) && (cen != Entity.NONE)) {
+        if (cen != Entity.NONE) {
+            Coords currentPathEndpoint = cmd.getFinalCoords();
+            
             // Check the other entities in the current hex for friendly units.
-            for (Entity other : game.getEntitiesVector(ce.getPosition())) {
+            for (Entity other : game.getEntitiesVector(currentPathEndpoint)) {
                 // If the other unit is friendly and not the current entity
                 // and the current entity has at least 1 MP, if it can
                 // transport the other unit, and if the other hasn't moved
@@ -2792,17 +2765,20 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     break;
                 }
             } // Check the next entity in this position.
-            //Now check all eligible hexes for towable trailers
-            for (Coords c : ce.getHitchLocations()) {
-                for (Entity other : game.getEntitiesVector(c)) {
-                    // If the other unit is friendly and not the current entity
-                    // if it can tow the other unit, and if the other hasn't moved
-                    // then enable the "Tow" button.
-                    if (ce.canTow(other.getId())) {
-                        setTowEnabled(true);
-                        break;
-                    }
-                } // Check the next entity.
+            
+            // Now check all eligible hexes for towable trailers            
+            if (cmd.length() == 0) {
+                for (Coords c : ce.getHitchLocations()) {
+                    for (Entity other : game.getEntitiesVector(c)) {
+                        // If the other unit is friendly and not the current entity
+                        // if it can tow the other unit, and if the other hasn't moved
+                        // then enable the "Tow" button.
+                        if (ce.canTow(other.getId())) {
+                            setTowEnabled(true);
+                            break;
+                        }
+                    } // Check the next entity.
+                }
             }
         } // End ce-hasn't-moved
     } // private void updateLoadButtons
@@ -2867,7 +2843,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         }
 
         if (!(ce instanceof Infantry)) {
-            Vector<Integer> bayChoices = new Vector<Integer>();
+            Vector<Integer> bayChoices = new Vector<>();
             for (Transporter t : choice.getTransports()) {
                 if (t.canLoad(ce) && (t instanceof Bay)) {
                     bayChoices.add(((Bay) t).getBayNumber());
@@ -2909,8 +2885,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         final Game game = clientgui.getClient().getGame();
         Entity choice = null;
 
-        Vector<Entity> choices = new Vector<Entity>();
-        for (Entity other : game.getEntitiesVector(ce().getPosition())) {
+        Vector<Entity> choices = new Vector<>();
+        for (Entity other : game.getEntitiesVector(cmd.getFinalCoords())) {
             if (other.isLoadableThisTurn() && (ce() != null)
                 && ce().canLoad(other, false)) {
                 choices.addElement(other);
@@ -3024,7 +3000,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         final Game game = clientgui.getClient().getGame();
         Entity choice = null;
 
-        List<Entity> choices = new ArrayList<Entity>();
+        List<Entity> choices = new ArrayList<>();
         
         //We have to account for the positions of the whole train when looking to add new trailers
         for (Coords pos : ce().getHitchLocations()) {
@@ -3104,7 +3080,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             Entity tr = game.getEntity(id);
             thisTrain.add(tr);
         }
-        //and store all the valid Hitch transporters that each one has
+        // and store all the valid Hitch transporters that each one has
         //really, there shouldn't be but one per entity. "Towing" front and rear with the
         //tractor in the center isn't going to work well...
         for (Entity e : thisTrain) {
@@ -3145,10 +3121,10 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             }
             //Set the transporter number in the towed entity from the selection
             choice.setTargetBay(hc.getNumber());
-            //and then the Entity id the transporter is attached to...
+            // and then the Entity id the transporter is attached to...
             choice.setTowedBy(hc.getId());
         } else {
-            //and in case there's just one choice...
+            // and in case there's just one choice...
             choice.setTargetBay(hitchChoices.get(0).getNumber());
             choice.setTowedBy(hitchChoices.get(0).getId());
         }
@@ -3518,7 +3494,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
      */
     private TreeMap<Integer, Vector<Integer>> getLaunchedUnits() {
         Entity ce = ce();
-        TreeMap<Integer, Vector<Integer>> choices = new TreeMap<Integer, Vector<Integer>>();
+        TreeMap<Integer, Vector<Integer>> choices = new TreeMap<>();
 
         Vector<Entity> launchableFighters = ce.getLaunchableFighters();
         Vector<Entity> launchableSmallCraft = ce.getLaunchableSmallCraft();
@@ -3588,24 +3564,19 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                         if ((choice / aerosPerDoor) >= (doors - 1)) {
                             modifier += remainder;
                         }
-                        modifier += currentFighters.get(choice).getCrew()
-                                                   .getPiloting();
-                        String damageMsg = Messages
-                                .getString(
-                                        "MovementDisplay.LaunchFighterDialog.controlroll",
-                                       
-                                        new Object[]{names[choice], modifier});
+                        modifier += currentFighters.get(choice).getCrew().getPiloting();
+                        String damageMsg = Messages.getString(
+                                "MovementDisplay.LaunchFighterDialog.controlroll", names[choice], modifier);
                         psrs.append("\t" + damageMsg + "\n");
                     }
                     ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
-                                                          Messages.getString("MovementDisplay.areYouSure"),
-                                                          Messages.getString("MovementDisplay.ConfirmLaunch")
-                                                          + psrs.toString(), true);
+                            Messages.getString("MovementDisplay.areYouSure"),
+                            Messages.getString("MovementDisplay.ConfirmLaunch") + psrs,
+                            true);
                     nag.setVisible(true);
                     doIt = nag.getAnswer();
                     if (!nag.getShowAgain()) {
-                        GUIPreferences.getInstance()
-                                      .setNagForLaunchDoors(false);
+                        GUIPreferences.getInstance().setNagForLaunchDoors(false);
                     }
                 } else {
                     doIt = true;
@@ -3835,7 +3806,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
     private int getRecoveryUnit() {
         final Game game = clientgui.getClient().getGame();
         final Entity ce = ce();
-        List<Entity> choices = new ArrayList<Entity>();
+        List<Entity> choices = new ArrayList<>();
 
         // collect all possible choices
         Coords loadeePos = cmd.getFinalCoords();
@@ -3920,7 +3891,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
     private int getUnitJoined() {
         final Game game = clientgui.getClient().getGame();
         final Entity ce = ce();
-        List<Entity> choices = new ArrayList<Entity>();
+        List<Entity> choices = new ArrayList<>();
 
         // collect all possible choices
         Coords loadeePos = cmd.getFinalCoords();
@@ -4082,7 +4053,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         // Get the available choices.
 
         // Convert the choices into a List of targets.
-        ArrayList<Targetable> targets = new ArrayList<Targetable>();
+        ArrayList<Targetable> targets = new ArrayList<>();
         for (Entity ent : game.getEntitiesVector(pos)) {
             if ((ce == null) || !ce.equals(ent)) {
                 targets.add(ent);
@@ -4294,7 +4265,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         
         // if all our entities are actually done, don't start up the turn.
         if (clientgui.getClient().getGame().getPlayerEntities(clientgui.getClient().getLocalPlayer(), false)
-                .stream().allMatch(entity -> entity.isDone())) {
+                .stream().allMatch(Entity::isDone)) {
             return;
         }
 
@@ -4388,7 +4359,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             return;
         }
         
-        Map<Coords, MovePath> mvEnvData = new HashMap<Coords, MovePath>();
+        Map<Coords, MovePath> mvEnvData = new HashMap<>();
         MovePath mp = new MovePath(clientgui.getClient().getGame(), en);
 
         int maxMP;
@@ -4418,8 +4389,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 stepType, en.getGame());
         pf.run(mp);
         mvEnvData = pf.getAllComputedPaths();
-        Map<Coords, Integer> mvEnvMP = new HashMap<Coords, Integer>(
-                (int) ((mvEnvData.size() * 1.25) + 1));
+        Map<Coords, Integer> mvEnvMP = new HashMap<>((int) ((mvEnvData.size() * 1.25) + 1));
         for (Coords c : mvEnvData.keySet()) {
             mvEnvMP.put(c, mvEnvData.get(c).countMp(mvMode == GEAR_JUMP));
         }
@@ -4463,6 +4433,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
     //
     // ActionListener
     //
+    @Override
     public synchronized void actionPerformed(ActionEvent ev) {
         final Entity ce = ce();
 
@@ -4654,19 +4625,15 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             }
 
             // need to choose a mine
-            List<Minefield> mfs = clientgui.getClient().getGame()
-                    .getMinefields(ce.getPosition());
+            List<Minefield> mfs = clientgui.getClient().getGame().getMinefields(ce.getPosition());
             String[] choices = new String[mfs.size()];
             for (int loop = 0; loop < choices.length; loop++) {
-                choices[loop] = Minefield.getDisplayableName(mfs.get(loop)
-                        .getType());
+                choices[loop] = Minefield.getDisplayableName(mfs.get(loop).getType());
             }
-            String input = (String) JOptionPane
-                    .showInputDialog(
-                            clientgui,
-                            Messages.getString("MovementDisplay.ChooseMinefieldDialog.message"),
-                            Messages.getString("MovementDisplay.ChooseMinefieldDialog.title"),
-                            JOptionPane.QUESTION_MESSAGE, null, choices, null);
+            String input = (String) JOptionPane.showInputDialog(clientgui,
+                    Messages.getString("MovementDisplay.ChooseMinefieldDialog.message"),
+                    Messages.getString("MovementDisplay.ChooseMinefieldDialog.title"),
+                    JOptionPane.QUESTION_MESSAGE, null, choices, null);
             Minefield mf = null;
             if (input != null) {
                 for (int loop = 0; loop < choices.length; loop++) {
@@ -4676,12 +4643,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     }
                 }
             }
-            String title = Messages
-                    .getString("MovementDisplay.ClearMinefieldDialog.title");
-            String msg = Messages.getString(
-                    "MovementDisplay.ClearMinefieldDialog.message",
-                    new Object[] {
-                    Integer.valueOf(clear), Integer.valueOf(boom) });
+            String title = Messages.getString("MovementDisplay.ClearMinefieldDialog.title");
+            String msg = Messages.getString("MovementDisplay.ClearMinefieldDialog.message", clear, boom);
             if ((null != mf) && clientgui.doYesNoDialog(title, msg)) {
                 cmd.addStep(MoveStepType.CLEAR_MINEFIELD, mf);
                 ready();
@@ -4720,10 +4683,9 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
             if (opts.booleanOption(OptionsConstants.ADVGRNDMOV_TACOPS_CAREFUL_STAND)
                     && (ce.getWalkMP() > 2)) {
-                ConfirmDialog response = clientgui
-                        .doYesNoBotherDialog(
-                                Messages.getString("MovementDisplay.CarefulStand.title"),
-                                Messages.getString("MovementDisplay.CarefulStand.message"));
+                ConfirmDialog response = clientgui.doYesNoBotherDialog(
+                        Messages.getString("MovementDisplay.CarefulStand.title"),
+                        Messages.getString("MovementDisplay.CarefulStand.message"));
                 if (response.getAnswer()) {
                     ce.setCarefulStand(true);
                     if (cmd.getFinalProne() || cmd.getFinalHullDown()) {
@@ -4756,29 +4718,47 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             }
             clientgui.getBoardView().drawMovementData(ce(), cmd);
             butDone.setText("<html><b>" + Messages.getString("MovementDisplay.Move") + "</b></html>");
+        } else if (actionCmd.equals(MoveCommand.MOVE_BRACE.getCmd())) {
+            var options = ce().getValidBraceLocations();
+            if (options.size() == 1) {
+                cmd.addStep(MoveStepType.BRACE, options.get(0));
+                butDone.setText("<html><b>" + Messages.getString("MovementDisplay.Done") + "</b></html>");
+            } else if (options.size() > 1) {
+                String[] locationNames = new String[options.size()];
+                
+                for (int x = 0; x < options.size(); x++) {
+                    locationNames[x] = ce().getLocationName(options.get(x));
+                }
+                
+                // Dialog for choosing which location to brace
+                String option = (String) JOptionPane.showInputDialog(clientgui.getFrame(),
+                                "Choose the location to brace:",
+                                "Choose Brace Location", JOptionPane.QUESTION_MESSAGE, null,
+                                locationNames, locationNames[0]);
+    
+                // Verify that we have a valid option...
+                if (option != null) {
+                    int id = options.get(Arrays.asList(locationNames).indexOf(option));
+                    cmd.addStep(MoveStepType.BRACE, id);
+                    butDone.setText("<html><b>" + Messages.getString("MovementDisplay.Done") + "</b></html>");
+                }
+            }
         } else if (actionCmd.equals(MoveCommand.MOVE_FLEE.getCmd())
-                && clientgui.doYesNoDialog(Messages
-                        .getString("MovementDisplay.EscapeDialog.title"),
-                        Messages.getString("MovementDisplay" + ".EscapeDialog"
-                                + ".message"))) {
+                && clientgui.doYesNoDialog(
+                        Messages.getString("MovementDisplay.EscapeDialog.title"),
+                        Messages.getString("MovementDisplay.EscapeDialog.message"))) {
            
-            // $NON-NLS-2$
             clear();
             cmd.addStep(MoveStepType.FLEE);
             ready();
         } else if (actionCmd.equals(MoveCommand.MOVE_FLY_OFF.getCmd())
-                && clientgui.doYesNoDialog(Messages
-                        .getString("MovementDisplay.FlyOffDialog.title"),
-                        Messages.getString("MovementDisplay" + ".FlyOffDialog"
-                                + ".message"))) {
-           
-            // $NON-NLS-2$
-            // clear();
+                && clientgui.doYesNoDialog(
+                        Messages.getString("MovementDisplay.FlyOffDialog.title"),
+                        Messages.getString("MovementDisplay.FlyOffDialog.message"))) {
             if (opts.booleanOption(OptionsConstants.ADVAERORULES_RETURN_FLYOVER)
-                    && clientgui
-                            .doYesNoDialog(
-                                    Messages.getString("MovementDisplay.ReturnFly.title"),
-                                    Messages.getString("MovementDisplay.ReturnFly.message"))) {
+                    && clientgui.doYesNoDialog(
+                            Messages.getString("MovementDisplay.ReturnFly.title"),
+                            Messages.getString("MovementDisplay.ReturnFly.message"))) {
                 cmd.addStep(MoveStepType.RETURN);
             } else {
                 cmd.addStep(MoveStepType.OFF);
@@ -4786,21 +4766,17 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             ready();
         } else if (actionCmd.equals(MoveCommand.MOVE_EJECT.getCmd())) {
             if (ce instanceof Tank) {
-                if (clientgui
-                        .doYesNoDialog(
-                                Messages.getString("MovementDisplay.AbandonDialog.title"),
-                                Messages.getString("MovementDisplay.AbandonDialog.message"))) {
-                    // $NON-NLS-2$
+                if (clientgui.doYesNoDialog(
+                        Messages.getString("MovementDisplay.AbandonDialog.title"),
+                        Messages.getString("MovementDisplay.AbandonDialog.message"))) {
                     clear();
                     cmd.addStep(MoveStepType.EJECT);
                     ready();
                 }
             } else if (ce.isLargeCraft()) {
-                if (clientgui
-                        .doYesNoDialog(
-                                Messages.getString("MovementDisplay.AbandonDialog.title"),
-                                Messages.getString("MovementDisplay.AbandonDialog.message"))) {
-                    // $NON-NLS-2$
+                if (clientgui.doYesNoDialog(
+                        Messages.getString("MovementDisplay.AbandonDialog.title"),
+                        Messages.getString("MovementDisplay.AbandonDialog.message"))) {
                     clear();
                     // If we're abandoning while grounded, find a legal position to put an EjectedCrew unit
                     if (!ce.isSpaceborne() && ce.getAltitude() == 0) {
@@ -4977,28 +4953,24 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             cmd.addStep(MoveStepType.BOOTLEGGER);
             clientgui.getBoardView().drawMovementData(ce, cmd);
         } else if (actionCmd.equals(MoveCommand.MOVE_SHUTDOWN.getCmd())) {
-            if (clientgui
-                    .doYesNoDialog(
-                            Messages.getString("MovementDisplay.ShutdownDialog.title"),
-                            Messages.getString("MovementDisplay.ShutdownDialog.message"))) {
+            if (clientgui.doYesNoDialog(
+                    Messages.getString("MovementDisplay.ShutdownDialog.title"),
+                    Messages.getString("MovementDisplay.ShutdownDialog.message"))) {
                 cmd.addStep(MoveStepType.SHUTDOWN);
                 ready();
             }
         } else if (actionCmd.equals(MoveCommand.MOVE_STARTUP.getCmd())) {
-            if (clientgui
-                    .doYesNoDialog(
-                            Messages.getString("MovementDisplay.StartupDialog.title"),
-                            Messages.getString("MovementDisplay.StartupDialog.message"))) {
+            if (clientgui.doYesNoDialog(
+                    Messages.getString("MovementDisplay.StartupDialog.title"),
+                    Messages.getString("MovementDisplay.StartupDialog.message"))) {
                 clear();
                 cmd.addStep(MoveStepType.STARTUP);
                 ready();
             }
         } else if (actionCmd.equals(MoveCommand.MOVE_SELF_DESTRUCT.getCmd())) {
-            if (clientgui
-                    .doYesNoDialog(
-                            Messages.getString("MovementDisplay.SelfDestructDialog.title"),
-                            Messages.getString("MovementDisplay.SelfDestructDialog.message"))) {
-                // $NON-NLS-2$
+            if (clientgui.doYesNoDialog(
+                    Messages.getString("MovementDisplay.SelfDestructDialog.title"),
+                    Messages.getString("MovementDisplay.SelfDestructDialog.message"))) {
                 cmd.addStep(MoveStepType.SELF_DESTRUCT);
                 ready();
             }
@@ -5108,29 +5080,25 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         } else if (actionCmd.equals(MoveCommand.MOVE_TAKE_OFF.getCmd())) {
             if (ce().isAero()
                     && (null != ((IAero) ce()).hasRoomForHorizontalTakeOff())) {
-                String title = Messages
-                        .getString("MovementDisplay.NoTakeOffDialog.title");
+                String title = Messages.getString("MovementDisplay.NoTakeOffDialog.title");
                 String body = Messages.getString(
                         "MovementDisplay.NoTakeOffDialog.message",
                         new Object[] { ((IAero) ce())
                                 .hasRoomForHorizontalTakeOff() });
                 clientgui.doAlertDialog(title, body);
             } else {
-                if (clientgui
-                        .doYesNoDialog(
-                                Messages.getString("MovementDisplay.TakeOffDialog.title"),
-                                Messages.getString("MovementDisplay.TakeOffDialog.message"))) {
-                    // $NON-NLS-2$
+                if (clientgui.doYesNoDialog(
+                        Messages.getString("MovementDisplay.TakeOffDialog.title"),
+                        Messages.getString("MovementDisplay.TakeOffDialog.message"))) {
                     clear();
                     cmd.addStep(MoveStepType.TAKEOFF);
                     ready();
                 }
             }
         } else if (actionCmd.equals(MoveCommand.MOVE_VERT_TAKE_OFF.getCmd())) {
-            if (clientgui
-                    .doYesNoDialog(
-                            Messages.getString("MovementDisplay.TakeOffDialog.title"),
-                            Messages.getString("MovementDisplay.TakeOffDialog.message"))) {
+            if (clientgui.doYesNoDialog(
+                    Messages.getString("MovementDisplay.TakeOffDialog.title"),
+                    Messages.getString("MovementDisplay.TakeOffDialog.message"))) {
                 clear();
                 cmd.addStep(MoveStepType.VTAKEOFF);
                 ready();
@@ -5138,18 +5106,14 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         } else if (actionCmd.equals(MoveCommand.MOVE_LAND.getCmd())) {
             if (ce().isAero()
                     && (null != ((IAero) ce()).hasRoomForHorizontalLanding())) {
-                String title = Messages
-                        .getString("MovementDisplay.NoLandingDialog.title");
-                String body = Messages.getString(
-                        "MovementDisplay.NoLandingDialog.message",
-                        new Object[] { ((IAero) ce())
-                                .hasRoomForHorizontalLanding() });
+                String title = Messages.getString("MovementDisplay.NoLandingDialog.title");
+                String body = Messages.getString("MovementDisplay.NoLandingDialog.message",
+                        ((IAero) ce()).hasRoomForHorizontalLanding());
                 clientgui.doAlertDialog(title, body);
             } else {
-                if (clientgui
-                        .doYesNoDialog(
-                                Messages.getString("MovementDisplay.LandDialog.title"),
-                                Messages.getString("MovementDisplay.LandDialog.message"))) {
+                if (clientgui.doYesNoDialog(
+                        Messages.getString("MovementDisplay.LandDialog.title"),
+                        Messages.getString("MovementDisplay.LandDialog.message"))) {
                     clear();
                     cmd.addStep(MoveStepType.LAND);
                     ready();
@@ -5158,18 +5122,14 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         } else if (actionCmd.equals(MoveCommand.MOVE_VERT_LAND.getCmd())) {
             if (ce().isAero()
                     && (null != ((IAero) ce()).hasRoomForVerticalLanding())) {
-                String title = Messages
-                        .getString("MovementDisplay.NoLandingDialog.title");
-                String body = Messages.getString(
-                        "MovementDisplay.NoLandingDialog.message",
-                        new Object[] { ((IAero) ce())
-                                .hasRoomForVerticalLanding() });
+                String title = Messages.getString("MovementDisplay.NoLandingDialog.title");
+                String body = Messages.getString("MovementDisplay.NoLandingDialog.message",
+                        ((IAero) ce()).hasRoomForVerticalLanding());
                 clientgui.doAlertDialog(title, body);
             } else {
-                if (clientgui
-                        .doYesNoDialog(
-                                Messages.getString("MovementDisplay.LandDialog.title"),
-                                Messages.getString("MovementDisplay.LandDialog.message"))) {
+                if (clientgui.doYesNoDialog(
+                        Messages.getString("MovementDisplay.LandDialog.title"),
+                        Messages.getString("MovementDisplay.LandDialog.message"))) {
                     clear();
                     cmd.addStep(MoveStepType.VLAND);
                     ready();
@@ -5256,6 +5216,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         updateRollButton();
         updateTakeCoverButton();
         updateLayMineButton();
+        updateBraceButton();
         checkFuel();
         checkOOC();
         checkAtmosphere();
@@ -5301,14 +5262,13 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
     /**
      * Give the player the opportunity to unload all entities that are stranded
      * on immobile transports.
-     * <p/>
-     * According to <a href= "http://www.classicbattletech.com/w3t/showflat
-     * .php?Cat=&Board=ask&Number=555466&page=2&view=collapsed&sb=5&o=0&fpart="
-     * > Randall Bills</a>, the "minimum move" rule allow stranded units to
-     * dismount at the start of the turn.
+     * <p>
+     * According to
+     * <a href="http://www.classicbattletech.com/w3t/showflat.php?Cat=&Board=ask&Number=555466&page=2&view=collapsed&sb=5&o=0&fpart=">Randall Bills</a>,
+     * the "minimum move" rule allow stranded units to dismount at the start of the turn.
      */
     private void unloadStranded() {
-        Vector<Entity> stranded = new Vector<Entity>();
+        Vector<Entity> stranded = new Vector<>();
         String[] names = null;
         Entity entity = null;
         Entity transport = null;
@@ -5320,16 +5280,12 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         Iterator<Entity> entities = clientgui.getClient().getSelectedEntities(
                 new EntitySelector() {
                     private final Game game = clientgui.getClient().getGame();
-                    private final GameTurn turn = clientgui.getClient()
-                            .getGame().getTurn();
-                    private final int ownerId = clientgui.getClient()
-                            .getLocalPlayer().getId();
+                    private final GameTurn turn = clientgui.getClient().getGame().getTurn();
+                    private final int ownerId = clientgui.getClient().getLocalPlayer().getId();
 
+                    @Override
                     public boolean accept(Entity acc) {
-                        if (turn.isValid(ownerId, acc, game)) {
-                            return true;
-                        }
-                        return false;
+                        return turn.isValid(ownerId, acc, game);
                     }
                 });
         while (entities.hasNext()) {
@@ -5340,25 +5296,22 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         names = new String[stranded.size()];
         for (int index = 0; index < names.length; index++) {
             entity = stranded.elementAt(index);
-            transport = clientgui.getClient()
-                                 .getEntity(entity.getTransportId());
+            transport = clientgui.getClient().getEntity(entity.getTransportId());
             String buffer;
             if (null == transport) {
                 buffer = entity.getDisplayName();
             } else {
-                buffer = Messages.getString("MovementDisplay.EntityAt",
-                        new Object[] { entity.getDisplayName(),
-                                transport.getPosition().getBoardNum() });
+                buffer = Messages.getString("MovementDisplay.EntityAt", entity.getDisplayName(),
+                        transport.getPosition().getBoardNum());
             }
-            names[index] = buffer.toString();
+            names[index] = buffer;
         }
 
         // Show the choices to the player
-        int[] indexes = clientgui
-                .doChoiceDialog(
-                        Messages.getString("MovementDisplay.UnloadStrandedUnitsDialog.title"),
-                        Messages.getString("MovementDisplay.UnloadStrandedUnitsDialog.message"),
-                        names);
+        int[] indexes = clientgui.doChoiceDialog(
+                Messages.getString("MovementDisplay.UnloadStrandedUnitsDialog.title"),
+                Messages.getString("MovementDisplay.UnloadStrandedUnitsDialog.message"),
+                names);
 
         // Convert the indexes into selected entity IDs and tell the server.
         int[] ids = null;
@@ -5398,8 +5351,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             return;
         }
         if (clientgui.getClient().isMyTurn()) {
-            if (clientgui.getClient().getGame().getTurn()
-                         .isValidEntity(e, clientgui.getClient().getGame())) {
+            if (clientgui.getClient().getGame().getTurn().isValidEntity(e, clientgui.getClient().getGame())) {
                 selectEntity(e.getId());
             }
         } else {
@@ -5428,8 +5380,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void setForwardIniEnabled(boolean enabled) {
         // forward initiative can only be done if Teams have an initiative!
-        if (clientgui.getClient().getGame().getOptions()
-                     .booleanOption(OptionsConstants.BASE_TEAM_INITIATIVE)) {
+        if (clientgui.getClient().getGame().getOptions().booleanOption(OptionsConstants.BASE_TEAM_INITIATIVE)) {
             getBtn(MoveCommand.MOVE_FORWARD_INI).setEnabled(enabled);
             clientgui.getMenuBar().setEnabled(MoveCommand.MOVE_FORWARD_INI.getCmd(), enabled);
         } else { // turn them off regardless what is said!
@@ -5450,7 +5401,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void setMountEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_MOUNT).setEnabled(enabled);
-        // clientgui.getMenuBar().setMoveMountEnabled(enabled);
     }
     
     private void setTowEnabled(boolean enabled) {
@@ -5537,6 +5487,11 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         getBtn(MoveCommand.MOVE_HULL_DOWN).setEnabled(enabled);
         clientgui.getMenuBar().setEnabled(MoveCommand.MOVE_HULL_DOWN.getCmd(), enabled);
     }
+    
+    private void setBraceEnabled(boolean enabled) {
+        getBtn(MoveCommand.MOVE_BRACE).setEnabled(enabled);
+        clientgui.getMenuBar().setEnabled(MoveCommand.MOVE_BRACE.getCmd(), enabled);
+    }
 
     private void setClearEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_CLEAR).setEnabled(enabled);
@@ -5609,8 +5564,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
     }
 
     private void setTraitorEnabled(boolean enabled) {
-     // Menu entry does not exist
-//        clientgui.getMenuBar().setEnabled(MoveCommand.MOVE_TRAITOR.getCmd(), enabled);
+
     }
 
     private void setEvadeAeroEnabled(boolean enabled) {
@@ -5630,8 +5584,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void setDockEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_DOCK).setEnabled(enabled);
-        // Menu entry does not exist
-//        clientgui.getMenuBar().setEnabled(MoveCommand.MOVE_DOCK.getCmd(), enabled);
     }
 
     private void setRecoverEnabled(boolean enabled) {
@@ -5641,8 +5593,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void setDropEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_DROP).setEnabled(enabled);
-        // Menu entry does not exist
-        // clientgui.getMenuBar().setMoveDropEnabled(enabled);
     }
 
     private void setJoinEnabled(boolean enabled) {
@@ -5667,22 +5617,18 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void setTakeOffEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_TAKE_OFF).setEnabled(enabled);
-        // clientgui.getMenuBar().setMoveTakeOffEnabled(enabled);
     }
 
     private void setVTakeOffEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_VERT_TAKE_OFF).setEnabled(enabled);
-        // clientgui.getMenuBar().setMoveVTakeOffEnabled(enabled);
     }
 
     private void setLandEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_LAND).setEnabled(enabled);
-        // clientgui.getMenuBar().setMoveLandEnabled(enabled);
     }
 
     private void setVLandEnabled(boolean enabled) {
         getBtn(MoveCommand.MOVE_VERT_LAND).setEnabled(enabled);
-        // clientgui.getMenuBar().setMoveVLandEnabled(enabled);
     }
 
     private void setManeuverEnabled(boolean enabled) {
@@ -5742,21 +5688,21 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             return;
         }
 
-        setTurnEnabled(!ce.isImmobile()
-                       && !ce.isStuck()
-                       && ((ce.getWalkMP() > 0) || (ce.getJumpMP() > 0))
-                       && !(cmd.isJumping() && (ce instanceof Mech) && (ce.getJumpType() == Mech.JUMP_BOOSTER)));
+        setTurnEnabled(!ce.isImmobile() && !ce.isStuck() && ((ce.getWalkMP() > 0) || (ce.getJumpMP() > 0))
+                && !(cmd.isJumping() && (ce instanceof Mech) && (ce.getJumpType() == Mech.JUMP_BOOSTER)));
     }
     
-    public void FieldofFire(Entity unit, int[][] ranges, int arc, int loc) {
+    public void FieldOfFire(Entity unit, int[][] ranges, int arc, int loc) {
         // do nothing here outside the movement phase
-        if (!(clientgui.getClient().getGame().getPhase() == GamePhase.MOVEMENT)) return;
-        
+        if (!clientgui.getClient().getGame().getPhase().isMovement()) {
+            return;
+        }
+
         clientgui.getBoardView().fieldofFireUnit = unit;
         clientgui.getBoardView().fieldofFireRanges = ranges;
         clientgui.getBoardView().fieldofFireWpArc = arc;
         clientgui.getBoardView().fieldofFireWpLoc = loc;
-        
+
         // If the unit is the current unit, then work with
         // the current considered movement
         if (unit.equals(ce())) {

@@ -1,37 +1,33 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/*
- * Author: Reinhard Vicinus
- */
-
 package megamek.common.verifier;
+
+import megamek.common.*;
+import megamek.common.Entity.MPBoosters;
+import megamek.common.annotations.Nullable;
+import megamek.common.util.StringUtil;
 
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import megamek.common.*;
-import megamek.common.annotations.Nullable;
-import megamek.common.util.StringUtil;
-
 /**
- * Abstract parent class for testing and validating instantiations of <code>
- * Entity</code> subclasses.
+ * Abstract parent class for testing and validating instantiations of <code> Entity</code> subclasses.
  *
+ * @author Reinhard Vicinus
  */
 public abstract class TestEntity implements TestEntityOption {
     public static enum Ceil {
@@ -185,38 +181,47 @@ public abstract class TestEntity implements TestEntityOption {
         return options.showUnderweightedEntity();
     }
 
+    @Override
     public boolean showCorrectArmor() {
         return options.showCorrectArmor();
     }
 
+    @Override
     public boolean showCorrectCritical() {
         return options.showCorrectCritical();
     }
 
+    @Override
     public boolean showFailedEquip() {
         return options.showFailedEquip();
     }
 
+    @Override
     public boolean ignoreFailedEquip(String name) {
         return options.ignoreFailedEquip(name);
     }
     
+    @Override
     public boolean showIncorrectIntroYear() {
         return options.showIncorrectIntroYear();
     }
     
+    @Override
     public int getIntroYearMargin() {
         return options.getIntroYearMargin();
     }
 
+    @Override
     public boolean skip() {
         return options.skip();
     }
 
+    @Override
     public int getTargCompCrits() {
         return options.getTargCompCrits();
     }
 
+    @Override
     public int getPrintSize() {
         return options.getPrintSize();
     }
@@ -406,34 +411,27 @@ public abstract class TestEntity implements TestEntityOption {
         return Entity.LOC_NONE;
     }
 
-    private boolean hasMASC() {
+    public MPBoosters getMPBoosters() {
         if (getEntity() instanceof Mech) {
-            return ((Mech) getEntity()).hasMASC();
+            return ((Mech) getEntity()).getMPBoosters();
         }
-        return false;
+        return MPBoosters.NONE;
     }
     
     public String printShortMovement() {
-        return "Movement: "
-                + Integer.toString(getEntity().getOriginalWalkMP())
-                + "/"
-                + Integer.toString((int) Math.ceil(getEntity()
-                        .getOriginalWalkMP() * 1.5))
-                + (hasMASC() ? "("
-                        + Integer.toString(getEntity().getOriginalWalkMP() * 2)
-                        + ")" : "")
-                + (getEntity().getOriginalJumpMP() != 0 ? "/"
-                        + Integer.toString(getEntity().getOriginalJumpMP())
-                        : "") + "\n";
+        Entity.MPBoosters mpBoosters = getMPBoosters();
+        return "Movement: " + getEntity().getOriginalWalkMP() + "/"
+                + (int) Math.ceil(getEntity().getOriginalWalkMP() * 1.5)
+                + (mpBoosters.hasMASCAndOrSupercharger() ? "(" + getEntity().getOriginalWalkMP() * 2 + ")" : "")
+                + (mpBoosters.hasMASCAndSupercharger() ? "(" + getEntity().getOriginalWalkMP() * 2.5 + ")" : "")
+                + (getEntity().getOriginalJumpMP() != 0 ? "/" + getEntity().getOriginalJumpMP() : "")
+                + "\n";
     }
 
     public String printWeightHeatSinks() {
-        return StringUtil.makeLength(
-                "Heat Sinks: "
-                        + Integer.toString(getCountHeatSinks())
-                        + (hasDoubleHeatSinks() ? " ["
-                                + Integer.toString(2 * getCountHeatSinks())
-                                + "]" : ""), getPrintSize() - 5)
+        return StringUtil.makeLength("Heat Sinks: " + getCountHeatSinks()
+                        + (hasDoubleHeatSinks() ? " [" + 2 * getCountHeatSinks() + "]" : ""),
+                getPrintSize() - 5)
                 + TestEntity.makeWeightString(getWeightHeatSinks(), usesKgStandard()) + "\n";
     }
 
@@ -448,10 +446,8 @@ public abstract class TestEntity implements TestEntityOption {
     }
 
     public String printWeightStructure() {
-        return StringUtil.makeLength(
-                "Structure: "
-                        + Integer.toString(getEntity().getTotalOInternal())
-                        + " " + structure.getShortName(), getPrintSize() - 5)
+        return StringUtil.makeLength("Structure: " + getEntity().getTotalOInternal() + " " + structure.getShortName(),
+                getPrintSize() - 5)
                 + TestEntity.makeWeightString(getWeightStructure(), usesKgStandard()) + "\n";
     }
 
@@ -462,14 +458,12 @@ public abstract class TestEntity implements TestEntityOption {
 
     public String printWeightArmor() {
         if (!getEntity().hasPatchworkArmor()) {
-            return StringUtil.makeLength(
-                    "Armor: " + Integer.toString(getTotalOArmor()) + " "
-                            + armor[0].getShortName(), getPrintSize() - 5)
+            return StringUtil.makeLength("Armor: " + getTotalOArmor() + " "
+                    + armor[0].getShortName(), getPrintSize() - 5)
                     + TestEntity.makeWeightString(getWeightArmor(), usesKgStandard()) + "\n";
         } else {
-            return StringUtil.makeLength(
-                    "Armor: " + Integer.toString(getTotalOArmor()) + " "
-                            + "Patchwork", getPrintSize() - 5)
+            return StringUtil.makeLength("Armor: " + getTotalOArmor() + " " + "Patchwork",
+                    getPrintSize() - 5)
                     + TestEntity.makeWeightString(getWeightArmor(), usesKgStandard()) + "\n";
         }
 
@@ -677,63 +671,50 @@ public abstract class TestEntity implements TestEntityOption {
     }
 
     public String printLocations() {
-        StringBuffer buff = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < getEntity().locations(); i++) {
             String locationName = getEntity().getLocationName(i);
-            buff.append(locationName + ":");
-            buff.append("\n");
+            sb.append(locationName).append(":");
+            sb.append("\n");
             for (int j = 0; j < getEntity().getNumberOfCriticals(i); j++) {
                 CriticalSlot slot = getEntity().getCritical(i, j);
                 if (slot == null) {
-                    buff.append(Integer.toString(j) + ". -Emtpy-");
-                    buff.append("\n");
+                    sb.append(j).append(". -Empty-");
+                    sb.append("\n");
                 } else if (slot.getType() == CriticalSlot.TYPE_SYSTEM) {
                     if (isMech()) {
-                        buff.append(Integer.toString(j));
-                        buff.append(". ");
-                        buff.append(((Mech) getEntity()).getSystemName(slot
-                                .getIndex()));
-                        buff.append("\n");
+                        sb.append(j).append(". ")
+                                .append(((Mech) getEntity()).getSystemName(slot.getIndex()))
+                                .append("\n");
                     } else {
-                        buff.append(Integer.toString(j)
-                                + ". UNKNOWN SYSTEM NAME");
-                        buff.append("\n");
+                        sb.append(j).append(". UNKNOWN SYSTEM NAME").append("\n");
                     }
                 } else if (slot.getType() == CriticalSlot.TYPE_EQUIPMENT) {
                     EquipmentType e = getEntity().getEquipmentType(slot);
-                    buff.append(Integer.toString(j) + ". "
-                            + e.getInternalName());
-                    buff.append("\n");
+                    sb.append(j).append(". ").append(e.getInternalName()).append("\n");
                 }
             }
         }
-        return buff.toString();
+        return sb.toString();
     }
 
     public int calcMiscCrits(MiscType mt, double size) {
         if (mt.hasFlag(MiscType.F_CLUB)
                 && (mt.hasSubType(MiscType.S_HATCHET)
                         || mt.hasSubType(MiscType.S_SWORD)
-                        || mt.hasSubType(MiscType.S_CHAIN_WHIP) || mt
-                            .hasSubType(MiscType.S_MACE_THB))) {
+                        || mt.hasSubType(MiscType.S_CHAIN_WHIP))) {
             return (int) Math.ceil(getWeight() / 15.0);
-        } else if (mt.hasFlag(MiscType.F_CLUB)
-                && mt.hasSubType(MiscType.S_MACE)) {
+        } else if (mt.hasFlag(MiscType.F_CLUB) && mt.hasSubType(MiscType.S_MACE)) {
             return (int) Math.ceil(getWeight() / 10.0);
-        } else if (mt.hasFlag(MiscType.F_CLUB)
-                && mt.hasSubType(MiscType.S_RETRACTABLE_BLADE)) {
+        } else if (mt.hasFlag(MiscType.F_CLUB) && mt.hasSubType(MiscType.S_RETRACTABLE_BLADE)) {
             return 1 + (int) Math.ceil(getWeight() / 20.0);
-        } else if (mt.hasFlag(MiscType.F_CLUB)
-                && mt.hasSubType(MiscType.S_PILE_DRIVER)) {
+        } else if (mt.hasFlag(MiscType.F_CLUB) && mt.hasSubType(MiscType.S_PILE_DRIVER)) {
             return 8;
-        } else if (mt.hasFlag(MiscType.F_CLUB)
-                && mt.hasSubType(MiscType.S_CHAINSAW)) {
+        } else if (mt.hasFlag(MiscType.F_CLUB) && mt.hasSubType(MiscType.S_CHAINSAW)) {
             return 5;
-        } else if (mt.hasFlag(MiscType.F_CLUB)
-                && mt.hasSubType(MiscType.S_DUAL_SAW)) {
+        } else if (mt.hasFlag(MiscType.F_CLUB) && mt.hasSubType(MiscType.S_DUAL_SAW)) {
             return 7;
-        } else if (mt.hasFlag(MiscType.F_CLUB)
-                && mt.hasSubType(MiscType.S_BACKHOE)) {
+        } else if (mt.hasFlag(MiscType.F_CLUB) && mt.hasSubType(MiscType.S_BACKHOE)) {
             return 6;
         } else if (mt.hasFlag(MiscType.F_MASC)) {
             if (mt.getInternalName().equals("ISMASC")) {

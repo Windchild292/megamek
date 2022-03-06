@@ -112,8 +112,8 @@ public class BotGeometry {
      *        +y
      * ------------------------------
      * Direction is stored as above, but the meaning of 'intercept' depends
-     * on the direction.  For directions 0,3, intercept means the y=0 intercept
-     * for directions 1,2,4,5 intercept is the x=0 intercept
+     * on the direction.  For directions 0, 3, intercept means the y=0 intercept
+     * for directions 1, 2, 4, 5 intercept is the x=0 intercept
      */
     public static class HexLine {
         private int intercept;
@@ -128,7 +128,7 @@ public class BotGeometry {
                 setIntercept(c.getX());
             } else if ((getDirection() == 1) || (getDirection() == 4)) {
                 setIntercept(c.getY() + ((c.getX() + 1) / 2));
-            } else {//direction==2||direction==5
+            } else {// direction==2||direction==5
                 setIntercept(c.getY() - ((c.getX()) / 2));
             }
         }
@@ -179,7 +179,7 @@ public class BotGeometry {
         }
 
         /**
-         * This function only makes sense for directions 1,2,4,5
+         * This function only makes sense for directions 1, 2, 4, 5
          * Note that the function getXfromY would be multvalued
          */
         public int getYfromX(int x) {
@@ -210,7 +210,7 @@ public class BotGeometry {
             if (getDirection() == 0 || getDirection() == 3) {
                 return new Coords(getIntercept(), h.getYfromX(getIntercept()));
             }
-            //direction must be 1 here, and h.direction=2
+            // direction must be 1 here, and h.direction=2
             return new Coords(getIntercept() - h.getIntercept(), getYfromX(getIntercept() - h.getIntercept()));
         }
 
@@ -286,24 +286,22 @@ public class BotGeometry {
      * 3 primary directions of a hex map
      */
     public static class ConvexBoardArea {
-
-        //left/right indicates whether its the small x
-        //or large x line
-        //        HexLine[] left=new HexLine[3];
-        //        HexLine[] right=new HexLine[3];
-        //edge points to the previous lines in the right order
+        // left/right indicates whether it's the small x or large x line
+        //     HexLine[] left = new HexLine[3];
+        //     HexLine[] right = new HexLine[3];
+        // edge points to the previous lines in the right order
         private HexLine[] edges = new HexLine[6];
         private Coords[] vertices = new Coords[6];
         
         ConvexBoardArea() {
+
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
-            }
-            if (!(o instanceof ConvexBoardArea)) {
+            } else if (!(o instanceof ConvexBoardArea)) {
                 return false;
             }
 
@@ -470,8 +468,6 @@ public class BotGeometry {
             msg.append("\n\tTesting that center lies in lines... ");
             boolean passed = true;
             for (int i = 0; i < 6; i++) {
-                //System.err.println("direction="+i);
-                //System.err.println("0="+lines[i].judgePoint(center));
                 if (lines[i].judgePoint(center) != 0) {
                     passed = false;
                 }
@@ -486,9 +482,6 @@ public class BotGeometry {
                                                                                                                6)) !=
                                                                          0)) {
                     passed = false;
-                    //System.err.println("direction="+i);
-                    //System.err.println("0="+lines[i].judgePoint(center.translated(i)));
-                    //System.err.println("0="+lines[i].judgePoint(center.translated((i+3)%6)));
                 }
             }
             msg.append(passed ? PASSED : FAILED);
@@ -496,20 +489,15 @@ public class BotGeometry {
             passed = true;
             msg.append("\n\tTesting points to left and right of lines... ");
             for (int i = 0; i < 6; i++) {
-                //            System.err.println("direction="+i);
-                //          System.err.println("-1="+lines[i].judgePoint(center.translated((i+5)%6)));
                 if (-1 != lines[i].judgePoint(center.translated((i + 5) % 6))) {
                     passed = false;
                 }
-                //        System.err.println("-1="+lines[i].judgePoint(center.translated((i+4)%6)));
                 if (-1 != lines[i].judgePoint(center.translated((i + 4) % 6))) {
                     passed = false;
                 }
-                //      System.err.println("1="+lines[i].judgePoint(center.translated((i+1)%6)));
                 if (1 != lines[i].judgePoint(center.translated((i + 1) % 6))) {
                     passed = false;
                 }
-                //    System.err.println("1="+lines[i].judgePoint(center.translated((i+2)%6)));
                 if (1 != lines[i].judgePoint(center.translated((i + 2) % 6))) {
                     passed = false;
                 }

@@ -1,11 +1,12 @@
 Version:1.0
 Black Hawk (Nova)
 G
+mul id:8165
 
 Config:Biped Omnimech
 techbase:Clan
 era:3092
-source:ilClan Rec Guide 13 - Early Republic
+source:Rec Guide:ilClan #14 - Early Republic
 rules level:2
 
 mass:50

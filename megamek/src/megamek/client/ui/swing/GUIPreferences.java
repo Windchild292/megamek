@@ -21,6 +21,7 @@ import javax.swing.*;
 import megamek.client.ui.swing.boardview.BoardView;
 import megamek.client.ui.swing.boardview.LabelDisplayStyle;
 import megamek.client.ui.swing.util.PlayerColour;
+import megamek.client.ui.swing.widget.DetachablePane;
 import megamek.common.Entity;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.preference.PreferenceStoreProxy;
@@ -93,6 +94,8 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String ADVANCED_LOW_FOLIAGE_COLOR = "AdvancedLowFoliageColor";
     public static final String ADVANCED_NO_SAVE_NAG = "AdvancedNoSaveNag";
     public static final String ADVANCED_USE_CAMO_OVERLAY = "AdvancedUseCamoOverlay";
+    public static final String ADVANCED_MAP_TEXT_COLOR = "AdvancedMapTextColor";
+    public static final String ADVANCED_WARNING_COLOR = "AdvancedWarningColor";
     /* --End advanced settings-- */
 
     public static final String SHOW_COORDS = "showCoords";
@@ -137,7 +140,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String LOBBY_MEKTABLE_PILOT_WIDTH = "LobbyMektablePilotWidth";
     public static final String LOBBY_MEKTABLE_PLAYER_WIDTH = "LobbyMektablePlayerWidth";
     public static final String LOBBY_MEKTABLE_BV_WIDTH = "LobbyMektableBVWidth";
-    public static final String MAP_TEXT_COLOR = "MapTextColor";
     public static final String MAP_ZOOM_INDEX = "MapZoomIndex";
     public static final String MECH_SELECTOR_INCLUDE_MODEL = "MechSelectorIncludeModel";
     public static final String MECH_SELECTOR_INCLUDE_NAME = "MechSelectorIncludeName";
@@ -230,7 +232,6 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String BOARDEDIT_LOAD_SIZE_HEIGHT = "BoardEditLoadSizeHeight";
     public static final String BOARDEDIT_LOAD_SIZE_WIDTH = "BoardEditLoadSizeWidth";
     public static final String BOARDEDIT_RNDDIALOG_START = "BoardEditRandomDialogStart";
-    public static final String WARNING_COLOR = "WarningColor";
     public static final String ALLY_UNIT_COLOR = "AllyUnitColor";
     public static final String MY_UNIT_COLOR = "MyUnitColor";
     public static final String ENEMY_UNIT_COLOR = "EnemyUnitColor";
@@ -276,7 +277,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         setDefault(ADVANCED_MOVE_RUN_COLOR, Color.YELLOW);
         setDefault(ADVANCED_MOVE_BACK_COLOR, new Color(255, 255, 0));
         setDefault(ADVANCED_MOVE_SPRINT_COLOR, new Color(255, 20, 147));
-        setDefault(ADVANCED_UNITOVERVIEW_SELECTED_COLOR, new Color(255,0,255));
+        setDefault(ADVANCED_UNITOVERVIEW_SELECTED_COLOR, new Color(255, 0, 255));
         setDefault(ADVANCED_UNITOVERVIEW_VALID_COLOR, Color.CYAN);
         setDefault(ADVANCED_FIRE_SOLN_CANSEE_COLOR, Color.CYAN);
         setDefault(ADVANCED_FIRE_SOLN_NOSEE_COLOR, Color.RED);
@@ -289,7 +290,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         setDefault(ADVANCED_ARMORMINI_COLOR_PARTIAL_DMG, new Color(180, 180, 100));  // medium yellow
         setDefault(ADVANCED_ARMORMINI_COLOR_DAMAGED, new Color(150, 80, 80));  // medium dark red  
         setDefault(ADVANCED_ARMORMINI_FONT_SIZE_MOD, -2);
-        setDefault(WARNING_COLOR, Color.RED);
+        setDefault(ADVANCED_WARNING_COLOR, Color.RED);
         setDefault(ADVANCED_LOW_FOLIAGE_COLOR, new Color(80, 230, 80));
         setDefault(ADVANCED_NO_SAVE_NAG, false);
         setDefault(ADVANCED_USE_CAMO_OVERLAY, true);
@@ -338,19 +339,20 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(CUSTOM_UNIT_WIDTH, 600);
         store.setDefault(UNIT_DETAIL_SIZE_HEIGHT, 500);
         store.setDefault(UNIT_DETAIL_SIZE_WIDTH, 300);
+        store.setDefault(UNIT_DETAIL_STATE, DetachablePane.Mode.EXPANDED.name());
         store.setDefault(GAME_SUMMARY_BOARD_VIEW, false);
         store.setDefault(GAME_SUMMARY_MINI_MAP, false);
         store.setDefault(ENTITY_OWNER_LABEL_COLOR, true);
         store.setDefault(UNIT_LABEL_BORDER, true);
         store.setDefault(UNIT_LABEL_STYLE, LabelDisplayStyle.NICKNAME.name());
-        store.setDefault(FIRING_SOLUTIONS,true);
+        store.setDefault(FIRING_SOLUTIONS, true);
         store.setDefault(GUI_SCALE, 1);
         store.setDefault(SHOW_UNIT_DISPLAY, true);
         store.setDefault(LOBBY_MEKTABLE_UNIT_WIDTH, 170);
         store.setDefault(LOBBY_MEKTABLE_PILOT_WIDTH, 80);
         store.setDefault(LOBBY_MEKTABLE_PLAYER_WIDTH, 50);
         store.setDefault(LOBBY_MEKTABLE_BV_WIDTH, 50);
-        setDefault(MAP_TEXT_COLOR, Color.BLACK);
+        setDefault(ADVANCED_MAP_TEXT_COLOR, Color.BLACK);
         store.setDefault(MAP_ZOOM_INDEX, 7);
         store.setDefault(MECH_SELECTOR_INCLUDE_MODEL, true);
         store.setDefault(MECH_SELECTOR_INCLUDE_NAME, true);
@@ -400,7 +402,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(NAG_FOR_SPRINT, true);
         store.setDefault(NAG_FOR_OVERHEAT, true);
         store.setDefault(NAG_FOR_LAUNCH_DOORS, true);
-        store.setDefault(NAG_FOR_MECHANICAL_FALL_DAMAGE,true);
+        store.setDefault(NAG_FOR_MECHANICAL_FALL_DAMAGE, true);
         store.setDefault(NAG_FOR_DOOMED, true);
         store.setDefault(NAG_FOR_WIGE_LANDING, true);
 
@@ -542,8 +544,8 @@ public class GUIPreferences extends PreferenceStoreProxy {
         return store.getInt(UNIT_DETAIL_SIZE_WIDTH);
     }
 
-    public String getUnitDetailState() {
-        return store.getString(UNIT_DETAIL_STATE);
+    public DetachablePane.Mode getUnitDetailState() {
+        return DetachablePane.Mode.valueOf(store.getString(UNIT_DETAIL_STATE));
     }
 
     public boolean getGameSummaryBoardView() {
@@ -607,7 +609,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public Color getMapTextColor() {
-        return getColor(MAP_TEXT_COLOR);
+        return getColor(ADVANCED_MAP_TEXT_COLOR);
     }
 
     public int getMapZoomIndex() {
@@ -1027,8 +1029,8 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setValue(UNIT_DETAIL_SIZE_WIDTH, i);
     }
 
-    public void setUnitDetailState(String state) {
-        store.setValue(UNIT_DETAIL_STATE, state);
+    public void setUnitDetailState(DetachablePane.Mode state) {
+        store.setValue(UNIT_DETAIL_STATE, state.name());
     }
 
     public void setGameSummaryBoardView(boolean state) {
@@ -1052,19 +1054,19 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public void setFiringSolutions(boolean state) {
-        store.setValue(FIRING_SOLUTIONS,state);
+        store.setValue(FIRING_SOLUTIONS, state);
     }
     
     public void setMoveEnvelope(boolean state) {
-        store.setValue(MOVE_ENVELOPE,state);
+        store.setValue(MOVE_ENVELOPE, state);
     }   
 
     public void setFovHighlight(boolean state) {
-        store.setValue(FOV_HIGHLIGHT,state);
+        store.setValue(FOV_HIGHLIGHT, state);
     }
 
     public void setFovHighlightAlpha(int i) {
-        store.setValue(FOV_HIGHLIGHT_ALPHA,i);
+        store.setValue(FOV_HIGHLIGHT_ALPHA, i);
     }
 
     public void setFovHighlightRingsRadii(String s) {
@@ -1076,15 +1078,15 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public void setFovDarken(boolean state) {
-        store.setValue(FOV_DARKEN,state);
+        store.setValue(FOV_DARKEN, state);
     }
 
     public void setFovDarkenAlpha(int i) {
-        store.setValue(FOV_DARKEN_ALPHA,i);
+        store.setValue(FOV_DARKEN_ALPHA, i);
     }
     
     public void setFovStripes(int i) {
-        store.setValue(FOV_STRIPES,i);
+        store.setValue(FOV_STRIPES, i);
     }
     
     public void setFovGrayscale(boolean state) {
@@ -1128,15 +1130,15 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public void setMechSelectorUnitType(int unitType) {
-        store.setValue(MECH_SELECTOR_UNIT_TYPE,unitType);
+        store.setValue(MECH_SELECTOR_UNIT_TYPE, unitType);
     }
 
     public void setMechSelectorWeightClass(int weightClass) {
-        store.setValue(MECH_SELECTOR_WEIGHT_CLASS,weightClass);
+        store.setValue(MECH_SELECTOR_WEIGHT_CLASS, weightClass);
     }
 
     public void setMechSelectorRulesLevels(String rulesLevels) {
-        store.setValue(MECH_SELECTOR_RULES_LEVELS,rulesLevels);
+        store.setValue(MECH_SELECTOR_RULES_LEVELS, rulesLevels);
     }
 
     public void setMechSelectorSortColumn(int columnId) {
@@ -1236,7 +1238,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public void setMouseWheelZoomFlip(boolean b) {
-        store.setValue(MOUSE_WHEEL_ZOOM_FLIP,b);
+        store.setValue(MOUSE_WHEEL_ZOOM_FLIP, b);
     }
 
     public void setNagForBotReadme(boolean b) {
@@ -1244,7 +1246,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public void setNagForCrushingBuildings(boolean b) {
-        store.setValue(NAG_FOR_CRUSHING_BUILDINGS,b);
+        store.setValue(NAG_FOR_CRUSHING_BUILDINGS, b);
     }
 
     public void setNagForMapEdReadme(boolean b) {
@@ -1280,11 +1282,11 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public void setNagForMechanicalJumpFallDamage(boolean b) {
-        store.setValue(NAG_FOR_MECHANICAL_FALL_DAMAGE,b);
+        store.setValue(NAG_FOR_MECHANICAL_FALL_DAMAGE, b);
     }
 
     public void setNagForDoomed(boolean b) {
-        store.setValue(NAG_FOR_DOOMED,b);
+        store.setValue(NAG_FOR_DOOMED, b);
     }
     
     public void setNagForWiGELanding(boolean b) {
@@ -1537,11 +1539,11 @@ public class GUIPreferences extends PreferenceStoreProxy {
     }
 
     public Color getWarningColor() {
-        return getColor(WARNING_COLOR);
+        return getColor(ADVANCED_WARNING_COLOR);
     }
 
     public void setWarningColor(Color color) {
-        store.setValue(WARNING_COLOR, getColorString(color));
+        store.setValue(ADVANCED_WARNING_COLOR, getColorString(color));
     }
     
     /** Sets the user preference for the Unit Display window to active. */

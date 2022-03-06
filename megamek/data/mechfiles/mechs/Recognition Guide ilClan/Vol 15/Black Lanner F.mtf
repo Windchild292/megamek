@@ -1,11 +1,12 @@
 Version:1.0
 Black Lanner
 F
+mul id:8185
 
 Config:Biped Omnimech
 techbase:Clan
 era:3121
-source:ilClan RecGuide 15 -Dark Age
+source:Rec Guide:ilClan #15 - Late Republic
 rules level:2
 
 mass:55

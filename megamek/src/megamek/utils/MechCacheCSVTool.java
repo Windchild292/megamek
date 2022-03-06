@@ -1,19 +1,18 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  * Copyright © 2013 Nicholas Walczak (walczak@cs.umn.edu)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.utils;
 
 import java.io.BufferedWriter;
@@ -21,22 +20,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Vector;
+import megamek.common.*;
 import java.util.stream.Stream;
 
-import megamek.common.Aero;
-import megamek.common.EquipmentType;
-import megamek.common.Mech;
-import megamek.common.MechSummary;
-import megamek.common.MechSummaryCache;
-import megamek.common.TechConstants;
-import megamek.common.UnitRoleHandler;
-
 /**
- * This class provides a utility to read in all of the data/mechfiles and print
+ * This class provides a utility to read in all the data/mechfiles and print
  * that data out into a CSV format.
  * 
  * @author arlith
- *
  */
 public class MechCacheCSVTool {
 
@@ -52,8 +43,10 @@ public class MechCacheCSVTool {
         MechSummary[] mechs = cache.getAllMechs();
         
         try {
-            StringBuilder csvLine = new StringBuilder();
-            csvLine.append("Chassis,Model,Combined,Clan,Source,Weight,Intro Date,Experimental year,Advanced year,Standard year,Unit Type,Role,BV,Cost,Rules,Engine Name,Internal Structure," +
+            StringBuffer csvLine = new StringBuffer();
+
+
+            csvLine.append("Chassis,Model,MUL ID,Combined,Clan,Source,Weight,Intro Date,Experimental year,Advanced year,Standard year,Unit Type,Role,BV,Cost,Rules,Engine Name,Internal Structure," +
                     "Myomer,Cockpit Type,Gyro Type," +
                     "Armor Types," +
                     "Equipment (multiple entries)\n");
@@ -63,11 +56,13 @@ public class MechCacheCSVTool {
                     continue;
                 }
                 
-                csvLine = new StringBuilder();
-                // Chassis Name
+                csvLine = new StringBuffer();
+                // Chasis Name
                 csvLine.append(mech.getChassis() + ",");
                 // Model Name
                 csvLine.append(mech.getModel() + ",");
+                // MUL ID
+                csvLine.append(mech.getMulId() + ",");
                 
                 // Combined Name
                 csvLine.append(mech.getChassis() + " " + mech.getModel() + ",");
@@ -107,18 +102,25 @@ public class MechCacheCSVTool {
                 }
 
                 // Unit Type
-                csvLine.append(mech.getUnitType()  + "-" + (mech.getUnitSubType() + ","));
-                
-                // Role
+                try {
+                    Entity e = new MechFileParser(mech.getSourceFile(), mech.getEntryName()).getEntity();
+                    csvLine.append(Entity.getEntityTypeName(e.getEntityType()));
+                } catch (megamek.common.loaders.EntityLoadingException e) {
+                }
+                csvLine.append(",");
+
+                //Role
                 csvLine.append(UnitRoleHandler.getRoleFor(mech) + ",");
-                
+
                 // BV
                 csvLine.append(mech.getBV()  + ",");
                 
                 // Cost
                 csvLine.append(mech.getCost() + ",");
-                
+
+                //Level
                 csvLine.append(mech.getLevel() + ",");
+                
                 // Engine Type
                 csvLine.append(mech.getEngineName() + ",");
                 

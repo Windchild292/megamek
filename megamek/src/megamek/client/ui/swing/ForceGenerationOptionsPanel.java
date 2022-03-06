@@ -88,7 +88,7 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
         UnitType.DROPSHIP, UnitType.JUMPSHIP, UnitType.WARSHIP, UnitType.SPACE_STATION
     };
     private static final int EARLIEST_YEAR = 2398;
-    private static final int LATEST_YEAR = 3150;
+    private static final int LATEST_YEAR = 3155;
     //endregion Variable Declarations
 
     //region Constructors
@@ -466,7 +466,7 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
         }
     };
     
-    private Comparator<FactionRecord> factionSorter = new Comparator<FactionRecord>() {
+    private Comparator<FactionRecord> factionSorter = new Comparator<>() {
         @Override
         public int compare(FactionRecord o1, FactionRecord o2) {
             return o1.getName(ratGenYear).compareTo(o2.getName(ratGenYear));
@@ -515,6 +515,7 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
             }
         }
         
+        @Override
         public void optionsChanged() {
             ((CardLayout) getLayout()).show(this, (String) cbUnitType.getSelectedItem());
         }
@@ -550,6 +551,7 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
             }
         }
 
+        @Override
         public void updateGeneratedUnits(List<MechSummary> list) {
 
         }
@@ -645,10 +647,8 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
             
             for (MissionRole role : MissionRole.values()) {
                 if (role.fitsUnitType(unitType)) {
-                    JCheckBox chk = new JCheckBox(Messages.getString("MissionRole."
-                            + role.toString()));
-                    chk.setToolTipText(Messages.getString("MissionRole."
-                            + role.toString() + ".tooltip"));
+                    JCheckBox chk = new JCheckBox(Messages.getString("MissionRole." + role));
+                    chk.setToolTipText(Messages.getString("MissionRole." + role + ".tooltip"));
                     chk.setName(role.toString());
                     roleChecks.add(chk);
                 }
@@ -658,7 +658,6 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
             c.gridwidth = 1;
             c.fill = GridBagConstraints.NONE;
             c.anchor = GridBagConstraints.NORTHWEST;
-            c.weightx = 0.0;
             c.weighty = 0.0;
             for (int i = 0; i < roleChecks.size(); i++) {
                 c.gridx = i % 3;
@@ -884,6 +883,7 @@ class ForceGenerationOptionsPanel extends JPanel implements ActionListener, Focu
             add(airCard, "Air");
         }
         
+        @Override
         public void optionsChanged() {
             if (getUnitType() != null) {
                 ((CardLayout) getLayout()).show(this, (getUnitType() < UnitType.CONV_FIGHTER)

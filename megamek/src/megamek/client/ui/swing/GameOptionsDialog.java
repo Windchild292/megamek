@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
@@ -294,7 +294,7 @@ public class GameOptionsDialog extends AbstractButtonDialog implements ActionLis
 
         // Add new DialogOptionComponents for all matching Options
         final String searchText = txtSearch.getText().toLowerCase();
-        if (!searchText.equals("")) {
+        if (!searchText.isBlank()) {
             ArrayList<DialogOptionComponent> allNewComps = new ArrayList<>();
             for (List<DialogOptionComponent> comps : optionComps.values()) {
                 ArrayList<DialogOptionComponent> newComps = new ArrayList<>();
@@ -347,14 +347,17 @@ public class GameOptionsDialog extends AbstractButtonDialog implements ActionLis
         lblSearch.setToolTipText(Messages.getString("GameOptionsDialog.SearchToolTip"));
         txtSearch.setToolTipText(Messages.getString("GameOptionsDialog.SearchToolTip"));
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void changedUpdate(DocumentEvent e) {
                 refreshSearchPanel();
             }
 
+            @Override
             public void insertUpdate(DocumentEvent e) {
                 refreshSearchPanel();
             }
 
+            @Override
             public void removeUpdate(DocumentEvent e) {
                 refreshSearchPanel();
             }
@@ -527,6 +530,7 @@ public class GameOptionsDialog extends AbstractButtonDialog implements ActionLis
     // Gets called when one of the option checkboxes is clicked.
     // Arguments are the GameOption object and the true/false
     // state of the checkbox.
+    @Override
     public void optionClicked(DialogOptionComponent clickedComp, IOption option, boolean state) {
 
         // Ensure that any other DialogOptionComponents with the same IOption
@@ -760,6 +764,7 @@ public class GameOptionsDialog extends AbstractButtonDialog implements ActionLis
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == butSave) {
             File gameOptsFile = selectGameOptionsFile(true);

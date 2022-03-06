@@ -13,20 +13,13 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
-/*
- * TechConstants.java
- *
- * Created on June 11, 2002, 4:35 PM
- */
-
 package megamek.common;
 
 /**
  * Contains some constants representing equipment/unit tech levels
  *
  * @author Ben
- * @version
+ * @since June 11, 2002, 4:35 PM
  */
 public class TechConstants {
 
@@ -169,10 +162,8 @@ public class TechConstants {
     }
 
     /**
-     * Returns the Game's tech level as an integer.
-     *
-     * @param game
-     * @return
+     * @param game The current {@link Game}
+     * @return  the Game's tech level as an integer.
      */
     public static int getSimpleLevel(Game game) {
         return getSimpleLevel(game.getOptions().stringOption("techlevel"));
@@ -230,9 +221,9 @@ public class TechConstants {
      * Use the game's simple tech level and a flag to return the tech level +
      * tech type.
      *
-     * @param game
-     * @param isClan
-     * @return
+     * @param game The current {@link Game}
+     * @param isClan if the tech base is clan
+     * @return Tech Level and Type magic number to use for the current {@link Game}
      */
     public static int getGameTechLevel(Game game, boolean isClan) {
         // Get the integer simple level based on the string game option
@@ -272,7 +263,7 @@ public class TechConstants {
             boolean ignoreUnknown, boolean mixed) {
         // If it's allowed to all, ALWAYS return true.
         if (equipmentTechlevel == T_ALLOWED_ALL
-        		|| equipmentTechlevel == T_ALL) {
+                || equipmentTechlevel == T_ALL) {
             return true;
         }
 
@@ -616,17 +607,19 @@ public class TechConstants {
                     if (isClan) {
                         if (year <= 3055) {
                             return T_CLAN_UNOFFICIAL;
+                        } else if (year < 3070) {
+                            return T_CLAN_ADVANCED;
+                        } else {
+                            return T_CLAN_TW;
                         }
-                        return T_CLAN_EXPERIMENTAL;
-                    }
-                    if (year <= 3053) {
-                        return T_IS_UNOFFICIAL;
-                    } else if (year <= 3075) {
-                        return T_IS_EXPERIMENTAL;
-                    } else if (year <= 3100) {
-                        return T_IS_ADVANCED;
                     } else {
-                        return T_IS_TW_NON_BOX;
+                        if (year <= 3053) {
+                            return T_IS_UNOFFICIAL;
+                        } else if (year <= 3070) {
+                            return T_IS_ADVANCED;
+                        } else {
+                            return T_IS_TW_NON_BOX;
+                        }
                     }
                 case Mech.COCKPIT_INTERFACE: // Clan Version
                     if (isClan) {

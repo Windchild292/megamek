@@ -1,6 +1,6 @@
 /*
 * MegaMek -
-* Copyright (C) 2021 - The MegaMek Team. All Rights Reserved.
+* Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
 *
 * This program is free software; you can redistribute it and/or modify it under
 * the terms of the GNU General Public License as published by the Free Software
@@ -14,14 +14,15 @@
 */
 package megamek.common.util;
 
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import megamek.codeUtilities.StringUtility;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
 import org.apache.logging.log4j.LogManager;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -81,6 +82,7 @@ public class EmailService {
             setText(body.toString(), "UTF-8", "html");
         }
 
+        @Override
         protected void updateMessageID() throws MessagingException {
             // no-op, we have already set it in the ctor
         }
@@ -124,6 +126,7 @@ public class EmailService {
         var password = mailProperties.getProperty("megamek.smtp.password", "").trim();
         if (login.length() > 0 && password.length() > 0) {
             auth = new Authenticator() {
+                    @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(login, password);
                     }
@@ -133,6 +136,7 @@ public class EmailService {
         mailSession = Session.getInstance(mailProperties, auth);
 
         mailWorker = new Thread() {
+                @Override
                 public void run() {
                     workerMain();
                 }
@@ -143,7 +147,7 @@ public class EmailService {
     public Vector<Player> getEmailablePlayers(Game game) {
         Vector<Player> emailable = new Vector<>();
         for (var player: game.getPlayersVector()) {
-            if (!StringUtil.isNullOrEmpty(player.getEmail()) && !player.isBot()
+            if (!StringUtility.isNullOrEmpty(player.getEmail()) && !player.isBot()
                     && !player.isObserver()) {
                 emailable.add(player);
             }
@@ -209,5 +213,4 @@ public class EmailService {
             }
         }
     }
-
 }

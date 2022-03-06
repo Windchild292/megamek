@@ -1,11 +1,12 @@
 Version:1.0
 Turkina
 T
+mul id:8212
 
 Config:Biped Omnimech
 techbase:Clan
 era:3142
-source:Recognition Guide:ilClan #16 - Dark Age
+source:Rec Guide:ilClan #16 - Dark Age
 rules level:2
 
 mass:95

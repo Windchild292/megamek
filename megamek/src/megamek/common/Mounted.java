@@ -1,22 +1,16 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
- */
-
-/*
- * Mounted.java
- *
- * Created on April 1, 2002, 1:29 PM
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common;
 
@@ -37,6 +31,7 @@ import java.util.*;
 /**
  * This describes equipment mounted on a mech.
  * @author Ben
+ * @since April 1, 2002, 1:29 PM
  */
 public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
@@ -96,9 +91,9 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     // A list of ids (equipment numbers) for the weapons and ammo linked to
     // this bay (if the mounted is of the BayWeapon type)
     // I can also use this for weapons of the same type on a capital fighter
-    //and now Machine Gun Arrays too!
-    private Vector<Integer> bayWeapons = new Vector<Integer>();
-    private Vector<Integer> bayAmmo = new Vector<Integer>();
+    // and now Machine Gun Arrays too!
+    private Vector<Integer> bayWeapons = new Vector<>();
+    private Vector<Integer> bayAmmo = new Vector<>();
     
     // on capital fighters and squadrons some weapon mounts actually represent
     // multiple weapons of the same type
@@ -205,7 +200,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         }
         if ((type instanceof MiscType)
                 && type.hasFlag(MiscType.F_SENSOR_DISPENSER)) {
-            setShotsLeft(30);
+            setShotsLeft(type.hasFlag(MiscType.F_BA_EQUIPMENT) ? 6 : 30);
         }
         if ((type instanceof MiscType)
                 && ((((MiscType) type).isShield() || type
@@ -325,9 +320,8 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     /**
      * Sets the equipment mode to the mode denoted by the given mode name
      *
-     * @param newMode
-     *            the name of the desired new mode
-     * @return new mode number on success, <code>-1<code> otherwise.
+     * @param newMode the name of the desired new mode
+     * @return new mode number on success, <code>-1</code> otherwise.
      */
     public int setMode(String newMode) {
         for (int x = 0, e = type.getModesCount(); x < e; x++) {
@@ -397,6 +391,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
                 && !type.isNextTurnModeSwitch(curModeName);
     }
 
+    @Override
     public void newRound(int roundNumber) {
         setUsedThisRound(false);
 
@@ -407,6 +402,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         called.reset();
     }
 
+    @Override
     public void newPhase(GamePhase phase) {
         jammed = jammedThisPhase;
     }
@@ -1673,11 +1669,11 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     }
     
     public boolean isOmniPodMounted() {
-    	return omniPodMounted;
+        return omniPodMounted;
     }
     
     public void setOmniPodMounted(boolean omniPodMounted) {
-    	this.omniPodMounted = omniPodMounted;
+        this.omniPodMounted = omniPodMounted;
     }
 
     public boolean isWeaponGroup() {

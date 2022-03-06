@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,6 +42,7 @@ public class ChargeAttackAction extends DisplacementAttackAction {
 
     /**
      * To-hit number for a charge, assuming that movement has been handled
+     * @param game The current {@link Game}
      */
     public ToHitData toHit(Game game) {
         return toHit(game, false);
@@ -56,6 +57,7 @@ public class ChargeAttackAction extends DisplacementAttackAction {
 
     /**
      * To-hit number for a charge, assuming that movement has been handled
+     * @param game The current {@link Game}
      */
     public ToHitData toHit(Game game, Targetable target, Coords src,
                            int elevation, EntityMovementType movement, boolean skid,
@@ -344,6 +346,7 @@ public class ChargeAttackAction extends DisplacementAttackAction {
 
     /**
      * Checks if a charge can hit the target, taking account of movement
+     * @param game The current {@link Game}
      */
     public ToHitData toHit(Game game, MovePath md) {
         final Entity ae = game.getEntity(getEntityId());

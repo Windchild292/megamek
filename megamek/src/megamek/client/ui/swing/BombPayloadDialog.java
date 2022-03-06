@@ -1,6 +1,6 @@
 /*
 * MegaMek -
-* Copyright (C) 2002, 2003, 2004 Ben Mazur (bmazur@sev.org)
+* Copyright (C) 2002-2004 Ben Mazur (bmazur@sev.org)
 * Copyright (C) 2018 The MegaMek Team
 *
 * This program is free software; you can redistribute it and/or modify it under
@@ -50,8 +50,8 @@ public class BombPayloadDialog extends JDialog implements ActionListener, ItemLi
     private int[] bombs;
 
     private JPanel panButtons = new JPanel();
-    private JButton butOK = new JButton(Messages.getString("Okay")); //$NON-NLS-1$
-    private JButton butCancel = new JButton(Messages.getString("Cancel")); //$NON-NLS-1$
+    private JButton butOK = new JButton(Messages.getString("Okay"));
+    private JButton butCancel = new JButton(Messages.getString("Cancel"));
 
     @SuppressWarnings("rawtypes")
     private JComboBox[] b_choices;
@@ -111,7 +111,7 @@ public class BombPayloadDialog extends JDialog implements ActionListener, ItemLi
             description.setText(Messages
                     .getString("BombPayloadDialog.FighterBombDesc"));
         }
-        add(description,c);
+        add(description, c);
 
         c.gridwidth = 1;
         c.gridheight = 1;
@@ -160,7 +160,7 @@ public class BombPayloadDialog extends JDialog implements ActionListener, ItemLi
             c.gridx = 1;
             c.gridy = i+1;
             c.anchor = GridBagConstraints.EAST;
-            add(b_labels[i],c);
+            add(b_labels[i], c);
             c.gridx = 2;
             c.gridy = i+1;
             c.anchor = GridBagConstraints.WEST;
@@ -248,6 +248,7 @@ public class BombPayloadDialog extends JDialog implements ActionListener, ItemLi
         initialize(parent, title, bombs, spaceBomb, bombDump, limit, numFighters);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == butOK) {
             confirm = true;
@@ -258,6 +259,7 @@ public class BombPayloadDialog extends JDialog implements ActionListener, ItemLi
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void itemStateChanged(ItemEvent ie) {
         if (limit < 0) {
@@ -269,7 +271,7 @@ public class BombPayloadDialog extends JDialog implements ActionListener, ItemLi
             current[i] = b_choices[i].getSelectedIndex();
         }
 
-        //don't factor in your own choice when determining how much is left
+        // don't factor in your own choice when determining how much is left
         int[] left = new int[b_choices.length];
         for (int i = 0; i < left.length; i++) {
             left[i] = limit;

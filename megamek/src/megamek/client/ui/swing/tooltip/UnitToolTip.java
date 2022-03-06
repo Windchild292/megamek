@@ -119,8 +119,7 @@ public final class UnitToolTip {
         if (game.getOptions().booleanOption(OptionsConstants.ADVANCED_STRATOPS_QUIRKS)) {
             result.append(scaledHTMLSpacer(3));
             result.append(guiScaledFontHTML(uiQuirksColor(), TT_SMALLFONT_DELTA));
-            String quirksList = getOptionList(entity.getQuirks().getGroups(), 
-                    grp -> entity.countQuirks(grp), inLobby);
+            String quirksList = getOptionList(entity.getQuirks().getGroups(), entity::countQuirks, inLobby);
             if (!quirksList.isEmpty()) {
                 result.append(quirksList);
             }
@@ -362,7 +361,7 @@ public final class UnitToolTip {
                 currentWp.isRapidFire = weapDesc.contains(RAPIDFIRE);
 
                 // Create the ranges String
-                int ranges[];
+                int[] ranges;
                 if (entity.isAero()) {
                     ranges = wtype.getATRanges();
                 } else {
@@ -436,7 +435,7 @@ public final class UnitToolTip {
         StringBuilder result = new StringBuilder();
         boolean subsequentLine = false; 
         // Display sorted by weapon name
-        var wps = new ArrayList<WeaponInfo>(wpInfos.values());
+        var wps = new ArrayList<>(wpInfos.values());
         wps.sort(Comparator.comparing(w -> w.sortString));
         int totalWeaponCount = wpInfos.values().stream().filter(i -> i.ammos.isEmpty()).mapToInt(wp -> wp.count).sum();
         boolean hasMultiples = wpInfos.values().stream().mapToInt(wp -> wp.count).anyMatch(c -> c > 1);
@@ -849,7 +848,7 @@ public final class UnitToolTip {
         result.append(guiScaledFontHTML());
         List<String> members = entity.getGame().getEntitiesVector().stream()
                 .filter(e -> e.onSameC3NetworkAs(entity))
-                .sorted(Comparator.comparingInt(e -> e.getId()))
+                .sorted(Comparator.comparingInt(Entity::getId))
                 .map(e -> c3UnitName(e, entity)).collect(Collectors.toList());
         if (members.size() > 1) {
             result.append(guiScaledFontHTML(uiC3Color(), -0.2f));

@@ -35,7 +35,7 @@ import static megamek.common.force.Force.NO_FORCE;
 
 /**
  * Manages a collection of Forces for a game. The game only needs to hold one Forces object.
- * Like in Campaign.java in MHQ this is mainly a map of id -> Force along with many utility functions.
+ * Like in Campaign.java in MHQ this is mainly a map of id to Force along with many utility functions.
  * Force management and changes are directed through this object. 
  * 
  * @author Simon
@@ -97,7 +97,7 @@ public final class Forces implements Serializable {
     
     /** Returns a List of the top-level forces. */
     public List<Force> getTopLevelForces() {
-        return forces.values().stream().filter(f -> f.isTopLevel()).collect(toList());
+        return forces.values().stream().filter(Force::isTopLevel).collect(toList());
     }
     
     /** 
@@ -425,6 +425,7 @@ public final class Forces implements Serializable {
     }
     
     /** Returns a clone of this Forces object, including clones of all contained forces. */
+    @Override
     public Forces clone() {
         Forces clone = new Forces(game);
         for (Entry<Integer, Force> entry: forces.entrySet()) {
@@ -509,10 +510,11 @@ public final class Forces implements Serializable {
     /** 
      * Corrects this Forces object as much as possible. Also corrects entities
      * when necessary (wrong forceId).
-     * <LI>Incorrect links (false IDs, nonexistent or dual entities or forces)
-     * <LI>Enemy force/entity connections
-     * <LI>Incorrect links
-     * 
+     * <ul>
+     * <li>Incorrect links (false IDs, nonexistent or dual entities or forces)</li>
+     * <li>Enemy force/entity connections</li>
+     * <li>Incorrect links</li>
+     * </ul>
      * @see #isValid()
      */
     public void correct() {
@@ -549,7 +551,7 @@ public final class Forces implements Serializable {
                 }
             }
 
-            var subForceIds = new ArrayList<Integer>(entry.getValue().getSubForces());
+            var subForceIds = new ArrayList<>(entry.getValue().getSubForces());
             for (int subforceId: subForceIds) {
                 // Remove nonexistent subforces
                 if (!contains(subforceId)) {

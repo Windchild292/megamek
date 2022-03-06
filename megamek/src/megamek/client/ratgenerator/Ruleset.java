@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2016 The MegaMek Team
+ * MegaMek - Copyright (c) 2016-2021 - The MegaMek Team. All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,7 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -36,16 +36,15 @@ import java.util.regex.Pattern;
  * @author Neoancient
  */
 public class Ruleset {
-
     public enum RatingSystem {
-        IS ("F","D","C","B","A"),
-        SL ("C","B","A"), // used for SLDF and CS/WoB
-        CLAN ("PG","Sol","SL","FL","Keshik"),
-        ROS ("TP","PG","HS","SB"),
+        IS ("F", "D", "C", "B", "A"),
+        SL ("C", "B", "A"), // used for SLDF and CS/WoB
+        CLAN ("PG", "Sol", "SL",  "FL", "Keshik"),
+        ROS ("TP", "PG", "HS", "SB"),
         NONE ();
 
         String[] vals;
-        private RatingSystem(String... vals) {
+        RatingSystem(String... vals) {
             this.vals = vals;
         }
 
@@ -57,7 +56,7 @@ public class Ruleset {
             }
             return -1;
         }
-    };
+    }
 
     private static final String directory = "data/forcegenerator/faction_rules";
     private static final String CONSTANTS_FILE = "constants.txt";
@@ -204,7 +203,7 @@ public class Ruleset {
                     rs = null;
                 } else {
                     rs = rulesets.get(rs.getParent());
-                }				
+                }
             } else {
                 applied = fn.apply(fd);
                 LogManager.getLogger().debug("Selecting force node " + fn.show()
@@ -215,7 +214,7 @@ public class Ruleset {
         int count = fd.getSubforces().size() + fd.getAttached().size();
 
         //Process subforces recursively. It is possible that the subforce has
-        //a different faction, in which case the ruleset appropriate to that faction is used.
+        // a different faction, in which case the ruleset appropriate to that faction is used.
         for (ForceDescriptor sub : fd.getSubforces()) {
             rs = this;
             if (!fd.getFaction().equals(sub.getFaction())) {
@@ -233,14 +232,14 @@ public class Ruleset {
             buildForceTree(sub, l, progress / count);
         }
         /*
-		//Each attached formation is essentially a new top-level node
-		for (ForceDescriptor sub : fd.getAttached()) {
-		    sub.generateUnits(l, progress * 0.7 / count);
-			sub.assignCommanders();
-			sub.assignPositions();
-			sub.loadEntities(l, progress * 0.1 / count);
-//			sub.assignBloodnames();
-		}
+        // Each attached formation is essentially a new top-level node
+        for (ForceDescriptor sub : fd.getAttached()) {
+            sub.generateUnits(l, progress * 0.7 / count);
+            sub.assignCommanders();
+            sub.assignPositions();
+            sub.loadEntities(l, progress * 0.1 / count);
+            sub.assignBloodnames();
+        }
          */
         if (count == 0 && null != l) {
             l.updateProgress(progress, "Building force tree");
@@ -276,7 +275,7 @@ public class Ruleset {
             if (n.getEschelon().equals(fd.getEschelon()) && n.matches(fd)) {
                 return n;
             }
-        }		
+        }
         return null;
     }
 
@@ -285,12 +284,12 @@ public class Ruleset {
             if (n.getEschelon() == eschelon && n.matches(fd, augmented)) {
                 return n;
             }
-        }		
+        }
         return null;
     }
 
     public HashMap<String,String> getEschelonNames(String unitType) {
-        HashMap<String,String> retVal = new HashMap<String,String>();
+        HashMap<String,String> retVal = new HashMap<>();
         for (ForceNode n : forceNodes) {
             if (n.matchesPredicate(unitType, "ifUnitType")) {
                 retVal.put(n.getEschelonCode(), n.getEschelonName());
@@ -343,9 +342,8 @@ public class Ruleset {
         InputStream is;
         try {
             is = new FileInputStream(f);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is,
-                    Charset.forName("UTF-8")));
-            String line = null;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.startsWith("#") && line.contains(":")) {
                     String[] fields = line.split(":");
@@ -357,15 +355,15 @@ public class Ruleset {
                 }
             }
             reader.close();
-        } catch (IOException e) {
-            LogManager.getLogger().error(e);
+        } catch (Exception ex) {
+            LogManager.getLogger().error("", ex);
         }
     }
 
     public static void loadData() {
         initialized = false;
         initializing = true;
-        rulesets = new HashMap<String,Ruleset>();
+        rulesets = new HashMap<>();
 
         File dir = new File(directory);
         if (!dir.exists()) {
@@ -394,8 +392,8 @@ public class Ruleset {
                 if (rs != null) {
                     rulesets.put(rs.getFaction(), rs);
                 }
-            } catch (IllegalArgumentException ex) {
-                LogManager.getLogger().error("While parsing file " + f.toString() + ": " + ex.getMessage());
+            } catch (Exception ex) {
+                LogManager.getLogger().error("Failed while parsing file " + f, ex);
             }
         }
         initialized = true;
@@ -411,9 +409,8 @@ public class Ruleset {
             db = MegaMekXmlUtil.newSafeDocumentBuilder();
             xmlDoc = db.parse(fis);
             fis.close();
-        } catch (Exception e) {
-            LogManager.getLogger().error("While loading force template from file " + f.getName() + ": "
-                    + e.getMessage());
+        } catch (Exception ex) {
+            LogManager.getLogger().error("Failed loading force template from file " + f.getName(), ex);
             return null;
         }
 
@@ -471,7 +468,7 @@ public class Ruleset {
                     break;
             }
         } else {
-            retVal.ratingSystem = RatingSystem.IS;			
+            retVal.ratingSystem = RatingSystem.IS;
         }
         NodeList nl = elem.getChildNodes();
         elem.normalize();
@@ -515,7 +512,7 @@ public class Ruleset {
                     }
                     break;
             }
-        }		
+        }
 
         return retVal;
     }
@@ -531,5 +528,4 @@ public class Ruleset {
     public String getFaction() {
         return faction;
     }
-
 }

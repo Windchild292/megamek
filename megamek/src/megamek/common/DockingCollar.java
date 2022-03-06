@@ -37,7 +37,7 @@ public class DockingCollar implements Transporter {
     /**
      * The troops being carried.
      */
-    /* package */Vector<Integer> troops = new Vector<Integer>();
+    /* package */Vector<Integer> troops = new Vector<>();
 
     private boolean damaged = false;
     private int collarNumber = 0;
@@ -125,11 +125,8 @@ public class DockingCollar implements Transporter {
     /**
      * Load the given unit.
      *
-     * @param unit
-     *            - the <code>Entity</code> to be loaded.
-     * @exception - If the unit can't be loaded, an
-     *            <code>IllegalArgumentException</code> exception will be
-     *            thrown.
+     * @param unit the <code>Entity</code> to be loaded.
+     * @throws IllegalArgumentException If the unit can't be loaded
      */
     @Override
     public void load(Entity unit) throws IllegalArgumentException {
@@ -173,7 +170,7 @@ public class DockingCollar implements Transporter {
     @Override
     public Vector<Entity> getLoadedUnits() {
         // Return a copy of our list of troops.
-        Vector<Entity> loaded = new Vector<Entity>();
+        Vector<Entity> loaded = new Vector<>();
         for (int id : troops) {
             Entity entity = game.getEntity(id);
             
@@ -190,7 +187,7 @@ public class DockingCollar implements Transporter {
      */
     public Vector<Entity> getLaunchableUnits() {
 
-        Vector<Entity> launchable = new Vector<Entity>();
+        Vector<Entity> launchable = new Vector<>();
 
         for (int i = 0; i < troops.size(); i++) {
             Entity nextUnit = game.getEntity(troops.elementAt(i));
@@ -291,10 +288,11 @@ public class DockingCollar implements Transporter {
 
     @Override
     public final List<Entity> getExternalUnits() {
-        ArrayList<Entity> rv = new ArrayList<Entity>(1);
+        ArrayList<Entity> rv = new ArrayList<>(1);
         return rv;
     }
 
+    @Override
     public int getCargoMpReduction(Entity carrier) {
         return 0;
     }
@@ -319,7 +317,7 @@ public class DockingCollar implements Transporter {
 
     @Override
     public void resetTransporter() {
-        troops = new Vector<Integer>();
+        troops = new Vector<>();
         currentSpace = totalSpace;
     }
 

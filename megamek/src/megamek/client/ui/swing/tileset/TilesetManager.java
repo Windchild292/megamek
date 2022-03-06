@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002, 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2002-2004 Ben Mazur (bmazur@sev.org)
  * Copyright (c) 2018, 2020, 2021 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
@@ -29,10 +29,7 @@ import megamek.client.ui.swing.util.RotateFilter;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.icons.Camouflage;
-import megamek.common.preference.IClientPreferences;
-import megamek.common.preference.IPreferenceChangeListener;
-import megamek.common.preference.PreferenceChangeEvent;
-import megamek.common.preference.PreferenceManager;
+import megamek.common.preference.*;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +51,7 @@ import java.util.*;
  */
 public class TilesetManager implements IPreferenceChangeListener, ITilesetManager {
 
-    public static final String DIR_NAME_WRECKS = "wrecks"; //$NON-NLS-1$
+    public static final String DIR_NAME_WRECKS = "wrecks";
     public static final String DIR_NAME_BOTTOM_DECALS = "bottomdecals";
     public static final String FILENAME_PREFIX_WRECKS = "destroyed_decal";
     public static final String FILENAME_SUFFIX_WRECKS_ASSAULTPLUS = "assaultplus";
@@ -63,13 +60,13 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     private static final int NUM_DECAL_ROTATIONS = 4;
     private static final int MAX_NUM_DECALS = 10;
 
-    public static final String FILENAME_DEFAULT_HEX_SET = "defaulthexset.txt"; //$NON-NLS-1$
+    public static final String FILENAME_DEFAULT_HEX_SET = "defaulthexset.txt";
 
-    private static final String FILENAME_NIGHT_IMAGE = new File("transparent", "night.png").toString();  //$NON-NLS-1$  //$NON-NLS-2$
-    private static final String FILENAME_HEX_MASK = new File("transparent", "HexMask.png").toString();  //$NON-NLS-1$  //$NON-NLS-2$
-    private static final String FILENAME_ARTILLERY_AUTOHIT_IMAGE = "artyauto.gif"; //$NON-NLS-1$
-    private static final String FILENAME_ARTILLERY_ADJUSTED_IMAGE = "artyadj.gif"; //$NON-NLS-1$
-    private static final String FILENAME_ARTILLERY_INCOMING_IMAGE = "artyinc.gif"; //$NON-NLS-1$
+    private static final String FILENAME_NIGHT_IMAGE = new File("transparent", "night.png").toString();
+    private static final String FILENAME_HEX_MASK = new File("transparent", "HexMask.png").toString();
+    private static final String FILENAME_ARTILLERY_AUTOHIT_IMAGE = "artyauto.gif";
+    private static final String FILENAME_ARTILLERY_ADJUSTED_IMAGE = "artyadj.gif";
+    private static final String FILENAME_ARTILLERY_INCOMING_IMAGE = "artyinc.gif";
 
     public static final int ARTILLERY_AUTOHIT = 0;
     public static final int ARTILLERY_ADJUSTED = 1;
@@ -141,14 +138,14 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
     @Override
     public void preferenceChange(PreferenceChangeEvent e) {
         // A new Hex Tileset has been selected
-        if (e.getName().equals(IClientPreferences.MAP_TILESET)) {
+        if (e.getName().equals(ClientPreferences.MAP_TILESET)) {
             HexTileset hts = new HexTileset(boardview.game);
             try {
                 hexTileset.incDepth = 0;
                 hts.loadFromFile((String) e.getNewValue());
                 hexTileset = hts;
                 boardview.clearHexImageCache();
-            } catch (IOException ex) {
+            } catch (IOException ignored) {
                 return;
             }
         }
@@ -382,6 +379,7 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         return hexMask;
     }
 
+    @Override
     public Set<String> getThemes() {
         return hexTileset.getThemes();
     }
@@ -543,8 +541,8 @@ public class TilesetManager implements IPreferenceChangeListener, ITilesetManage
         loadHexImage(hex);
         try {
             tracker.waitForID(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LogManager.getLogger().error("", e);
         }
     }
 

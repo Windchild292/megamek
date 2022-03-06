@@ -1,11 +1,12 @@
 Version:1.0
 Scorpion
 SCP-1O
+mul id:2839
 
 Config:Quad
 techbase:Inner Sphere
 era:3049
-source:ilClan Rec Guide 19 - Early Republic
+source:Rec Guide:ilClan #19 - Early Republic
 rules level:2
 
 mass:55

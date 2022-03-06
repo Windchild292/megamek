@@ -16,6 +16,7 @@
 package megamek.common;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import megamek.common.enums.AimingMode;
@@ -229,7 +230,7 @@ public class TripodMech extends Mech {
     }
 
     /**
-     * Returns this mech's running/flank mp modified for leg loss & stuff.
+     * Returns this mech's running/flank mp modified for leg loss and stuff.
      */
     @Override
     public int getRunMP(boolean gravity, boolean ignoreheat,
@@ -241,7 +242,7 @@ public class TripodMech extends Mech {
     }
 
     /**
-     * Returns run MP without considering MASC modified for leg loss & stuff.
+     * Returns run MP without considering MASC modified for leg loss and stuff.
      */
 
     @Override
@@ -405,6 +406,7 @@ public class TripodMech extends Mech {
      * @param location (LOC_RARM or LOC_LARM)
      * @return True/False
      */
+    @Override
     public boolean hasClaw(int location) {
         // only arms have claws.
         if ((location != Mech.LOC_RARM) && (location != Mech.LOC_LARM)) {
@@ -654,7 +656,7 @@ public class TripodMech extends Mech {
 
     /**
      * Does the mech have an active shield This should only be called by
-     * hasActiveShield(location,rear)
+     * hasActiveShield(location, rear)
      */
     @Override
     public boolean hasActiveShield(int location) {
@@ -726,7 +728,7 @@ public class TripodMech extends Mech {
 
     /**
      * Does the mech have a passive shield This should only be called by
-     * hasPassiveShield(location,rear)
+     * hasPassiveShield(location, rear)
      */
     @Override
     public boolean hasPassiveShield(int location) {
@@ -1633,5 +1635,36 @@ public class TripodMech extends Mech {
     public boolean isValidSecondaryFacing(int dir) {
         return canChangeSecondaryFacing();
     }
+    
+    /**
+     * Based on the mech's current damage status, return valid brace locations.
+     */
+    public List<Integer> getValidBraceLocations() {
+        List<Integer> validLocations = new ArrayList<>();
+        
+        if (!isLocationBad(Mech.LOC_RARM)) {
+            validLocations.add(Mech.LOC_RARM);
+        }
+        
+        if (!isLocationBad(Mech.LOC_LARM)) {
+            validLocations.add(Mech.LOC_LARM);
+        }
+        
+        return validLocations;
+    }
 
+    @Override
+    public boolean canBrace() {
+        return getCrew().isActive()
+                && !isShutDown()
+                // needs to have at least one functional arm
+                && (!isLocationBad(Mech.LOC_RARM)
+                || !isLocationBad(Mech.LOC_LARM))
+                && !isProne();
+    }
+    
+    @Override
+    public int getBraceMPCost() {
+        return 1;
+    }
 }

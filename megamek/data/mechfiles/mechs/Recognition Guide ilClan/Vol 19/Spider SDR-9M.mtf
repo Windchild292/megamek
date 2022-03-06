@@ -1,11 +1,12 @@
 Version:1.0
 Spider
 SDR-9M
+mul id:8306
 
 Config:Biped
 techbase:Inner Sphere
 era:3096
-source:ilClan Rec Guide 19 - Early Republic
+source:Rec Guide:ilClan #19 - Early Republic
 rules level:2
 
 mass:30

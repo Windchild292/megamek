@@ -1,6 +1,6 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -743,7 +743,8 @@ public class Engine implements Serializable, ITechnology {
             .setStaticTechLevel(SimpleTechLevel.INTRO);
     
     private static final TechAdvancement LARGE_ICE_TA = new TechAdvancement(TECH_BASE_ALL)
-            .setAdvancement(2630, 3085).setApproximate(false, true)
+            .setAdvancement(DATE_NONE, 2630, 3120, DATE_NONE,DATE_NONE)
+            .setApproximate(false, false, true, false, false)
             .setPrototypeFactions(F_TH)
             .setProductionFactions(F_LC).setTechRating(RATING_C)
             .setAvailability(RATING_A, RATING_A, RATING_A, RATING_A)
@@ -793,25 +794,31 @@ public class Engine implements Serializable, ITechnology {
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement IS_XXL_TA = new TechAdvancement(TECH_BASE_IS)
-            .setISAdvancement(3055, 3110).setISApproximate(true, true)
+            .setISAdvancement(3055, 3125, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setISApproximate(false, true, false, false, false)
             .setPrototypeFactions(F_FS, F_LC).setProductionFactions(F_LC)
             .setTechRating(RATING_F).setAvailability(RATING_X, RATING_X, RATING_F, RATING_E)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement CLAN_XXL_TA = new TechAdvancement(TECH_BASE_CLAN)
-            .setClanAdvancement(2954, 3084).setApproximate(true, true)
+            .setClanAdvancement(3030, 3125, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setClanApproximate(false, true)
             .setPrototypeFactions(F_CSF).setProductionFactions(F_CSF)
             .setTechRating(RATING_F).setAvailability(RATING_X, RATING_X, RATING_F, RATING_E)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement LARGE_IS_XXL_TA = new TechAdvancement(TECH_BASE_IS)
-            .setISAdvancement(3058, 3130).setTechRating(RATING_F)
+            .setISAdvancement(2630, 3130, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setISApproximate(false, true, false, false, false)
+            .setTechRating(RATING_F)
             .setPrototypeFactions(F_FS).setProductionFactions(F_LC)
             .setAvailability(RATING_X, RATING_X, RATING_F, RATING_F)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement LARGE_CLAN_XXL_TA = new TechAdvancement(TECH_BASE_CLAN)
-            .setClanAdvancement(3055, 3125).setTechRating(RATING_F)
+            .setClanAdvancement(2630, 3130, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setClanApproximate(false, true, false, false, false)
+            .setTechRating(RATING_F)
             .setPrototypeFactions(F_CSF).setProductionFactions(F_CSF)
             .setAvailability(RATING_X, RATING_X, RATING_F, RATING_F)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
@@ -1049,21 +1056,17 @@ public class Engine implements Serializable, ITechnology {
                         return TechConstants.T_CLAN_ADVANCED;
                     }
                 } else if (isClan) {
-                    if (year <= 2949) {
+                    if (year <= 3030) {
                         return TechConstants.T_CLAN_UNOFFICIAL;
-                    } else if (year <= 3079) {
-                        return TechConstants.T_CLAN_EXPERIMENTAL;
-                    } else {
+                    } else if (year <= 3120) {
                         return TechConstants.T_CLAN_ADVANCED;
-                    }
+                    } 
                 } else if (isLarge) {
-                    if (year <= 3058) {
+                    if (year <= 3055) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                    } else if (year <= 3130) {
-                        return TechConstants.T_IS_EXPERIMENTAL;
-                    } else {
+                    } else if (year <= 3120) {
                         return TechConstants.T_IS_ADVANCED;
-                    }
+                    } 
                 }
             case FISSION:
                 if (isClan) {
@@ -1109,11 +1112,12 @@ public class Engine implements Serializable, ITechnology {
                         return TechConstants.T_IS_ADVANCED;
                     }
                 } else {
-                    if (year < 3055) {
+                    // Dec 2021 - CGL requested errata to move dates back 5 years for all Tech levels.
+                    if (year < 3050) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                    } else if (year < 3062) {
+                    } else if (year < 3057) {
                         return TechConstants.T_IS_EXPERIMENTAL;
-                    } else if (year < 3067) {
+                    } else if (year < 3061) {
                         return TechConstants.T_IS_ADVANCED;
                     } else {
                         return TechConstants.T_IS_TW_NON_BOX;

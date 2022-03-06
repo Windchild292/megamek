@@ -1,21 +1,23 @@
 /*
- * MegaMek - Copyright (C) 2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.test;
 
+import megamek.MMConstants;
 import megamek.common.Board;
 import megamek.common.net.*;
+import megamek.server.Server;
+import org.apache.logging.log4j.LogManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +35,7 @@ import java.util.TimerTask;
  * This class provides an AWT GUI for testing the transmission and reception of
  * <code>Packet</code>s.
  *
- * @author James Damour <suvarov454@users.sourceforge.net>
+ * @author James Damour (suvarov454@users.sourceforge.net)
  */
 public class PacketTool extends Frame implements Runnable {
 
@@ -126,13 +128,14 @@ public class PacketTool extends Frame implements Runnable {
 
         // Populate the connection panel.
         panConnect.add(new Label(" Connect To:"));
-        hostName = new TextField("localhost", 10);
+        hostName = new TextField(MMConstants.LOCALHOST, 10);
         panConnect.add(hostName);
         panConnect.add(new Label("Port Number:"));
-        hostPort = new TextField("2346", 10);
+        hostPort = new TextField( String.valueOf(MMConstants.DEFAULT_PORT), 10);
         panConnect.add(hostPort);
         button = new Button("Listen");
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 (new Thread(PacketTool.this, "Packet Reader")).start();
             }
@@ -140,6 +143,7 @@ public class PacketTool extends Frame implements Runnable {
         panConnect.add(button);
         button = new Button("Connect");
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 connect();
             }
@@ -149,6 +153,7 @@ public class PacketTool extends Frame implements Runnable {
         // Populate the transmission panel.
         button = new Button("Load Board");
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 boardLoad();
             }
@@ -159,6 +164,7 @@ public class PacketTool extends Frame implements Runnable {
         panXmit.add(boardName);
         butSend = new Button("Send");
         butSend.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 send();
             }
@@ -276,6 +282,7 @@ public class PacketTool extends Frame implements Runnable {
     /**
      * Listen for incoming clients.
      */
+    @Override
     public void run() {
         int port = 0;
         try {
@@ -300,7 +307,7 @@ public class PacketTool extends Frame implements Runnable {
     }
 
     /**
-     * Process a packet from a connection. <p/> Implements
+     * Process a packet from a connection. <p> Implements
      * <code>ConnectionHandler</code>.
      *
      * @param id - the <code>int</code> ID the connection that received the
@@ -405,10 +412,10 @@ public class PacketTool extends Frame implements Runnable {
                      * * Save the board here.
                      */
                     Board recvBoard = (Board) packet.getObject(0);
-                    try (OutputStream os = new FileOutputStream("xmit.board")) { //$NON-NLS-1$
+                    try (OutputStream os = new FileOutputStream("xmit.board")) {
                         recvBoard.save(os);
-                    } catch (IOException ioErr) {
-                        ioErr.printStackTrace();
+                    } catch (Exception ex) {
+                        LogManager.getLogger().error("", ex);
                     }
                     break;
                 case Packet.COMMAND_SENDING_ENTITIES:
@@ -462,7 +469,7 @@ public class PacketTool extends Frame implements Runnable {
     }
 
     /**
-     * Called when it is sensed that a connection has terminated. <p/>
+     * Called when it is sensed that a connection has terminated. <p>
      * Implements <code>ConnectionHandler</code>.
      *
      * @param deadConn - the <code>Connection</code> that has terminated.

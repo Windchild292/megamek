@@ -726,10 +726,11 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
      * Gives the distance to the closest enemy unit, or -1 if none exist.
      * The reason being that the closest enemy unit may be 0 away.
      *
-     * @param me       Entity who has enemies
-     * @param position Coords from which the closest enemy is found
-     * @param game     Game that we're playing
+     * @param me {@link Entity} who has enemies
+     * @param position {@link Coords} from which the closest enemy is found
+     * @param game The current {@link Game}
      */
+    @Override
     public double distanceToClosestEnemy(Entity me, Coords position, Game game) {
         Targetable closest = findClosestEnemy(me, position, game);
         if (closest == null) {

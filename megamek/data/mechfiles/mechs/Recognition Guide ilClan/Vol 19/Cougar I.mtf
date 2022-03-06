@@ -1,11 +1,12 @@
 Version:1.0
 Cougar
 I
+mul id:6928
 
 Config:Biped Omnimech
 TechBase:Clan
 Era:3099
-source:ilClan Rec Guide 19 -  - Early Republic
+source:Rec Guide:ilClan #19 - Early Republic
 Rules Level:2
 
 Mass:35

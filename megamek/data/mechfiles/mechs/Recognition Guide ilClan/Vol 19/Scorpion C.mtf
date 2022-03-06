@@ -1,12 +1,13 @@
 Version:1.1
 Scorpion
 C
+mul id:8316
 
 Config:Quad
 techbase:Mixed (IS Chassis)
 era:3150
-source:ilClan Rec Guide 19 - Early Republic
-rules level:3
+source:Rec Guide:ilClan #19 - Early Republic
+rules level:2
 
 mass:55
 engine:330 Light Engine(IS)

@@ -1,11 +1,12 @@
 Version:1.0
 Daishi (Dire Wolf) 
 X
+mul id:4046
 
 Config:Biped Omnimech
 techbase:Clan
 era:3060
-source:RecGuide 13 - Civil War
+source:Rec Guide:ilClan #13 - Civil War
 rules level:3
 
 mass:100

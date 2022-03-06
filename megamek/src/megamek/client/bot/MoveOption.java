@@ -1,18 +1,17 @@
-/**
+/*
  * MegaMek -
- * Copyright (C) 2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2003, 2004, 2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.bot;
 
 import java.util.ArrayList;
@@ -56,6 +55,7 @@ public class MoveOption extends MovePath {
             damage_weight = damage;
         }
 
+        @Override
         public int compare(MoveOption e0, MoveOption e1) {
             if (((damage_weight * e0.damage) - (utility_weight * e0.getUtility())) > ((damage_weight
                     * e1.damage) - (utility_weight * e1.getUtility()))) {
@@ -86,12 +86,13 @@ public class MoveOption extends MovePath {
         }
 
         public ArrayList<MoveOption> getArray() {
-            return new ArrayList<MoveOption>(values());
+            return new ArrayList<>(values());
         }
     }
 
     public static class DistanceComparator implements Comparator<MoveOption> {
 
+        @Override
         public int compare(MoveOption e0, MoveOption e1) {
             return e0.getDistUtility() < e1.getDistUtility() ? -1 : 1;
         }
@@ -125,8 +126,8 @@ public class MoveOption extends MovePath {
     double threat = 0;
 
     private transient CEntity centity;
-    transient ArrayList<String> tv = new ArrayList<String>();
-    transient HashMap<CEntity, DamageInfo> damageInfos = new HashMap<CEntity, DamageInfo>();
+    transient ArrayList<String> tv = new ArrayList<>();
+    transient HashMap<CEntity, DamageInfo> damageInfos = new HashMap<>();
     private Coords pos;
     private int facing;
     private boolean prone;
@@ -145,7 +146,7 @@ public class MoveOption extends MovePath {
         threat = base.threat;
         damage = base.damage;
         movement_threat = base.movement_threat;
-        tv = new ArrayList<String>(base.tv);
+        tv = new ArrayList<>(base.tv);
         self_threat = base.self_threat;
         inDanger = base.inDanger;
         doomed = base.doomed;
@@ -482,7 +483,7 @@ public class MoveOption extends MovePath {
             }
         }
         boolean aptGunnery = enemy.getEntity().hasAbility(OptionsConstants.PILOT_APTITUDE_PILOTING);
-        int enemy_firing_arcs[] = { 0, 0, 0};
+        int[] enemy_firing_arcs = { 0, 0, 0};
         enemy_firing_arcs[0] =CEntity.getThreatHitArc(enemy
                 .getFinalCoords(), MovePath.getAdjustedFacing(enemy
                         .getFinalFacing(), MoveStepType.NONE), getFinalCoords());

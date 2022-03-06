@@ -48,9 +48,9 @@ class EntitySprite extends Sprite {
     private static final int SMALL = 0;
     private static final boolean DIRECT = true;
     private static final Color LABEL_TEXT_COLOR = Color.WHITE;
-    private static final Color LABEL_CRITICAL_BACK = new Color(200,0,0,200);
-    private static final Color LABEL_SPACE_BACK = new Color(0,0,200,200);
-    private static final Color LABEL_GROUND_BACK = new Color(50,50,50,200);
+    private static final Color LABEL_CRITICAL_BACK = new Color(200, 0, 0, 200);
+    private static final Color LABEL_SPACE_BACK = new Color(0, 0, 200, 200);
+    private static final Color LABEL_GROUND_BACK = new Color(50, 50, 50, 200);
     private static Color LABEL_BACK;
     enum Positioning { LEFT, RIGHT }
     
@@ -186,7 +186,7 @@ class EntitySprite extends Sprite {
     @Override
     public Rectangle getBounds() {
         // Start with the hex and add the label
-        bounds = new Rectangle(0,0,bv.hex_size.width, bv.hex_size.height);
+        bounds = new Rectangle(0, 0, bv.hex_size.width, bv.hex_size.height);
         updateLabel();
         bounds.add(labelRect);
         // Add space for 4 little status boxes
@@ -219,9 +219,9 @@ class EntitySprite extends Sprite {
             oldRect = new Rectangle(labelRect);
         
         int face = (entity.isCommander() && !onlyDetectedBySensors()) ? Font.ITALIC : Font.PLAIN;
-        labelFont = new Font("SansSerif", face, (int) (10 * Math.max(bv.scale, 0.9))); //$NON-NLS-1$
+        labelFont = new Font("SansSerif", face, (int) (10 * Math.max(bv.scale, 0.9)));
         
-        // Check the hexes in directions 2,5,1,4 if they are free of entities
+        // Check the hexes in directions 2, 5, 1, 4 if they are free of entities
         // and place the label in the direction of the first free hex
         // if none are free, the label will be centered in the current hex
         labelRect = new Rectangle(
@@ -280,7 +280,7 @@ class EntitySprite extends Sprite {
             if (color.equals(Color.RED)) criticalStatus = true;
         }
 
-        Status(Color c, String s, Object objs[]) {
+        Status(Color c, String s, Object[] objs) {
             color = c;
             status = Messages.getString("BoardView1."+s, objs);
             small = false;
@@ -322,9 +322,9 @@ class EntitySprite extends Sprite {
         for (Status curStatus: statusStrings) {
             if (curStatus.small) { 
                 if (labelPos == Positioning.RIGHT) {
-                    stR.translate(-labelRect.height-2,0);
+                    stR.translate(-labelRect.height - 2, 0);
                 } else {
-                    stR.translate(labelRect.height+2,0);
+                    stR.translate(labelRect.height + 2, 0);
                 }
                 g.setColor(LABEL_BACK);
                 g.fillRoundRect(stR.x, stR.y, stR.width, stR.height, 5, 5);
@@ -332,12 +332,13 @@ class EntitySprite extends Sprite {
                     Color damageColor = getDamageColor();
                     if (damageColor != null) {
                         g.setColor(damageColor);
-                        g.fillRoundRect(stR.x+2, stR.y+2, stR.width-4, stR.height-4, 5, 5);
+                        g.fillRoundRect(stR.x + 2, stR.y + 2, stR.width - 4, stR.height - 4, 5, 5);
                     }
 
                 } else {
                     BoardView.drawCenteredText(g, curStatus.status,
-                            stR.x+stR.height*0.5f-0.5f, stR.y+stR.height*0.5f-2, curStatus.color, false);
+                            stR.x + stR.height * 0.5f - 0.5f, stR.y + stR.height * 0.5f - 2,
+                            curStatus.color, false);
                 }
             }
         }
@@ -450,7 +451,7 @@ class EntitySprite extends Sprite {
         if ((secondaryPos == -1) || (secondaryPos == 6)) {
             
             // Gather unit conditions
-            ArrayList<Status> stStr = new ArrayList<Status>();
+            ArrayList<Status> stStr = new ArrayList<>();
             criticalStatus = false;
             
             // Determine if the entity has a locked turret,
@@ -497,6 +498,8 @@ class EntitySprite extends Sprite {
                 stStr.add(new Status(Color.ORANGE, "STUCK"));
             if (!ge && entity.isImmobile())
                 stStr.add(new Status(Color.RED, "IMMOBILE"));
+            if (entity.isBracing()) 
+                stStr.add(new Status(Color.ORANGE, "BRACING"));
             if (isAffectedByECM())
                 stStr.add(new Status(Color.YELLOW, "Jammed"));
             
@@ -843,6 +846,7 @@ class EntitySprite extends Sprite {
         return isSelected;
     }
 
+    @Override
     protected int getSpritePriority() {
         return entity.getSpriteDrawPriority();
     }

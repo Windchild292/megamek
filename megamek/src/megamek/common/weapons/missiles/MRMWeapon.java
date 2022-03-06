@@ -1,15 +1,21 @@
-/**
- * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
+/*
+ * Copyright (c) 2005 - Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.common.weapons.missiles;
 
@@ -31,9 +37,6 @@ public abstract class MRMWeapon extends MissileWeapon {
 
     private static final long serialVersionUID = 274817921444431878L;
 
-    /**
-     *
-     */
     public MRMWeapon() {
         super();
         ammoType = AmmoType.T_MRM;
@@ -41,14 +44,6 @@ public abstract class MRMWeapon extends MissileWeapon {
         atClass = CLASS_MRM;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * megamek.common.weapons.Weapon#getCorrectHandler(megamek.common.ToHitData,
-     * megamek.common.actions.WeaponAttackAction, megamek.common.Game,
-     * megamek.server.Server)
-     */
     @Override
     protected AttackHandler getCorrectHandler(ToHitData toHit,
             WeaponAttackAction waa, Game game, Server server) {
@@ -72,5 +67,14 @@ public abstract class MRMWeapon extends MissileWeapon {
             damage = adjustBattleForceDamageForMinRange(damage);
         }
         return damage / 10.0;
+    }
+
+    @Override
+    public String getSortingName() {
+        String oneShotTag = hasFlag(F_ONESHOT) ? "OS " : "";
+        if (name.contains("I-OS")) {
+            oneShotTag = "XIOS ";
+        }
+        return "MRM " + oneShotTag + rackSize;
     }
 }

@@ -1,6 +1,7 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2000-2005 - Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,7 +15,7 @@
  */
 package megamek.common;
 
-import megamek.MegaMekConstants;
+import megamek.MMConstants;
 import megamek.Version;
 import megamek.client.bot.princess.BehaviorSettings;
 import megamek.common.GameTurn.SpecificEntityTurn;
@@ -54,7 +55,7 @@ public class Game implements Serializable {
     /**
      * Stores the version of MM, so that it can be serialized in saved games.
      */
-    public final Version version = MegaMekConstants.VERSION;
+    public final Version version = MMConstants.VERSION;
 
     private GameOptions options = new GameOptions();
 
@@ -149,18 +150,17 @@ public class Game implements Serializable {
     private List<SmokeCloud> smokeCloudList = new CopyOnWriteArrayList<>();
 
     /**
-     * The forces present in the game. The top level force holds all forces and force-less
-     * entities and should therefore not be shown.
+     * The forces present in the game. The top level force holds all forces and force-less entities
+     * and should therefore not be shown.
      */
     private Forces forces = new Forces(this);
 
     private transient Vector<GameListener> gameListeners = new Vector<>();
     
     /** 
-     * Stores princess behaviors for game factions. It does not indicate that a 
-     * faction is currently played by a bot, only that the most recent bot connected
-     * as that faction used these settings. Used to add the settings to savegames
-     * and allow restoring bots to their previous settings.
+     * Stores princess behaviors for game factions. It does not indicate that a faction is currently
+     * played by a bot, only that the most recent bot connected as that faction used these settings.
+     * Used to add the settings to savegames and allow restoring bots to their previous settings.
      */
     private Map<String, BehaviorSettings> botSettings = new HashMap<>();
 
@@ -204,19 +204,12 @@ public class Game implements Serializable {
 
     public Vector<Minefield> getMinefields(Coords coords) {
         Vector<Minefield> mfs = minefields.get(coords);
-        if (mfs == null) {
-            return new Vector<>();
-        }
-        return mfs;
+        return (mfs == null) ? new Vector<>() : mfs;
     }
 
     public int getNbrMinefields(Coords coords) {
         Vector<Minefield> mfs = minefields.get(coords);
-        if (mfs == null) {
-            return 0;
-        }
-
-        return mfs.size();
+        return (mfs == null) ? 0 : mfs.size();
     }
 
     /**
@@ -909,7 +902,7 @@ public class Game implements Serializable {
     }
 
     public synchronized void setEntitiesVector(List<Entity> entities) {
-        //checkPositionCacheConsistency();
+        // checkPositionCacheConsistency();
         this.entities.clear();
         this.entities.addAll(entities);
         reindexEntities();
@@ -1066,7 +1059,7 @@ public class Game implements Serializable {
                 // If this is the first entity at this position,
                 // create the vector and add it to the map.
                 if (atPos == null) {
-                    atPos = new Vector<Entity>();
+                    atPos = new Vector<>();
                     positionMap.put(coords, atPos);
                 }
 
@@ -1205,7 +1198,7 @@ public class Game implements Serializable {
                     return null;
             }
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return null;
         }
     }
@@ -1282,15 +1275,13 @@ public class Game implements Serializable {
         if (entity instanceof Mech) {
             ((Mech) entity).setBAGrabBars();
             ((Mech) entity).setProtomechClampMounts();
-        }
-        if (entity instanceof Tank) {
+        } else if (entity instanceof Tank) {
             ((Tank) entity).setBAGrabBars();
             ((Tank) entity).setTrailerHitches();
         }
 
         // Add magnetic clamp mounts
-        if ((entity instanceof Mech) && !entity.isOmni()
-                && !entity.hasBattleArmorHandles()) {
+        if ((entity instanceof Mech) && !entity.isOmni() && !entity.hasBattleArmorHandles()) {
             entity.addTransporter(new ClampMountMech());
         } else if ((entity instanceof Tank) && !entity.isOmni()
                 && !entity.hasBattleArmorHandles()) {
@@ -1298,9 +1289,8 @@ public class Game implements Serializable {
         }
 
         entity.setGameOptions();
-        if (entity.getC3UUIDAsString() == null) { // We don't want to be
-            // resetting a UUID that
-            // exists already!
+        if (entity.getC3UUIDAsString() == null) {
+            // We don't want to be resetting a UUID that exists already!
             entity.setC3UUID();
         }
         // Add this Entity, ensuring that it's id is unique
@@ -1321,14 +1311,9 @@ public class Game implements Serializable {
 
         // And... lets get this straight now.
         if ((entity instanceof Mech)
-            && getOptions().booleanOption(OptionsConstants.RPG_CONDITIONAL_EJECTION)) {
+                && getOptions().booleanOption(OptionsConstants.RPG_CONDITIONAL_EJECTION)) {
             ((Mech) entity).setAutoEject(true);
-            if (((Mech) entity).hasCase()
-                || ((Mech) entity).hasCASEIIAnywhere()) {
-                ((Mech) entity).setCondEjectAmmo(false);
-            } else {
-                ((Mech) entity).setCondEjectAmmo(true);
-            }
+            ((Mech) entity).setCondEjectAmmo(!entity.hasCase() && !((Mech) entity).hasCASEIIAnywhere());
             ((Mech) entity).setCondEjectEngine(true);
             ((Mech) entity).setCondEjectCTDest(true);
             ((Mech) entity).setCondEjectHeadshot(true);
@@ -1488,22 +1473,20 @@ public class Game implements Serializable {
         entityIds.clear();
         lastEntityId = 0;
 
-        if (entities != null) {
-            // Add these entities to the game.
-            for (Entity entity : entities) {
-                final int id = entity.getId();
-                entityIds.put(id, entity);
+        // Add these entities to the game.
+        for (Entity entity : entities) {
+            final int id = entity.getId();
+            entityIds.put(id, entity);
 
-                if (id > lastEntityId) {
-                    lastEntityId = id;
-                }
+            if (id > lastEntityId) {
+                lastEntityId = id;
             }
-            // We need to ensure that each entity has the propery Game reference
-            //  however, the entityIds Hashmap must be fully formed before this
-            //  is called, since setGame also calls setGame for loaded Entities
-            for (Entity entity : entities) {
-                entity.setGame(this);
-            }
+        }
+        // We need to ensure that each entity has the proper Game reference
+        // however, the entityIds Hashmap must be fully formed before this
+        // is called, since setGame also calls setGame for loaded Entities
+        for (Entity entity : entities) {
+            entity.setGame(this);
         }
     }
 
@@ -1550,32 +1533,31 @@ public class Game implements Serializable {
      * Returns an Enumeration of the active entities at the given coordinates.
      */
     public Iterator<Entity> getEntities(Coords c, boolean ignore) {
-        return getEntitiesVector(c,ignore).iterator();
+        return getEntitiesVector(c, ignore).iterator();
     }
 
     /**
-     * Return a List of Entities at Coords <code>c</code>
+     * Return an {@link Entity} <code>List</code> at {@link Coords} <code>c</code>, checking if
+     * they can be targetted.
      *
      * @param c The coordinates to check
-     * @return <code>List<Entity></code>
+     * @return the {@link Entity} <code>List</code>
      */
     public List<Entity> getEntitiesVector(Coords c) {
         return getEntitiesVector(c, false);
     }
 
     /**
-     * Return a List of Entities at Coords <code>c</code>
+     * Return an {@link Entity} <code>List</code> at {@link Coords} <code>c</code>
      *
      * @param c The coordinates to check
-     * @param ignore
-     *            Flag that determines whether the ability to target is ignored
-     * @return <code>List<Entity></code>
+     * @param ignore Flag that determines whether the ability to target is ignored
+     * @return the {@link Entity} <code>List</code>
      */
     public synchronized List<Entity> getEntitiesVector(Coords c, boolean ignore) {
-        //checkPositionCacheConsistency();
+        // checkPositionCacheConsistency();
         // Make sure the look-up is initialized
-        if (entityPosLookup == null
-                || (entityPosLookup.size() < 1 && entities.size() > 0)) {
+        if (entityPosLookup.isEmpty() && !entities.isEmpty()) {
             resetEntityPositionLookup();
         }
         Set<Integer> posEntities = entityPosLookup.get(c);
@@ -1625,7 +1607,7 @@ public class Game implements Serializable {
      * Return a Vector of gun emplacements at Coords <code>c</code>
      *
      * @param c The coordinates to check
-     * @return <code>Vector<Entity></code>
+     * @return the {@link GunEmplacement} <code>Vector</code>
      */
     public Vector<GunEmplacement> getGunEmplacements(Coords c) {
         Vector<GunEmplacement> vector = new Vector<>();
@@ -1956,17 +1938,14 @@ public class Game implements Serializable {
     }
 
     /**
-     * Determines if the indicated entity is stranded on a transport that can't
-     * move.
-     * <p/>
-     * According to <a href=
-     * "http://www.classicbattletech.com/w3t/showflat.php?Cat=&Board=ask&Number=555466&page=2&view=collapsed&sb=5&o=0&fpart="
-     * > Randall Bills</a>, the "minimum move" rule allow stranded units to
-     * dismount at the start of the turn.
+     * Determines if the indicated entity is stranded on a transport that can't move.
+     * <p>
+     * According to
+     * <a href="http://www.classicbattletech.com/w3t/showflat.php?Cat=&Board=ask&Number=555466&page=2&view=collapsed&sb=5&o=0&fpart=">Randall Bills</a>,
+     * the "minimum move" rule allow stranded units to dismount at the start of the turn.
      *
      * @param entity the <code>Entity</code> that may be stranded
-     * @return <code>true</code> if the entity is stranded <code>false</code>
-     * otherwise.
+     * @return <code>true</code> if the entity is stranded <code>false</code> otherwise.
      */
     public boolean isEntityStranded(Entity entity) {
 
@@ -2290,7 +2269,7 @@ public class Game implements Serializable {
 
     /**
      * Returns the actions vector. Do not use to modify the actions; I will be
-     * angry. >:[ Used for sending all actions to the client.
+     * angry. &gt;:[ Used for sending all actions to the client.
      */
     public List<EntityAction> getActionsVector() {
         return Collections.unmodifiableList(actions);
@@ -2352,7 +2331,7 @@ public class Game implements Serializable {
     }
 
     /**
-     * Returns the charges vector. Do not modify. >:[ Used for sending all
+     * Returns the charges vector. Do not modify. &gt;:[ Used for sending all
      * charges to the client.
      */
     public List<AttackAction> getChargesVector() {
@@ -2383,7 +2362,7 @@ public class Game implements Serializable {
     }
 
     /**
-     * Returns the rams vector. Do not modify. >:[ Used for sending all charges
+     * Returns the rams vector. Do not modify. &gt;:[ Used for sending all charges
      * to the client.
      */
     public List<AttackAction> getRamsVector() {
@@ -2453,7 +2432,7 @@ public class Game implements Serializable {
      */
     public void resetPSRs(Entity entity) {
         PilotingRollData roll;
-        Vector<Integer> rollsToRemove = new Vector<Integer>();
+        Vector<Integer> rollsToRemove = new Vector<>();
         int i = 0;
 
         // first, find all the rolls belonging to the target entity
@@ -2482,7 +2461,7 @@ public class Game implements Serializable {
      */
     public void resetExtremeGravityPSRs(Entity entity) {
         PilotingRollData roll;
-        Vector<Integer> rollsToRemove = new Vector<Integer>();
+        Vector<Integer> rollsToRemove = new Vector<>();
         int i = 0;
 
         // first, find all the rolls belonging to the target entity
@@ -2728,12 +2707,13 @@ public class Game implements Serializable {
         // that selects entities in this game.
         else {
             final EntitySelector entry = selector;
-            retVal = new Iterator<Entity>() {
+            retVal = new Iterator<>() {
                 private EntitySelector entitySelector = entry;
                 private Entity current = null;
                 private Iterator<Entity> iter = getEntities();
 
                 // Do any more entities meet the selection criteria?
+                @Override
                 public boolean hasNext() {
                     // See if we have a pre-approved entity.
                     if (null == current) {
@@ -2750,6 +2730,7 @@ public class Game implements Serializable {
                 }
 
                 // Get the next entity that meets the selection criteria.
+                @Override
                 public Entity next() {
                     // Pre-approve an entity.
                     if (!hasNext()) {
@@ -2834,12 +2815,13 @@ public class Game implements Serializable {
         // that selects entities in this game.
         else {
             final EntitySelector entry = selector;
-            retVal = new Enumeration<Entity>() {
+            retVal = new Enumeration<>() {
                 private EntitySelector entitySelector = entry;
                 private Entity current = null;
                 private Enumeration<Entity> iter = vOutOfGame.elements();
 
                 // Do any more entities meet the selection criteria?
+                @Override
                 public boolean hasMoreElements() {
                     // See if we have a pre-approved entity.
                     if (null == current) {
@@ -2856,6 +2838,7 @@ public class Game implements Serializable {
                 }
 
                 // Get the next entity that meets the selection criteria.
+                @Override
                 public Entity nextElement() {
                     // Pre-approve an entity.
                     if (!hasMoreElements()) {
@@ -3099,7 +3082,7 @@ public class Game implements Serializable {
     public void setIlluminatedPositions(final @Nullable HashSet<Coords> ip) throws RuntimeException {
         if (ip == null) {
             var ex = new RuntimeException("Illuminated Positions is null.");
-            LogManager.getLogger().error(ex);
+            LogManager.getLogger().error("", ex);
             throw ex;
         }
         illuminatedPositions = ip;

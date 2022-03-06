@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -35,7 +35,10 @@ public class GrappleAttackAction extends PhysicalAttackAction {
     }
 
     /**
-     * To-hit number
+     * @param game The current {@link Game}
+     * @param attackerId the attacking entity id
+     * @param target the attack's target
+     * @return the to hit number for the current grapple attack
      */
     public static ToHitData toHit(Game game, int attackerId, Targetable target) {
         return toHit(game, attackerId, target, Entity.GRAPPLE_BOTH, false);
@@ -44,7 +47,7 @@ public class GrappleAttackAction extends PhysicalAttackAction {
     /**
      * Calculates ToHitData for a grapple attack.
      * 
-     * @param game
+     * @param game The current {@link Game}
      * @param attackerId
      * @param target
      * @param grappleSide
@@ -174,7 +177,7 @@ public class GrappleAttackAction extends PhysicalAttackAction {
     /**
      * Various modifiers to check to see if the grapple attack is illegal.
      * 
-     * @param game
+     * @param game The current {@link Game}
      * @param ae
      * @param target
      * @param grappleSide

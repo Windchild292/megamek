@@ -1,11 +1,12 @@
 Version:1.2
 Dominator
 2
+mul id:7435
 
 Config:Biped
 techbase:Clan
 era:3149
-source:ilClan Vol 1 - Dark Age
+source:Rec Guide:ilClan #1 - Dark Age
 rules level:2
 
 mass:65

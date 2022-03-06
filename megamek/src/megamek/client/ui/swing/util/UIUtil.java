@@ -20,6 +20,7 @@ import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.MMToggleButton;
 import megamek.common.Configuration;
 import megamek.common.Player;
+import megamek.common.annotations.Nullable;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
 
@@ -32,12 +33,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.image.ImageObserver;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 public final class UIUtil {
+
+    // The standard pixels-per-inch to compare against for display scaling
+    private static final int DEFAULT_DISPLAY_PPI = 96;
 
     /** The width for a tooltip displayed to the side of a dialog uising one of TipXX classes. */
     private static final int TOOLTIP_WIDTH = 300;
@@ -52,16 +55,11 @@ public final class UIUtil {
     public final static String QUIRKS_SIGN = " \u24E0 ";
     public static final String DOT_SPACER = " \u2B1D ";
     public static final String BOT_MARKER = " \u259A ";
-    
-    
+
     public static String repeat(String str, int count) {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            result.append(str);
-        }
-        return result.toString();
+        return String.valueOf(str).repeat(Math.max(0, count));
     }
-    
+
     /** 
      * Returns an HTML FONT tag setting the font face to Dialog 
      * and the font size according to GUIScale. 
@@ -413,7 +411,172 @@ public final class UIUtil {
             } 
         }
     }
-    
+
+
+    /**
+     *
+     * @param currentMonitor
+     * @return the width of the screen taking into account display scaling
+     */
+    public static int getScaledScreenWidth(DisplayMode currentMonitor) {
+        int monitorW = currentMonitor.getWidth();
+        int pixelPerInch = Toolkit.getDefaultToolkit().getScreenResolution();
+        return DEFAULT_DISPLAY_PPI * monitorW / pixelPerInch;
+    }
+
+    /**
+     *
+     * @param currentMonitor
+     * @return The height of the screen taking into account display scaling
+     */
+    public static int getScaledScreenHeight(DisplayMode currentMonitor) {
+        int monitorH = currentMonitor.getHeight();
+        int pixelPerInch = Toolkit.getDefaultToolkit().getScreenResolution();
+        return DEFAULT_DISPLAY_PPI * monitorH / pixelPerInch;
+    }
+
+    /**
+     *
+     * @return The height of the screen taking into account display scaling
+     */
+    public static Dimension getScaledScreenSize(Component component) {
+        return getScaledScreenSize(component.getGraphicsConfiguration().getDevice().getDisplayMode());
+    }
+
+    /**
+     *
+     * @param currentMonitor
+     * @return The height of the screen taking into account display scaling
+     */
+    public static Dimension getScaledScreenSize(DisplayMode currentMonitor) {
+        int monitorH = currentMonitor.getHeight();
+        int monitorW = currentMonitor.getWidth();
+        int pixelPerInch = Toolkit.getDefaultToolkit().getScreenResolution();
+        return new Dimension(
+                DEFAULT_DISPLAY_PPI * monitorW / pixelPerInch,
+                DEFAULT_DISPLAY_PPI * monitorH / pixelPerInch);
+    }
+
+    /**
+     *
+     * @return an image with the same aspect ratio that fits within the given bounds, or the existing image if it already does
+     */
+    public static Image constrainImageSize(Image image, ImageObserver observer, int maxWidth, int maxHeight) {
+        int w = image.getWidth(observer);
+        int h = image.getHeight(observer);
+
+        if ((w <= maxWidth) && (h <= maxHeight)) {
+            return image;
+        }
+
+        //choose resize that fits in bounds
+        double scaleW = maxWidth / (double)w;
+        double scaleH = maxHeight / (double)h;
+        if (scaleW < scaleH ) {
+            return ImageUtil.getScaledImage(image, maxWidth, (int)(h*scaleW));
+        } else {
+            return ImageUtil.getScaledImage(image, (int)(w*scaleH), maxHeight);
+        }
+    }
+
+    /**
+     *
+     * @param multiResImageMap a collection of widths matched with corresponding image file path
+     * @param parent component
+     * @return a JLabel setup to the correct size to act as a splash screen
+     */
+    public static JLabel createSplashComponent(TreeMap<Integer, String> multiResImageMap, Component parent) {
+        // Use the current monitor so we don't "overflow" computers whose primary
+        // displays aren't as large as their secondary displays.
+        Dimension scaledMonitorSize = getScaledScreenSize( parent.getGraphicsConfiguration().getDevice().getDisplayMode());
+        Image imgSplash = parent.getToolkit().getImage(multiResImageMap.floorEntry(scaledMonitorSize.width).getValue());
+
+        // wait for splash image to load completely
+        MediaTracker tracker = new MediaTracker(parent);
+        tracker.addImage(imgSplash, 0);
+        try {
+            tracker.waitForID(0);
+        } catch (InterruptedException ignored) {
+            // really should never come here
+        }
+
+        return createSplashComponent(imgSplash, parent, scaledMonitorSize);
+    }
+
+    /**
+     *
+     * @param imgSplashFile path to an image on disk
+     * @param parent component
+     * @return a JLabel setup to the correct size to act as a splash screen
+     */
+    public static JLabel createSplashComponent(String imgSplashFile, Component parent) {
+        // Use the current monitor so we don't "overflow" computers whose primary
+        // displays aren't as large as their secondary displays.
+        Dimension scaledMonitorSize = getScaledScreenSize(parent.getGraphicsConfiguration().getDevice().getDisplayMode());
+
+        Image imgSplash = parent.getToolkit().getImage(imgSplashFile);
+
+        // wait for splash image to load completely
+        MediaTracker tracker = new MediaTracker(parent);
+        tracker.addImage(imgSplash, 0);
+        try {
+            tracker.waitForID(0);
+        } catch (InterruptedException ignored) {
+            // really should never come here
+        }
+
+        return createSplashComponent(imgSplash, parent, scaledMonitorSize);
+    }
+
+    /**
+     *
+     * @param imgSplash an image
+     * @param observer
+     * @param scaledMonitorSize the dimensions of the monitor taking into account display scaling
+     * @return a JLabel setup to the correct size to act as a splash screen
+     */
+    public static JLabel createSplashComponent(Image imgSplash, ImageObserver observer, Dimension scaledMonitorSize) {
+        JLabel splash;
+        Dimension maxSize = new Dimension(
+                (int) (scaledMonitorSize.width * 0.75),
+                (int) (scaledMonitorSize.height * 0.75));
+
+        if (imgSplash != null) {
+            imgSplash = UIUtil.constrainImageSize(imgSplash, null, maxSize.width, maxSize.height);
+            Icon icon = new ImageIcon(imgSplash);
+            splash = new JLabel(icon);
+        } else {
+            splash = new JLabel();
+        }
+
+        Dimension splashDim = new Dimension(
+                imgSplash == null ? maxSize.width : imgSplash.getWidth(observer),
+                imgSplash == null ? maxSize.height : imgSplash.getHeight(observer));
+
+        splash.setMaximumSize(splashDim);
+        splash.setMinimumSize(splashDim);
+        splash.setPreferredSize(splashDim);
+
+        return splash;
+    }
+
+
+    public static void keepOnScreen(JFrame component) {
+
+        DisplayMode currentMonitor = component.getGraphicsConfiguration().getDevice().getDisplayMode();
+        Dimension scaledScreenSize = UIUtil.getScaledScreenSize(currentMonitor);
+
+        Point pos = component.getLocationOnScreen();
+        Dimension size = component.getSize();
+        Rectangle r = new Rectangle(scaledScreenSize);
+
+        // center and size if out of bounds
+        if ( (pos.x < 0) || (pos.y < 0) ||
+                (pos.x + size.width > scaledScreenSize.width) ||
+                (pos.y + size.height > scaledScreenSize.getHeight())) {
+            component.setLocationRelativeTo(null);
+        }
+    }
     /** A specialized panel for the header of a section. */
     public static class Header extends JPanel {
         private static final long serialVersionUID = -6235772150005269143L;
@@ -688,16 +851,18 @@ public final class UIUtil {
         }
         
         FocusListener l = new FocusListener() {
+            @Override
             public void focusLost(FocusEvent e) {
                 updateHint();
-            };
+            }
             
+            @Override
             public void focusGained(FocusEvent e) {
                 if (getText().equals(hintText)) {
                     setText("");
                 }
                 setForeground(null);
-            };
+            }
         };
 
         @Override
@@ -859,7 +1024,7 @@ public final class UIUtil {
         public Dimension getMaximumSize() {
             return new Dimension(super.getMaximumSize().width, getPreferredSize().height);
         }
-    };
+    }
     
     /**
      * Returns a single menu item with the given text, the given command string
@@ -971,7 +1136,7 @@ public final class UIUtil {
     }
     
     /** Internal helper method to adapt items in a JPopupmenu to the GUI scaling. */
-    private static void scaleJMenuItem(final JMenuItem menuItem) {
+    private static void scaleJMenuItem(final @Nullable JMenuItem menuItem) {
         Font scaledFont = getScaledFont();
         if (menuItem instanceof JMenu) {
             JMenu menu = (JMenu) menuItem;
@@ -979,7 +1144,7 @@ public final class UIUtil {
             for (int i = 0; i < menu.getItemCount(); i++) {
                 scaleJMenuItem(menu.getItem(i));
             }
-        } else if (menuItem instanceof JMenuItem) {
+        } else if (menuItem != null) {
             menuItem.setFont(scaledFont);
         } 
     }

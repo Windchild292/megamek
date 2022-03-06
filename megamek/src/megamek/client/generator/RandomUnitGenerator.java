@@ -40,8 +40,7 @@ import java.util.zip.ZipFile;
  * line of the file should give the unit type number corresponding to
  * UnitType.java The remaining lines should be comma split. The first field
  * should give the frequency of that unit and the second line should give the
- * name of that unit written as <Model> <Chassis> Comment lines can also be
- * added with "#"
+ * name of that unit written as { Model } { Chassis }. Comment lines can also be added with "#".
  * </p>
  *
  * @author Jay Lawson
@@ -178,8 +177,7 @@ public class RandomUnitGenerator implements Serializable {
     public void notifyListenersOfInitialization() {
         if (initialized) {
             for (ActionListener l : listeners) {
-                l.actionPerformed(new ActionEvent(
-                        this,ActionEvent.ACTION_PERFORMED,"rugInitialized"));
+                l.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,"rugInitialized"));
             }
         }
     }
@@ -191,7 +189,7 @@ public class RandomUnitGenerator implements Serializable {
     private void readRat(InputStream is, RatTreeNode node, String fileName, MechSummaryCache msc) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             int lineNumber = 0;
-            String key = "Huh"; //$NON-NLS-1$
+            String key = "Huh";
             float totalWeight = 0.0f;
             RatEntry re = new RatEntry();
             String line = null;
@@ -200,7 +198,7 @@ public class RandomUnitGenerator implements Serializable {
                     return;
                 }
 
-                if (line.startsWith("#")) { //$NON-NLS-1$
+                if (line.startsWith("#")) {
                     continue;
                 }
 
@@ -260,7 +258,7 @@ public class RandomUnitGenerator implements Serializable {
 
     private RatTreeNode getNodeByPath(RatTreeNode root, String path) {
         RatTreeNode result = root;
-        String[] pathElements = path.split("/", -1); //$NON-NLS-1$
+        String[] pathElements = path.split("/", -1);
         for (int i = 0; i < pathElements.length - 1; i++) {
             if (pathElements[i].length() == 0) {
                 continue;
@@ -314,14 +312,14 @@ public class RandomUnitGenerator implements Serializable {
             }
             String ratFileNameLC = ratFile.getName().toLowerCase(Locale.ROOT);
 
-            if (ratFileNameLC.equals("_svn") || ratFileNameLC.equals(".svn")) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (ratFileNameLC.equals("_svn") || ratFileNameLC.equals(".svn")) {
                 // This is a Subversion work directory. Lets ignore it.
                 continue;
             }
 
             // READ IN RATS
             if (ratFile.isDirectory()) {
-                RatTreeNode newNode = getNodeByPath(node, ratFile.getName() + "/"); //$NON-NLS-1$
+                RatTreeNode newNode = getNodeByPath(node, ratFile.getName() + "/");
 
                 // recursion is fun
                 loadRatsFromDirectory(ratFile, msc, newNode);
@@ -342,7 +340,7 @@ public class RandomUnitGenerator implements Serializable {
                         if (!entry.isDirectory() && entryName.toLowerCase(Locale.ROOT).endsWith(".txt")) {
                             RatTreeNode subNode = getNodeByPath(node, entryName);
                             try (InputStream zis = zipFile.getInputStream(entry)) {
-                                readRat(zis, subNode, ratFile.getName() + ":" + entryName, msc); //$NON-NLS-1$
+                                readRat(zis, subNode, ratFile.getName() + ":" + entryName, msc);
                             }
                         }
                     }
@@ -351,16 +349,14 @@ public class RandomUnitGenerator implements Serializable {
                 }
             }
 
-            if (!ratFileNameLC.endsWith(".txt")) { //$NON-NLS-1$
+            if (!ratFileNameLC.endsWith(".txt")) {
                 continue;
             }
 
             try (InputStream ratInputStream = new FileInputStream(ratFile)) {
                 readRat(ratInputStream, node, ratFile.getName(), msc);
-            } catch (IOException e) {
-                System.err.println(String.format("Unable to load %s", ratFile.getName())); //$NON-NLS-1$
-                System.err.println(e.getMessage());
-                e.printStackTrace();
+            } catch (Exception e) {
+                LogManager.getLogger().error("Unable to load " + ratFile.getName(), e);
             }
         }
     }
@@ -371,17 +367,17 @@ public class RandomUnitGenerator implements Serializable {
      * @return - a string giving the name
      */
     public ArrayList<MechSummary> generate(int numRolls, String ratName) {
-    	return generate(numRolls, ratName, null);
+        return generate(numRolls, ratName, null);
     }
 
-	/**
+    /**
      * Generate a list of units from the RAT.
-	 *     
-	 * @param numRolls - the number of units to roll from the RAT
-	 * @param ratName - name of the RAT to roll on
-	 * @param filter - entries in the RAT must pass this condition to be included. If null, no filter is applied.
+     *
+     * @param numRolls - the number of units to roll from the RAT
+     * @param ratName - name of the RAT to roll on
+     * @param filter - entries in the RAT must pass this condition to be included. If null, no filter is applied.
      * @return - a list of units determined by the random rolls
-	 */
+     */
     public ArrayList<MechSummary> generate(int numRolls, String ratName, Predicate<MechSummary> filter) {
         ArrayList<MechSummary> units = new ArrayList<>();
 
@@ -403,24 +399,24 @@ public class RandomUnitGenerator implements Serializable {
             if (null != ratMap) {
                 RatEntry re = ratMap.get(ratName);
                 if (filter != null) {
-                	RatEntry filtered = new RatEntry();
-                	float totalWeight = 0.0f;
-                	MechSummaryCache msc = MechSummaryCache.getInstance();
-                	for (int i = 0; i < re.getUnits().size(); i++) {
-                		if (!re.getUnits().get(i).startsWith("@")) {
-	                		MechSummary ms = msc.getMech(re.getUnits().get(i));
-	                		if (ms == null || !filter.test(ms)) {
-	                			continue;
-	                		}
-                		}
-            			filtered.getUnits().add(re.getUnits().get(i));
-            			filtered.getWeights().add(re.getWeights().get(i));
-            			totalWeight += re.getWeights().get(i);
-                	}
-                	for (int i = 0; i < filtered.getWeights().size(); i++) {
-                		filtered.getWeights().set(i, filtered.getWeights().get(i) / totalWeight);
-                	}
-                	re = filtered;
+                    RatEntry filtered = new RatEntry();
+                    float totalWeight = 0.0f;
+                    MechSummaryCache msc = MechSummaryCache.getInstance();
+                    for (int i = 0; i < re.getUnits().size(); i++) {
+                        if (!re.getUnits().get(i).startsWith("@")) {
+                            MechSummary ms = msc.getMech(re.getUnits().get(i));
+                            if (ms == null || !filter.test(ms)) {
+                                continue;
+                            }
+                        }
+                        filtered.getUnits().add(re.getUnits().get(i));
+                        filtered.getWeights().add(re.getWeights().get(i));
+                        totalWeight += re.getWeights().get(i);
+                    }
+                    for (int i = 0; i < filtered.getWeights().size(); i++) {
+                        filtered.getWeights().set(i, filtered.getWeights().get(i) / totalWeight);
+                    }
+                    re = filtered;
                 }
                 if ((null != re) && (re.getUnits().size() > 0)) {
                     for (int roll = 0; roll < numRolls; roll++) {
@@ -446,7 +442,7 @@ public class RandomUnitGenerator implements Serializable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogManager.getLogger().error("", e);
         }
         return units;
     }
@@ -514,15 +510,11 @@ public class RandomUnitGenerator implements Serializable {
             rug.initializing = true;
             interrupted = false;
             dispose = false;
-            rug.loader = new Thread(new Runnable() {
-                public void run() {
-                    long start = System.currentTimeMillis();
-                    rug.populateUnits();
-                    long end = System.currentTimeMillis();
-                    System.out.println("Loaded Rats in: " + (end - start)
-                            + "ms.");
-                    System.out.flush();
-                }
+            rug.loader = new Thread(() -> {
+                long start = System.currentTimeMillis();
+                rug.populateUnits();
+                long end = System.currentTimeMillis();
+                LogManager.getLogger().info("Loaded Rats in: " + (end - start) + "ms.");
             }, "Random Unit Generator unit populator");
             rug.loader.setPriority(Thread.NORM_PRIORITY - 1);
             rug.loader.start();
@@ -533,5 +525,4 @@ public class RandomUnitGenerator implements Serializable {
     public boolean isInitialized() {
         return initialized;
     }
-
 }

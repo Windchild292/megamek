@@ -1,11 +1,12 @@
 Version:1.0
 Crossbow
 G
+mul id:8237
 
 Config:Biped Omnimech
 techbase:Clan
 era:3136
-source:Recognition Guide:ilClan #17 - Dark Age
+source:Rec Guide:ilClan #17 - Dark Age
 rules level:2
 
 mass:65

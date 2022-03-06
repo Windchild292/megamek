@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2002-2005 Ben Mazur (bmazur@sev.org)
  * Copyright (c) 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
@@ -38,6 +38,7 @@ import megamek.common.preference.IPreferenceChangeListener;
 import megamek.common.preference.PreferenceChangeEvent;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.fileUtils.MegaMekFile;
+import org.apache.logging.log4j.LogManager;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -192,7 +193,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
             tempMM.drawMap(true);
             return ImageUtil.createAcceleratedImage(tempMM.mapImage);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogManager.getLogger().error("", e);
             return ImageUtil.failStandardImage();
         }
     }
@@ -380,7 +381,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
             }
         } catch (Exception e) {
             // Fall back to the default colors
-            e.printStackTrace();
+            LogManager.getLogger().error("", e);
         }
     }
 
@@ -435,6 +436,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
     private final Runnable drawMapable = new Runnable() {
         private final int redrawDelay = 0;
 
+        @Override
         public void run() {
             try {
                 if ((System.currentTimeMillis() - lastDrawMapReq) > redrawDelay) {
@@ -782,7 +784,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
         int[] xPoints = xPoints(x);
         int[] yPoints = yPoints(x, y);
         g.fillPolygon(xPoints, yPoints, 6);
-        g.setColor(new Color(20,20,60));
+        g.setColor(new Color(20, 20, 60));
         g.drawPolygon(xPoints, yPoints, 6);
         // Drop in a star
         int dx = (int) (Math.random() * HEX_SIDE[zoom]);
@@ -793,7 +795,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
             g.setColor(new Color(c, c / 10, c / 10)); // red star
         } else if (Math.random() < 0.1) {
             int factor = (int) (Math.random()*10) + 1;
-            g.setColor(new Color(c / factor, c / factor,c)); // blue star
+            g.setColor(new Color(c / factor, c / factor, c)); // blue star
         }
         g.fillRect(baseX + dx, baseY + dy, 1, 1);
     }
@@ -974,7 +976,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
                 } else if (entity.getWeightClass() < 6) {
                     s = STRAT_WEIGHTS[entity.getWeightClass()];
                 }
-                if (!s.equals("")) {
+                if (!s.isBlank()) {
                     var fontContext = new FontRenderContext(null, true, true);
                     var font = new Font("SansSerif", Font.BOLD, 100);
                     FontMetrics currentMetrics = getFontMetrics(font);
@@ -1339,8 +1341,8 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
-				File imgFile = new File(dir, "round_" + game.getRoundCount() + "_" + e.getOldPhase().ordinal() + "_"
-						+ e.getOldPhase() + ".png");
+                File imgFile = new File(dir, "round_" + game.getRoundCount() + "_" + e.getOldPhase().ordinal() + "_"
+                        + e.getOldPhase() + ".png");
                 try {
                     ImageIO.write(getMinimapImage(game, bv, GAME_SUMMARY_ZOOM), "png", imgFile);
                 } catch (IOException e1) {

@@ -1,6 +1,6 @@
 /*
 * MegaMek -
-* Copyright (C) 2000, 2001, 2002, 2003, 2004 Ben Mazur (bmazur@sev.org)
+* Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
 * Copyright (C) 2018, 2020 The MegaMek Team
 *
 * This program is free software; you can redistribute it and/or modify it under
@@ -17,7 +17,6 @@
 /*
  * PlanetaryConditionsDialog.java
  */
-
 package megamek.client.ui.swing;
 
 import java.awt.BorderLayout;
@@ -60,7 +59,6 @@ import static megamek.common.PlanetaryConditions.*;
  *
  * @author Jay Lawson
  * @author Simon
- * @version
  */
 public class PlanetaryConditionsDialog extends ClientDialog {
 
@@ -109,21 +107,21 @@ public class PlanetaryConditionsDialog extends ClientDialog {
     private static final int TOOLTIP_WIDTH = 300;
     private static final String PCD = "PlanetaryConditionsDialog.";
     private JLabel labLight = new JLabel(Messages.getString(PCD + "labLight"), SwingConstants.RIGHT); 
-    private JComboBox<String> comLight = new JComboBox<String>();
+    private JComboBox<String> comLight = new JComboBox<>();
     private JLabel labWeather = new TipLabel(Messages.getString(PCD + "labWeather"), SwingConstants.RIGHT);
-    private JComboBox<String> comWeather = new JComboBox<String>();
+    private JComboBox<String> comWeather = new JComboBox<>();
     private JLabel labWind = new TipLabel(Messages.getString(PCD + "labWind"), SwingConstants.RIGHT);
-    private JComboBox<String> comWind = new JComboBox<String>();
+    private JComboBox<String> comWind = new JComboBox<>();
     private JLabel labMinWind = new JLabel(Messages.getString(PCD + "labMinWind"), SwingConstants.RIGHT); 
-    private JComboBox<String> comWindFrom = new JComboBox<String>();
+    private JComboBox<String> comWindFrom = new JComboBox<>();
     private JLabel labMaxWind = new JLabel(Messages.getString(PCD + "labMaxWind"), SwingConstants.RIGHT); 
     private JComboBox<String> comWindDirection = new JComboBox<>();
     private JLabel labWindDirection = new JLabel(Messages.getString(PCD + "labWindDirection"), SwingConstants.RIGHT);
-    private JComboBox<String> comWindTo = new JComboBox<String>();
+    private JComboBox<String> comWindTo = new JComboBox<>();
     private JLabel labAtmosphere = new TipLabel(Messages.getString(PCD + "labAtmosphere"), SwingConstants.RIGHT);
-    private JComboBox<String> comFog = new JComboBox<String>();
+    private JComboBox<String> comFog = new JComboBox<>();
     private JLabel labFog = new TipLabel(Messages.getString(PCD + "labFog"), SwingConstants.RIGHT);
-    private JComboBox<String> comAtmosphere = new JComboBox<String>();
+    private JComboBox<String> comAtmosphere = new JComboBox<>();
     private JLabel labBlowingSands = new TipLabel(Messages.getString(PCD + "BlowingSands"), SwingConstants.RIGHT);
     private JCheckBox chkBlowingSands = new JCheckBox();
     private JLabel labShiftWindDir = new JLabel(Messages.getString(PCD + "shiftWindDir"), SwingConstants.RIGHT);

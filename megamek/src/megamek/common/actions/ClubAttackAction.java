@@ -1,23 +1,16 @@
 /*
- * MegaMek - Copyright (C) 2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2001-2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/*
- * ClubAttackAction.java
- *
- * Created on April 3, 2002, 2:37 PM
- */
-
 package megamek.common.actions;
 
 import megamek.common.Compute;
@@ -40,12 +33,9 @@ import megamek.common.options.OptionsConstants;
  * weapons like hatchets.
  *
  * @author Ben
+ * @since April 3, 2002, 2:37 PM
  */
 public class ClubAttackAction extends PhysicalAttackAction {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = -8744665286254604559L;
     private Mounted club;
     private int aiming;
@@ -65,7 +55,7 @@ public class ClubAttackAction extends PhysicalAttackAction {
      * Creates a new club attack
      * @param entityId - id of entity performing the attack
      * @param targetType - type of target
-     * @param targetId - id of targeet
+     * @param targetId - id of target
      * @param club - The <code>Mounted</code> of the weapon doing the attack
      * @param aimTable
      * @param zweihandering - a boolean indicating whether the attacker is zweihandering (using both hands)
@@ -93,8 +83,6 @@ public class ClubAttackAction extends PhysicalAttackAction {
         int nDamage = (int) Math.floor(entity.getWeight() / 5.0);
         if (mType.hasSubType(MiscType.S_SWORD)) {
             nDamage = (int) (Math.ceil(entity.getWeight() / 10.0) + 1.0);
-        } else if (mType.hasSubType(MiscType.S_MACE_THB)) {
-            nDamage *= 2;
         } else if (mType.hasSubType(MiscType.S_RETRACTABLE_BLADE)) {
             nDamage = (int) Math.ceil(entity.getWeight() / 10.0);
         } else if (mType.hasSubType(MiscType.S_MACE)) {
@@ -212,8 +200,7 @@ public class ClubAttackAction extends PhysicalAttackAction {
                 || clubType.hasSubType(MiscType.S_ROCK_CUTTER)
                 || clubType.hasSubType(MiscType.S_WRECKING_BALL)
                 || clubType.hasSubType(MiscType.S_LANCE)
-                || clubType.hasSubType(MiscType.S_MACE)
-                || clubType.hasSubType(MiscType.S_MACE_THB)) {
+                || clubType.hasSubType(MiscType.S_MACE)) {
             return 1;
         } else if (clubType.hasSubType(MiscType.S_CHAINSAW)
                 || clubType.hasSubType(MiscType.S_DUAL_SAW)
@@ -255,7 +242,7 @@ public class ClubAttackAction extends PhysicalAttackAction {
 
     /**
      * To-hit number for the specified club to hit
-     * @param game
+     * @param game The current {@link Game}
      * @param attackerId - attacker id
      * @param target <code>Targetable</code> of the target
      * @param club - <code>Mounted</code> of the weapon

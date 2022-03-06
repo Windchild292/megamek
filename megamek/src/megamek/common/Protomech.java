@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -11,7 +11,6 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
 package megamek.common;
 
 import java.io.PrintWriter;
@@ -25,9 +24,6 @@ import megamek.common.preference.PreferenceManager;
  * Protomechs. Level 2 Clan equipment.
  */
 public class Protomech extends Entity {
-    /**
-     *
-     */
     private static final long serialVersionUID = -1376410042751538158L;
 
     public static final int NUM_PMECH_LOCATIONS = 7;
@@ -35,12 +31,11 @@ public class Protomech extends Entity {
     private static final String[] LOCATION_NAMES = { "Body", "Head", "Torso",
             "Right Arm", "Left Arm", "Legs", "Main Gun" };
 
-    private static final String[] LOCATION_ABBRS = { "BD", "HD", "T", "RA", "LA",
-            "L", "MG" };
+    private static final String[] LOCATION_ABBRS = { "BD", "HD", "T", "RA", "LA", "L", "MG" };
 
     // Crew damage caused so far by crits to this location.
     // Needed for location destruction pilot damage.
-    private int pilotDamageTaken[] = { 0, 0, 0, 0, 0, 0, 0 };
+    private int[] pilotDamageTaken = { 0, 0, 0, 0, 0, 0, 0 };
 
     /**
      * Not every Protomech has a main gun. N.B. Regardless of the value set
@@ -84,7 +79,7 @@ public class Protomech extends Entity {
 
     public static final int[] POSSIBLE_PILOT_DAMAGE = { 0, 1, 3, 1, 1, 1, 0 };
 
-    public static final String systemNames[] = { "Arm", "Leg", "Head", "Torso" };
+    public static final String[] systemNames = { "Arm", "Leg", "Head", "Torso" };
 
     // For grapple attacks
     private int grappled_id = Entity.NONE;
@@ -463,7 +458,7 @@ public class Protomech extends Entity {
     }
 
     /**
-     * Returns this mech's jumping MP, modified for missing & underwater jets.
+     * Returns this mech's jumping MP, modified for missing and underwater jets.
      */
     @Override
     public int getJumpMPWithTerrain() {
@@ -543,7 +538,7 @@ public class Protomech extends Entity {
 
     @Override
     public boolean canChangeSecondaryFacing() {
-        return !(getCritsHit(LOC_LEG) > 2);
+        return !(getCritsHit(LOC_LEG) > 2) && !isBracing();
     }
 
     @Override
@@ -839,10 +834,9 @@ public class Protomech extends Entity {
      */
     @Override
     public void autoSetInternal() {
-        int mainGunIS = hasMainGun() ? (getWeight() > 9 ? 2 : 1)
-                : IArmorState.ARMOR_NA;
+        int mainGunIS = hasMainGun() ? (getWeight() > 9 ? 2 : 1) : IArmorState.ARMOR_NA;
         switch ((int) weight) {
-        // H, TSO,ARM,LEGS,MainGun
+        // H, TSO, ARM, LEGS, MainGun
             case 2:
                 setInternal(1, 2, isQuad() ? IArmorState.ARMOR_NA : 1,
                         isQuad() ? 4 : 2, mainGunIS);
@@ -1232,7 +1226,7 @@ public class Protomech extends Entity {
         // figure out base weapon bv
         boolean hasTargComp = hasTargComp();
         // and add up BVs for ammo-using weapon types for excessive ammo rule
-        Map<String, Double> weaponsForExcessiveAmmo = new HashMap<String, Double>();
+        Map<String, Double> weaponsForExcessiveAmmo = new HashMap<>();
         for (Mounted mounted : getWeaponList()) {
             WeaponType wtype = (WeaponType) mounted.getType();
             double dBV = wtype.getBV(this);
@@ -1338,8 +1332,8 @@ public class Protomech extends Entity {
         // extra BV for when we have semiguided LRMs and someone else has TAG on
         // our team
         double tagBV = 0;
-        Map<String, Double> ammo = new HashMap<String, Double>();
-        ArrayList<String> keys = new ArrayList<String>();
+        Map<String, Double> ammo = new HashMap<>();
+        ArrayList<String> keys = new ArrayList<>();
         for (Mounted mounted : getAmmo()) {
             AmmoType atype = (AmmoType) mounted.getType();
 
@@ -1721,7 +1715,7 @@ public class Protomech extends Entity {
 
     @Override
     public Vector<Report> victoryReport() {
-        Vector<Report> vDesc = new Vector<Report>();
+        Vector<Report> vDesc = new Vector<>();
 
         Report r = new Report(7025);
         r.type = Report.PUBLIC;
@@ -2021,10 +2015,12 @@ public class Protomech extends Entity {
         return grappled_id;
     }
     
+    @Override
     public boolean isGrappledThisRound() {
         return grappledThisRound;
     }
     
+    @Override
     public void setGrappledThisRound(boolean grappled) {
         grappledThisRound = grappled;
     }
@@ -2327,11 +2323,40 @@ public class Protomech extends Entity {
         return Entity.ETYPE_PROTOMECH;
     }
     
+    @Override
     public PilotingRollData checkLandingInHeavyWoods(
             EntityMovementType overallMoveType, Hex curHex) {
         PilotingRollData roll = getBasePilotingRoll(overallMoveType);
         roll.addModifier(TargetRoll.CHECK_FALSE,
                          "Protomechs cannot fall");
         return roll;
-    }   
+    }
+    
+    /**
+     * Based on the protomech's current damage status, return valid brace locations.
+     */
+    public List<Integer> getValidBraceLocations() {
+        List<Integer> validLocations = new ArrayList<>();
+        
+        if (!isLocationBad(Protomech.LOC_MAINGUN)) {
+            validLocations.add(Protomech.LOC_MAINGUN);
+        }
+        
+        return validLocations;
+    }
+    
+    /**
+     * Protomechs can brace if not prone, crew conscious and have a main gun
+     */
+    @Override
+    public boolean canBrace() {
+        return !isProne() &&
+                getCrew().isActive() &&
+                !isLocationBad(Protomech.LOC_MAINGUN);
+    }
+    
+    @Override
+    public int getBraceMPCost() {
+        return 0;
+    }
 }

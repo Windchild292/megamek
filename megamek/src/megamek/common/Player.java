@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -453,13 +453,13 @@ public final class Player extends TurnOrdered {
                     bonusHQ = entity.getHQIniBonus();
                 }
                 
-				/*
-				 * REMOVED IN IO. 
-				 * if (game.getOptions().booleanOption(OptionsConstants.
-				 * RPG_MANEI_DOMINI) && (bonusMD == 0) &&
-				 * (entity.getMDIniBonus() > 0)) { bonusMD =
-				 * entity.getMDIniBonus(); }
-				 */
+                /*
+                 * REMOVED IN IO.
+                 * if (game.getOptions().booleanOption(OptionsConstants.
+                 * RPG_MANEI_DOMINI) && (bonusMD == 0) &&
+                 * (entity.getMDIniBonus() > 0)) { bonusMD =
+                 * entity.getMDIniBonus(); }
+                 */
                 if (entity.getQuirkIniBonus() > bonusQ) {
                     //TODO: I am assuming that the quirk initiative bonuses go to the highest,
                     //rather than being cumulative
@@ -517,7 +517,7 @@ public final class Player extends TurnOrdered {
      * @return a vector of relevant entity ids
      */
     public Vector<Integer> getAirborneVTOL() {
-        //a vector of unit ids
+        // a vector of unit ids
         Vector<Integer> units = new Vector<>();
         for (Entity entity : game.getEntitiesVector()) {
             if (entity.getOwner().equals(this)) {

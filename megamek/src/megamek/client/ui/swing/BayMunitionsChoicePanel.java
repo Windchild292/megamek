@@ -79,14 +79,14 @@ public class BayMunitionsChoicePanel extends JPanel {
             for (int i = 0; i < row.munitions.size(); i++) {
                 int shots = (Integer) row.spinners.get(i).getValue();
                 if (shots > 0) {
-                    Mounted mounted = null;
+                    Mounted mounted;
                     if (mountIndex >= row.ammoMounts.size()) {
                         mounted = new Mounted(entity, row.munitions.get(i));
                         try {
                             entity.addEquipment(mounted, row.bay.getLocation(), row.bay.isRearMounted());
                             row.bay.addAmmoToBay(entity.getEquipmentNum(mounted));
                         } catch (LocationFullException e) {
-                            LogManager.getLogger().error(e);
+                            LogManager.getLogger().error("", e);
                         }
 
                     } else {
@@ -137,7 +137,7 @@ public class BayMunitionsChoicePanel extends JPanel {
         private final List<JSpinner> spinners;
         private final List<AmmoType> munitions;
         
-        private double tonnage = 0;
+        private double tonnage;
         
         AmmoRowPanel(Mounted bay, int at, int rackSize, List<Mounted> ammoMounts) {
             this.bay = bay;
@@ -148,16 +148,16 @@ public class BayMunitionsChoicePanel extends JPanel {
             Dimension spinnerSize =new Dimension(55, 25);
             
             final Optional<WeaponType> wtype = bay.getBayWeapons().stream()
-                    .map(wNum -> entity.getEquipment(wNum))
+                    .map(entity::getEquipment)
                     .map(m -> (WeaponType) m.getType()).findAny();
             
             // set the bay's tech base to that of any weapon in the bay
             // an assumption is made here that bays don't mix clan-only and IS-only tech base
-            this.techBase = wtype.isPresent() ? wtype.get().getTechBase() : WeaponType.TECH_BASE_ALL;
+            this.techBase = wtype.map(EquipmentType::getTechBase).orElse(WeaponType.TECH_BASE_ALL);
             
             munitions = AmmoType.getMunitionsFor(at).stream()
                     .filter(this::includeMunition).collect(Collectors.toList());
-            tonnage = ammoMounts.stream().mapToDouble(m -> m.getSize()).sum();
+            tonnage = ammoMounts.stream().mapToDouble(Mounted::getSize).sum();
             Map<String,Integer> starting = new HashMap<>();
             ammoMounts.forEach(m -> starting.merge(m.getType().getInternalName(), m.getBaseShotsLeft(), Integer::sum));
             for (AmmoType atype : munitions) {
@@ -250,21 +250,21 @@ public class BayMunitionsChoicePanel extends JPanel {
             if (atype.hasFlag(AmmoType.F_CAP_MISSILE)) {
                 String tele = atype.hasFlag(AmmoType.F_TELE_MISSILE) ? "-T" : "";
                 if (atype.hasFlag(AmmoType.F_PEACEMAKER)) {
-                    return Messages.getString("CustomMechDialog.Peacemaker") + tele; //$NON-NLS-1$
+                    return Messages.getString("CustomMechDialog.Peacemaker") + tele;
                 } else if (atype.hasFlag(AmmoType.F_SANTA_ANNA)) {
-                    return Messages.getString("CustomMechDialog.SantaAnna") + tele; //$NON-NLS-1$
+                    return Messages.getString("CustomMechDialog.SantaAnna") + tele;
                 } else if (atype.hasFlag(AmmoType.F_AR10_KILLER_WHALE)) {
-                    return Messages.getString("CustomMechDialog.KillerWhale") + tele; //$NON-NLS-1$
+                    return Messages.getString("CustomMechDialog.KillerWhale") + tele;
                 } else if (atype.hasFlag(AmmoType.F_AR10_WHITE_SHARK)) {
-                    return Messages.getString("CustomMechDialog.WhiteShark") + tele; //$NON-NLS-1$
+                    return Messages.getString("CustomMechDialog.WhiteShark") + tele;
                 } else if (atype.hasFlag(AmmoType.F_AR10_BARRACUDA)) {
-                    return Messages.getString("CustomMechDialog.Barracuda") + tele; //$NON-NLS-1$
+                    return Messages.getString("CustomMechDialog.Barracuda") + tele;
                 }
             }
             
             if ((atype.getMunitionType() == AmmoType.M_ARTEMIS_CAPABLE)
                     || (atype.getMunitionType() == AmmoType.M_ARTEMIS_V_CAPABLE)) {
-                return Messages.getString("CustomMechDialog.Artemis"); //$NON-NLS-1$
+                return Messages.getString("CustomMechDialog.Artemis");
             }
             
             // ATM munitions
@@ -280,12 +280,12 @@ public class BayMunitionsChoicePanel extends JPanel {
                         || atype.getAmmoType() == AmmoType.T_THUMPER
                         || atype.getAmmoType() == AmmoType.T_CRUISE_MISSILE) {
                     if (atype.getMunitionType() == AmmoType.M_STANDARD) {
-                        return Messages.getString("CustomMechDialog.StandardMunition"); //$NON-NLS-1$
+                        return Messages.getString("CustomMechDialog.StandardMunition");
                     }
-                    return atype.getShortName(); //$NON-NLS-1$
+                    return atype.getShortName();
                 }
             }
-            return Messages.getString("CustomMechDialog.StandardMunition"); //$NON-NLS-1$
+            return Messages.getString("CustomMechDialog.StandardMunition");
         }
         
         private void recalcMaxValues() {
@@ -303,7 +303,7 @@ public class BayMunitionsChoicePanel extends JPanel {
                 ((SpinnerNumberModel) spinners.get(i).getModel()).setMaximum(max);
                 spinners.get(i).addChangeListener(this);
             }
-            lblTonnage.setText(String.format(Messages.getString("CustomMechDialog.formatAmmoTonnage"), //$NON-NLS-1$
+            lblTonnage.setText(String.format(Messages.getString("CustomMechDialog.formatAmmoTonnage"),
                     tonnage - remaining, tonnage));
         }
 

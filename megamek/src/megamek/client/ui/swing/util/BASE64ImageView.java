@@ -59,7 +59,7 @@ public class BASE64ImageView extends ImageView {
         }
     }
 
-    //decodes the Base64 string into an image and returns it
+    // decodes the Base64 string into an image and returns it
     private Image loadImage() {
         String b64 = getBASE64Image();
         if (b64 != null) {
@@ -68,7 +68,7 @@ public class BASE64ImageView extends ImageView {
                         Base64.getDecoder().decode(b64.getBytes()))) {
                 newImage = ImageIO.read(bais);
             } catch (Exception ex) {
-                LogManager.getLogger().error(ex);
+                LogManager.getLogger().error("", ex);
             }
             return newImage;
         } else {
@@ -90,8 +90,8 @@ public class BASE64ImageView extends ImageView {
 
             try {
                 this.url = new URL("file:/" + this.getElement().toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                LogManager.getLogger().error("", e);
             }
 
             return this.url;
@@ -99,7 +99,7 @@ public class BASE64ImageView extends ImageView {
         return super.getImageURL();
     }
 
-    //checks if the given src is encoded
+    // checks if the given src is encoded
     private boolean isBase64Encoded(String src) {
         return src != null && src.contains("base64,");
     }

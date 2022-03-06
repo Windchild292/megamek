@@ -1,17 +1,16 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common.actions;
 
 import megamek.common.Compute;
@@ -32,9 +31,6 @@ import megamek.common.options.OptionsConstants;
  * The attacker brushes the target off.
  */
 public class BrushOffAttackAction extends AbstractAttackAction {
-    /**
-     *
-     */
     private static final long serialVersionUID = -7455082808488032572L;
     public static final int BOTH = 0;
     public static final int LEFT = 1;
@@ -77,12 +73,11 @@ public class BrushOffAttackAction extends AbstractAttackAction {
      * this attack misses, the Mek will suffer punch damage. This same action is
      * used to remove iNARC pods.
      *
-     * @param game - the <code>Game</code> object containing all entities.
+     * @param game The current {@link Game} containing all entities.
      * @return the <code>ToHitData</code> containing the target roll.
      */
     public ToHitData toHit(Game game) {
-        return toHit(game, getEntityId(), game.getTarget(getTargetType(),
-                                                         getTargetId()), getArm());
+        return toHit(game, getEntityId(), game.getTarget(getTargetType(), getTargetId()), getArm());
     }
 
     /**
@@ -90,12 +85,11 @@ public class BrushOffAttackAction extends AbstractAttackAction {
      * this attack misses, the Mek will suffer punch damage. This same action is
      * used to remove iNARC pods.
      *
-     * @param game       - the <code>Game</code> object containing all entities.
-     * @param attackerId - the <code>int</code> ID of the attacking unit.
-     * @param target     - the <code>Targetable</code> object being targeted.
-     * @param arm        - the <code>int</code> of the arm making the attack; this
-     *                   value must be <code>BrushOffAttackAction.RIGHT</code> or
-     *                   <code>BrushOffAttackAction.LEFT</code>.
+     * @param game The current {@link Game} containing all entities.
+     * @param attackerId the <code>int</code> ID of the attacking unit.
+     * @param target the <code>Targetable</code> object being targeted.
+     * @param arm the <code>int</code> of the arm making the attack; this value must be
+     *            <code>BrushOffAttackAction.RIGHT</code> or <code>BrushOffAttackAction.LEFT</code>.
      * @return the <code>ToHitData</code> containing the target roll.
      */
     public static ToHitData toHit(Game game, int attackerId,
@@ -148,7 +142,7 @@ public class BrushOffAttackAction extends AbstractAttackAction {
             return new ToHitData(TargetRoll.IMPOSSIBLE, "Arm missing");
         }
 
-        //check for no/minimal arms quirk
+        // check for no/minimal arms quirk
         if (ae.hasQuirk(OptionsConstants.QUIRK_NEG_NO_ARMS)) {
             return new ToHitData(TargetRoll.IMPOSSIBLE, "No/minimal arms");
         }

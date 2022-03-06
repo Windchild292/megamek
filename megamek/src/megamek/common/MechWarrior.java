@@ -134,12 +134,13 @@ public class MechWarrior extends EjectedCrew {
         return (game.getEntity(getOriginalRideId()) != null && !game.getEntity(getOriginalRideId()).isAero());
     }
 
+    @Override
     public long getEntityType() {
         return Entity.ETYPE_INFANTRY | Entity.ETYPE_MECHWARRIOR;
     }
     
     @Override
     public boolean canSpot() {
-    	return super.canSpot() && !game.getOptions().booleanOption(OptionsConstants.ADVANCED_PILOTS_CANNOT_SPOT);
+        return super.canSpot() && !game.getOptions().booleanOption(OptionsConstants.ADVANCED_PILOTS_CANNOT_SPOT);
     }
 }

@@ -243,7 +243,7 @@ public class BLKFile {
                     } catch (LocationFullException ex) {
                         throw new EntityLoadingException(ex.getMessage());
                     }
-                } else if (!equipName.equals("")) {
+                } else if (!equipName.isBlank()) {
                     t.addFailedEquipment(equipName);
                 }
             }
@@ -523,6 +523,9 @@ public class BLKFile {
 
         blk.writeBlockData("Name", t.getChassis());
         blk.writeBlockData("Model", t.getModel());
+        if (t.hasMulId()) {
+            blk.writeBlockData(MtfFile.MUL_ID, t.getMulId());
+        }
         blk.writeBlockData("year", t.getYear());
         if (t.getOriginalBuildYear() >= 0) {
             blk.writeBlockData("originalBuildYear", t.getOriginalBuildYear());
@@ -1219,14 +1222,14 @@ public class BLKFile {
                     //Add values for collars so they can be parsed and assigned a 'bay' number
                     String numbers = "1.0:0";
                     ParsedBayInfo pbi = new ParsedBayInfo(numbers, usedBayNumbers);
-                    e.addTransporter(new DockingCollar(1,pbi.getBayNumber()));
+                    e.addTransporter(new DockingCollar(1, pbi.getBayNumber()));
                 }
 
             } // Handle the next transportation component.
 
         } // End has-transporters
     }
-    
+
     /**
      * Class that holds data relating to transport bays
      * and functionality to parse .blk file transport bay entries

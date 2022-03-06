@@ -1,6 +1,6 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,9 +13,6 @@
  * for more details.
  */
 package megamek.common.verifier;
-
-import java.util.*;
-import java.util.function.Function;
 
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
@@ -31,6 +28,9 @@ import megamek.common.weapons.missiles.MRMWeapon;
 import megamek.common.weapons.missiles.RLWeapon;
 import megamek.common.weapons.srms.SRMWeapon;
 import megamek.common.weapons.srms.SRTWeapon;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * Class for testing and validating instantiations for Conventional Fighters and
@@ -668,13 +668,11 @@ public class TestAero extends TestEntity {
      */
     public boolean correctArmor(StringBuffer buff) {
         boolean correct = true;
-        int maxArmorPoints = maxArmorPoints(aero,aero.getWeight());
+        int maxArmorPoints = maxArmorPoints(aero, aero.getWeight());
         int armorTotal = 0;
         for (int loc = 0; loc < aero.locations(); loc++) {
             if (aero.getOArmor(loc) > maxArmorPoints) {
-                buff.append(printArmorLocation(loc))
-                        .append(printArmorLocProp(loc,
-                                maxArmorPoints)).append("\n");
+                buff.append(printArmorLocation(loc)).append(printArmorLocProp(loc, maxArmorPoints)).append("\n");
                 correct = false;
             }
             armorTotal += aero.getOArmor(loc);
@@ -784,7 +782,7 @@ public class TestAero extends TestEntity {
                     if (linkedAT.getMunitionType() != AmmoType.M_STANDARD 
                             && !hasArtemisFCS 
                             && wt.getAmmoType() != AmmoType.T_AC_LBX
-                    		&& wt.getAmmoType() != AmmoType.T_SBGAUSS) {
+                            && wt.getAmmoType() != AmmoType.T_SBGAUSS) {
                         correct = false;
                         buff.append("Aeros may not use special munitions! ").append(m.getType().getInternalName())
                                 .append(" is using ").append(linkedAT.getInternalName()).append("\n");
@@ -959,7 +957,7 @@ public class TestAero extends TestEntity {
         }
         if (lateralMatch) {
             //We've already checked counts, so in the reverse direction we only need to see if there's
-            //anything not found on the other side.
+            // anything not found on the other side.
             for (EquipmentType eq : rightWing.keySet()) {
                 if (!leftWing.containsKey(eq)) {
                     lateralMatch = false;
@@ -1187,14 +1185,10 @@ public class TestAero extends TestEntity {
                 if (slot == null) {
                     j = getEntity().getNumberOfCriticals(i);                    
                 } else if (slot.getType() == CriticalSlot.TYPE_SYSTEM) {
-                        buff.append(Integer.toString(j)
-                                + ". UNKNOWN SYSTEM NAME");
-                        buff.append("\n");
+                        buff.append(j).append(". UNKNOWN SYSTEM NAME").append("\n");
                 } else if (slot.getType() == CriticalSlot.TYPE_EQUIPMENT) {
                     EquipmentType e = getEntity().getEquipmentType(slot);
-                    buff.append(Integer.toString(j) + ". "
-                            + e.getInternalName());
-                    buff.append("\n");
+                    buff.append(j).append(". ").append(e.getInternalName()).append("\n");
                 }
             }
         }
@@ -1236,6 +1230,7 @@ public class TestAero extends TestEntity {
     /**
      * Calculate the structural integrity weight
      */
+    @Override
     public double getWeightStructure() {
         double tonnage = 0;
         if (aero.hasETypeFlag(Entity.ETYPE_SMALL_CRAFT)) {

@@ -29,7 +29,7 @@ import megamek.common.Configuration;
 import megamek.common.Entity;
 import megamek.common.KeyBindParser;
 import megamek.common.enums.GamePhase;
-import megamek.common.preference.IClientPreferences;
+import megamek.common.preference.ClientPreferences;
 import megamek.common.preference.PreferenceManager;
 
 import javax.swing.*;
@@ -69,6 +69,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         }
 
         /** Returns a human-readable name for this advanced option. */
+        @Override
         public String toString() {
             String key = "AdvancedOptions." + option + ".name";
             return Messages.keyExists(key) ? Messages.getString(key) : option;
@@ -229,8 +230,8 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
 
     private static final String[] LOCALE_CHOICES = { "en", "de", "ru" };
     
-    private static final Dimension LABEL_SPACER = new Dimension(5,0);
-    private static final Dimension DEPENDENT_INSET = new Dimension(25,0);
+    private static final Dimension LABEL_SPACER = new Dimension(5, 0);
+    private static final Dimension DEPENDENT_INSET = new Dimension(25, 0);
     
     // Save some values to restore them when the dialog is canceled
     private boolean savedFovHighlight;
@@ -304,7 +305,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         displayLocale.addItem(Messages.getString("CommonSettingsDialog.locale.English")); 
         displayLocale.addItem(Messages.getString("CommonSettingsDialog.locale.Deutsch")); 
         displayLocale.addItem(Messages.getString("CommonSettingsDialog.locale.Russian")); 
-        displayLocale.setMaximumSize(new Dimension(150,40));
+        displayLocale.setMaximumSize(new Dimension(150, 40));
         row = new ArrayList<>();
         row.add(displayLocaleLabel);
         row.add(displayLocale);
@@ -341,7 +342,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         addLineSpacer(comps);
 
         tooltipDelay = new JTextField(4);
-        tooltipDelay.setMaximumSize(new Dimension(150,40));
+        tooltipDelay.setMaximumSize(new Dimension(150, 40));
         JLabel tooltipDelayLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDelay")); 
         row = new ArrayList<>();
         row.add(tooltipDelayLabel);
@@ -349,7 +350,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         comps.add(row);
 
         tooltipDismissDelay = new JTextField(4);
-        tooltipDismissDelay.setMaximumSize(new Dimension(150,40));
+        tooltipDismissDelay.setMaximumSize(new Dimension(150, 40));
         tooltipDismissDelay.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDismissDelayTooltip"));
         JLabel tooltipDismissDelayLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDismissDelay")); 
         tooltipDismissDelayLabel.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDismissDelayTooltip"));
@@ -359,7 +360,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         comps.add(row);
         
         tooltipDistSupression = new JTextField(4);
-        tooltipDistSupression.setMaximumSize(new Dimension(150,40));
+        tooltipDistSupression.setMaximumSize(new Dimension(150, 40));
         tooltipDistSupression.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDistSuppressionTooltip"));
         JLabel tooltipDistSupressionLabel = new JLabel(Messages.getString("CommonSettingsDialog.tooltipDistSuppression")); 
         tooltipDistSupressionLabel.setToolTipText(Messages.getString("CommonSettingsDialog.tooltipDistSuppressionTooltip"));
@@ -376,7 +377,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         
         JLabel maxPathfinderTimeLabel = new JLabel(Messages.getString("CommonSettingsDialog.pathFiderTimeLimit"));
         maxPathfinderTime = new JTextField(5);
-        maxPathfinderTime.setMaximumSize(new Dimension(150,40));
+        maxPathfinderTime.setMaximumSize(new Dimension(150, 40));
         row = new ArrayList<>();
         row.add(maxPathfinderTimeLabel);
         row.add(maxPathfinderTime);
@@ -421,7 +422,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         unitStartChar.addItem("\u0391, \u0392, \u0393, \u0394..."); 
         // Add option for "alpha, beta, gamma, delta..."
         unitStartChar.addItem("\u03B1, \u03B2, \u03B3, \u03B4..."); 
-        unitStartChar.setMaximumSize(new Dimension(150,40));
+        unitStartChar.setMaximumSize(new Dimension(150, 40));
         row = new ArrayList<>();
         row.add(unitStartCharLabel);
         row.add(unitStartChar);
@@ -435,7 +436,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
 
         gameLogFilenameLabel = new JLabel(Messages.getString("CommonSettingsDialog.logFileName")); 
         gameLogFilename = new JTextField(15);
-        gameLogFilename.setMaximumSize(new Dimension(250,40));
+        gameLogFilename.setMaximumSize(new Dimension(250, 40));
         row = new ArrayList<>();
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(gameLogFilenameLabel);
@@ -447,7 +448,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
 
         stampFormatLabel = new JLabel(Messages.getString("CommonSettingsDialog.stampFormat")); 
         stampFormat = new JTextField(15);
-        stampFormat.setMaximumSize(new Dimension(15*13,40));
+        stampFormat.setMaximumSize(new Dimension(15*13, 40));
         row = new ArrayList<>();
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(stampFormatLabel);
@@ -489,7 +490,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
     }
 
     /**
-     * Display the current settings in this dialog. <p/> Overrides
+     * Display the current settings in this dialog. <p> Overrides
      * <code>Dialog#setVisible(boolean)</code>.
      */
     @Override
@@ -497,7 +498,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         // Initialize the dialog when it's being shown
         if (visible) {
             GUIPreferences gs = GUIPreferences.getInstance();
-            IClientPreferences cs = PreferenceManager.getClientPreferences();
+            ClientPreferences cs = PreferenceManager.getClientPreferences();
 
             guiScale.setValue((int) (gs.getGUIScale() * 10));
             autoEndFiring.setSelected(gs.getAutoEndFiring());
@@ -581,8 +582,8 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
                 }
             }
 
-	        gameSummaryBV.setSelected(gs.getGameSummaryBoardView());
-	        gameSummaryMM.setSelected(gs.getGameSummaryMiniMap());
+            gameSummaryBV.setSelected(gs.getGameSummaryBoardView());
+            gameSummaryMM.setSelected(gs.getGameSummaryMiniMap());
 
             skinFiles.removeAllItems();
             List<String> xmlFiles = new ArrayList<>(Arrays
@@ -700,7 +701,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
     @Override
     protected void okAction() {
         GUIPreferences gs = GUIPreferences.getInstance();
-        IClientPreferences cs = PreferenceManager.getClientPreferences();
+        ClientPreferences cs = PreferenceManager.getClientPreferences();
 
         gs.setShowDamageLevel(showDamageLevel.isSelected());
         gs.setShowDamageDecal(showDamageDecal.isSelected());
@@ -894,6 +895,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
     }
 
     /** Handle some setting changes that directly update e.g. the board. */
+    @Override
     public void itemStateChanged(ItemEvent event) {
         Object source = event.getItemSelectable();
         GUIPreferences guip = GUIPreferences.getInstance();
@@ -947,8 +949,10 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         }
     }
 
+    @Override
     public void focusGained(FocusEvent e) { }
 
+    @Override
     public void focusLost(FocusEvent e) {
         Object src = e.getSource();
         GUIPreferences guip = GUIPreferences.getInstance();          
@@ -1002,7 +1006,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
 
         // Skin
         skinFiles = new JComboBox<>();
-        skinFiles.setMaximumSize(new Dimension(400,skinFiles.getMaximumSize().height));
+        skinFiles.setMaximumSize(new Dimension(400, skinFiles.getMaximumSize().height));
         JLabel skinFileLabel = new JLabel(Messages.getString("CommonSettingsDialog.skinFile")); 
         row = new ArrayList<>();
         row.add(skinFileLabel);
@@ -1014,7 +1018,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         // Tileset
         JLabel tileSetChoiceLabel = new JLabel(Messages.getString("CommonSettingsDialog.tileset")); 
         tileSetChoice = new JComboBox<>(); 
-        tileSetChoice.setMaximumSize(new Dimension(400,tileSetChoice.getMaximumSize().height));
+        tileSetChoice.setMaximumSize(new Dimension(400, tileSetChoice.getMaximumSize().height));
         row = new ArrayList<>();
         row.add(tileSetChoiceLabel);
         row.add(Box.createHorizontalStrut(15));
@@ -1067,7 +1071,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         row = new ArrayList<>();
         fovHighlightRingsRadii= new JTextField((2+1)*7);
         fovHighlightRingsRadii.addFocusListener(this);
-        fovHighlightRingsRadii.setMaximumSize(new Dimension(100,fovHighlightRingsRadii.getPreferredSize().height) );
+        fovHighlightRingsRadii.setMaximumSize(new Dimension(100, fovHighlightRingsRadii.getPreferredSize().height) );
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(fovHighlightRingsRadii);
         comps.add(row);
@@ -1085,7 +1089,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         row = new ArrayList<>();
         fovHighlightRingsColors= new JTextField(50);//      ((3+1)*3+1)*7);
         fovHighlightRingsColors.addFocusListener(this);
-        fovHighlightRingsColors.setMaximumSize(new Dimension(200,fovHighlightRingsColors.getPreferredSize().height) );
+        fovHighlightRingsColors.setMaximumSize(new Dimension(200, fovHighlightRingsColors.getPreferredSize().height) );
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(fovHighlightRingsColors);
         row.add(Box.createHorizontalGlue());
@@ -1109,7 +1113,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         darkenAlphaLabel = new JLabel(Messages.getString("TacticalOverlaySettingsDialog.FovDarkenAlpha")); 
         darkenAlphaLabel.setToolTipText(Messages.getString("TacticalOverlaySettingsDialog.AlphaTooltip"));
         row = new ArrayList<>();
-        row.add(Box.createRigidArea(new Dimension(4,0)));
+        row.add(Box.createRigidArea(new Dimension(4, 0)));
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(darkenAlphaLabel);
         comps.add(row);
@@ -1135,7 +1139,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
                 Messages.getString("TacticalOverlaySettingsDialog.FovStripes")); 
         numStripesLabel.setToolTipText(Messages.getString("TacticalOverlaySettingsDialog.FovStripesTooltip"));
         row = new ArrayList<>();
-        row.add(Box.createRigidArea(new Dimension(4,0)));
+        row.add(Box.createRigidArea(new Dimension(4, 0)));
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(numStripesLabel);
         comps.add(row);
@@ -1143,7 +1147,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         addSpacer(comps, 1);
         
         row = new ArrayList<>();
-        row.add(Box.createRigidArea(new Dimension(4,0)));
+        row.add(Box.createRigidArea(new Dimension(4, 0)));
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(numStripesSlider);
         comps.add(row);
@@ -1154,7 +1158,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         fovGrayscaleEnabled = new JCheckBox(
                 Messages.getString("TacticalOverlaySettingsDialog.FovGrayscale")); 
         fovGrayscaleEnabled.addItemListener(this);
-        row.add(Box.createRigidArea(new Dimension(4,0)));
+        row.add(Box.createRigidArea(new Dimension(4, 0)));
         row.add(Box.createRigidArea(DEPENDENT_INSET));
         row.add(fovGrayscaleEnabled);
         comps.add(row);   
@@ -1188,7 +1192,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
         outer.add(keyBinds);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = gbc.gridy = 0;
-        gbc.insets = new Insets(0,10,5,10);
+        gbc.insets = new Insets(0, 10, 5, 10);
         
         // Create header: labels for describing what each column does
         JLabel headers = new JLabel("Name");
@@ -1465,7 +1469,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
             innerpanel.add(subPanel);
         }
         innerpanel.add(Box.createVerticalGlue());
-        innerpanel.setBorder(new EmptyBorder(10,10,10,10));
+        innerpanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         panel.add(innerpanel,BorderLayout.PAGE_START);
         return panel;
     }
@@ -1504,6 +1508,7 @@ public class CommonSettingsDialog extends AbstractButtonDialog implements
     }
 
     /** Used to note which advanced setting is currently clicked. */  
+    @Override
     public void valueChanged(ListSelectionEvent event) {
         if (event.getValueIsAdjusting()) {
             return;

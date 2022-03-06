@@ -1,33 +1,31 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/*
- * Author: Jay Lawson (Taharqa)
- */
-
 package megamek.common.verifier;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.util.StringUtil;
 import megamek.common.weapons.infantry.InfantryWeapon;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+/**
+ * @author Jay Lawson (Taharqa)
+ */
 public class TestBattleArmor extends TestEntity {
 
     /**
@@ -43,15 +41,15 @@ public class TestBattleArmor extends TestEntity {
     /**
      * Base chassis weight by suit weight class for Inner Sphere suits
      */
-    public static double CHASSIS_WEIGHT_IS[] = { 0.08, 0.1, 0.175, 0.3, 0.55 };
+    public static double[] CHASSIS_WEIGHT_IS = { 0.08, 0.1, 0.175, 0.3, 0.55 };
     /**
      * Base chassis weight by suit weight class for Clan suits
      */
-    public static double CHASSIS_WEIGHT_CLAN[] = { 0.13, 0.15, 0.25, 0.4, 0.7 };
+    public static double[] CHASSIS_WEIGHT_CLAN = { 0.13, 0.15, 0.25, 0.4, 0.7 };
     /**
      * Weight for additional ground MP by suit weight class
      */
-    public static double ADDITIONAL_GROUND_MP_WEIGHT[] = { 0.025, 0.03, 0.04, 0.08, 0.16 };
+    public static double[] ADDITIONAL_GROUND_MP_WEIGHT = { 0.025, 0.03, 0.04, 0.08, 0.16 };
 
     /**
      * BattleArmor can have a variable number of shots per slot of ammo, this
@@ -73,26 +71,26 @@ public class TestBattleArmor extends TestEntity {
      * @author arlith
      *
      */
-    public static enum BAArmor {
-        STANDARD(EquipmentType.T_ARMOR_BA_STANDARD,0,false),
-        CLAN_STANDARD(EquipmentType.T_ARMOR_BA_STANDARD,0,true),
-        STANDARD_PROTOTYPE(EquipmentType.T_ARMOR_BA_STANDARD_PROTOTYPE,4,false),
-        STANDARD_ADVANCED(EquipmentType.T_ARMOR_BA_STANDARD_ADVANCED,5,false),
-        STEALTH_BASIC(EquipmentType.T_ARMOR_BA_STEALTH_BASIC,3,false),
-        CLAN_STEALTH_BASIC(EquipmentType.T_ARMOR_BA_STEALTH_BASIC,3,true),
-        STEALTH(EquipmentType.T_ARMOR_BA_STEALTH,4,false),
-        CLAN_STEALTH(EquipmentType.T_ARMOR_BA_STEALTH,4,true),
-        STEALTH_IMPROVED(EquipmentType.T_ARMOR_BA_STEALTH_IMP,5,false),
-        CLAN_STEALTH_IMPROVED(EquipmentType.T_ARMOR_BA_STEALTH_IMP,5,true),
-        STEALTH_PROTOTYPE(EquipmentType.T_ARMOR_BA_STEALTH_PROTOTYPE,4,false),
-        FIRE_RESISTANT(EquipmentType.T_ARMOR_BA_FIRE_RESIST,5,false),
-        CLAN_FIRE_RESISTANT(EquipmentType.T_ARMOR_BA_FIRE_RESIST,5,true),
-        MIMETIC(EquipmentType.T_ARMOR_BA_MIMETIC,7,false),
-        CLAN_MIMETIC(EquipmentType.T_ARMOR_BA_MIMETIC,7,true),
-        REFLECTIVE(EquipmentType.T_ARMOR_BA_REFLECTIVE,7,false),
-        CLAN_REFLECTIVE(EquipmentType.T_ARMOR_BA_REFLECTIVE,7,true),
-        REACTIVE(EquipmentType.T_ARMOR_BA_REACTIVE,7,false),
-        CLAN_REACTIVE(EquipmentType.T_ARMOR_BA_REACTIVE,7,true);
+    public enum BAArmor {
+        STANDARD(EquipmentType.T_ARMOR_BA_STANDARD, 0, false),
+        CLAN_STANDARD(EquipmentType.T_ARMOR_BA_STANDARD, 0, true),
+        STANDARD_PROTOTYPE(EquipmentType.T_ARMOR_BA_STANDARD_PROTOTYPE, 4, false),
+        STANDARD_ADVANCED(EquipmentType.T_ARMOR_BA_STANDARD_ADVANCED, 5, false),
+        STEALTH_BASIC(EquipmentType.T_ARMOR_BA_STEALTH_BASIC, 3, false),
+        CLAN_STEALTH_BASIC(EquipmentType.T_ARMOR_BA_STEALTH_BASIC, 3, true),
+        STEALTH(EquipmentType.T_ARMOR_BA_STEALTH, 4, false),
+        CLAN_STEALTH(EquipmentType.T_ARMOR_BA_STEALTH, 4, true),
+        STEALTH_IMPROVED(EquipmentType.T_ARMOR_BA_STEALTH_IMP, 5, false),
+        CLAN_STEALTH_IMPROVED(EquipmentType.T_ARMOR_BA_STEALTH_IMP, 5, true),
+        STEALTH_PROTOTYPE(EquipmentType.T_ARMOR_BA_STEALTH_PROTOTYPE, 4, false),
+        FIRE_RESISTANT(EquipmentType.T_ARMOR_BA_FIRE_RESIST, 5, false),
+        CLAN_FIRE_RESISTANT(EquipmentType.T_ARMOR_BA_FIRE_RESIST, 5, true),
+        MIMETIC(EquipmentType.T_ARMOR_BA_MIMETIC, 7, false),
+        CLAN_MIMETIC(EquipmentType.T_ARMOR_BA_MIMETIC, 7, true),
+        REFLECTIVE(EquipmentType.T_ARMOR_BA_REFLECTIVE, 7, false),
+        CLAN_REFLECTIVE(EquipmentType.T_ARMOR_BA_REFLECTIVE, 7, true),
+        REACTIVE(EquipmentType.T_ARMOR_BA_REACTIVE, 7, false),
+        CLAN_REACTIVE(EquipmentType.T_ARMOR_BA_REACTIVE, 7, true);
 
         /**
          * The type, corresponding to types defined in
@@ -128,7 +126,7 @@ public class TestBattleArmor extends TestEntity {
          *            The armor type.
          * @param c
          *            Whether this armor type is Clan or not.
-         * @return The <code>BAArmor</code> that correspondes to the given type
+         * @return The <code>BAArmor</code> that corresponds to the given type
          *         or null if no match was found.
          */
         public static BAArmor getArmor(int t, boolean c) {
@@ -173,20 +171,20 @@ public class TestBattleArmor extends TestEntity {
      * @author arlith
      *
      */
-    public static enum BAManipulator {
-        NONE(BattleArmor.MANIPULATOR_NONE,false),
-        ARMORED_GLOVE(BattleArmor.MANIPULATOR_ARMORED_GLOVE,false),
-        BASIC(BattleArmor.MANIPULATOR_BASIC,false),
-        BASIC_MINE_CLEARANCE(BattleArmor.MANIPULATOR_BASIC_MINE_CLEARANCE,true),
-        BATTLE(BattleArmor.MANIPULATOR_BATTLE,false),
-        BATTLE_MAGNET(BattleArmor.MANIPULATOR_BATTLE_MAGNET,true),
-        BATTLE_VIBRO(BattleArmor.MANIPULATOR_BATTLE_VIBRO,false),
-        CARGO_LIFTER(BattleArmor.MANIPULATOR_CARGO_LIFTER,true),
-        HEAVY_BATTLE(BattleArmor.MANIPULATOR_HEAVY_BATTLE,false),
-        HEAVY_BATTLE_MAGNET(BattleArmor.MANIPULATOR_HEAVY_BATTLE_MAGNET,true),
-        HEAVY_BATTLE_VIBRO(BattleArmor.MANIPULATOR_HEAVY_BATTLE_VIBRO,false),
-        SALVAGE_ARM(BattleArmor.MANIPULATOR_SALVAGE_ARM,false),
-        DRILL(BattleArmor.MANIPULATOR_INDUSTRIAL_DRILL,false);
+    public enum BAManipulator {
+        NONE(BattleArmor.MANIPULATOR_NONE, false),
+        ARMORED_GLOVE(BattleArmor.MANIPULATOR_ARMORED_GLOVE, false),
+        BASIC(BattleArmor.MANIPULATOR_BASIC, false),
+        BASIC_MINE_CLEARANCE(BattleArmor.MANIPULATOR_BASIC_MINE_CLEARANCE, true),
+        BATTLE(BattleArmor.MANIPULATOR_BATTLE, false),
+        BATTLE_MAGNET(BattleArmor.MANIPULATOR_BATTLE_MAGNET, true),
+        BATTLE_VIBRO(BattleArmor.MANIPULATOR_BATTLE_VIBRO, false),
+        CARGO_LIFTER(BattleArmor.MANIPULATOR_CARGO_LIFTER, true),
+        HEAVY_BATTLE(BattleArmor.MANIPULATOR_HEAVY_BATTLE, false),
+        HEAVY_BATTLE_MAGNET(BattleArmor.MANIPULATOR_HEAVY_BATTLE_MAGNET, true),
+        HEAVY_BATTLE_VIBRO(BattleArmor.MANIPULATOR_HEAVY_BATTLE_VIBRO, false),
+        SALVAGE_ARM(BattleArmor.MANIPULATOR_SALVAGE_ARM, false),
+        DRILL(BattleArmor.MANIPULATOR_INDUSTRIAL_DRILL, false);
 
         /**
          * The type, corresponding to types defined in
@@ -224,7 +222,7 @@ public class TestBattleArmor extends TestEntity {
          *
          * @param name
          *            The internal name.
-         * @return The <code>BAManipulator</code> that correspondes to the given
+         * @return The <code>BAManipulator</code> that corresponds to the given
          *         internal name or null if no match was found.
          */
         public static BAManipulator getManipulator(String name) {
@@ -283,7 +281,7 @@ public class TestBattleArmor extends TestEntity {
          * @throws IndexOutOfBoundsException if the weight class is not in the range allowed by the suit 
          */
         public double getWeight(int weightClass) {
-        	return weightsKg[weightClass] / 1000.0;
+            return weightsKg[weightClass] / 1000.0;
         }
 
     }
@@ -400,7 +398,7 @@ public class TestBattleArmor extends TestEntity {
                 }
             } else if (newMount.getType().hasFlag(MiscType.F_AP_MOUNT)) {
                 if ((numAntiPersonnelWeapons + 1) <= 
-                        ba.getNumAllowedAntiPersonnelWeapons(loc,trooper)) {
+                        ba.getNumAllowedAntiPersonnelWeapons(loc, trooper)) {
                     return true;
                 } else {
                     return false;
@@ -517,7 +515,7 @@ public class TestBattleArmor extends TestEntity {
 
     @Override
     public double getWeightMisc() {
-    	return getWeightTurret();
+        return getWeightTurret();
     }
 
     @Override
@@ -531,13 +529,13 @@ public class TestBattleArmor extends TestEntity {
     }
     
     public double getWeightChassis() {
-    	if (ba.isClan()
-    			&& !((ba.getWeightClass() > EntityWeightClass.WEIGHT_ULTRA_LIGHT)
-    					&& (ba.isClanExoWithoutHarjel()))) {
-    		return CHASSIS_WEIGHT_CLAN[ba.getWeightClass()];
-    	} else {
-    		return CHASSIS_WEIGHT_IS[ba.getWeightClass()];
-    	}
+        if (ba.isClan()
+                && !((ba.getWeightClass() > EntityWeightClass.WEIGHT_ULTRA_LIGHT)
+                        && (ba.isClanExoWithoutHarjel()))) {
+            return CHASSIS_WEIGHT_CLAN[ba.getWeightClass()];
+        } else {
+            return CHASSIS_WEIGHT_IS[ba.getWeightClass()];
+        }
     }
     
     public double getWeightGroundMP() {
@@ -548,26 +546,26 @@ public class TestBattleArmor extends TestEntity {
             walkMP -= BIPED_FREE_MP;
         }
         if (walkMP > 0) {
-        	return ADDITIONAL_GROUND_MP_WEIGHT[ba.getWeightClass()] * walkMP;
+            return ADDITIONAL_GROUND_MP_WEIGHT[ba.getWeightClass()] * walkMP;
         } else {
-        	return 0;
+            return 0;
         }
     }
     
     public double getWeightSecondaryMotiveSystem() {
-    	int jumpMP = ba.getOriginalJumpMP();
-    	if (ba.getMovementMode() == EntityMovementMode.VTOL) {
-    		return jumpMP * BAMotiveSystems.BA_VTOL.getWeight(ba.getWeightClass());
-    	} else if (ba.getMovementMode() == EntityMovementMode.INF_UMU) {
-    		return jumpMP * BAMotiveSystems.BA_UMU.getWeight(ba.getWeightClass());
-    	} else {
-    		return jumpMP * BAMotiveSystems.BA_JUMP.getWeight(ba.getWeightClass());
-    	}
+        int jumpMP = ba.getOriginalJumpMP();
+        if (ba.getMovementMode() == EntityMovementMode.VTOL) {
+            return jumpMP * BAMotiveSystems.BA_VTOL.getWeight(ba.getWeightClass());
+        } else if (ba.getMovementMode() == EntityMovementMode.INF_UMU) {
+            return jumpMP * BAMotiveSystems.BA_UMU.getWeight(ba.getWeightClass());
+        } else {
+            return jumpMP * BAMotiveSystems.BA_JUMP.getWeight(ba.getWeightClass());
+        }
     }
 
     @Override
     public double getWeightStructure() {
-    	return getWeightChassis() + getWeightGroundMP() + getWeightSecondaryMotiveSystem();
+        return getWeightChassis() + getWeightGroundMP() + getWeightSecondaryMotiveSystem();
     }
 
     @Override
@@ -614,9 +612,7 @@ public class TestBattleArmor extends TestEntity {
                 .getArmorType(BattleArmor.LOC_SQUAD), TechConstants.isClan(ba
                 .getArmorTechLevel(BattleArmor.LOC_SQUAD)));
 
-        return StringUtil.makeLength(
-                "Armor: " + Integer.toString(getTotalOArmor()) + " "
-                        + armorName, getPrintSize() - 5)
+        return StringUtil.makeLength("Armor: " + getTotalOArmor() + " " + armorName, getPrintSize() - 5)
                 + TestEntity.makeWeightString(getWeightArmor(), true) + "\n";
     }
 
@@ -659,7 +655,7 @@ public class TestBattleArmor extends TestEntity {
     }
 
     public String printArmorLocProp(int loc, int wert) {
-        return " is greater than " + Integer.toString(wert) + "!";
+        return " is greater than " + wert + "!";
     }
 
     public boolean correctMovement(StringBuffer buff) {
@@ -737,7 +733,7 @@ public class TestBattleArmor extends TestEntity {
     }
 
     public boolean correctCriticals(StringBuffer buff) {
-        Vector<Mounted> unallocated = new Vector<Mounted>();
+        Vector<Mounted> unallocated = new Vector<>();
         getUnallocatedEquipment(ba, unallocated);
         boolean correct = true;
 
@@ -749,12 +745,9 @@ public class TestBattleArmor extends TestEntity {
             correct = false;
         }
 
-        int critsUsed[][] = new int[ba.getTroopers() + 1]
-                [BattleArmor.MOUNT_NUM_LOCS];
-        int numAPWeapons[][] = new int[ba.getTroopers() + 1]
-                [BattleArmor.MOUNT_NUM_LOCS];
-        int numAMWeapons[][] = new int[ba.getTroopers() + 1]
-                [BattleArmor.MOUNT_NUM_LOCS];
+        int[][] critsUsed = new int[ba.getTroopers() + 1][BattleArmor.MOUNT_NUM_LOCS];
+        int[][] numAPWeapons = new int[ba.getTroopers() + 1][BattleArmor.MOUNT_NUM_LOCS];
+        int[][] numAMWeapons = new int[ba.getTroopers() + 1][BattleArmor.MOUNT_NUM_LOCS];
         int numSSWMs = 0;
         int numGloveMountedAPWeapons = 0;
         Mounted squadSupportWeapon = null;

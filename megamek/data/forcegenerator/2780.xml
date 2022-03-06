@@ -13,6 +13,7 @@
 	<faction key='CIR'>
 		<salvage pct='6'>LA:10,FWL:9</salvage>
 	</faction>
+	<faction key='CS'/>
 	<faction key='DC'>
 		<salvage pct='6'>CC:1,LA:7,FS:10</salvage>
 		<weightDistribution era='2780' unitType='Mek'>4,2,3,1</weightDistribution>
@@ -56,6 +57,7 @@
 		<weightDistribution era='2780' unitType='Mek'>6,6,3,1</weightDistribution>
 		<weightDistribution era='2780' unitType='Tank'>5,5,2,1</weightDistribution>
 	</faction>
+	<faction key='PP'/>
 	<faction key='Periphery'>
 		<weightDistribution era='2780' unitType='Mek'>6,5,3,1</weightDistribution>
 		<weightDistribution era='2780' unitType='Tank'>3,4,2,1</weightDistribution>
@@ -70,6 +72,7 @@
 		<weightDistribution era='2780' unitType='Tank'>3,4,3,1</weightDistribution>
 		<weightDistribution era='2780' unitType='Aero'>1,1,1</weightDistribution>
 	</faction>
+	<faction key='SLIE'/>
 	<faction key='TC'>
 		<salvage pct='6'>CC:6,SL:10,FS:10</salvage>
 		<weightDistribution era='2780' unitType='Aero'>1,2,3</weightDistribution>
@@ -92,13 +95,13 @@
 		<salvage pct='5'></salvage>
 	</faction>
 	<faction key='FWL.AD'>
-		<salvage pct='5'></salvage>
+		<salvage pct='5'>CC:8,LA:10</salvage>
 	</faction>
 	<faction key='FS.AH'>
 		<salvage pct='5'></salvage>
 	</faction>
 	<faction key='DC.BR'>
-		<salvage pct='5'></salvage>
+		<salvage pct='5'>CC:1,LA:7,FS:10</salvage>
 	</faction>
 	<faction key='FWL.BD'>
 		<salvage pct='5'></salvage>
@@ -124,7 +127,7 @@
 		<salvage pct='6'></salvage>
 	</faction>
 	<faction key='CC.CRC'>
-		<salvage pct='5'></salvage>
+		<salvage pct='5'>FWL:5,FS:10,TC:1,DC:1</salvage>
 	</faction>
 	<faction key='FS.CL'>
 		<salvage pct='5'></salvage>
@@ -162,7 +165,7 @@
 		<salvage pct='5'></salvage>
 	</faction>
 	<faction key='FWL.FO'>
-		<salvage pct='5'></salvage>
+		<salvage pct='5'>CC:8,LA:10</salvage>
 	</faction>
 	<faction key='DC.GR'>
 		<salvage pct='5'></salvage>
@@ -232,7 +235,7 @@
 		<salvage pct='5'></salvage>
 	</faction>
 	<faction key='FWL.RH'>
-		<salvage pct='5'></salvage>
+		<salvage pct='5'>CC:8,LA:10</salvage>
 	</faction>
 	<faction key='FS.RC'>
 		<salvage pct='5'></salvage>
@@ -245,7 +248,7 @@
 	</faction>
 	<faction key='MERC.pm'/>
 	<faction key='CC.SD'>
-		<salvage pct='5'></salvage>
+		<salvage pct='5'>FWL:5,FS:10,TC:1,DC:1</salvage>
 	</faction>
 	<faction key='LA.SR'>
 		<salvage pct='5'></salvage>
@@ -443,6 +446,9 @@
 		<model name='AS7-D-H2'>
 			<availability>General:4</availability>
 		</model>
+		<model name='AS7-D-HT'>
+			<availability>SL.R:1+</availability>
+		</model>
 	</chassis>
 	<chassis name='Atlas' unitType='Mek'>
 		<availability>CC:2,MOC:1,OA:1,LA:3,SL:5,IS:2,FWL:2,NIOPS:4-,FS:4,TC:1,DC:4</availability>
@@ -450,6 +456,7 @@
 			<availability>General:8,Periphery.Deep:8,Periphery:8</availability>
 		</model>
 		<model name='AS7-D-DC'>
+			<roles>command</roles>
 			<availability>IS:1,MERC:0,DC:2</availability>
 		</model>
 	</chassis>
@@ -1986,10 +1993,16 @@
 		</model>
 	</chassis>
 	<chassis name='Lancelot' unitType='Mek'>
-		<availability>CC:6,MOC:4,OA:4,LA:6,SL:6,IS:6,NIOPS:6,MERC:6,CIR:4,TC:4,DC:6</availability>
+		<availability>CC:6,MOC:4,OA:4,LA:6,SL:6,IS:6,NIOPS:6,SL.R:6,MERC:6,CIR:4,TC:4,DC:6</availability>
 		<model name='LNC25-01'>
 			<roles>anti_aircraft</roles>
 			<availability>SL:8,IS:8,NIOPS:8,DC:8</availability>
+		</model>
+		<model name='LNC25-01X'>
+			<availability>SL.R:1</availability>
+		</model>
+		<model name='LNC25-01sl'>
+			<availability>SL:2,SL.R:4</availability>
 		</model>
 		<model name='LNC25-05'>
 			<roles>anti_infantry</roles>
@@ -2692,6 +2705,9 @@
 		<model name='(Standard)'>
 			<roles>support</roles>
 			<availability>General:8</availability>
+		</model>
+		<model name='PTN-1'>
+			<availability>General:2</availability>
 		</model>
 	</chassis>
 	<chassis name='Phoenix Hawk LAM Mk I' unitType='Mek'>

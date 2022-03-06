@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -73,7 +73,6 @@ public class MechSummaryCache {
         }
         if (!m_instance.initialized && !m_instance.initializing) {
             m_instance.initializing = true;
-            m_instance.initialized = false;
             interrupted = false;
             disposeInstance = false;
             m_instance.loader = new Thread(() -> m_instance.loadMechData(ignoringUnofficial),
@@ -96,8 +95,7 @@ public class MechSummaryCache {
         interrupted = false;
         disposeInstance = false;
         File unit_cache_path = new MegaMekFile(getUnitCacheDir(), FILENAME_UNITS_CACHE).getFile();
-        long lastModified = unit_cache_path.exists() ?
-                unit_cache_path.lastModified() : megamek.MegaMek.TIMESTAMP;
+        long lastModified = unit_cache_path.exists() ? unit_cache_path.lastModified() : 0L;
 
         m_instance.loader = new Thread(() -> m_instance.refreshCache(lastModified, ignoreUnofficial),
                 "Mech Cache Loader");
@@ -199,8 +197,7 @@ public class MechSummaryCache {
                     FILENAME_UNITS_CACHE).getFile();
             // check the cache
             try {
-                if (unit_cache_path.exists()
-                        && (unit_cache_path.lastModified() >= megamek.MegaMek.TIMESTAMP)) {
+                if (unit_cache_path.exists()) {
                     loadReport.append("  Reading from unit cache file...\n");
                     lLastCheck = unit_cache_path.lastModified();
                     InputStream istream = new BufferedInputStream(
@@ -234,7 +231,7 @@ public class MechSummaryCache {
             } catch (Exception e) {
                 loadReport.append("  Unable to load unit cache: ")
                         .append(e.getMessage()).append("\n");
-                LogManager.getLogger().error(e);
+                LogManager.getLogger().error(loadReport.toString(), e);
             }
         }
 
@@ -301,12 +298,12 @@ public class MechSummaryCache {
     private void logReport() {
         loadReport.append(m_data.length).append(" units loaded.\n");
 
-        if (hFailedFiles.size() > 0) {
+        if (!hFailedFiles.isEmpty()) {
             loadReport.append("  ").append(hFailedFiles.size())
                     .append(" units failed to load...\n");
         }
 
-        LogManager.getLogger().info(loadReport.toString());
+        LogManager.getLogger().debug(loadReport.toString());
     }
 
     private void done() {
@@ -337,7 +334,7 @@ public class MechSummaryCache {
             }
         } catch (Exception e) {
             loadReport.append(" Unable to save mech cache\n");
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
         }
     }
 
@@ -378,6 +375,7 @@ public class MechSummaryCache {
         ms.setName(e.getShortNameRaw());
         ms.setChassis(e.getChassis());
         ms.setModel(e.getModel());
+        ms.setMulId(e.getMulId());
         ms.setUnitType(UnitType.getTypeName(e.getUnitType()));
         ms.setSourceFile(f);
         ms.setEntryName(entry);
@@ -670,7 +668,7 @@ public class MechSummaryCache {
                     zFile.close();
                     return false;
                 } catch (IOException e) {
-                    LogManager.getLogger().error(e);
+                    LogManager.getLogger().error("", e);
                 }
             }
             ZipEntry zEntry = (ZipEntry) i.nextElement();
@@ -729,7 +727,7 @@ public class MechSummaryCache {
         try {
             zFile.close();
         } catch (Exception ex) {
-            LogManager.getLogger().error(ex);
+            LogManager.getLogger().error("", ex);
         }
 
         loadReport.append("  ...loaded ").append(thisZipFileCount)
@@ -763,7 +761,7 @@ public class MechSummaryCache {
                     }
                 }
             } catch (IOException ex) {
-                LogManager.getLogger().error(ex);
+                LogManager.getLogger().error("", ex);
             }
         }
     }

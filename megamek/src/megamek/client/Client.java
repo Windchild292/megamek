@@ -1,6 +1,6 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@ package megamek.client;
 
 import com.thoughtworks.xstream.XStream;
 import megamek.MegaMek;
-import megamek.MegaMekConstants;
+import megamek.MMConstants;
 import megamek.Version;
 import megamek.client.bot.princess.BehaviorSettings;
 import megamek.client.bot.princess.Princess;
@@ -42,6 +42,7 @@ import megamek.common.preference.PreferenceManager;
 import megamek.common.util.ImageUtil;
 import megamek.common.util.SerializationHelper;
 import megamek.common.util.StringUtil;
+import megamek.server.Server;
 import megamek.server.SmokeCloud;
 import org.apache.logging.log4j.LogManager;
 
@@ -103,12 +104,12 @@ public class Client implements IClientCommandHandler {
     private final UnitNameTracker unitNameTracker = new UnitNameTracker();
 
     /** The bots controlled by the local player; maps a bot's name String to a bot's client. */
-    public Map<String, Client> bots = new TreeMap<>(StringUtil.stringComparator());
+    public Map<String, Client> bots = new TreeMap<>(String::compareTo);
 
     //Hashtable for storing image tags containing base64Text src
     private Hashtable<Integer, String> imgCache;
 
-    //board view for getting entity art assets
+    // board view for getting entity art assets
     private BoardView bv;
 
     ConnectionHandler packetUpdate;
@@ -123,6 +124,7 @@ public class Client implements IClientCommandHandler {
             shouldStop = true;
         }
 
+        @Override
         public void run() {
             while (!shouldStop) {
                 // Write any queued packets
@@ -270,12 +272,11 @@ public class Client implements IClientCommandHandler {
         if (log != null) {
             try {
                 log.close();
-            } catch (IOException e) {
-                System.err.print("Exception closing logfile: "); //$NON-NLS-1$
-                e.printStackTrace();
+            } catch (Exception e) {
+                LogManager.getLogger().error("Failed to close the logfile", e);
             }
         }
-        System.out.println("client: died"); //$NON-NLS-1$
+        System.out.println("client: died");
         System.out.flush();
     }
 
@@ -288,7 +289,7 @@ public class Client implements IClientCommandHandler {
             if (connected) {
                 die();
             }
-            if (!host.equals("localhost")) { //$NON-NLS-1$
+            if (!host.equals(MMConstants.LOCALHOST)) {
                 game.processGameEvent(new GamePlayerDisconnectedEvent(this, getLocalPlayer()));
             }
         }
@@ -431,22 +432,22 @@ public class Client implements IClientCommandHandler {
                 // We must do this last, as the name and unit generators can create
                 // a new instance if they are running
                 MechSummaryCache.dispose();
-                memDump("entering deployment phase"); //$NON-NLS-1$
+                memDump("entering deployment phase");
                 break;
             case TARGETING:
-                memDump("entering targeting phase"); //$NON-NLS-1$
+                memDump("entering targeting phase");
                 break;
             case MOVEMENT:
-                memDump("entering movement phase"); //$NON-NLS-1$
+                memDump("entering movement phase");
                 break;
             case OFFBOARD:
-                memDump("entering offboard phase"); //$NON-NLS-1$
+                memDump("entering offboard phase");
                 break;
             case FIRING:
-                memDump("entering firing phase"); //$NON-NLS-1$
+                memDump("entering firing phase");
                 break;
             case PHYSICAL:
-                memDump("entering physical phase"); //$NON-NLS-1$
+                memDump("entering physical phase");
                 break;
             case LOUNGE:
                 try {
@@ -524,75 +525,63 @@ public class Client implements IClientCommandHandler {
      * Send mode-change data to the server
      */
     public void sendModeChange(int nEntity, int nEquip, int nMode) {
-        Object[] data = { Integer.valueOf(nEntity), Integer.valueOf(nEquip), Integer.valueOf(nMode) };
-        send(new Packet(Packet.COMMAND_ENTITY_MODECHANGE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_MODECHANGE, nEntity, nEquip, nMode));
     }
 
     /**
      * Send mount-facing-change data to the server
      */
     public void sendMountFacingChange(int nEntity, int nEquip, int nFacing) {
-        Object[] data = { Integer.valueOf(nEntity), Integer.valueOf(nEquip), Integer.valueOf(nFacing) };
-        send(new Packet(Packet.COMMAND_ENTITY_MOUNTED_FACINGCHANGE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_MOUNTED_FACINGCHANGE, nEntity, nEquip, nFacing));
     }
 
     /**
      * Send called shot change data to the server
      */
     public void sendCalledShotChange(int nEntity, int nEquip) {
-        Object[] data = { Integer.valueOf(nEntity), Integer.valueOf(nEquip) };
-        send(new Packet(Packet.COMMAND_ENTITY_CALLEDSHOTCHANGE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_CALLEDSHOTCHANGE, nEntity, nEquip));
     }
 
     /**
      * Send system mode-change data to the server
      */
     public void sendSystemModeChange(int nEntity, int nSystem, int nMode) {
-        Object[] data = { Integer.valueOf(nEntity), Integer.valueOf(nSystem), Integer.valueOf(nMode) };
-        send(new Packet(Packet.COMMAND_ENTITY_SYSTEMMODECHANGE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_SYSTEMMODECHANGE, nEntity, nSystem, nMode));
     }
 
     /**
      * Send mode-change data to the server
      */
     public void sendAmmoChange(int nEntity, int nWeapon, int nAmmo) {
-        Object[] data = { Integer.valueOf(nEntity), Integer.valueOf(nWeapon), Integer.valueOf(nAmmo) };
-        send(new Packet(Packet.COMMAND_ENTITY_AMMOCHANGE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_AMMOCHANGE, nEntity, nWeapon, nAmmo));
     }
 
     /**
      * Send sensor-change data to the server
      */
     public void sendSensorChange(int nEntity, int nSensor) {
-        Object[] data = { Integer.valueOf(nEntity), Integer.valueOf(nSensor) };
-        send(new Packet(Packet.COMMAND_ENTITY_SENSORCHANGE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_SENSORCHANGE, nEntity, nSensor));
     }
 
     /**
      * Send sinks-change data to the server
      */
     public void sendSinksChange(int nEntity, int activeSinks) {
-        Object[] data = { Integer.valueOf(nEntity), Integer.valueOf(activeSinks) };
-        send(new Packet(Packet.COMMAND_ENTITY_SINKSCHANGE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_SINKSCHANGE, nEntity, activeSinks));
     }
 
     /**
      * Send activate hidden data to the server
      */
     public void sendActivateHidden(int nEntity, GamePhase phase) {
-        send(new Packet(Packet.COMMAND_ENTITY_ACTIVATE_HIDDEN, new Object[] { nEntity, phase }));
+        send(new Packet(Packet.COMMAND_ENTITY_ACTIVATE_HIDDEN, nEntity, phase));
     }
 
     /**
      * Send movement data for the given entity to the server.
      */
     public void moveEntity(int id, MovePath md) {
-        Object[] data = new Object[2];
-
-        data[0] = Integer.valueOf(id);
-        data[1] = md;
-
-        send(new Packet(Packet.COMMAND_ENTITY_MOVE, data));
+        send(new Packet(Packet.COMMAND_ENTITY_MOVE, id, md));
     }
 
     /**
@@ -606,7 +595,7 @@ public class Client implements IClientCommandHandler {
      *            - the <code>int</code> direction the entity should face
      */
     public void deploy(int id, Coords c, int nFacing, int elevation) {
-        this.deploy(id, c, nFacing, elevation, new Vector<Entity>(), false);
+        this.deploy(id, c, nFacing, elevation, new Vector<>(), false);
     }
 
     /**
@@ -629,15 +618,15 @@ public class Client implements IClientCommandHandler {
         int packetCount = 6 + loadedUnits.size();
         int index = 0;
         Object[] data = new Object[packetCount];
-        data[index++] = Integer.valueOf(id);
+        data[index++] = id;
         data[index++] = c;
-        data[index++] = Integer.valueOf(nFacing);
-        data[index++] = Integer.valueOf(elevation);
-        data[index++] = Integer.valueOf(loadedUnits.size());
-        data[index++] = Boolean.valueOf(assaultDrop);
+        data[index++] = nFacing;
+        data[index++] = elevation;
+        data[index++] = loadedUnits.size();
+        data[index++] = assaultDrop;
 
         for (Entity ent : loadedUnits) {
-            data[index++] = Integer.valueOf(ent.getId());
+            data[index++] = ent.getId();
         }
 
         send(new Packet(Packet.COMMAND_ENTITY_DEPLOY, data));
@@ -770,7 +759,7 @@ public class Client implements IClientCommandHandler {
     
     /** Sends the given forces to the server to be made top-level forces. */
     public void sendForceParent(Collection<Force> forceList, int newParentId) {
-        send(new Packet(Packet.COMMAND_FORCE_PARENT, new Object[] { forceList, newParentId }));
+        send(new Packet(Packet.COMMAND_FORCE_PARENT, forceList, newParentId));
     }
 
     /**
@@ -780,7 +769,7 @@ public class Client implements IClientCommandHandler {
      *            The Entity to add.
      */
     public void sendAddEntity(Entity entity) {
-        ArrayList<Entity> entities = new ArrayList<Entity>(1);
+        ArrayList<Entity> entities = new ArrayList<>(1);
         entities.add(entity);
         sendAddEntity(entities);
     }
@@ -804,7 +793,7 @@ public class Client implements IClientCommandHandler {
      */
     public void sendAddSquadron(FighterSquadron fs, Collection<Integer> fighterIds) {
         checkDuplicateNamesDuringAdd(fs);
-        send(new Packet(Packet.COMMAND_SQUADRON_ADD, new Object[] { fs, fighterIds }));
+        send(new Packet(Packet.COMMAND_SQUADRON_ADD, fs, fighterIds));
     }
 
     /**
@@ -937,7 +926,7 @@ public class Client implements IClientCommandHandler {
      * sends a load game file to the server
      */
     public void sendLoadGame(File f) {
-        try (InputStream is = new GZIPInputStream(new FileInputStream(f))) {
+        try (InputStream fis = new FileInputStream(f); InputStream is = new GZIPInputStream(fis)) {
             game.reset();
             
             XStream xstream = SerializationHelper.getXStream();            
@@ -945,13 +934,12 @@ public class Client implements IClientCommandHandler {
 
             send(new Packet(Packet.COMMAND_LOAD_GAME, new Object[] { newGame }));
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Can't find local savegame " + f); //$NON-NLS-1$
+            LogManager.getLogger().error("Can't find the local savegame " + f, e);
         }
     }
 
     public void sendExplodeBuilding(DemolitionCharge charge) {
-        Object data[] = new Object[1];
+        Object[] data = new Object[1];
         data[0] = charge;
         send(new Packet(Packet.COMMAND_BLDG_EXPLODE, data));
     }
@@ -1004,7 +992,7 @@ public class Client implements IClientCommandHandler {
                 cacheImgTag(e);
             }
         }
-        //cache the image data for the entities
+        // cache the image data for the entities
         for (Entity e: newEntities) {
             cacheImgTag(e);
         }
@@ -1034,8 +1022,8 @@ public class Client implements IClientCommandHandler {
         // Gather the forces and entities to be deleted
         Set<Force> delForces = new HashSet<>();
         Set<Entity> delEntities = new HashSet<>();
-        forceIds.stream().map(id -> forces.getForce(id)).forEach(delForces::add);
-        delForces.stream().map(f -> forces.getFullEntities(f)).forEach(delEntities::addAll);
+        forceIds.stream().map(forces::getForce).forEach(delForces::add);
+        delForces.stream().map(forces::getFullEntities).forEach(delEntities::addAll);
 
         forces.deleteForces(delForces);
 
@@ -1092,7 +1080,7 @@ public class Client implements IClientCommandHandler {
         int condition = packet.getIntValue(1);
         @SuppressWarnings("unchecked")
         List<Force> forces = (List<Force>) packet.getObject(2);
-        //create a final image for the entity
+        // create a final image for the entity
         for (int id: entityIds) {
             cacheImgTag(game.getEntity(id));
         }
@@ -1144,7 +1132,7 @@ public class Client implements IClientCommandHandler {
     @SuppressWarnings("unchecked")
     protected void receiveUpdateMinefields(Packet packet) {
         // only update information if you know about the minefield
-        Vector<Minefield> newMines = new Vector<Minefield>();
+        Vector<Minefield> newMines = new Vector<>();
         for (Minefield mf : (Vector<Minefield>) packet.getObject(0)) {
             if (getLocalPlayer().containsMinefield(mf)) {
                 newMines.add(mf);
@@ -1224,7 +1212,7 @@ public class Client implements IClientCommandHandler {
         Pattern p = Pattern.compile("<s(.*?)n>");
         Matcher m = p.matcher(report.toString());
 
-        //add all instances to a hashset to prevent duplicates
+        // add all instances to a hashset to prevent duplicates
         while (m.find()) {
             String cleanedText = m.group(1).replaceAll("\\D", "");
             if (cleanedText.length() > 0) {
@@ -1254,7 +1242,7 @@ public class Client implements IClientCommandHandler {
     }
 
     /**
-     * Hashtable for storing <img> tags containing base64Text src.
+     * Hashtable for storing img tags containing base64Text src.
      */
     protected void cacheImgTag(Entity entity) {
         if (entity == null) {
@@ -1269,7 +1257,7 @@ public class Client implements IClientCommandHandler {
         }
 
         if (getTargetImage(entity) != null) {
-            //convert image to base64, add to the <img> tag and store in cache
+            // convert image to base64, add to the <img> tag and store in cache
             Image image = ImageUtil.getScaledImage(getTargetImage(entity), 56, 48);
             try {
                 String base64Text;
@@ -1318,7 +1306,7 @@ public class Client implements IClientCommandHandler {
             fw.flush();
             fw.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogManager.getLogger().error("", e);
         }
     }
 
@@ -1338,7 +1326,7 @@ public class Client implements IClientCommandHandler {
      * @param net
      */
     public void sendNovaChange(int ID, String net) {
-        Object[] data = { Integer.valueOf(ID), new String(net) };
+        Object[] data = { ID, net };
         Packet packet = new Packet(Packet.COMMAND_ENTITY_NOVA_NETWORK_CHANGE, data);
         send(packet);
     }
@@ -1359,7 +1347,7 @@ public class Client implements IClientCommandHandler {
      * send all buffered packets on their way this should be called after
      * everything which causes us to wait for a reply. For example "done" button
      * presses etc. to make stuff more efficient, this should only be called
-     * after a batch of packets is sent,not separately for each packet
+     * after a batch of packets is sent, not separately for each packet
      */
     protected void flushConn() {
         if (connection != null) {
@@ -1370,16 +1358,17 @@ public class Client implements IClientCommandHandler {
     @SuppressWarnings("unchecked")
     protected void handlePacket(Packet c) {
         if (c == null) {
-            System.out.println("client: got null packet"); //$NON-NLS-1$
+            LogManager.getLogger().error("Client: got null packet");
             return;
         }
+
         switch (c.getCommand()) {
             case Packet.COMMAND_CLOSE_CONNECTION:
                 disconnected();
                 break;
             case Packet.COMMAND_SERVER_VERSION_CHECK:
                 send(new Packet(Packet.COMMAND_CLIENT_VERSIONS, new Object[] {
-                        MegaMekConstants.VERSION, MegaMek.getMegaMekSHA256() }));
+                        MMConstants.VERSION, MegaMek.getMegaMekSHA256() }));
                 break;
             case Packet.COMMAND_SERVER_GREETING:
                 connected = true;
@@ -1392,7 +1381,7 @@ public class Client implements IClientCommandHandler {
                 final Version serverVersion = (Version) c.getObject(0);
                 final String message = String.format(
                         "Failed to connect to the server at %s because of version differences. Cannot connect to a server running %s with a %s install.",
-                        getHost(), serverVersion, MegaMekConstants.VERSION);
+                        getHost(), serverVersion, MMConstants.VERSION);
                 JOptionPane.showMessageDialog(null, message, "Connection Failure: Version Difference",
                         JOptionPane.ERROR_MESSAGE);
                 LogManager.getLogger().error(message);
@@ -1623,7 +1612,7 @@ public class Client implements IClientCommandHandler {
             case Packet.COMMAND_LOAD_SAVEGAME:
                 String loadFile = (String) c.getObject(0);
                 try {
-                    File f = new File("savegames", loadFile);
+                    File f = new File(MMConstants.SAVEGAME_DIR, loadFile);
                     sendLoadGame(f);
                 } catch (Exception e) {
                     System.err.println("Unable to find the file: " + loadFile);
@@ -1700,44 +1689,44 @@ public class Client implements IClientCommandHandler {
     }
 
     public void sendDominoCFRResponse(MovePath mp) {
-        Object data[] = { Packet.COMMAND_CFR_DOMINO_EFFECT, mp };
+        Object[] data = { Packet.COMMAND_CFR_DOMINO_EFFECT, mp };
         Packet packet = new Packet(Packet.COMMAND_CLIENT_FEEDBACK_REQUEST, data);
         send(packet);
     }
 
     public void sendAMSAssignCFRResponse(Integer waaIndex) {
-        Object data[] = { Packet.COMMAND_CFR_AMS_ASSIGN, waaIndex };
+        Object[] data = { Packet.COMMAND_CFR_AMS_ASSIGN, waaIndex };
         Packet packet = new Packet(Packet.COMMAND_CLIENT_FEEDBACK_REQUEST, data);
         send(packet);
     }
 
     public void sendAPDSAssignCFRResponse(Integer waaIndex) {
-        Object data[] = { Packet.COMMAND_CFR_APDS_ASSIGN, waaIndex };
+        Object[] data = { Packet.COMMAND_CFR_APDS_ASSIGN, waaIndex };
         Packet packet = new Packet(Packet.COMMAND_CLIENT_FEEDBACK_REQUEST, data);
         send(packet);
     }
 
     public void sendHiddenPBSCFRResponse(Vector<EntityAction> attacks) {
-        Object data[] = { Packet.COMMAND_CFR_HIDDEN_PBS, attacks };
+        Object[] data = { Packet.COMMAND_CFR_HIDDEN_PBS, attacks };
         Packet packet = new Packet(Packet.COMMAND_CLIENT_FEEDBACK_REQUEST, data);
         send(packet);
     }
 
     public void sendTelemissileTargetCFRResponse(int index) {
-        Object data[] = { Packet.COMMAND_CFR_TELEGUIDED_TARGET, index };
+        Object[] data = { Packet.COMMAND_CFR_TELEGUIDED_TARGET, index };
         Packet packet = new Packet(Packet.COMMAND_CLIENT_FEEDBACK_REQUEST, data);
         send(packet);
     }
     
     public void sendTAGTargetCFRResponse(int index) {
-        Object data[] = { Packet.COMMAND_CFR_TAG_TARGET, index };
+        Object[] data = { Packet.COMMAND_CFR_TAG_TARGET, index };
         Packet packet = new Packet(Packet.COMMAND_CLIENT_FEEDBACK_REQUEST, data);
         send(packet);
     }
 
     /**
      * Perform a dump of the current memory usage.
-     * <p/>
+     * <p>
      * This method is useful in tracking performance issues on various player's
      * systems. You can activate it by changing the "memorydumpon" setting to
      * "true" in the clientsettings.xml file.
@@ -1748,16 +1737,12 @@ public class Client implements IClientCommandHandler {
      */
     private void memDump(String where) {
         if (PreferenceManager.getClientPreferences().memoryDumpOn()) {
-            StringBuffer buf = new StringBuffer();
             final long total = Runtime.getRuntime().totalMemory();
             final long free = Runtime.getRuntime().freeMemory();
             final long used = total - free;
-            buf.append("Memory dump ").append(where); //$NON-NLS-1$
-            for (int loop = where.length(); loop < 25; loop++) {
-                buf.append(' ');
-            }
-            buf.append(": used (").append(used).append(") + free (").append(free).append(") = ").append(total); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            System.out.println(buf.toString());
+            LogManager.getLogger().error("Memory dump " + where
+                    + " ".repeat(Math.max(0, 25 - where.length())) + ": used (" + used
+                    + ") + free (" + free + ") = " + total);
         }
     }
 
@@ -1847,6 +1832,7 @@ public class Client implements IClientCommandHandler {
     /**
      * Registers a new command in the client command table
      */
+    @Override
     public void registerCommand(ClientCommand command) {
         //Warning, the special direction commands are registered seperatly
         commandsHash.put(command.getName(), command);

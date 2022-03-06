@@ -1,12 +1,13 @@
 Version:1.0
 Cougar
 T
+mul id:8325
 
 Config:Biped Omnimech
 techbase:Clan
 era:3142
-source:ilClan Rec Guide 19 - Dark Age
-rules level:3
+source:Rec Guide:ilClan #19 - Dark Age
+rules level:2
 
 mass:35
 engine:175 XL (Clan) Engine(IS)

@@ -1,6 +1,6 @@
 /*
 * MegaMek -
-* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Ben Mazur (bmazur@sev.org)
+* Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
 * Copyright (C) 2018 The MegaMek Team
 *
 * This program is free software; you can redistribute it and/or modify it under
@@ -186,7 +186,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
         try {
             burnDamage = game.getOptions().intOption(OptionsConstants.ADVANCED_WOODS_BURN_DOWN_AMOUNT);
         } catch (Exception ex) {
-            LogManager.getLogger().error(ex);
+            LogManager.getLogger().error("", ex);
         }
 
         // Report that damage applied to terrain
@@ -210,10 +210,10 @@ public class FireProcessor extends DynamicTerrainProcessor {
         Coords src = new Coords(x, y);
         Coords nextCoords = src.translated(windDir);
 
-        //check for height differences between hexes
+        // check for height differences between hexes
         //TODO: until further clarification only the heights matter (not the base elevation)
         //This means that a fire cannot spread from a level 6 building at base level 0 to
-        //a level 1 building at base level 0, for example.
+        // a level 1 building at base level 0, for example.
 
         final int curHeight = game.getBoard().getHex(src).ceiling();
 
@@ -320,7 +320,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
             }
 
             if (!smokeToAdd.isEmpty()) {
-                smokeCloudData.put(cloud,smokeToAdd);
+                smokeCloudData.put(cloud, smokeToAdd);
             }
         }
 

@@ -110,6 +110,11 @@ public class BoardEditor extends JPanel
                 return getTerrainType() == ((TerrainHelper) other).getTerrainType();
             }
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getTerrainType());
+        }
     }
 
     /**
@@ -199,7 +204,7 @@ public class BoardEditor extends JPanel
     private Game game = new Game();
     private Board board = game.getBoard();
     private BoardView bv;
-    public static final int[] allDirections = {0,1,2,3,4,5};
+    public static final int[] allDirections = { 0, 1, 2, 3, 4, 5 };
     boolean isDragging = false;
     private Component bvc;
     private CommonMenuBar menuBar = new CommonMenuBar(this);
@@ -548,7 +553,7 @@ public class BoardEditor extends JPanel
         if (tt.length() != 0) {
             button.setToolTipText(tt);
         }
-        button.setMargin(new Insets(0,0,0,0));
+        button.setMargin(new Insets(0, 0, 0, 0));
         if (bList != null) {
             bList.add(button);
         }
@@ -902,15 +907,15 @@ public class BoardEditor extends JPanel
         butExitDown = prepareButton("ButtonEXDN", "Decrease Exit / Gfx", null, BASE_ARROWBUTTON_ICON_WIDTH);
 
         // Arrows and text fields for type and exits
-        JPanel panUP = new JPanel(new GridLayout(1,0,4,4));
+        JPanel panUP = new JPanel(new GridLayout(1, 0, 4, 4));
         panUP.add(butTerrUp);
         panUP.add(butExitUp);
         panUP.add(butTerrExits);
-        JPanel panTex = new JPanel(new GridLayout(1,0,4,4));
+        JPanel panTex = new JPanel(new GridLayout(1, 0, 4, 4));
         panTex.add(texTerrainLevel);
         panTex.add(texTerrExits);
         panTex.add(cheTerrExitSpecified);
-        JPanel panDN = new JPanel(new GridLayout(1,0,4,4));
+        JPanel panDN = new JPanel(new GridLayout(1, 0, 4, 4));
         panDN.add(butTerrDown);
         panDN.add(butExitDown);
         panDN.add(Box.createHorizontalStrut(5));
@@ -1452,7 +1457,7 @@ public class BoardEditor extends JPanel
             refreshTerrainList();
             setupUiFreshBoard();
         } catch (IOException ex) {
-            LogManager.getLogger().error(ex);
+            LogManager.getLogger().error("", ex);
         }
     }
     
@@ -1491,7 +1496,7 @@ public class BoardEditor extends JPanel
         try {
             ImageIO.write(bv.getEntireBoardImage(ignoreUnits, false), "png", curfileImage);
         } catch (IOException e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
         }
         waitD.setVisible(false);
         frame.setCursor(Cursor.getDefaultCursor());
@@ -1527,7 +1532,7 @@ public class BoardEditor extends JPanel
             setFrameTitle();
             return true;
         } catch (IOException e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return false;
         }
     }
@@ -1778,7 +1783,7 @@ public class BoardEditor extends JPanel
                     JOptionPane.showMessageDialog(frame,
                             Messages.getString("BoardEditor.OpenFileError", curBoardFile.toString())
                             + e.getMessage());
-                    LogManager.getLogger().error(e);
+                    LogManager.getLogger().error("", e);
                     ignoreHotKeys = false;
                 }
             }
@@ -2401,7 +2406,7 @@ public class BoardEditor extends JPanel
                     decValue();
                 }
             });
-            setMargin(new Insets(1,1,1,1));
+            setMargin(new Insets(1, 1, 1, 1));
             setHorizontalAlignment(JTextField.CENTER);
             setFont(new Font("SansSerif", Font.BOLD, 20));
             setCursor(Cursor.getDefaultCursor());

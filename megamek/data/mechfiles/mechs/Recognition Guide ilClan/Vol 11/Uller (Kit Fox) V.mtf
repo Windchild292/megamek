@@ -1,11 +1,12 @@
 Version:1.0
 Uller (Kit Fox)
 V
+mul id:7746
 
 Config:Biped Omnimech
 techbase:Clan
 era:2921
-source:ilClan Vol 11 - Early Succession War
+source:Rec Guide:ilClan #11 - Early Succession War
 rules level:3
 
 mass:30

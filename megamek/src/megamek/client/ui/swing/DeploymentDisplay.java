@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2000,2001,2002,2003,2004,2005,2006 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2006 Ben Mazur (bmazur@sev.org)
  * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
@@ -121,7 +121,8 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
         setupButtonPanel();        
     }
     
-    protected ArrayList<MegamekButton> getButtonList() {                
+    @Override
+    protected ArrayList<MegamekButton> getButtonList() {
         ArrayList<MegamekButton> buttonList = new ArrayList<>();
         DeployCommand[] commands = DeployCommand.values();
         CommandComparator comparator = new CommandComparator();
@@ -264,8 +265,8 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
         final Entity en = ce();
 
         if ((en instanceof Dropship) && !en.isAirborne()) {
-            ArrayList<Coords> crushedBuildingLocs = new ArrayList<Coords>();
-            ArrayList<Coords> secondaryPositions = new ArrayList<Coords>();
+            ArrayList<Coords> crushedBuildingLocs = new ArrayList<>();
+            ArrayList<Coords> secondaryPositions = new ArrayList<>();
             secondaryPositions.add(en.getPosition());
             for (int dir = 0; dir < 6; dir++) {
                 secondaryPositions.add(en.getPosition().translated(dir));
@@ -507,11 +508,11 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
                 } else {
                     // everything else goes to elevation 0, or on the floor of a
                     // water hex, except non-mechanized SCUBA infantry, which have a max depth of 2.
-                	if (deployhex.containsTerrain(Terrains.WATER) && (ce() instanceof Infantry) && ((Infantry) ce()).isNonMechSCUBA()) {
-                		ce().setElevation(Math.max(deployhex.floor() - deployhex.getLevel(), -2));
-                	} else {
-                		ce().setElevation(deployhex.floor() - deployhex.getLevel());
-                	}
+                    if (deployhex.containsTerrain(Terrains.WATER) && (ce() instanceof Infantry) && ((Infantry) ce()).isNonMechSCUBA()) {
+                        ce().setElevation(Math.max(deployhex.floor() - deployhex.getLevel(), -2));
+                    } else {
+                        ce().setElevation(deployhex.floor() - deployhex.getLevel());
+                    }
                 }
             }
             ce().setPosition(moveto);
@@ -543,7 +544,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
 
         for (int loop = 1; loop < height; loop++) {
             if (Compute.stackingViolation(game, ce(), loop, moveto, null) == null) {
-                floorNames.add(Messages.getString("DeploymentDisplay.floor") + Integer.toString(loop));
+                floorNames.add(Messages.getString("DeploymentDisplay.floor") + loop);
                 floorValues.add(loop);
             }
         }
@@ -614,6 +615,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
     //
     // ActionListener
     //
+    @Override
     public void actionPerformed(ActionEvent ev) {
         final Client client = clientgui.getClient();
         final String actionCmd = ev.getActionCommand();
@@ -661,7 +663,8 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
                             bayChoices.add(((Bay) t).getBayNumber());
                         }
                     }
-                    if ((bayChoices.size() > 1) && !(other instanceof Infantry)) {
+
+                    if (bayChoices.size() > 1) {
                         String[] retVal = new String[bayChoices.size()];
                         int i = 0;
                         for (Integer bn : bayChoices) {
@@ -753,9 +756,9 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
             } // End have-choices
             else {
                 JOptionPane.showMessageDialog(clientgui.frame,
-                                Messages.getString("DeploymentDisplay.alertDialog2.message", ce().getShortName()), 
-                                Messages.getString("DeploymentDisplay.alertDialog2.title"), 
-                                JOptionPane.ERROR_MESSAGE); 
+                        Messages.getString("DeploymentDisplay.alertDialog2.message", ce().getShortName()),
+                        Messages.getString("DeploymentDisplay.alertDialog2.title"),
+                        JOptionPane.ERROR_MESSAGE);
             }
         } // End unload-unit
         else if (actionCmd.equals(DeployCommand.DEPLOY_REMOVE.getCmd())) {
@@ -773,7 +776,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
                 buttons.get(DeployCommand.DEPLOY_ASSAULTDROP).setText(Messages.getString("DeploymentDisplay.assaultDrop"));
             }
         }
-    } // End public void actionPerformed(ActionEvent ev)
+    }
 
     @Override
     public void clear() {
@@ -870,13 +873,14 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
     /**
      * Stop just ignoring events and actually stop listening to them.
      */
+    @Override
     public void removeAllListeners() {
         die();
     }
     
     /** Returns a list of the entities that can be loaded into the currently selected entity. */
     private List<Entity> getLoadableEntities() {       
-        ArrayList<Entity> choices = new ArrayList<Entity>();
+        ArrayList<Entity> choices = new ArrayList<>();
         // If current entity is null, nothing to do
         if (ce() == null) {
             return choices;
@@ -888,7 +892,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
                     // before loading on the client side, and the loaded unit may have been reset
                     // by the resulting update from the server.
                     && !ce().getLoadedUnits().contains(other)
-                    // If you want to load a trailer into a dropship or large support vee, do it in the lobby
+                    // If you want to load a trailer into a DropShip or large support vehicle, do it in the lobby
                     // The 'load' button should not allow trailers - that's what 'tow' is for.
                     && !other.isTrailer()) {
                 choices.add(other);

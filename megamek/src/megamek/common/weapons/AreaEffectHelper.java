@@ -283,7 +283,7 @@ public class AreaEffectHelper {
      */
     public static void clearMineFields(Coords targetPos, int targetNum, Entity ae, Vector<Report> vPhaseReport, Game game, Server server) {
         Enumeration<Minefield> minefields = game.getMinefields(targetPos).elements();
-        ArrayList<Minefield> mfRemoved = new ArrayList<Minefield>();
+        ArrayList<Minefield> mfRemoved = new ArrayList<>();
         while (minefields.hasMoreElements()) {
             Minefield mf = minefields.nextElement();
             if (server.clearMinefield(mf, ae, targetNum, vPhaseReport)) {
@@ -311,7 +311,6 @@ public class AreaEffectHelper {
      * @param ammo The ammo type used
      * @param coords The coordinates where the shell actually landed
      * @param isFuelAirBomb Whether we are making a fuel-air attack
-     * @param alreadyHit Whether the entity was already hit
      * @param killer The entity that initiated the attack
      * @param hex The hex, if any, where the shell landed
      * @param subjectId The ID of the entity carrying out the attack, for reporting in double blind games

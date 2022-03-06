@@ -1,29 +1,18 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/*
- * Author: Reinhard Vicinus
- */
-
 package megamek.common.verifier;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
@@ -31,6 +20,11 @@ import megamek.common.util.StringUtil;
 import megamek.common.weapons.flamers.VehicleFlamerWeapon;
 import megamek.common.weapons.lasers.CLChemicalLaserWeapon;
 
+import java.util.*;
+
+/**
+ * @author Reinhard Vicinus
+ */
 public class TestTank extends TestEntity {
 
     /**
@@ -310,6 +304,7 @@ public class TestTank extends TestEntity {
         return super.getWeightCarryingSpace() + tank.getExtraCrewSeats() * 0.5;
     }
 
+    @Override
     public String printWeightCarryingSpace() {
         if (tank.getExtraCrewSeats() > 0) {
             return super.printWeightCarryingSpace()
@@ -765,7 +760,7 @@ public class TestTank extends TestEntity {
         if (getEntity().isSupportVehicle() && (getEntity().getWeight() < 5)) {
             return 0;
         }
-    	
+
         if (!engine.isFusion() && (engine.getEngineType() != Engine.FISSION)) {
             double weight = 0;
             for (Mounted m : tank.getWeaponList()) {

@@ -27,7 +27,7 @@ import megamek.common.Game;
  * be stored in the context-object NOTE: if you delegate from one victory-class
  * instance to other, they must be created in similar fashion (ie. constructed
  * at the same time and destroyed at the same time) to guarantee proper working
- * also , if you delegate, you should delegate each time to guarantee that
+ * also, if you delegate, you should delegate each time to guarantee that
  * victorypoint-counting and duration-counting implementations get access to
  * game state every round. NOTE2: calling victory 1 time or n times per round
  * should not make a difference! victories counting rounds must not assume that
@@ -40,13 +40,13 @@ import megamek.common.Game;
  */
 public interface IVictoryConditions {
     /**
-     * @param game - the game (state) we are playing
+     * @param game The current {@link Game}
      * @param context - a map Strings to simple serializable objects (preferably
      *            Integers , Strings ,Doubles etc) which are used to store state
      *            between executions if such feature is absolutely required.. as
      *            a key you should use something atleast class- specific to
      *            limit namespace collisions
-     * @return a result with true if victory occured, false if not must not
+     * @return a result with true if victory occurred, false if not must not
      *         return null MUST NOT modify game state!
      */
     VictoryResult victory(Game game, Map<String, Object> context);

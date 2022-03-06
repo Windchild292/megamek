@@ -208,8 +208,9 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
      * check for special munitions and their effect on av 
      * 
      */
+    @Override
     protected double updateAVforAmmo(double current_av, AmmoType atype,
-            WeaponType bayWType, int range, int wId) {
+                                     WeaponType bayWType, int range, int wId) {
         Mounted bayW = ae.getEquipment(wId);
         Mounted mLinker = bayW.getLinkedBy();
         int bonus = 0;
@@ -274,7 +275,7 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
                 && (target.getTargetType() != Targetable.TYPE_HEX_CLEAR 
                 &&  target.getTargetType() != Targetable.TYPE_HEX_IGNITE
                 &&  target.getTargetType() != Targetable.TYPE_BUILDING)) 
-        		|| game.getBoard().inSpace()) {
+                || game.getBoard().inSpace()) {
             return super.handle(phase, vPhaseReport);
         } 
 
@@ -374,16 +375,16 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
         CounterAV = getCounterAV();
         //use this if counterfire destroys all the missiles
         if (amsBayEngaged && (attackValue <= 0)) {
-        	r = new Report(3356);
-        	r.indent();
-        	r.subject = subjectId;
-        	vPhaseReport.addElement(r);
+            r = new Report(3356);
+            r.indent();
+            r.subject = subjectId;
+            vPhaseReport.addElement(r);
         } else if (amsBayEngaged) {
-        	r = new Report(3354);
-        	r.indent();
-        	r.add(CounterAV);
-        	r.subject = subjectId;
-        	vPhaseReport.addElement(r);
+            r = new Report(3354);
+            r.indent();
+            r.add(CounterAV);
+            r.subject = subjectId;
+            vPhaseReport.addElement(r);
         }
 
         // Any necessary PSRs, jam checks, etc.

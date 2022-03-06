@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2000,2001,2002,2003,2004,2005,2006 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2006 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
  *
@@ -53,10 +53,7 @@ import megamek.common.options.GameOptions;
 import megamek.common.options.IOption;
 import megamek.common.options.OptionsConstants;
 import megamek.common.options.PilotOptions;
-import megamek.common.preference.IClientPreferences;
-import megamek.common.preference.IPreferenceChangeListener;
-import megamek.common.preference.PreferenceChangeEvent;
-import megamek.common.preference.PreferenceManager;
+import megamek.common.preference.*;
 import megamek.common.util.BoardUtilities;
 import megamek.common.util.CollectionUtil;
 import megamek.common.util.CrewSkillSummaryUtil;
@@ -210,7 +207,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     private ClientDialog boardPreviewW;
     private Game boardPreviewGame = new Game();
     private BoardView previewBV;
-    Dimension currentMapButtonSize = new Dimension(0,0);
+    Dimension currentMapButtonSize = new Dimension(0, 0);
     
     private ArrayList<String> invalidBoards = new ArrayList<>();
     private ArrayList<String> serverBoards = new ArrayList<>();
@@ -611,7 +608,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         panTopRows.add(panMapType);
         panTopRows.add(panSettings);
         
-        JPanel panHelp = new JPanel(new GridLayout(1,1));
+        JPanel panHelp = new JPanel(new GridLayout(1, 1));
         panHelp.add(butHelp);
         
         FixedYPanel panTopRowsHelp = new FixedYPanel(new FlowLayout(FlowLayout.CENTER, 30, 5));
@@ -804,7 +801,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                     .collect(Collectors.toList());
             List<String> byTags = boardTags.entrySet().stream()
                     .filter(e -> e.getValue().contains(token))
-                    .map(e -> e.getKey())
+                    .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
             List<String> tokenResult = CollectionUtil.union(byFilename, byTags);
             result = result.stream().filter(tokenResult::contains).collect(toList());
@@ -1705,7 +1702,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 Client c = getSelectedClient();
                 if (c == null) {
                     clientgui.doAlertDialog(Messages.getString("ChatLounge.ImproperCommand"),
-                            Messages.getString("ChatLounge.SelectBotOrPlayer"));  //$NON-NLS-2$
+                            Messages.getString("ChatLounge.SelectBotOrPlayer"));
                     return;
                 }
                 clientgui.loadListFile(c.getLocalPlayer());
@@ -1849,7 +1846,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 } catch (Exception e) {
                     dialog.setTitle(Messages.getString("AbstractHelpDialog.noHelp.title"));
                     pane.setText(Messages.getString("AbstractHelpDialog.errorReading") + e.getMessage());
-                    LogManager.getLogger().error(e);
+                    LogManager.getLogger().error("", e);
                 }
 
                 JButton button = new DialogButton(Messages.getString("Okay"));
@@ -1953,7 +1950,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(clientgui.frame, 
                     "There was a problem while saving the map setup!", "Error", JOptionPane.ERROR_MESSAGE);
-            LogManager.getLogger().error(ex);
+            LogManager.getLogger().error("", ex);
         }
     }
 
@@ -1986,7 +1983,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(clientgui.frame, 
                     "There was a problem while loading the map setup!", "Error", JOptionPane.ERROR_MESSAGE);
-            LogManager.getLogger().error(ex);
+            LogManager.getLogger().error("", ex);
         }
     }
     
@@ -2296,11 +2293,11 @@ public class ChatLounge extends AbstractPhaseDisplay implements
      * <P>See also {@link #isEditable(Entity)}
      */
     boolean canEditAny(Collection<Entity> entities) {
-        return entities.stream().anyMatch(e -> isEditable(e));
+        return entities.stream().anyMatch(this::isEditable);
     }
     
     /**
-     * Returns true if the local player can see all of the given entities.
+     * Returns true if the local player can see all the given entities.
      * This is true except when a blind drop option is active and one or more
      * of the entities are not on his team.
      */
@@ -2678,7 +2675,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
             switch (command[0]) {
                 case MapListPopup.MLP_BOARD:
-                    boolean rotate = (command.length > 3) && Boolean.valueOf(command[3]);
+                    boolean rotate = (command.length > 3) && Boolean.parseBoolean(command[3]);
                     String rotateRequest = rotate ? Board.BOARD_REQUEST_ROTATION : "";
 
                     changeMapDnD(rotateRequest + command[2], mapButtons.get(Integer.parseInt(command[1])));
@@ -2813,7 +2810,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 return;
             }
             List<Entity> entities = getSelectedEntities();
-            ScalingPopup popup = LobbyMekPopup.getPopup(entities, new ArrayList<Force>(), new LobbyMekPopupActions(ChatLounge.this), ChatLounge.this);
+            ScalingPopup popup = LobbyMekPopup.getPopup(entities, new ArrayList<>(), new LobbyMekPopupActions(ChatLounge.this), ChatLounge.this);
             popup.show(e.getComponent(), e.getX(), e.getY());
         }
     }
@@ -2913,7 +2910,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
      * <P>See also {@link #isEditable(Entity)} 
      */
     private Set<Entity> editableEntities(Collection<Entity> entities) {
-        return entities.stream().filter(e -> isEditable(e)).collect(Collectors.toSet());
+        return entities.stream().filter(this::isEditable).collect(Collectors.toSet());
     }
     
    
@@ -2931,17 +2928,20 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
     @Override
     public void preferenceChange(PreferenceChangeEvent e) {
-        if (e.getName().equals(GUIPreferences.GUI_SCALE)) {
-            adaptToGUIScale();
-            
-        } else if (e.getName().equals(IClientPreferences.SHOW_UNIT_ID)) {
-            setButUnitIDState();
-            mekModel.refreshCells();
-            refreshTree();
-        } else if (e.getName().equals(GUIPreferences.ADVANCED_USE_CAMO_OVERLAY)) {
-            clientgui.getBoardView().getTilesetManager().reloadUnitIcons();
-            mekModel.refreshCells();
-            refreshTree();
+        switch (e.getName()) {
+            case GUIPreferences.GUI_SCALE:
+                adaptToGUIScale();
+                break;
+            case ClientPreferences.SHOW_UNIT_ID:
+                setButUnitIDState();
+                mekModel.refreshCells();
+                refreshTree();
+                break;
+            case GUIPreferences.ADVANCED_USE_CAMO_OVERLAY:
+                clientgui.getBoardView().getTilesetManager().reloadUnitIcons();
+                mekModel.refreshCells();
+                refreshTree();
+                break;
         }
     }
     
@@ -3168,7 +3168,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             } else {
                 changeSorter(e);
             }
-        };
+        }
         
         private void sorterPopup(MouseEvent e) {
             ScalingPopup popup = new ScalingPopup();
@@ -3271,14 +3271,14 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
     class ImageLoader extends SwingWorker<Void, Image> {
 
-        private BlockingQueue<String> boards = new LinkedBlockingQueue<String>();
+        private BlockingQueue<String> boards = new LinkedBlockingQueue<>();
 
         private synchronized void add(String name) {
             if (!boards.contains(name)) {
                 try {
                     boards.put(name);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    LogManager.getLogger().error("", e);
                 }
             }
         }

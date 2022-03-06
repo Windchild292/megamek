@@ -30,6 +30,7 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
 
     }
 
+    @Override
     public VictoryResult victory(Game game, Map<String, Object> ctx) {
         // check all players/teams for aliveness
         int playersAlive = 0;
@@ -63,7 +64,7 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         if (playersAlive < 1) {
             return VictoryResult.drawResult();
         } else if (playersAlive == 1) {
-            if ((lastPlayer != null) && (lastPlayer.getTeamNumber() == Team.NONE)) {
+            if (lastPlayer.getTeamNumber() == Team.NONE) {
                 // individual victory
                 return new VictoryResult(true, lastPlayer.getId(), Team.NONE);
             }

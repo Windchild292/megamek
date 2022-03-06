@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -14,8 +14,8 @@
  */
 package megamek.common;
 
-import megamek.common.Building.BasementType;
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.BasementType;
 import megamek.common.event.BoardEvent;
 import megamek.common.event.BoardListener;
 import megamek.common.util.fileUtils.MegaMekFile;
@@ -470,7 +470,7 @@ public class Board implements Serializable {
     }
     
     /** 
-     * Checks all hex edges of the hex at (x,y) if automatically handled 
+     * Checks all hex edges of the hex at (x, y) if automatically handled 
      * terrains such as inclines must be placed or removed.
      * @param x The hex X-coord.
      * @param y The hex Y-coord.
@@ -1541,7 +1541,7 @@ public class Board implements Serializable {
     }
 
     /**
-     * @return an <code>Hashtable</code of <code>InfernoTrackers</code> on the board.
+     * @return an <code>Hashtable</code> of <code>InfernoTrackers</code> on the board.
      */
     public Hashtable<Coords, InfernoTracker> getInfernos() {
         return infernos;
@@ -1569,7 +1569,7 @@ public class Board implements Serializable {
         for (Building b : buildings) {
             for (Enumeration<Coords> coords = b.getCoords(); coords.hasMoreElements();) {
                 Coords c = coords.nextElement();
-                if (b.getBasement(c) == BasementType.UNKNOWN) {
+                if (b.getBasement(c).isUnknown()) {
                     b.setBasement(c, BasementType.NONE);
                 }
             }

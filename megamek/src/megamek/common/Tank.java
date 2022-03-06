@@ -134,7 +134,7 @@ public class Tank extends Entity {
     private boolean driverHit = false;
     private boolean commanderHit = false;
     //If there is a cockpit command console, the tank does not suffer the effects of the first commander critical,
-    //but the command console benefits are lost as the backup has to take command.
+    // but the command console benefits are lost as the backup has to take command.
     private boolean usingConsoleCommander = false;
     /** Vehicles can be constructed with seating for additional crew. This has no effect on play */
     private int extraCrewSeats = 0;
@@ -173,6 +173,7 @@ public class Tank extends Entity {
      */
     private FuelType fuelType = FuelType.PETROCHEMICALS;
 
+    @Override
     public CrewType defaultCrewType() {
         return CrewType.CREW;
     }
@@ -238,11 +239,13 @@ public class Tank extends Entity {
     //Advanced turrets
     public static TechAdvancement getDualTurretTA() {
         return new TechAdvancement(TECH_BASE_ALL)
-                .setAdvancement(DATE_PS, 3080, 3080).setApproximate(false, true, false)
+                .setAdvancement(DATE_PS, DATE_NONE, 3080)
+                .setApproximate(false, false, true)
                 .setTechRating(RATING_B).setAvailability(RATING_F, RATING_F, RATING_F, RATING_E)
-                .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
+                .setStaticTechLevel(SimpleTechLevel.STANDARD);
     }
 
+    @Override
     protected void addSystemTechAdvancement(CompositeTechLevel ctl) {
         super.addSystemTechAdvancement(ctl);
         if (!hasNoDualTurret()) {
@@ -739,21 +742,7 @@ public class Tank extends Entity {
     public void newRound(int roundNumber) {
         super.newRound(roundNumber);
 
-        // If MASC was used last turn, increment the counter,
-        // otherwise decrement. Then, clear the counter
-        if (usedMASC) {
-            nMASCLevel++;
-            bMASCWentUp = true;
-        } else {
-            nMASCLevel = Math.max(0, nMASCLevel - 1);
-            if (bMASCWentUp) {
-                nMASCLevel = Math.max(0, nMASCLevel - 1);
-                bMASCWentUp = false;
-            }
-        }
-
-        // Clear the MASC flag
-        usedMASC = false;
+        incrementMASCAndSuperchargerLevels();
 
         // check for crew stun
         if (m_nStunnedTurns > 0) {
@@ -1586,7 +1575,7 @@ public class Tank extends Entity {
         bvText.append(startRow);
         bvText.append(startColumn);
         // and add up BVs for ammo-using weapon types for excessive ammo rule
-        Map<String, Double> weaponsForExcessiveAmmo = new HashMap<String, Double>();
+        Map<String, Double> weaponsForExcessiveAmmo = new HashMap<>();
         for (Mounted mounted : getWeaponList()) {
             WeaponType wtype = (WeaponType) mounted.getType();
             double dBV = wtype.getBV(this);
@@ -1767,8 +1756,8 @@ public class Tank extends Entity {
         // extra BV for when we have semiguided LRMs and someone else has TAG on
         // our team
         double tagBV = 0;
-        Map<String, Double> ammo = new HashMap<String, Double>();
-        ArrayList<String> keys = new ArrayList<String>();
+        Map<String, Double> ammo = new HashMap<>();
+        ArrayList<String> keys = new ArrayList<>();
         for (Mounted mounted : getAmmo()) {
             AmmoType atype = (AmmoType) mounted.getType();
 
@@ -2140,7 +2129,7 @@ public class Tank extends Entity {
 
     @Override
     public Vector<Report> victoryReport() {
-        Vector<Report> vDesc = new Vector<Report>();
+        Vector<Report> vDesc = new Vector<>();
 
         Report r = new Report(7025);
         r.type = Report.PUBLIC;
@@ -2183,13 +2172,14 @@ public class Tank extends Entity {
     }
 
     /**
-     * Tanks don't have MASC
+     * Tanks have Superchargers but don't have MASC
      */
     @Override
     public int getRunMPwithoutMASC(boolean gravity, boolean ignoreheat,
             boolean ignoremodulararmor) {
         return super.getRunMP(gravity, ignoreheat, ignoremodulararmor);
     }
+
 
     /*
      * (non-Javadoc)
@@ -2277,6 +2267,7 @@ public class Tank extends Entity {
             return getOriginalRunMP();
         }
     }
+
 
     /**
      * Returns this entity's Sprint mp as a string.
@@ -2491,7 +2482,7 @@ public class Tank extends Entity {
 
     private void addCostDetails(double cost, double[] costs) {
         bvText = new StringBuffer();
-        ArrayList<String> left = new ArrayList<String>();
+        ArrayList<String> left = new ArrayList<>();
 
         if (isSupportVehicle()) {
             left.add("Chassis");
@@ -3276,7 +3267,7 @@ public class Tank extends Entity {
     /**
      * OmniVehicles have handles for Battle Armor squads to latch onto. Please
      * note, this method should only be called during this Tank's construction.
-     * <p/>
+     * <p>
      * Overrides <code>Entity#setOmni(boolean)</code>
      */
     @Override
@@ -3301,7 +3292,7 @@ public class Tank extends Entity {
         // if ba_grab_bars is on, then we need to add battlearmor handles,
         // otherwise clamp mounts
         // but first clear out whatever we have
-        Vector<Transporter> et = new Vector<Transporter>(getTransports());
+        Vector<Transporter> et = new Vector<>(getTransports());
         for (Transporter t : et) {
             if (t instanceof BattleArmorHandlesTank) {
                 removeTransporter(t);
@@ -3390,7 +3381,7 @@ public class Tank extends Entity {
     }
 
     public void resetJammedWeapons() {
-        jammedWeapons = new ArrayList<Mounted>();
+        jammedWeapons = new ArrayList<>();
     }
 
     /**
@@ -3509,7 +3500,7 @@ public class Tank extends Entity {
     /**
      * Determine if this unit has an active and working stealth system. (stealth
      * can be active and not working when under ECCM)
-     * <p/>
+     * <p>
      * Sub-classes are encouraged to override this method.
      *
      * @return <code>true</code> if this unit has a stealth system that is
@@ -3536,7 +3527,7 @@ public class Tank extends Entity {
     /**
      * Determine if this unit has an active and working stealth system. (stealth
      * can be active and not working when under ECCM)
-     * <p/>
+     * <p>
      * Sub-classes are encouraged to override this method.
      *
      * @return <code>true</code> if this unit has a stealth system that is
@@ -3770,8 +3761,18 @@ public class Tank extends Entity {
      */
     @Override
     public String getRunMPasString() {
-        if (hasArmedMASC()) {
-            return getRunMPwithoutMASC() + "(" + getRunMP() + ")";
+        MPBoosters mpBoosters = getMPBoosters();
+        if (mpBoosters.hasMASCAndOrSupercharger()) {
+            String str = getRunMPwithoutMASC() + "(" + getRunMP() + ")";
+            if (game != null) {
+                MPBoosters armed = getArmedMPBoosters();
+
+                str += (mpBoosters.hasMASC() ? " MASC:" + getMASCTurns()
+                        + (armed.hasMASC() ? "(" + getMASCTarget() + "+)" : "(NA)") : "")
+                        + (mpBoosters.hasSupercharger() ? " Supercharger:" + getSuperchargerTurns()
+                        + (armed.hasSupercharger() ? "(" + getSuperchargerTarget() + "+)" : "(NA)") : "");
+            }
+            return str;
         }
         return Integer.toString(getRunMP());
     }
@@ -3781,7 +3782,7 @@ public class Tank extends Entity {
      * range. If the value supplied for <code>range</code> is not one of the
      * <code>Entity</code> class range constants, an
      * <code>IllegalArgumentException</code> will be thrown.
-     * <p/>
+     * <p>
      * Sub-classes are encouraged to override this method.
      *
      * @param range
@@ -3846,8 +3847,8 @@ public class Tank extends Entity {
         double move = getOriginalWalkMP();
 
         if (getMisc().stream().filter(m -> m.getType().hasFlag(MiscType.F_MASC))
-        		.map(m -> m.getType().getSubType())
-        		.anyMatch(st -> st == MiscType.S_SUPERCHARGER)) {
+                .map(m -> m.getType().getSubType())
+                .anyMatch(st -> st == MiscType.S_SUPERCHARGER)) {
             move *= 1.25;
         }
 
@@ -3933,12 +3934,13 @@ public class Tank extends Entity {
      */
     @Override
     public double getAlphaStrikeLocationMultiplier(int index, int location, boolean rearMounted) {
-    	if (index == 0) {
-    		return location > LOC_BODY? 1.0 : 0.0;
-    	}
-    	return getBattleForceLocationMultiplier(index, location, rearMounted);
+        if (index == 0) {
+            return location > LOC_BODY? 1.0 : 0.0;
+        }
+        return getBattleForceLocationMultiplier(index, location, rearMounted);
     }
     
+    @Override
     public void addBattleForceSpecialAbilities(Map<BattleForceSPA,Integer> specialAbilities) {
         super.addBattleForceSpecialAbilities(specialAbilities);
         if (!isSupportVehicle()) {
@@ -4360,6 +4362,7 @@ public class Tank extends Entity {
      *
      * @return
      */
+    @Override
     public int getSpriteDrawPriority() {
         return 4;
     }

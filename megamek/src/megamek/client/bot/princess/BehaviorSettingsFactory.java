@@ -123,7 +123,7 @@ public class BehaviorSettingsFactory {
                 return MegaMekXmlUtil.newSafeDocumentBuilder().parse(is);
             }
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return null;
         }
     }
@@ -152,7 +152,7 @@ public class BehaviorSettingsFactory {
                 }
                 return true;
             } catch (Exception e) {
-                LogManager.getLogger().error(e);
+                LogManager.getLogger().error("", e);
                 return false;
             } finally {
                 addDefaultBehaviors();
@@ -202,7 +202,7 @@ public class BehaviorSettingsFactory {
                 return true;
             }
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return false;
         }
     }
@@ -235,8 +235,8 @@ public class BehaviorSettingsFactory {
     // DEFAULT BEHAVIORS
     //******************
     /**
-     * Destination Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
-     * Retreat Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
+     * Destination Edge: {@link CardinalEdge#NONE} <br>
+     * Retreat Edge: {@link CardinalEdge#NONE} <br>
      * Forced Withdrawal: False <br>
      * Go Home: False <br>
      * Auto Flee: False <br>
@@ -268,14 +268,14 @@ public class BehaviorSettingsFactory {
             berserkBehavior.setBraveryIndex(9);
             return berserkBehavior;
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return null;
         }
     }
 
     /**
-     * Destination Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
-     * Retreat Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
+     * Destination Edge: {@link CardinalEdge#NONE} <br>
+     * Retreat Edge: {@link CardinalEdge#NEAREST} <br>
      * Forced Withdrawal: True <br>
      * Go Home: False <br>
      * Auto Flee: False <br>
@@ -304,14 +304,14 @@ public class BehaviorSettingsFactory {
             cowardlyBehavior.setBraveryIndex(2);
             return cowardlyBehavior;
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return null;
         }
     }
 
     /**
-     * Destination Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
-     * Retreat Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
+     * Destination Edge: {@link CardinalEdge#NONE} <br>
+     * Retreat Edge: {@link CardinalEdge#NEAREST} <br>
      * Forced Withdrawal: True <br>
      * Go Home: True <br>
      * Auto Flee: True <br>
@@ -343,14 +343,14 @@ public class BehaviorSettingsFactory {
             escapeBehavior.setBraveryIndex(2);
             return escapeBehavior;
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return null;
         }
     }
 
     /**
-     * Destination Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
-     * Retreat Edge: {@link CardinalEdge#NEAREST_OR_NONE} <br>
+     * Destination Edge: {@link CardinalEdge#NONE} <br>
+     * Retreat Edge: {@link CardinalEdge#NEAREST} <br>
      * Forced Withdrawal: True <br>
      * Go Home: False <br>
      * Auto Flee: False <br>
@@ -379,7 +379,7 @@ public class BehaviorSettingsFactory {
             defaultBehavior.setBraveryIndex(5);
             return defaultBehavior;
         } catch (Exception e) {
-            LogManager.getLogger().error(e);
+            LogManager.getLogger().error("", e);
             return null;
         }
     }

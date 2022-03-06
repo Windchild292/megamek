@@ -113,13 +113,13 @@ public class SharedUtility {
             curPos = step.getPosition();
             curFacing = step.getFacing();
 
-            //check for vertical takeoff
+            // check for vertical takeoff
             if (step.getType() == MoveStepType.VTAKEOFF) {
                 rollTarget = ((IAero) entity).checkVerticalTakeOff();
                 checkNag(rollTarget, nagReport, psrList);
             }
 
-            //check for landing
+            // check for landing
             if (step.getType() == MoveStepType.LAND) {
                 rollTarget = ((IAero) entity).checkLanding(moveType,
                         step.getVelocity(), curPos, curFacing, false);
@@ -183,7 +183,7 @@ public class SharedUtility {
     private static Object doPSRCheck(MovePath md, boolean stringResult) {
 
         StringBuffer nagReport = new StringBuffer();
-        List<TargetRoll> psrList = new ArrayList<TargetRoll>();
+        List<TargetRoll> psrList = new ArrayList<>();
 
         final Entity entity = md.getEntity();
         final Game game = entity.getGame();
@@ -246,14 +246,14 @@ public class SharedUtility {
 
             final Hex curHex = game.getBoard().getHex(curPos);
 
-            //check for vertical takeoff
+            // check for vertical takeoff
             if ((step.getType() == MoveStepType.VTAKEOFF)
                     && entity.isAero()) {
                 rollTarget = ((IAero) entity).checkVerticalTakeOff();
                 checkNag(rollTarget, nagReport, psrList);
             }
 
-            //check for landing
+            // check for landing
             if ((step.getType() == MoveStepType.LAND)
                     && entity.isAero()) {
                 rollTarget = ((IAero) entity).checkLanding(moveType,
@@ -306,7 +306,7 @@ public class SharedUtility {
                         .getPlanetaryConditions().getLightDisplayableName());
             }
 
-            //check if we are moving recklessly
+            // check if we are moving recklessly
             rollTarget = entity.checkRecklessMove(step, overallMoveType,
                     curHex, lastPos, curPos, prevHex);
             checkNag(rollTarget, nagReport, psrList);
@@ -561,10 +561,10 @@ public class SharedUtility {
         checkNag(rollTarget, nagReport, psrList);
 
         //if we sprinted with MASC or a supercharger, then we need a PSR
-        rollTarget = entity.checkSprintingWithMASC(overallMoveType, md.getMpUsed());
+        rollTarget = entity.checkSprintingWithMASCXorSupercharger(overallMoveType, md.getMpUsed());
         checkNag(rollTarget, nagReport, psrList);
 
-        rollTarget = entity.checkSprintingWithSupercharger(overallMoveType, md.getMpUsed());
+        rollTarget = entity.checkSprintingWithMASCAndSupercharger(overallMoveType, md.getMpUsed());
         checkNag(rollTarget, nagReport, psrList);
 
         rollTarget = entity.checkUsingOverdrive(overallMoveType);
@@ -657,10 +657,8 @@ public class SharedUtility {
             StringBuffer nagReport, List<TargetRoll> psrList) {
         if (rollTarget.getValue() != TargetRoll.CHECK_FALSE) {
             psrList.add(rollTarget);
-            Object[] objs = new Object[] { rollTarget.getValueAsString(),
-                    rollTarget.getDesc() };
-            nagReport
-                    .append(Messages.getString("MovementDisplay.addNag", objs));//$NON-NLS-1$
+            nagReport.append(Messages.getString("MovementDisplay.addNag",
+                    rollTarget.getValueAsString(), rollTarget.getDesc()));
         }
     }
 
@@ -874,7 +872,7 @@ public class SharedUtility {
 
             Coords c = in.get(i);
             // check for split hexes
-            // check for some number after a multiple of 3 (1,4,7,etc)
+            // check for some number after a multiple of 3 (1, 4, 7, etc)
             if (((i % 3) == 1) && split) {
 
                 Coords left = in.get(i);
