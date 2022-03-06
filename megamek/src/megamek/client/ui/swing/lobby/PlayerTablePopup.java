@@ -27,6 +27,7 @@ import javax.swing.JMenuItem;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.util.ScalingPopup;
 import megamek.common.*;
+import megamek.common.enums.TeamNumber;
 import megamek.common.util.CollectionUtil;
 
 import static megamek.client.ui.swing.util.UIUtil.*;
@@ -75,8 +76,11 @@ class PlayerTablePopup {
     /** Returns the "Team" submenu, allowing to assign a player to a team. */
     private static JMenu teamMenu(boolean enabled, ActionListener listener) {
         JMenu menu = new JMenu("Assign to Team");
-        for (int i = 0; i < Team.NAMES.length; i++) {
-            JMenuItem item = menuItem(Team.NAMES[i], PTP_TEAM + "|" + i, enabled, listener);
+        for (final TeamNumber teamNumber : TeamNumber.values()) {
+            if (teamNumber.isUnassigned()) {
+                continue;
+            }
+            JMenuItem item = menuItem(teamNumber.toString(), PTP_TEAM + "|" + teamNumber.name(), enabled, listener);
             menu.add(item);
         }
         menu.setEnabled(enabled);

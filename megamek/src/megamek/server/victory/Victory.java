@@ -20,6 +20,7 @@ import java.util.Map;
 
 import megamek.common.Game;
 import megamek.common.Report;
+import megamek.common.enums.TeamNumber;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
 
@@ -111,7 +112,7 @@ public class Victory implements Serializable {
             for (int pl : res.getPlayers()) {
                 vr.addPlayerScore(pl, vr.getPlayerScore(pl) + res.getPlayerScore(pl));
             }
-            for (int t : res.getTeams()) {
+            for (TeamNumber t : res.getTeams()) {
                 vr.addTeamScore(t, vr.getTeamScore(t) + res.getTeamScore(t));
             }
         }

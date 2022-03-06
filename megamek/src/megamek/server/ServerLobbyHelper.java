@@ -22,6 +22,7 @@ import megamek.client.ui.swing.lobby.LobbyActions;
 import megamek.common.Entity;
 import megamek.common.Game;
 import megamek.common.Player;
+import megamek.common.enums.TeamNumber;
 import megamek.common.force.Force;
 import megamek.common.force.Forces;
 import megamek.common.net.Packet;
@@ -324,7 +325,7 @@ class ServerLobbyHelper {
     static void receiveLobbyTeamChange(Packet c, int connId, Game game, Server server) {
         @SuppressWarnings("unchecked")
         var players = (Collection<Player>) c.getObject(0);
-        var newTeam = (int) c.getObject(1);
+        var newTeam = (TeamNumber) c.getObject(1);
         
         // Collect server-side player objects
         Set<Player> serverPlayers = new HashSet<>();
@@ -332,7 +333,7 @@ class ServerLobbyHelper {
         
         // Check parameters and if there's an actual change to a player
         serverPlayers.removeIf(p -> p == null || p.getTeamNumber() == newTeam);
-        if (serverPlayers.isEmpty() || newTeam < 0 || newTeam > 5) {
+        if (serverPlayers.isEmpty() || newTeam.isUnassignedOrNone()) {
             return;
         }
         

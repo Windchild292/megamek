@@ -20,6 +20,7 @@ import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.enums.Gender;
+import megamek.common.enums.TeamNumber;
 import megamek.common.icons.Camouflage;
 import megamek.common.loaders.EntityLoadingException;
 import megamek.common.options.IOption;
@@ -745,7 +746,8 @@ public class ScenarioLoader {
             } else {
                 teamId++;
             }
-            player.setTeamNumber(Math.min(teamId, Team.NAMES.length - 1));
+            TeamNumber[] teamNumbers = TeamNumber.values();
+            player.setTeamNumber(teamNumbers[Math.min(teamId, teamNumbers.length)]);
             
             String minefields = p.getString(getFactionParam(faction, PARAM_MINEFIELDS));
             if ((minefields != null) && !minefields.isEmpty()) {

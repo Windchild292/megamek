@@ -72,6 +72,10 @@ public enum TeamNumber {
     public boolean isFive() {
         return this == FIVE;
     }
+
+    public boolean isUnassignedOrNone() {
+        return isUnassigned() || isNone();
+    }
     //endregion Boolean Comparison Methods
 
     @Override

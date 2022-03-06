@@ -24,12 +24,12 @@ import megamek.common.annotations.Nullable;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.BasementType;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.event.GameEntityChangeEvent;
 import megamek.common.force.Force;
 import megamek.common.icons.Camouflage;
 import megamek.common.options.*;
 import megamek.common.preference.PreferenceManager;
-import megamek.common.util.StringUtil;
 import megamek.common.weapons.*;
 import megamek.common.weapons.battlearmor.ISBAPopUpMineLauncher;
 import megamek.common.weapons.bayweapons.AR10BayWeapon;
@@ -873,7 +873,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     /**
      * Set of team IDs that have observed this entity making attacks from off-board
      */
-    private Set<Integer> offBoardShotObservers;
+    private Set<TeamNumber> offBoardShotObservers;
     
     /** 
      * A String representation of the force hierarchy this entity belongs to.
@@ -6755,8 +6755,8 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     /**
      * has the team attached a narc pod to me?
      */
-    public boolean isNarcedBy(int nTeamID) {
-        return narcPods.stream().anyMatch(pod -> pod.getTeam() == nTeamID);
+    public boolean isNarcedBy(TeamNumber teamNumber) {
+        return narcPods.stream().anyMatch(pod -> pod.getTeamNumber() == teamNumber);
     }
 
     /**
@@ -6780,11 +6780,11 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     /**
      * Have we been iNarced with a homing pod from that team?
      *
-     * @param nTeamID The id of the team that we are wondering about.
+     * @param teamNumber The id of the team that we are wondering about.
      * @return true if the Entity is narced by that team.
      */
-    public boolean isINarcedBy(int nTeamID) {
-        return iNarcPods.stream().anyMatch(pod -> (pod.getTeam() == nTeamID) && (pod.getType() == INarcPod.HOMING));
+    public boolean isINarcedBy(TeamNumber teamNumber) {
+        return iNarcPods.stream().anyMatch(pod -> (pod.getTeamNumber() == teamNumber) && (pod.getType() == INarcPod.HOMING));
     }
 
     /**
@@ -16124,15 +16124,15 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     /**
      * Indicate that an off-board artillery attack by this entity has been observed by a particular team
      */
-    public void addOffBoardObserver(int teamID) {
-        offBoardShotObservers.add(teamID);
+    public void addOffBoardObserver(TeamNumber teamNumber) {
+        offBoardShotObservers.add(teamNumber);
     }
     
     /**
      * Has the given team observed an off-board artillery attack by this entity?
      */
-    public boolean isOffBoardObserved(int teamID) {
-        return offBoardShotObservers.contains(teamID);
+    public boolean isOffBoardObserved(TeamNumber teamNumber) {
+        return offBoardShotObservers.contains(teamNumber);
     }
     
     public String getForceString() {

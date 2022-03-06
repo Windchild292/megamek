@@ -15,7 +15,7 @@ package megamek.server.victory;
 
 import megamek.common.Game;
 import megamek.common.Player;
-import megamek.common.Team;
+import megamek.common.enums.TeamNumber;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -36,27 +36,27 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         int playersAlive = 0;
         Player lastPlayer = null;
         boolean oneTeamAlive = false;
-        int lastTeam = Team.NONE;
+        TeamNumber lastTeam = TeamNumber.NONE;
         boolean unteamedAlive = false;
         for (Player player : game.getPlayersVector()) {
-            int team = player.getTeamNumber();
+            TeamNumber teamNumber = player.getTeamNumber();
             if (game.getLiveDeployedEntitiesOwnedBy(player) <= 0) {
                 continue;
             }
             // we found a live one!
             playersAlive++;
             lastPlayer = player;
-            // check team
-            if (team == Team.NONE) {
+            // check teamNumber
+            if (teamNumber.isNone()) {
                 unteamedAlive = true;
-            } else if (lastTeam == Team.NONE) {
-                // possibly only one team alive
+            } else if (lastTeam.isNone()) {
+                // possibly only one teamNumber alive
                 oneTeamAlive = true;
-                lastTeam = team;
-            } else if (team != lastTeam) {
-                // more than one team alive
+                lastTeam = teamNumber;
+            } else if (teamNumber != lastTeam) {
+                // more than one teamNumber alive
                 oneTeamAlive = false;
-                lastTeam = team;
+                lastTeam = teamNumber;
             }
         }
 
@@ -64,9 +64,9 @@ public class LastManStandingVictory implements IVictoryConditions, Serializable 
         if (playersAlive < 1) {
             return VictoryResult.drawResult();
         } else if (playersAlive == 1) {
-            if (lastPlayer.getTeamNumber() == Team.NONE) {
+            if (lastPlayer.getTeamNumber().isNone()) {
                 // individual victory
-                return new VictoryResult(true, lastPlayer.getId(), Team.NONE);
+                return new VictoryResult(true, lastPlayer.getId(), TeamNumber.NONE);
             }
         }
 

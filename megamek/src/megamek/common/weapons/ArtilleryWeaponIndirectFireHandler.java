@@ -17,6 +17,7 @@ import megamek.common.*;
 import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.AreaEffectHelper.DamageFalloff;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;
@@ -543,10 +544,10 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
         // an off-board target can observe counter-battery fire attacking it for counter-battery fire (probably)
         } else if (target.isOffBoard()) {
             Entity attacker = aaa.getEntity(game);
-            int targetTeam = ((Entity) target).getOwner().getTeamNumber();
+            TeamNumber targetTeamNumber = ((Entity) target).getOwner().getTeamNumber();
             
-            if (attacker.isOffBoard() && !attacker.isOffBoardObserved(targetTeam)) {
-                attacker.addOffBoardObserver(targetTeam);
+            if (attacker.isOffBoard() && !attacker.isOffBoardObserved(targetTeamNumber)) {
+                attacker.addOffBoardObserver(targetTeamNumber);
                 
                 Report r = new Report(9997);
                 r.add(target.getDisplayName());
@@ -555,7 +556,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             }
         }
     }
-    
+
     /*
      * (non-Javadoc)
      *

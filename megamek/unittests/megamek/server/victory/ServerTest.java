@@ -65,7 +65,7 @@ public class ServerTest {
         testServer.setGame(testGame);
         testServer.victory();
         Mockito.verify(testGame, Mockito.times(1)).setVictoryPlayerId(Player.PLAYER_NONE);
-        Mockito.verify(testGame, Mockito.times(1)).setVictoryTeam(Player.TEAM_NONE);
+        Mockito.verify(testGame, Mockito.times(1)).setVictoryTeamNumber(Player.TEAM_NONE);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ServerTest {
         Mockito.when(victoryResult.victory()).thenReturn(true);
         Mockito.when(victoryResult.isDraw()).thenReturn(false);
         Mockito.when(victoryResult.getWinningPlayer()).thenReturn(winner);
-        Mockito.when(victoryResult.getWinningTeam()).thenReturn(Player.TEAM_NONE);
+        Mockito.when(victoryResult.getWinningTeamNumber()).thenReturn(Player.TEAM_NONE);
 
         Player mockedPlayer = Mockito.mock(Player.class);
         Mockito.when(mockedPlayer.getName()).thenReturn("The champion");
@@ -130,7 +130,7 @@ public class ServerTest {
         // Two reports should be generated
         Server testServer2 = new Server("test", 0);
 
-        Mockito.when(victoryResult.getWinningTeam()).thenReturn(10);
+        Mockito.when(victoryResult.getWinningTeamNumber()).thenReturn(10);
         Mockito.when(victoryResult.getReports()).thenReturn(new ArrayList<>());
         testServer2.setGame(testGame);
         testServer2.victory();

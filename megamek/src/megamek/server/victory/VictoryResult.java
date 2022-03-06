@@ -16,7 +16,7 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
-import megamek.common.Team;
+import megamek.common.enums.TeamNumber;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -33,7 +33,7 @@ public class VictoryResult {
     protected Throwable tr;
     protected List<Report> reports = new ArrayList<>();
     protected Map<Integer, Double> playerScore = new HashMap<>();
-    protected Map<Integer, Double> teamScore = new HashMap<>();
+    protected Map<TeamNumber, Double> teamScore = new HashMap<>();
     protected double hiScore = 0;
 
     protected VictoryResult(boolean win) {
@@ -41,23 +41,24 @@ public class VictoryResult {
         tr = new Throwable();
     }
     
-    protected VictoryResult(boolean win, int player, int team) {
+    protected VictoryResult(boolean win, int player, TeamNumber teamNumber) {
         this.victory = win;
         tr = new Throwable();
         if (player != Player.PLAYER_NONE) {
             addPlayerScore(player, 1.0);
         }
-        if (team != Team.NONE) {
-            addTeamScore(team, 1.0);
+
+        if (!teamNumber.isNone()) {
+            addTeamScore(teamNumber, 1.0);
         }
     }
     
     protected static VictoryResult noResult() {
-    	return new VictoryResult(false, Player.PLAYER_NONE, Team.NONE);
+    	return new VictoryResult(false, Player.PLAYER_NONE, TeamNumber.NONE);
     }
     
     protected static VictoryResult drawResult() {
-        return new VictoryResult(true, Player.PLAYER_NONE, Team.NONE);
+        return new VictoryResult(true, Player.PLAYER_NONE, TeamNumber.NONE);
     }
 
     private int getWinningPlayerOrTeam(Map<Integer, Double> entities, int defaultEntity) {
@@ -80,17 +81,17 @@ public class VictoryResult {
     }
 
     /**
-     * @return the id of the winning player, or Player.TEAM_NONE if it's a draw
+     * @return the id of the winning player, or Player.PLAYER_NONE if it's a draw
      */
     public int getWinningPlayer() {
         return getWinningPlayerOrTeam(playerScore, Player.PLAYER_NONE);
     }
 
     /**
-     * @return the id of the winning team, or Player.TEAM_NONE if it's a draw
+     * @return the id of the winning team, or TeamNumber.NONE if it's a draw
      */
-    public int getWinningTeam() {
-        return getWinningPlayerOrTeam(teamScore, Team.NONE);
+    public TeamNumber getWinningTeamNumber() {
+        return getWinningPlayerOrTeam(teamScore, TeamNumber.NONE);
     }
 
     protected void updateHiScore() {
@@ -112,8 +113,8 @@ public class VictoryResult {
         updateHiScore();
     }
 
-    public void addTeamScore(int id, double score) {
-        teamScore.put(id, score);
+    public void addTeamScore(TeamNumber teamNumber, double score) {
+        teamScore.put(teamNumber, score);
         updateHiScore();
     }
 
@@ -163,8 +164,8 @@ public class VictoryResult {
         return teamScore.get(id);
     }
 
-    public int[] getTeams() {
-        return intify(teamScore.keySet().toArray(new Integer[0]));
+    public TeamNumber[] getTeams() {
+        return intify(teamScore.keySet().toArray(new TeamNumber[0]));
     }
 
     public void addReport(Report r) {
@@ -193,7 +194,7 @@ public class VictoryResult {
         if (victory()) {
             boolean draw = isDraw();
             int wonPlayer = getWinningPlayer();
-            int wonTeam = getWinningTeam();
+            TeamNumber wonTeam = getWinningTeamNumber();
 
             if (wonPlayer != Player.PLAYER_NONE) {
                 Report r = new Report(7200, Report.PUBLIC);
@@ -201,7 +202,7 @@ public class VictoryResult {
                 someReports.add(r);
             }
 
-            if (wonTeam != Team.NONE) {
+            if (!wonTeam.isNone()) {
                 Report r = new Report(7200, Report.PUBLIC);
                 r.add("Team " + wonTeam);
                 someReports.add(r);
@@ -210,13 +211,13 @@ public class VictoryResult {
             if (draw) {
                 // multiple-won draw
                 game.setVictoryPlayerId(Player.PLAYER_NONE);
-                game.setVictoryTeam(Team.NONE);
+                game.setVictoryTeamNumber(TeamNumber.NONE);
             } else {
                 // nobody-won draw or
                 // single player won or
                 // single team won
                 game.setVictoryPlayerId(wonPlayer);
-                game.setVictoryTeam(wonTeam);
+                game.setVictoryTeamNumber(wonTeam);
             }
         } else {
             game.cancelVictory();
@@ -245,6 +246,6 @@ public class VictoryResult {
     }
 
     public boolean isDraw() {
-        return (getWinningPlayer() == Player.PLAYER_NONE) && (getWinningTeam() == Team.NONE);
+        return (getWinningPlayer() == Player.PLAYER_NONE) && getWinningTeamNumber().isNone();
     }
 }

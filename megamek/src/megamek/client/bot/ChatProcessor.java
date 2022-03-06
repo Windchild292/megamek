@@ -285,9 +285,7 @@ public class ChatProcessor {
         }
 
         // Make sure the command came from my team.
-        int speakerTeam = speakerPlayer.getTeamNumber();
-        int princessTeam = princessPlayer.getTeamNumber();
-        if (princessTeam != speakerTeam) {
+        if (princessPlayer.getTeamNumber() != speakerPlayer.getTeamNumber()) {
             msg = "You are not my boss. [wrong team]";
             princess.sendChat(msg);
             LogManager.getLogger().warn(msg);

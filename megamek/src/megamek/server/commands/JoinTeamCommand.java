@@ -21,12 +21,11 @@
 package megamek.server.commands;
 
 import megamek.common.Player;
-import megamek.common.Team;
+import megamek.common.enums.TeamNumber;
 import megamek.server.Server;
 
 /**
  * This command allows a player to join a specified team.
- * 
  * @author arlith
  */
 public class JoinTeamCommand extends ServerCommand {
@@ -60,18 +59,17 @@ public class JoinTeamCommand extends ServerCommand {
                 server.sendServerChat(connId, getHelp());
                 return;
             }
+
+            TeamNumber teamNumber = TeamNumber.values()[Integer.parseInt(args[1]) + 2];
             
-            int teamId = Integer.parseInt(args[1]);
-            
-            if ((Team.UNASSIGNED == teamId) && (numEntities != 0)) {
-                server.sendServerChat(connId, "Player must have no more " +
-                        "units to join the unassigned team!");
+            if (teamNumber.isUnassigned() && (numEntities != 0)) {
+                server.sendServerChat(connId, "Player must have no more units to join the unassigned team!");
                 return;
             }
-            String teamString = "join Team " + teamId + ".  ";
-            if (teamId == Team.UNASSIGNED) {
+            String teamString = "join Team " + teamNumber + ".  ";
+            if (teamNumber.isUnassigned()) {
                 teamString = " leave their team and go unassigned.  ";
-            } else if (teamId == Team.NONE) {
+            } else if (teamNumber.isNone()) {
                 teamString = " go lone wolf!  ";
             }
 
@@ -83,7 +81,7 @@ public class JoinTeamCommand extends ServerCommand {
                 }
             }
             
-            server.requestTeamChange(teamId, player);
+            server.requestTeamChange(teamNumber, player);
             
             for (Player p : server.getGame().getPlayersVector()) {
                 p.setAllowTeamChange(false);
@@ -93,5 +91,4 @@ public class JoinTeamCommand extends ServerCommand {
             server.sendServerChat(connId,"Failed to parse team number!");
         }
     }
-
 }

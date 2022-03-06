@@ -24,6 +24,7 @@ import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.TableColumnManager;
 import megamek.client.ui.swing.util.UIUtil;
 import megamek.common.*;
+import megamek.common.enums.TeamNumber;
 import megamek.common.options.OptionsConstants;
 
 import javax.swing.*;
@@ -142,19 +143,19 @@ public class TeamOverviewPanel extends JPanel {
 
     /** Updates the table with data from the game. */
     public void refreshData() {
-        // Remeber the previously selected team, if any
+        // Remember the previously selected team, if any
         int selectedRow = teamOverviewTable.getSelectedRow();
-        int selectedTeam = -1;
+        TeamNumber selectedTeam = TeamNumber.UNASSIGNED;
         if (selectedRow != -1) {
-            selectedTeam = teamOverviewModel.teamID.get(teamOverviewTable.getSelectedRow());
+            selectedTeam = teamOverviewModel.teamNumbers.get(teamOverviewTable.getSelectedRow());
         }
         
         // Update the data
         teamOverviewModel.updateTable(clientGui.getClient().getGame());
         
         // Re-select the previously selected team, if possible
-        if ((selectedRow != -1) && (teamOverviewModel.teamID.contains(selectedTeam))) {
-            int row = teamOverviewModel.teamID.indexOf(selectedTeam);
+        if ((selectedRow != -1) && teamOverviewModel.teamNumbers.contains(selectedTeam)) {
+            int row = teamOverviewModel.teamNumbers.indexOf(selectedTeam);
             teamOverviewTable.getSelectionModel().setSelectionInterval(row, row);
         }
     }
@@ -164,7 +165,7 @@ public class TeamOverviewPanel extends JPanel {
         private static final long serialVersionUID = 2747614890129092912L;
 
         private ArrayList<Team> teams = new ArrayList<>();
-        private ArrayList<Integer> teamID = new ArrayList<>();
+        private ArrayList<TeamNumber> teamNumbers = new ArrayList<>();
         private ArrayList<String> teamNames = new ArrayList<>();
         private ArrayList<Long> bvs = new ArrayList<>();
         private ArrayList<Long> costs = new ArrayList<>();
@@ -179,7 +180,7 @@ public class TeamOverviewPanel extends JPanel {
 
         public void clearData() {
             teams.clear();
-            teamID.clear();
+            teamNumbers.clear();
             teamNames.clear();
             bvs.clear();
             costs.clear();
@@ -198,7 +199,7 @@ public class TeamOverviewPanel extends JPanel {
             clearData();
             for (Team team: game.getTeamsVector()) {
                 teams.add(team);
-                teamID.add(team.getTeamNumber());
+                teamNumbers.add(team.getTeamNumber());
                 teamNames.add(team.toString());
                 
                 long cost = 0;
@@ -372,7 +373,7 @@ public class TeamOverviewPanel extends JPanel {
         private boolean seeTeam(int row) {
             Game game = clientGui.getClient().getGame();
             return !game.getOptions().booleanOption(OptionsConstants.BASE_REAL_BLIND_DROP)
-                    || game.getTeamForPlayer(clientGui.getClient().getLocalPlayer()).getTeamNumber() == teamID.get(row);
+                    || game.getTeamForPlayer(clientGui.getClient().getLocalPlayer()).getTeamNumber() == teamNumbers.get(row);
         }
         
         /** 

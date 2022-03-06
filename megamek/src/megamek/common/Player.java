@@ -15,6 +15,7 @@ package megamek.common;
 
 import megamek.client.ui.swing.util.PlayerColour;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.event.GamePlayerChangeEvent;
 import megamek.common.icons.Camouflage;
 import megamek.common.options.OptionsConstants;
@@ -37,9 +38,9 @@ public final class Player extends TurnOrdered {
 
     private String name;
     private String email;
-    private int id;
+    private final int id;
 
-    private int teamNumber = Team.NONE;
+    private TeamNumber teamNumber = TeamNumber.NONE;
 
     private boolean done = false; // done with phase
     private boolean ghost = false; // disconnected player
@@ -197,11 +198,11 @@ public final class Player extends TurnOrdered {
         return id;
     }
 
-    public int getTeamNumber() {
+    public TeamNumber getTeamNumber() {
         return teamNumber;
     }
 
-    public void setTeamNumber(final int teamNumber) {
+    public void setTeamNumber(final TeamNumber teamNumber) {
         this.teamNumber = teamNumber;
     }
 
@@ -306,7 +307,7 @@ public final class Player extends TurnOrdered {
             return true;
         }
         return (id != other.getId())
-            && ((getTeamNumber() == Team.NONE) || (getTeamNumber() == Team.UNASSIGNED) || (getTeamNumber() != other.getTeamNumber()));
+            && (getTeamNumber().isUnassignedOrNone() || (getTeamNumber() != other.getTeamNumber()));
     }
 
     public void setAdmitsDefeat(boolean admitsDefeat) {

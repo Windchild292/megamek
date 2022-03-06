@@ -24,6 +24,7 @@ import megamek.common.actions.AttackAction;
 import megamek.common.actions.EntityAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.event.*;
 import megamek.common.force.Forces;
 import megamek.common.options.GameOptions;
@@ -122,7 +123,7 @@ public class Game implements Serializable {
 
     private boolean forceVictory = false;
     private int victoryPlayerId = Player.PLAYER_NONE;
-    private int victoryTeam = Team.NONE;
+    private TeamNumber victoryTeamNumber = TeamNumber.NONE;
 
     private Hashtable<Integer, Vector<Entity>> deploymentTable = new Hashtable<>();
     private int lastDeploymentRound = 0;
@@ -392,11 +393,12 @@ public class Game implements Serializable {
         for (Enumeration<Player> i = getPlayers(); i.hasMoreElements(); ) {
             final Player player = i.nextElement();
             // Ignore players not on a team
-            if (player.getTeamNumber() == Team.UNASSIGNED) {
+            if (player.getTeamNumber().isUnassigned()) {
                 continue;
             }
-            if (!useTeamInit || (player.getTeamNumber() == Team.NONE)) {
-                Team new_team = new Team(Team.NONE);
+
+            if (!useTeamInit || player.getTeamNumber().isNone()) {
+                Team new_team = new Team(TeamNumber.NONE);
                 new_team.addPlayer(player);
                 initTeams.addElement(new_team);
             }
@@ -404,13 +406,16 @@ public class Game implements Serializable {
 
         if (useTeamInit) {
             // Now, go through all the teams, and add the appropriate player
-            for (int t = Team.NONE + 1; t < Team.NAMES.length; t++) {
+            for (final TeamNumber teamNumber : TeamNumber.values()) {
+                if (teamNumber.isUnassignedOrNone()) {
+                    continue;
+                }
                 Team new_team = null;
                 for (Enumeration<Player> i = getPlayers(); i.hasMoreElements(); ) {
                     final Player player = i.nextElement();
-                    if (player.getTeamNumber() == t) {
+                    if (player.getTeamNumber() == teamNumber) {
                         if (new_team == null) {
-                            new_team = new Team(t);
+                            new_team = new Team(teamNumber);
                         }
                         new_team.addPlayer(player);
                     }
@@ -1452,7 +1457,7 @@ public class Game implements Serializable {
 
         forceVictory = false;
         victoryPlayerId = Player.PLAYER_NONE;
-        victoryTeam = Team.NONE;
+        setVictoryTeamNumber(TeamNumber.NONE);
         lastEntityId = 0;
         planetaryConditions = new PlanetaryConditions();
     }
@@ -2616,9 +2621,9 @@ public class Game implements Serializable {
         gameReports.clear();
     }
 
-    public void end(int winner, int winnerTeam) {
+    public void end(int winner, TeamNumber winnerTeam) {
         setVictoryPlayerId(winner);
-        setVictoryTeam(winnerTeam);
+        setVictoryTeamNumber(winnerTeam);
         processGameEvent(new GameEndEvent(this));
 
     }
@@ -2642,21 +2647,17 @@ public class Game implements Serializable {
     }
 
     /**
-     * Getter for property victoryTeam.
-     *
-     * @return Value of property victoryTeam.
+     * @return the victorious team's number
      */
-    public int getVictoryTeam() {
-        return victoryTeam;
+    public TeamNumber getVictoryTeamNumber() {
+        return victoryTeamNumber;
     }
 
     /**
-     * Setter for property victoryTeam.
-     *
-     * @param victoryTeam New value of property victoryTeam.
+     * @param victoryTeamNumber the number for the victorious team.
      */
-    public void setVictoryTeam(int victoryTeam) {
-        this.victoryTeam = victoryTeam;
+    public void setVictoryTeamNumber(TeamNumber victoryTeamNumber) {
+        this.victoryTeamNumber = victoryTeamNumber;
     }
 
     /**
@@ -2664,10 +2665,8 @@ public class Game implements Serializable {
      * to call during GamePhase.VICTORY.
      */
     public boolean isPlayerVictor(Player player) {
-        if (player.getTeamNumber() == Team.NONE) {
-            return player.getId() == victoryPlayerId;
-        }
-        return player.getTeamNumber() == victoryTeam;
+        return player.getTeamNumber().isNone() ? (player.getId() == victoryPlayerId)
+                : (player.getTeamNumber() == victoryTeamNumber);
     }
 
     /**
@@ -3491,6 +3490,6 @@ public class Game implements Serializable {
     public void cancelVictory() {
         setForceVictory(false);
         setVictoryPlayerId(Player.PLAYER_NONE);
-        setVictoryTeam(Team.NONE);
+        setVictoryTeamNumber(TeamNumber.NONE);
     }
 }

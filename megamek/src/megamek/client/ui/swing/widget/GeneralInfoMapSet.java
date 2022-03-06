@@ -246,7 +246,7 @@ public class GeneralInfoMapSet implements DisplayMapSet {
                 : Messages.getString("GeneralInfoMapSet.normal"));
         if (en.getOwner() != null) {
             playerR.setString(en.getOwner().getName());
-            if (en.getOwner().getTeamNumber() == 0) {
+            if (en.getOwner().getTeamNumber().isNone()) {
                 teamL.setVisible(false);
                 teamR.setVisible(false);
             } else {

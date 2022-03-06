@@ -20,7 +20,6 @@ package megamek.server.commands;
 
 import megamek.common.Entity;
 import megamek.common.Player;
-import megamek.common.Team;
 import megamek.server.Server;
 
 /**
@@ -56,7 +55,7 @@ public class TraitorCommand extends ServerCommand {
                 server.sendServerChat(connId, "You must own an entity to make it switch sides.");
             } else if (null == player) {
                 server.sendServerChat(connId, "No such player.");
-            } else if (player.getTeamNumber() == Team.UNASSIGNED) {
+            } else if (player.getTeamNumber().isUnassigned()) {
                 server.sendServerChat(connId, "Player must be assigned a team.");
             } else if (pid == connId) {
                 server.sendServerChat(connId, "You can't switch to the same side.");
@@ -65,7 +64,7 @@ public class TraitorCommand extends ServerCommand {
                 ent.setTraitorId(pid);
             }
         } catch (NumberFormatException ignored) {
+
         }
     }
-
 }

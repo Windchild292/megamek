@@ -1,7 +1,7 @@
 /*
 * MegaMek -
-* Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
-* Copyright (C) 2018 The MegaMek Team
+* Copyright (c) 2005 - Ben Mazur (bmazur@sev.org)
+* Copyright (c) 2018-2022 - The MegaMek Team. All Rights Reserved.
 *
 * This program is free software; you can redistribute it and/or modify it under
 * the terms of the GNU General Public License as published by the Free Software
@@ -15,14 +15,16 @@
 */
 package megamek.common;
 
+import megamek.common.enums.TeamNumber;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Sebastian Brocks This class represents an iNarc pod attached to an
- *         entity. This class is immutable. Once it is created, it can not be
- *         changed. An iNarc pod can be targeted for a "brush off" attack.
+ * This class represents an iNarc pod attached to an entity. This class is immutable. Once it is
+ * created, it can not be changed. An iNarc pod can be targeted for a "brush off" attack.
+ * @author Sebastian Brocks
  */
 public class INarcPod implements Serializable, Targetable {
     private static final long serialVersionUID = -3566809840132774242L;
@@ -31,7 +33,7 @@ public class INarcPod implements Serializable, Targetable {
     public static final int HAYWIRE = 4;
     public static final int NEMESIS = 8;
 
-    private int team;
+    private TeamNumber teamNumber;
     private int type;
     private int location;
 
@@ -39,14 +41,14 @@ public class INarcPod implements Serializable, Targetable {
      * Creates a new <code>INarcPod</code>, from the team and of the type
      * specified.
      */
-    public INarcPod(int team, int type, int location) {
-        this.team = team;
+    public INarcPod(TeamNumber teamNumber, int type, int location) {
+        this.teamNumber = teamNumber;
         this.type = type;
         this.location = location;
     }
 
-    public int getTeam() {
-        return team;
+    public TeamNumber getTeamNumber() {
+        return teamNumber;
     }
 
     public int getType() {
@@ -75,12 +77,12 @@ public class INarcPod implements Serializable, Targetable {
             return false;
         }
         final INarcPod other = (INarcPod) obj;
-        return (type == other.type) && (team == other.team);
+        return (type == other.type) && (teamNumber == other.teamNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, team);
+        return Objects.hash(type, teamNumber);
     }
 
     /**
@@ -106,7 +108,7 @@ public class INarcPod implements Serializable, Targetable {
                 buf.append("Nemesis");
                 break;
         }
-        buf.append(" iNarc pod from Team #").append(team);
+        buf.append(" iNarc pod from Team #").append(teamNumber);
         return buf.toString();
     }
 
@@ -133,7 +135,7 @@ public class INarcPod implements Serializable, Targetable {
     public int getTargetId() {
         // All INarcPods of the same type from the
         // same team are interchangable targets.
-        return ((team << 4) + type);
+        return ((teamNumber << 4) + type);
     }
 
     @Override

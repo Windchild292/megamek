@@ -8,6 +8,7 @@ import megamek.client.ui.swing.Slider;
 import megamek.client.ui.swing.widget.*;
 import megamek.common.*;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.options.OptionsConstants;
 import megamek.common.util.fileUtils.MegaMekFile;
 import megamek.common.weapons.other.TSEMPWeapon;
@@ -327,18 +328,17 @@ class ExtraPanel extends PicMap implements ActionListener, ItemListener {
             Enumeration<Player> loop = clientgui.getClient().getGame().getPlayers();
             while (loop.hasMoreElements()) {
                 Player player = loop.nextElement();
-                int team = player.getTeamNumber();
-                if (en.isNarcedBy(team) && !player.isObserver()) {
+                TeamNumber teamNumber = player.getTeamNumber();
+                if (en.isNarcedBy(teamNumber) && !player.isObserver()) {
                     buff = new StringBuffer(Messages.getString("MechDisplay.NARCedBy"));
                     buff.append(player.getName())
-                            .append(" [").append(Team.NAMES[team]).append(']');
+                            .append(" [").append(teamNumber).append(']');
                     ((DefaultListModel<String>) narcList.getModel()).addElement(buff.toString());
                 }
 
-                if (en.isINarcedBy(team) && !player.isObserver()) {
+                if (en.isINarcedBy(teamNumber) && !player.isObserver()) {
                     buff = new StringBuffer(Messages.getString("MechDisplay.INarcHoming"));
-                    buff.append(player.getName()).append(" [")
-                            .append(Team.NAMES[team]).append("] ")
+                    buff.append(player.getName()).append(" [").append(teamNumber).append("] ")
                             .append(Messages.getString("MechDisplay.attached"))
                             .append('.');
                     ((DefaultListModel<String>) narcList.getModel()).addElement(buff.toString());

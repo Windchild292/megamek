@@ -69,7 +69,7 @@ public class EntityVisibilityUtils {
         return e.getGame().getOptions().booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND)
                 && ((e.getOwner().getId() == localPlayer.getId())
                 || (e.getGame().getOptions().booleanOption(OptionsConstants.ADVANCED_TEAM_VISION)
-                && (e.getOwner().getTeamNumber() != Team.NONE)
+                && !e.getOwner().getTeamNumber().isNone()
                 && (e.getOwner().getTeamNumber() == localPlayer.getTeamNumber())));
     }
 }

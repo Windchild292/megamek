@@ -10,25 +10,25 @@
  *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  *  for more details.
- */package megamek.common;
+ */
+package megamek.common;
+
+import megamek.common.enums.TeamNumber;
 
 import java.io.Serializable;
 
 public class NarcPod implements Serializable {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 8883459353515484784L;
-    private int team;
+    private TeamNumber teamNumber;
     private int location;
 
-    public NarcPod(int team, int location) {
-        this.team = team;
+    public NarcPod(TeamNumber team, int location) {
+        this.teamNumber = team;
         this.location = location;
     }
 
-    public int getTeam() {
-        return team;
+    public TeamNumber getTeamNumber() {
+        return teamNumber;
     }
 
     public int getLocation() {
@@ -36,9 +36,6 @@ public class NarcPod implements Serializable {
     }
 
     public boolean equals(NarcPod other) {
-        if (this.location == other.location && this.team == other.team) {
-            return true;
-        }
-        return false;
+        return (this.location == other.location) && (this.teamNumber == other.teamNumber);
     }
 }

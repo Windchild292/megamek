@@ -180,7 +180,7 @@ class PlayerTable extends JTable {
             boolean isEnemy = lobby.localPlayer().isEnemyOf(player);
             Color color = isEnemy ? GUIPreferences.getInstance().getWarningColor() : uiGreen();
             result.append(guiScaledFontHTML(color));
-            result.append(Team.NAMES[player.getTeamNumber()]);
+            result.append(player.getTeamNumber().toString());
             result.append("</FONT>");
 
             // Deployment Position

@@ -5148,7 +5148,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             int idx = 0;
             for (var player : players) {
                 if (player.getName().equals(clientgui.getClient().getLocalPlayer().getName())
-                        || (player.getTeamNumber() == Team.UNASSIGNED)) {
+                        || player.getTeamNumber().isUnassigned()) {
                     continue;
                 }
                 playerIds[idx] = player.getId();

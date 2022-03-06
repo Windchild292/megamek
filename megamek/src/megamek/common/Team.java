@@ -18,6 +18,7 @@
 package megamek.common;
 
 import megamek.common.annotations.Nullable;
+import megamek.common.enums.TeamNumber;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,30 +34,25 @@ import java.util.stream.Collectors;
 public final class Team extends TurnOrdered {
     //region Variable Declarations
     private static final long serialVersionUID = 2270215552964191597L;
-
-    public static final int NONE = 0;
-    public static final int UNASSIGNED = -1;
-    public static final String[] NAMES = { "No Team", "Team 1", "Team 2", "Team 3", "Team 4", "Team 5" };
-
-    private final int teamNumber;
+    private final TeamNumber teamNumber;
     private final List<Player> players = new ArrayList<>();
     private Boolean observerTeam = null;
     //endregion Variable Declarations
 
     //region Constructors
-    public Team(final int teamNumber) {
+    public Team(final TeamNumber teamNumber) {
         this.teamNumber = teamNumber;
     }
     //endregion Constructors
 
     //region Getters/Setters
-    public int getTeamNumber() {
+    public TeamNumber getTeamNumber() {
         // If Team Initiative is not turned on, the id will be 0 for all teams,
         // However, the players accurately store their team id
         return getPlayers().isEmpty() ? getTeamNumberDirect() : getPlayers().get(0).getTeamNumber();
     }
 
-    public int getTeamNumberDirect() {
+    public TeamNumber getTeamNumberDirect() {
         return teamNumber;
     }
 
@@ -261,7 +257,7 @@ public final class Team extends TurnOrdered {
 
     @Override
     public String toString() {
-        return (getTeamNumber() < 0) ? "Unassigned" : NAMES[getTeamNumber()];
+        return getTeamNumber().toString();
     }
 
     /**

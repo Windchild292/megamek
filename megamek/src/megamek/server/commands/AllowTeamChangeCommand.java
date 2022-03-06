@@ -16,7 +16,6 @@
 package megamek.server.commands;
 
 import megamek.common.Player;
-import megamek.common.Team;
 import megamek.server.Server;
 
 /**
@@ -48,26 +47,25 @@ public class AllowTeamChangeCommand extends ServerCommand {
                 server.sendServerChat(connId, "No vote to change teams in progress!");
                 return;
             }
-            
+
             // Tally votes
             boolean changeTeam = true;
             int voteCount = 0;
             int eligiblePlayerCount = 0;
             for (Player p : server.getGame().getPlayersVector()) {
-                if (p.getTeamNumber() != Team.UNASSIGNED) {
+                if (!p.getTeamNumber().isUnassigned()) {
                     changeTeam &= p.isAllowingTeamChange();
                     if (p.isAllowingTeamChange()) {
                         voteCount++;
                     }
                     eligiblePlayerCount++;
                 }
-                
             }
-            
+
             // Inform all players about the vote
             server.sendServerChat(player.getName() + " has voted to allow " 
                     + server.getPlayerRequestingTeamChange().getName()
-                    + " to join Team " + server.getRequestedTeam()
+                    + " to join Team " + server.getRequestedTeamNumber()
                     + ", " + voteCount
                     + " vote(s) received out of " + eligiblePlayerCount
                     + " vote(s) needed");
@@ -76,7 +74,7 @@ public class AllowTeamChangeCommand extends ServerCommand {
             if (changeTeam) {
                 server.sendServerChat("All votes received, "
                         + server.getPlayerRequestingTeamChange().getName()
-                        + " will join Team " + server.getRequestedTeam()
+                        + " will join Team " + server.getRequestedTeamNumber()
                         + " at the end of the turn.");
                 server.allowTeamChange();                
             }

@@ -42,7 +42,7 @@ public class VictoryResultTest {
     public void testGetWinningTeam() {
         // Trivial case: no team
         VictoryResult testResult = new VictoryResult(false);
-        assertSame(Player.TEAM_NONE, testResult.getWinningTeam());
+        assertSame(Player.TEAM_NONE, testResult.getWinningTeamNumber());
 
         // Case with two teams
         int winningTeam = 1;
@@ -51,15 +51,15 @@ public class VictoryResultTest {
         testResult.addTeamScore(winningTeam, 100);
         testResult.addTeamScore(losingTeam, 40);
 
-        assertSame(winningTeam, testResult.getWinningTeam());
+        assertSame(winningTeam, testResult.getWinningTeamNumber());
 
         // Case with three teams and a draw
         int secondWinningTeam = 3;
 
         testResult.addTeamScore(secondWinningTeam, 100);
-        assertNotSame(secondWinningTeam, testResult.getWinningTeam());
-        assertNotSame(winningTeam, testResult.getWinningTeam());
-        assertSame(Player.TEAM_NONE, testResult.getWinningTeam());
+        assertNotSame(secondWinningTeam, testResult.getWinningTeamNumber());
+        assertNotSame(winningTeam, testResult.getWinningTeamNumber());
+        assertSame(Player.TEAM_NONE, testResult.getWinningTeamNumber());
     }
 
     @Test

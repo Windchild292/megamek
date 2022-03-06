@@ -22,6 +22,7 @@ import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.lobby.MekTableModel;
 import megamek.common.Entity;
 import megamek.common.Player;
+import megamek.common.enums.TeamNumber;
 
 /** A Lobby Mek Table sorter that sorts by 1) player 2) transported units 3) ID. */
 public class PlayerTransportIDSorter implements MekTableSorter {
@@ -50,8 +51,8 @@ public class PlayerTransportIDSorter implements MekTableSorter {
         final Player p_a = clientGui.getClient().getGame().getPlayer(a.getOwnerId());
         final Player p_b = clientGui.getClient().getGame().getPlayer(b.getOwnerId());
         final Player localPlayer = clientGui.getClient().getLocalPlayer();
-        final int t_a = p_a.getTeamNumber();
-        final int t_b = p_b.getTeamNumber();
+        final TeamNumber t_a = p_a.getTeamNumber();
+        final TeamNumber t_b = p_b.getTeamNumber();
         final int tr_a = a.getTransportId();
         final int tr_b = b.getTransportId();
         if (p_a.equals(localPlayer) && !p_b.equals(localPlayer)) {
@@ -63,7 +64,7 @@ public class PlayerTransportIDSorter implements MekTableSorter {
         } else if ((t_b == localPlayer.getTeamNumber()) && (t_a != localPlayer.getTeamNumber())) {
             return 1;
         } else if (t_a != t_b) {
-            return t_a - t_b;
+            return t_a.ordinal() - t_b.ordinal();
         } else if (!p_a.equals(p_b)) {
             return p_a.getName().compareTo(p_b.getName());
         } else {

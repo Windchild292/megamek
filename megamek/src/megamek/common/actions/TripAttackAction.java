@@ -60,8 +60,8 @@ public class TripAttackAction extends PhysicalAttackAction {
             // a friendly unit can never be the target of a direct attack.
             if ((target.getTargetType() == Targetable.TYPE_ENTITY)
                     && ((((Entity) target).getOwnerId() == ae.getOwnerId())
-                            || ((((Entity) target).getOwner().getTeamNumber() != Team.NONE)
-                                    && (ae.getOwner().getTeamNumber() != Team.NONE)
+                            || (!((Entity) target).getOwner().getTeamNumber().isNone()
+                                    && !ae.getOwner().getTeamNumber().isNone()
                                     && (ae.getOwner().getTeamNumber() == ((Entity) target).getOwner().getTeamNumber())))) {
                 return new ToHitData(TargetRoll.IMPOSSIBLE,
                         "A friendly unit can never be the target of a direct attack.");

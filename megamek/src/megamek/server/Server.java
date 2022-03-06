@@ -31,6 +31,7 @@ import megamek.common.commandline.AbstractCommandLineParser;
 import megamek.common.containers.PlayerIDandList;
 import megamek.common.enums.BasementType;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.event.GameListener;
 import megamek.common.event.GameVictoryEvent;
 import megamek.common.force.Force;
@@ -227,7 +228,7 @@ public class Server implements Runnable {
     /**
      * Keeps track of what team a player requested to join.
      */
-    private int requestedTeam = Team.NONE;
+    private TeamNumber requestedTeamNumber = TeamNumber.NONE;
 
     /**
      * Keeps track of what player made a request to change teams.
@@ -995,15 +996,16 @@ public class Server implements Runnable {
      * Adds a new player to the game
      */
     private Player addNewPlayer(int connId, String name, boolean isBot) {
-        int team = Team.UNASSIGNED;
-        if (game.getPhase() == GamePhase.LOUNGE) {
-            team = Team.NONE;
+        final TeamNumber[] teamNumbers = TeamNumber.values();
+        TeamNumber teamNumber = TeamNumber.UNASSIGNED;
+        if (game.getPhase().isLounge()) {
+            teamNumber = TeamNumber.NONE;
             for (Player p : game.getPlayersVector()) {
-                if (p.getTeamNumber() > team) {
-                    team = p.getTeamNumber();
+                if (p.getTeamNumber().ordinal() > teamNumber.ordinal()) {
+                    teamNumber = p.getTeamNumber();
                 }
             }
-            team++;
+            teamNumber = teamNumbers[Math.min(teamNumber.ordinal(), teamNumbers.length)];
         }
         Player newPlayer = new Player(connId, name);
         newPlayer.setBot(isBot);
@@ -1022,7 +1024,7 @@ public class Server implements Runnable {
         }
         newPlayer.setColour(colour);
         newPlayer.setCamouflage(new Camouflage(Camouflage.COLOUR_CAMOUFLAGE, colour.name()));
-        newPlayer.setTeamNumber(Math.min(team, 5));
+        newPlayer.setTeamNumber(teamNumber);
         game.addPlayer(connId, newPlayer);
         validatePlayerInfo(connId);
         return newPlayer;
@@ -1666,10 +1668,9 @@ public class Server implements Runnable {
         send(new Packet(Packet.COMMAND_CLEAR_ILLUM_HEXES));
     }
 
-    /*
-     *  Called during the end phase. Checks each entity for ASEW effects counters and decrements them by 1 if > 0
+    /**
+     * Called during the end phase. Checks each entity for ASEW effects counters and decrements them by 1 if > 0
      */
-
     public void decrementASEWTurns() {
         for (Iterator<Entity> e = game.getEntities(); e.hasNext(); ) {
             final Entity entity = e.next();
@@ -1747,7 +1748,7 @@ public class Server implements Runnable {
         // Declare the victor
         r = new Report(1210);
         r.type = Report.PUBLIC;
-        if (game.getVictoryTeam() == Team.NONE) {
+        if (game.getVictoryTeamNumber().isNone()) {
             Player player = getPlayer(game.getVictoryPlayerId());
             if (null == player) {
                 r.messageId = 7005;
@@ -1758,7 +1759,7 @@ public class Server implements Runnable {
         } else {
             // Team victory
             r.messageId = 7015;
-            r.add(game.getVictoryTeam());
+            r.add(game.getVictoryTeamNumber().toString());
         }
         addReport(r);
 
@@ -1910,12 +1911,12 @@ public class Server implements Runnable {
      */
     public void forceVictory(Player victor) {
         game.setForceVictory(true);
-        if (victor.getTeamNumber() == Team.NONE) {
+        if (victor.getTeamNumber().isNone()) {
             game.setVictoryPlayerId(victor.getId());
-            game.setVictoryTeam(Team.NONE);
+            game.setVictoryTeamNumber(TeamNumber.NONE);
         } else {
             game.setVictoryPlayerId(Player.PLAYER_NONE);
-            game.setVictoryTeam(victor.getTeamNumber());
+            game.setVictoryTeamNumber(victor.getTeamNumber());
         }
 
         Vector<Player> playersVector = game.getPlayersVector();
@@ -1925,8 +1926,8 @@ public class Server implements Runnable {
         }
     }
 
-    public void requestTeamChange(int team, Player player) {
-        requestedTeam = team;
+    public void requestTeamChange(TeamNumber teamNumber, Player player) {
+        requestedTeamNumber = teamNumber;
         playerChangingTeam = player;
         changePlayersTeam = false;
     }
@@ -1943,19 +1944,19 @@ public class Server implements Runnable {
         return playerChangingTeam;
     }
 
-    public int getRequestedTeam() {
-        return requestedTeam;
+    public TeamNumber getRequestedTeamNumber() {
+        return requestedTeamNumber;
     }
 
     private void processTeamChange() {
         if (playerChangingTeam != null) {
-            playerChangingTeam.setTeamNumber(requestedTeam);
+            playerChangingTeam.setTeamNumber(requestedTeamNumber);
             game.setupTeams();
             transmitPlayerUpdate(playerChangingTeam);
-            String teamString = "Team " + requestedTeam + "!";
-            if (requestedTeam == Team.UNASSIGNED) {
+            String teamString = requestedTeamNumber + "!";
+            if (requestedTeamNumber.isUnassigned()) {
                 teamString = " unassigned!";
-            } else if (requestedTeam == Team.NONE) {
+            } else if (requestedTeamNumber.isNone()) {
                 teamString = " lone wolf!";
             }
             sendServerChat(playerChangingTeam.getName() + " has changed teams to " + teamString);
@@ -3245,8 +3246,8 @@ public class Server implements Runnable {
         }
 
         for (Player player : game.getPlayersVector()) {
-            if ((player.getId() == game.getVictoryPlayerId()) || ((player.getTeamNumber() == game.getVictoryTeam())
-                    && (game.getVictoryTeam() != Team.NONE))) {
+            if ((player.getId() == game.getVictoryPlayerId()) || ((player.getTeamNumber() == game.getVictoryTeamNumber())
+                    && !game.getVictoryTeamNumber().isNone())) {
                 continue;
             }
 
@@ -3796,7 +3797,7 @@ public class Server implements Runnable {
                 } else {
                     // Multiple players. List the team, then break it down.
                     r = new Report(1015, Report.PUBLIC);
-                    r.add(Team.NAMES[team.getTeamNumber()]);
+                    r.add(team.getTeamNumber().toString());
                     r.add(team.getInitiative().toString());
                     addReport(r);
                     for (final Player player : team.getNonObserverPlayers()) {
@@ -3810,7 +3811,6 @@ public class Server implements Runnable {
             }
 
             if (!doBlind()) {
-
                 // The turn order is different in movement phase
                 // if a player has any "even" moving units.
                 r = new Report(1020, Report.PUBLIC);
@@ -13308,11 +13308,11 @@ public class Server implements Runnable {
 
         Player player = game.getPlayer(playerId);
         if (null != player) {
-            int teamId = player.getTeamNumber();
+            TeamNumber teamNumber = player.getTeamNumber();
 
-            if (teamId != Team.NONE) {
+            if (!teamNumber.isNone()) {
                 for (final Team team : getGame().getTeams()) {
-                    if (team.getTeamNumber() == teamId) {
+                    if (team.getTeamNumber() == teamNumber) {
                         for (final Player teamPlayer : team.getPlayers()) {
                             if (teamPlayer.getId() != player.getId()) {
                                 send(teamPlayer.getId(), new Packet(Packet.COMMAND_DEPLOY_MINEFIELDS,
@@ -30753,7 +30753,7 @@ public class Server implements Runnable {
         Object[] array = new Object[3];
         array[0] = getDetailedVictoryReport();
         array[1] = game.getVictoryPlayerId();
-        array[2] = game.getVictoryTeam();
+        array[2] = game.getVictoryTeamNumber();
         return new Packet(Packet.COMMAND_END_OF_GAME, array);
     }
 
@@ -30908,14 +30908,14 @@ public class Server implements Runnable {
      */
     private Packet createArtilleryPacket(Player p) {
         Vector<ArtilleryAttackAction> v = new Vector<>();
-        int team = p.getTeamNumber();
+        TeamNumber teamNumber = p.getTeamNumber();
         for (Enumeration<AttackHandler> i = game.getAttacks(); i.hasMoreElements(); ) {
             WeaponHandler wh = (WeaponHandler) i.nextElement();
             if (wh.waa instanceof ArtilleryAttackAction) {
                 ArtilleryAttackAction aaa = (ArtilleryAttackAction) wh.waa;
                 if ((aaa.getPlayerId() == p.getId())
-                        || ((team != Team.NONE)
-                        && (team == game.getPlayer(aaa.getPlayerId()).getTeamNumber()))
+                        || (!teamNumber.isNone()
+                        && (teamNumber == game.getPlayer(aaa.getPlayerId()).getTeamNumber()))
                         || p.getSeeAll()) {
                     v.addElement(aaa);
                 }
@@ -34147,7 +34147,7 @@ public class Server implements Runnable {
                             || (pe.isAirborne() && !pe.isSpaceborne())
                             || (pe.getElevation() != e.getElevation())
                             || (pe.getOwnerId() == e.getOwnerId()) || (pe.getId() == e.getId())
-                            || (pe.getOwner().getTeamNumber() == Team.NONE)
+                            || pe.getOwner().getTeamNumber().isNone()
                             || (pe.getOwner().getTeamNumber() != e.getOwner().getTeamNumber())) {
                         continue;
                     }

@@ -14,6 +14,7 @@
 package megamek.server.victory;
 
 import megamek.common.*;
+import megamek.common.enums.TeamNumber;
 
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -95,14 +96,15 @@ public class KillCountVictory implements IVictoryConditions, Serializable {
             
             if (killer == null) {
                 continue;
-            }            
-            
-            int team = killer.getOwner().getTeamNumber();
+            }
+
+            TeamNumber team = killer.getOwner().getTeamNumber();
             // Friendly fire doesn't count
             if (team == wreck.getOwner().getTeamNumber()) {
                 continue;
             }
-            if (team != Team.NONE) {
+
+            if (!team.isNone()) {
                 Integer kills = teamKills.get(team);
                 if (kills == null) {
                     kills = 1;

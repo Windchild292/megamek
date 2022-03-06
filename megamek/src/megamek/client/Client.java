@@ -32,6 +32,7 @@ import megamek.common.*;
 import megamek.common.Building.DemolitionCharge;
 import megamek.common.actions.*;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.event.*;
 import megamek.common.force.Force;
 import megamek.common.force.Forces;
@@ -838,8 +839,8 @@ public class Client implements IClientCommandHandler {
      * Sends a packet containing multiple entity updates. Should only be used 
      * in the lobby phase.
      */
-    public void sendChangeTeam(Collection<Player> players, int newTeamId) {
-        send(new Packet(Packet.COMMAND_PLAYER_TEAMCHANGE, new Object[] { players, newTeamId }));
+    public void sendChangeTeam(Collection<Player> players, TeamNumber newTeamNumber) {
+        send(new Packet(Packet.COMMAND_PLAYER_TEAMCHANGE, players, newTeamNumber));
     }
 
     /**
@@ -863,7 +864,7 @@ public class Client implements IClientCommandHandler {
     public void sendUpdateForce(Collection<Force> changedForces) {
         send(new Packet(Packet.COMMAND_FORCE_UPDATE, new Object[] { changedForces, new ArrayList<>() }));
     }
-    
+
     /**
      * Sends a packet instructing the server to add the given entities to the given force.
      * The server will handle this; the client does not have to implement the change.
@@ -871,7 +872,7 @@ public class Client implements IClientCommandHandler {
     public void sendAddEntitiesToForce(Collection<Entity> entities, int forceId) {
         send(new Packet(Packet.COMMAND_FORCE_ADD_ENTITY, new Object[] { entities, forceId }));
     }
-    
+
     /**
      * Sends a packet instructing the server to add the given entities to the given force.
      * The server will handle this; the client does not have to implement the change.
@@ -879,13 +880,13 @@ public class Client implements IClientCommandHandler {
     public void sendAssignForceFull(Collection<Force> forceList, int newOwnerId) {
         send(new Packet(Packet.COMMAND_FORCE_ASSIGN_FULL, new Object[] { forceList, newOwnerId }));
     }
-        
+
     /** Sends a packet to the Server requesting to delete the given forces. */
     public void sendDeleteForces(List<Force> toDelete) {
         List<Integer> forceIds = toDelete.stream().mapToInt(Force::getId).boxed().collect(Collectors.toList());
         send(new Packet(Packet.COMMAND_FORCE_DELETE, forceIds));
     }
-    
+
     /**
      * Sends an "Add force" packet
      */
@@ -1571,7 +1572,7 @@ public class Client implements IClientCommandHandler {
                 break;
             case Packet.COMMAND_END_OF_GAME:
                 String sEntityStatus = (String) c.getObject(0);
-                game.end(c.getIntValue(1), c.getIntValue(2));
+                game.end(c.getIntValue(1), (TeamNumber) c.getObject(2));
                 // save victory report
                 saveEntityStatus(sEntityStatus);
                 break;

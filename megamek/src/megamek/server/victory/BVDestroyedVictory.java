@@ -16,7 +16,7 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
-import megamek.common.Team;
+import megamek.common.enums.TeamNumber;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -40,17 +40,19 @@ public class BVDestroyedVictory extends AbstractBVVictory {
         boolean victory = false;
         VictoryResult vr = new VictoryResult(true);
         // now check for detailed victory conditions...
-        HashSet<Integer> doneTeams = new HashSet<>();
+        HashSet<TeamNumber> doneTeams = new HashSet<>();
         for (Player player : game.getPlayersVector()) {
-            if (player.isObserver())
+            if (player.isObserver()) {
                 continue;
+            }
             int ebv = 0;
             int eibv = 0;
-            int team = player.getTeamNumber();
-            if (team != Team.NONE) {
-                if (doneTeams.contains(team))
+            TeamNumber teamNumber = player.getTeamNumber();
+            if (!teamNumber.isNone()) {
+                if (doneTeams.contains(teamNumber)) {
                     continue; // skip if already
-                doneTeams.add(team);
+                }
+                doneTeams.add(teamNumber);
             }
             ebv = getEnemyBV(game, player);
             eibv = getEnemyInitialBV(game, player);
@@ -58,12 +60,12 @@ public class BVDestroyedVictory extends AbstractBVVictory {
             if (eibv != 0 && (ebv * 100) / eibv <= 100 - destroyedPercent) {
                 Report r = new Report(7105, Report.PUBLIC);
                 victory = true;
-                if (team == Team.NONE) {
+                if (teamNumber.isNone()) {
                     r.add(player.getName());
                     vr.addPlayerScore(player.getId(), 1.0);
                 } else {
-                    r.add("Team " + team);
-                    vr.addTeamScore(team, 1.0);
+                    r.add("Team " + teamNumber);
+                    vr.addTeamScore(teamNumber, 1.0);
                 }
                 r.add(100 - ((ebv * 100) / eibv));
                 vr.addReport(r);

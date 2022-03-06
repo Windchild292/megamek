@@ -16,7 +16,7 @@ package megamek.server.victory;
 import megamek.common.Game;
 import megamek.common.Player;
 import megamek.common.Report;
-import megamek.common.Team;
+import megamek.common.enums.TeamNumber;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -38,35 +38,37 @@ public class EnemyCmdrDestroyedVictory implements IVictoryConditions, Serializab
         // check all players/teams for killing enemy commanders
         // score is 1.0 when enemy commanders are dead
         boolean victory = false;
-        HashSet<Integer> doneTeams = new HashSet<>();
+        HashSet<TeamNumber> doneTeams = new HashSet<>();
         for (Player player : game.getPlayersVector()) {
             boolean killedAll = true;
-            int team = player.getTeamNumber();
-            if (team != Team.NONE) {
-                if (doneTeams.contains(team))
-                    continue; 
+            TeamNumber teamNumber = player.getTeamNumber();
+            if (!teamNumber.isNone()) {
+                if (doneTeams.contains(teamNumber)) {
+                    continue;
+                }
                 // skip if already dealt with this team
-                doneTeams.add(team);
+                doneTeams.add(teamNumber);
             }
             for (Player enemyPlayer : game.getPlayersVector()) {
-                if (enemyPlayer.equals(player) ||
-                        (team != Team.NONE && team == enemyPlayer.getTeamNumber()))
+                if (enemyPlayer.equals(player) || (!teamNumber.isNone() && (teamNumber == enemyPlayer.getTeamNumber()))) {
                     continue;
+                }
+
                 if (game.getLiveCommandersOwnedBy(enemyPlayer) > 0) {
                     killedAll = false;
                 }
             }
             // all enemy commanders are dead
             if (killedAll) {
-                if (team == Team.NONE) {
+                if (teamNumber.isNone()) {
                     Report r = new Report(7110, Report.PUBLIC);
                     r.add(player.getName());
                     vr.addPlayerScore(player.getId(), 1);
                     vr.addReport(r);
                 } else {
                     Report r = new Report(7110, Report.PUBLIC);
-                    r.add("Team " + team);
-                    vr.addTeamScore(team, 1);
+                    r.add("Team " + teamNumber);
+                    vr.addTeamScore(teamNumber, 1);
                     vr.addReport(r);
                 }
                 victory = true;

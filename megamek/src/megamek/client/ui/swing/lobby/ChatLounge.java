@@ -28,6 +28,7 @@ import megamek.client.bot.ui.swing.BotGUI;
 import megamek.client.generator.RandomCallsignGenerator;
 import megamek.client.generator.RandomNameGenerator;
 import megamek.client.ui.Messages;
+import megamek.client.ui.baseComponents.MMComboBox;
 import megamek.client.ui.dialogs.BVDisplayDialog;
 import megamek.client.ui.dialogs.BotConfigDialog;
 import megamek.client.ui.dialogs.CamoChooserDialog;
@@ -46,6 +47,7 @@ import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.TeamNumber;
 import megamek.common.event.*;
 import megamek.common.force.Force;
 import megamek.common.force.Forces;
@@ -154,7 +156,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
     /* Player Configuration Panel */
     private FixedYPanel panPlayerInfo;
-    private JComboBox<String> comboTeam = new JComboBox<>();
+    private MMComboBox<TeamNumber> comboTeam = new MMComboBox<>("comboTeam", TeamNumber.values());
     private JButton butCamo = new JButton();
     private JButton butAddBot = new JButton(Messages.getString("ChatLounge.butAddBot"));
     private JButton butRemoveBot = new JButton(Messages.getString("ChatLounge.butRemoveBot"));
@@ -513,7 +515,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         butConfigPlayer.setEnabled(false);
         butConfigPlayer.setActionCommand("CONFIGURE"); 
         setButUnitIDState();
-        setupTeamCombo();
         butCamo.setActionCommand("camo");
         refreshCamoButton();
         
@@ -1266,18 +1267,11 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         }
     }
 
-    /** Sets up the team choice box. */
-    private void setupTeamCombo() {
-        for (int i = 0; i < Team.NAMES.length; i++) {
-            comboTeam.addItem(Team.NAMES[i]);
-        }
-    }
-
     /** Updates the team choice combobox to show the selected player's team. */
     private void refreshTeams() {
         if (localPlayer() != null) {
             comboTeam.removeActionListener(lobbyListener);
-            comboTeam.setSelectedIndex(localPlayer().getTeamNumber());
+            comboTeam.setSelectedItem(localPlayer().getTeamNumber());
             comboTeam.addActionListener(lobbyListener);
         }
     }
@@ -1685,7 +1679,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             } else if (ev.getSource().equals(tablePlayers)) {
                 configPlayer();
             } else if (ev.getSource().equals(comboTeam)) {
-                lobbyActions.changeTeam(getselectedPlayers(), comboTeam.getSelectedIndex());
+                lobbyActions.changeTeam(getselectedPlayers(), comboTeam.getSelectedItem());
             } else if (ev.getSource().equals(butConfigPlayer)) {
                 configPlayer();
             } else if (ev.getSource().equals(butBotSettings)) {
@@ -2363,9 +2357,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     }
     
     /** Sets (without firing events) the team combobox. */
-    private void setTeamSelectedItem(int team) {
+    private void setTeamSelectedItem(TeamNumber teamNumber) {
         comboTeam.removeActionListener(lobbyListener);
-        comboTeam.setSelectedIndex(team);
+        comboTeam.setSelectedItem(teamNumber);
         comboTeam.addActionListener(lobbyListener);
     }
     
@@ -2437,8 +2431,8 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                     break;
 
                 case PlayerTablePopup.PTP_TEAM:
-                    int newTeam = Integer.parseInt(st.nextToken());
-                    lobbyActions.changeTeam(getselectedPlayers(), newTeam);
+                    TeamNumber teamNumber = TeamNumber.valueOf(st.nextToken());
+                    lobbyActions.changeTeam(getselectedPlayers(), teamNumber);
                     break;
 
                 case PlayerTablePopup.PTP_BOTREMOVE:

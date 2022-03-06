@@ -32,6 +32,7 @@ import megamek.client.ui.swing.UnitEditorDialog;
 import megamek.client.ui.swing.dialog.MMConfirmDialog;
 import megamek.common.*;
 import megamek.common.enums.Gender;
+import megamek.common.enums.TeamNumber;
 import megamek.common.force.Force;
 import megamek.common.force.Forces;
 import megamek.common.icons.Camouflage;
@@ -892,13 +893,13 @@ public class LobbyActions {
     }
     
     /** Change the team of a controlled player (the local player or one of his bots). */
-    void changeTeam(Collection<Player> players, int team) {
+    void changeTeam(Collection<Player> players, TeamNumber teamNumber) {
         var toSend = new HashSet<Player>();
         players.stream()
             .filter(this::isSelfOrLocalBot)
-            .filter(p -> p.getTeamNumber() != team)
+            .filter(p -> p.getTeamNumber() != teamNumber)
             .forEach(toSend::add);
-        client().sendChangeTeam(toSend, team);
+        client().sendChangeTeam(toSend, teamNumber);
     }
     
     /**

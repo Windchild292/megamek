@@ -15,7 +15,7 @@ package megamek.server.victory;
 
 import megamek.common.Game;
 import megamek.common.Player;
-import megamek.common.Team;
+import megamek.common.enums.TeamNumber;
 
 import java.io.Serializable;
 import java.util.List;
@@ -37,7 +37,7 @@ public class ForceVictory implements IVictoryConditions, Serializable {
             return VictoryResult.noResult();
         }
         int victoryPlayerId = game.getVictoryPlayerId();
-        int victoryTeam = game.getVictoryTeam();
+        TeamNumber victoryTeam = game.getVictoryTeamNumber();
         List<Player> players = game.getPlayersVector();
         boolean forceVictory = true;
 
@@ -55,7 +55,7 @@ public class ForceVictory implements IVictoryConditions, Serializable {
             }
         }
         // Team victory.
-        if (victoryTeam != Team.NONE) {
+        if (!victoryTeam.isNone()) {
             for (int i = 0; i < players.size(); i++) {
                 Player player = players.get(i);
 
