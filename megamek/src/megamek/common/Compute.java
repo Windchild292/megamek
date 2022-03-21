@@ -1,18 +1,22 @@
 /*
-* MegaMek -
-* Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
-* Copyright (C) 2018 The MegaMek Team
-*
-* This program is free software; you can redistribute it and/or modify it under
-* the terms of the GNU General Public License as published by the Free Software
-* Foundation; either version 2 of the License, or (at your option) any later
-* version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-* details.
-*/
+ * Copyright (c) 2000-2005 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2018-2022 - The MegaMek Team. All Rights Reserved.
+ *
+ * This file is part of MegaMek.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
+ */
 package megamek.common;
 
 import megamek.common.MovePath.MoveStepType;
@@ -22,6 +26,8 @@ import megamek.common.enums.AimingMode;
 import megamek.common.enums.BasementType;
 import megamek.common.enums.IlluminationLevel;
 import megamek.common.options.OptionsConstants;
+import megamek.common.util.enums.RandomizationMethod;
+import megamek.common.util.randomization.AbstractRandom;
 import megamek.common.weapons.InfantryAttack;
 import megamek.common.weapons.Weapon;
 import megamek.common.weapons.artillery.ArtilleryCannonWeapon;
@@ -99,7 +105,7 @@ public class Compute {
             ARC_VGL_REAR, ARC_VGL_LR, ARC_VGL_LF
     };
 
-    private static MMRandom random = MMRandom.generate(MMRandom.R_DEFAULT);
+    private static AbstractRandom random = RandomizationMethod.RANDOM.getGenerator();
 
     private static final int[][] clusterHitsTable = new int[][]{
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -240,28 +246,28 @@ public class Compute {
     }
 
     /**
-     * Sets the RNG to the desired type
+     * Sets the RNG to the desired method
      */
-    public static void setRNG(int type) {
-        random = MMRandom.generate(type);
+    public static void setRNG(RandomizationMethod method) {
+        setRNG(method.getGenerator());
     }
 
     /**
      * Sets the RNG to the specific instance.
-     * @param random A non-null instance of {@link MMRandom} to use
-     *               for all random number generation.
+     * @param random A non-null instance of {@link AbstractRandom} to use for all random number
+     *              generation.
      */
-    public static void setRNG(MMRandom random) {
+    public static void setRNG(final AbstractRandom random) {
         Compute.random = Objects.requireNonNull(random);
     }
 
     /**
-     * Returns the odds that a certain number or above will be rolled on 2d6.
+     * @param number the specified number
+     * @return the odds that a specified number or above will be rolled on 2d6.
      */
-    public static double oddsAbove(int n) {
-        return oddsAbove(n, false);
+    public static double oddsAbove(int number) {
+        return oddsAbove(number, false);
     }
-
 
     /**
      * Returns the odds that a certain number or above will be rolled on 2d6,

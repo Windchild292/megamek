@@ -1,19 +1,25 @@
 /*
-* MegaMek -
-* Copyright (C) 2004 Ben Mazur (bmazur@sev.org)
-* Copyright (C) 2018 The MegaMek Team
-*
-* This program is free software; you can redistribute it and/or modify it under
-* the terms of the GNU General Public License as published by the Free Software
-* Foundation; either version 2 of the License, or (at your option) any later
-* version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-* details.
-*/
+ * Copyright (c) 2004 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
+ *
+ * This file is part of MegaMek.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
+ */
 package megamek.common;
+
+import megamek.common.util.randomization.MMRandom;
 
 /**
  * Subclass of the roll tracker for <code>Pool36Random</code> "entropy" sources
@@ -22,7 +28,6 @@ package megamek.common;
  * @since July 21, 2004, 7:49 AM
  */
 public class MMShuffle extends Roll {
-
     /**
      * Record the two "dice" of this "roll".
      */
@@ -66,8 +71,7 @@ public class MMShuffle extends Roll {
     }
 
     /**
-     * Get the value of the roll. This is the total of each of the rolls of each
-     * virtual die.
+     * Get the value of the roll. This is the total of each of the rolls of each virtual die.
      *
      * @return the <code>int</code> value of the roll.
      */
@@ -77,28 +81,23 @@ public class MMShuffle extends Roll {
     }
 
     /**
-     * Get a <code>String</code> containing the roll for each of the virtual
-     * dice.
+     * Get a <code>String</code> containing the roll for each of the virtual dice.
      *
      * @return the <code>String</code> value of the roll.
      */
     @Override
     public String toString() {
         // Build a buffer as we go.
-        StringBuffer buffer = new StringBuffer();
 
         // Start off the report (this is all the report a single die needs).
-        buffer.append(this.one + this.two);
 
-        // Add the two "dice".
-        buffer.append(" (");
-        buffer.append(this.one);
-        buffer.append("+");
-        buffer.append(this.two);
-        buffer.append(")");
+        String buffer = (this.one + this.two) +
+
+                // Add the two "dice".
+                " (" + this.one + "+" + this.two + ")";
 
         // Return the string.
-        return buffer.toString();
+        return buffer;
     }
 
     /**
@@ -109,7 +108,6 @@ public class MMShuffle extends Roll {
      */
     @Override
     public String getReport() {
-
         // Build a buffer as we go.
         StringBuffer buffer = new StringBuffer();
 
@@ -137,7 +135,7 @@ public class MMShuffle extends Roll {
     /**
      * Test harness for this class.
      */
-    public static void main(String[] args) {
+    public static void main(String... args) {
         int whichRNG = MMRandom.R_POOL36;
         MMRandom rng = MMRandom.generate(whichRNG);
 
@@ -154,8 +152,8 @@ public class MMShuffle extends Roll {
         Roll.output(rng.d6());
 
         // Handle 36 more "rolls".
-        for (int loop = 0; loop < 36; loop++)
+        for (int loop = 0; loop < 36; loop++) {
             Roll.output(rng.d6(2));
+        }
     }
-
 }
