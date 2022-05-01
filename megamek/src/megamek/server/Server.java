@@ -13394,6 +13394,36 @@ public class Server implements Runnable {
                     "Server got invalid attack packet from Connection %s, Entity %s, %s Turn",
                     connId, ((entity == null) ? "null" : entity.getShortName()),
                     ((turn == null) ? "null" : "invalid")));
+
+            //region Temporary Log
+            if (turn != null) {
+                final String invalidEntityMessage;
+                if (entity == null) {
+                    invalidEntityMessage = "Null entity";
+                } else if (entity.getOwnerId() == connId) {
+                    invalidEntityMessage = String.format("Entity %s is not owned by %s", entity.getOwnerId(), connId);
+                } else if (!entity.isSelectableThisTurn()) {
+                    if (entity.isDone()) {
+                        invalidEntityMessage = "Entity has already completed phase " + game.getPhase();
+                    } else if (entity.getTransportId() != Entity.NONE) {
+                        invalidEntityMessage = "Entity is currently in a transport.";
+                    } else if (entity.isUnloadedThisTurn()) {
+                        invalidEntityMessage = "Entity has been unloaded this turn.";
+                    } else if (entity.isClearingMinefield()) {
+                        invalidEntityMessage = "Entity is clearing a minefield.";
+                    } else if (entity.isCarcass()) {
+                        invalidEntityMessage = "Entity is a carcass.";
+                    } else {
+                        invalidEntityMessage = "This can't occur, just needed for IDE.";
+                    }
+                } else {
+                    invalidEntityMessage = "This shouldn't be possible... it's currently the " + game.getPhase() + " and so the other checks shouldn't affect this";
+                }
+
+                LogManager.getLogger().fatal(invalidEntityMessage);
+            }
+            //endregion Temporary Log
+
             send(connId, createTurnVectorPacket());
             send(connId, createTurnIndexPacket((turn == null) ? Player.PLAYER_NONE : turn.getPlayerNum()));
             return;
