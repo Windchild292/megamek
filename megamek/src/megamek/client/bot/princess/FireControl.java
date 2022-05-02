@@ -3052,10 +3052,10 @@ public class FireControl {
      * @param shooter Entity being considered.
      * @return Unjam action plan, if we conclude that we should spend time unjamming weapons.
      */
-    public Vector<EntityAction> getUnjamWeaponPlan(Entity shooter) {
+    public Vector<AbstractEntityAction> getUnjamWeaponPlan(Entity shooter) {
         int maxJammedDamage = 0;
         int maxDamageWeaponID = -1;
-        Vector<EntityAction> unjamVector = new Vector<>();
+        Vector<AbstractEntityAction> unjamVector = new Vector<>();
         
         // apparently, only tank type units can unjam weapons/clear turrets
         // unconscious crews can't do this
@@ -3132,7 +3132,7 @@ public class FireControl {
         }
         
         List<SearchlightAttackAction> searchlights = new ArrayList<>();
-        for (EntityAction action : shooter.getGame().getActionsVector()) {
+        for (AbstractEntityAction action : shooter.getGame().getActionsVector()) {
             if (action instanceof SearchlightAttackAction) {
                 searchlights.add((SearchlightAttackAction) action);
             }

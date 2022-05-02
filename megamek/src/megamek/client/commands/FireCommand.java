@@ -18,7 +18,10 @@ import megamek.client.Client;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.common.*;
-import megamek.common.actions.*;
+import megamek.common.actions.AbstractEntityAction;
+import megamek.common.actions.SearchlightAttackAction;
+import megamek.common.actions.TorsoTwistAction;
+import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
@@ -300,7 +303,7 @@ public class FireCommand extends ClientCommand {
     private void commit() {
         // For bug 1002223
         // Re-compute the to-hit numbers by adding in correct order.
-        Vector<EntityAction> newAttacks = new Vector<>();
+        Vector<AbstractEntityAction> newAttacks = new Vector<>();
         for (Enumeration<AbstractEntityAction> e = attacks.elements(); e.hasMoreElements(); ) {
             AbstractEntityAction o = e.nextElement();
             if (o instanceof WeaponAttackAction) {

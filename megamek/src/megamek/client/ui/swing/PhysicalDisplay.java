@@ -100,7 +100,7 @@ public class PhysicalDisplay extends StatusBarPhaseDisplay {
     Targetable target; // target
 
     // stuff we want to do
-    private Vector<EntityAction> attacks;
+    private Vector<AbstractEntityAction> attacks;
 
     private AimedShotHandler ash = new AimedShotHandler();
 

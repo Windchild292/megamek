@@ -21,8 +21,8 @@ import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.util.MegaMekController;
 import megamek.client.ui.swing.widget.MegamekButton;
 import megamek.common.*;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.ArtilleryAttackAction;
-import megamek.common.actions.EntityAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
@@ -43,7 +43,6 @@ import java.util.*;
  * This display is used for when hidden units are taking pointblank shots.
  * 
  * @author arlith
- *
  */
 public class PointblankShotDisplay extends FiringDisplay implements ItemListener, ListSelectionListener {
     private static final long serialVersionUID = -58785096133753153L;
@@ -537,7 +536,7 @@ public class PointblankShotDisplay extends FiringDisplay implements ItemListener
         if ((ce() != null) && ce().isCapitalFighter()
             && GUIPreferences.getInstance().getNagForOverheat()) {
             int totalheat = 0;
-            for (EntityAction action : attacks) {
+            for (AbstractEntityAction action : attacks) {
                 if (action instanceof WeaponAttackAction) {
                     Mounted weapon = ce().getEquipment(((WeaponAttackAction) action).getWeaponId());
                     totalheat += weapon.getCurrentHeat();
@@ -567,8 +566,8 @@ public class PointblankShotDisplay extends FiringDisplay implements ItemListener
 
         // For bug 1002223
         // Re-compute the to-hit numbers by adding in correct order.
-        Vector<EntityAction> newAttacks = new Vector<>();
-        for (EntityAction o : attacks) {
+        Vector<AbstractEntityAction> newAttacks = new Vector<>();
+        for (AbstractEntityAction o : attacks) {
             if (o instanceof ArtilleryAttackAction) {
                 newAttacks.addElement(o);
             } else if (o instanceof WeaponAttackAction) {
@@ -600,7 +599,7 @@ public class PointblankShotDisplay extends FiringDisplay implements ItemListener
             }
         }
         // now add the attacks in rear/arm arcs
-        for (EntityAction o : attacks) {
+        for (AbstractEntityAction o : attacks) {
             if (o instanceof ArtilleryAttackAction) {
                 // newAttacks.addElement(o);
                 continue;

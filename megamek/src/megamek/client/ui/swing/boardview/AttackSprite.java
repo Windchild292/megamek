@@ -1,30 +1,13 @@
 package megamek.client.ui.swing.boardview;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.image.ImageObserver;
-import java.util.ArrayList;
-
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.util.StraightArrowPolygon;
-import megamek.common.Compute;
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.Targetable;
-import megamek.common.WeaponType;
-import megamek.common.actions.AttackAction;
-import megamek.common.actions.ChargeAttackAction;
-import megamek.common.actions.ClubAttackAction;
-import megamek.common.actions.DfaAttackAction;
-import megamek.common.actions.KickAttackAction;
-import megamek.common.actions.ProtomechPhysicalAttackAction;
-import megamek.common.actions.PunchAttackAction;
-import megamek.common.actions.PushAttackAction;
-import megamek.common.actions.SearchlightAttackAction;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.*;
+import megamek.common.actions.*;
+
+import java.awt.*;
+import java.awt.image.ImageObserver;
+import java.util.ArrayList;
 
 /**
  * Sprite and info for an attack. Does not actually use the image buffer as
@@ -60,7 +43,7 @@ class AttackSprite extends Sprite {
 
     private final Targetable target;
 
-    public AttackSprite(BoardView boardView1, final AttackAction attack) {
+    public AttackSprite(BoardView boardView1, final AbstractAttackAction attack) {
         super(boardView1);
         this.boardView1 = boardView1;
         entityId = attack.getEntityId();

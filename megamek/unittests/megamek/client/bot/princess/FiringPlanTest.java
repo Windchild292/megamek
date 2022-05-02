@@ -17,7 +17,7 @@ import megamek.common.AmmoType;
 import megamek.common.Mounted;
 import megamek.common.Targetable;
 import megamek.common.WeaponType;
-import megamek.common.actions.EntityAction;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.WeaponAttackAction;
 import org.junit.Assert;
 import org.junit.Before;
@@ -147,7 +147,7 @@ public class FiringPlanTest {
 
     @Test
     public void testGetEntityActionVector() {
-        Vector<EntityAction> expected;
+        Vector<AbstractEntityAction> expected;
 
         // Test a no-twist plan.
         Mockito.when(testFiringPlan.getTwist()).thenReturn(0);

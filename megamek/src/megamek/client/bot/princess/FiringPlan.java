@@ -18,12 +18,15 @@ import megamek.common.AmmoType;
 import megamek.common.Mounted;
 import megamek.common.Targetable;
 import megamek.common.WeaponType;
-import megamek.common.actions.EntityAction;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.FlipArmsAction;
 import megamek.common.actions.TorsoTwistAction;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * FiringPlan is a series of {@link WeaponFireInfo} objects describing a full attack turn
@@ -123,12 +126,12 @@ public class FiringPlan extends ArrayList<WeaponFireInfo> implements Comparable<
     }
 
     /**
-     * Builds a {@link Vector} of all the actions, {@link EntityAction}, that make up this firing plan.
+     * Builds a {@link Vector} of all the actions, {@link AbstractEntityAction}, that make up this firing plan.
      *
      * @return The list of actions as a vector.
      */
-    synchronized Vector<EntityAction> getEntityActionVector() {
-        Vector<EntityAction> actionVector = new Vector<>();
+    synchronized Vector<AbstractEntityAction> getEntityActionVector() {
+        Vector<AbstractEntityAction> actionVector = new Vector<>();
         if (size() == 0) {
             return actionVector;
         }

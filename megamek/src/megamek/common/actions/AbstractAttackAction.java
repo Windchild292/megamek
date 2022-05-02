@@ -1,15 +1,21 @@
 /*
- * MegaMek - Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2000-2004 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
+ * This file is part of MegaMek.
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- * for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.common.actions;
 
@@ -22,10 +28,9 @@ import megamek.common.options.OptionsConstants;
 import java.util.Enumeration;
 
 /**
- * Abstract superclass for any action where an entity is attacking another
- * entity.
+ * Abstract superclass for any action where an entity is attacking another entity.
  */
-public abstract class AbstractAttackAction extends AbstractEntityAction implements AttackAction {
+public abstract class AbstractAttackAction extends AbstractEntityAction {
     private static final long serialVersionUID = -897197664652217134L;
     private int targetType;
     private int targetId;
@@ -43,22 +48,18 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         this.targetId = targetId;
     }
 
-    @Override
     public int getTargetType() {
         return targetType;
     }
 
-    @Override
     public int getTargetId() {
         return targetId;
     }
 
-    @Override
     public void setTargetType(int targetType) {
         this.targetType = targetType;
     }
 
-    @Override
     public void setTargetId(int targetId) {
         this.targetId = targetId;
     }
@@ -95,15 +96,13 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
      *
      * @param game The current {@link Game}
      */
-    public static ToHitData nightModifiers(Game game, Targetable target,
-            AmmoType atype, Entity attacker, boolean isWeapon) {
-        ToHitData toHit = null;
-
+    public static ToHitData nightModifiers(Game game, Targetable target, AmmoType atype,
+                                           Entity attacker, boolean isWeapon) {
         Entity te = null;
         if (target.getTargetType() == Targetable.TYPE_ENTITY) {
             te = (Entity) target;
         }
-        toHit = new ToHitData();
+        ToHitData toHit = new ToHitData();
 
         int lightCond = game.getPlanetaryConditions().getLight();
         if (lightCond == PlanetaryConditions.L_DAY) {
@@ -114,9 +113,7 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         // The base night penalty
         final IlluminationLevel hexIllumLvl = IlluminationLevel.determineIlluminationLevel(game,
                 target.getPosition());
-        int night_modifier = 0;
-        night_modifier = game.getPlanetaryConditions().getLightHitPenalty(
-                isWeapon);
+        int night_modifier =  game.getPlanetaryConditions().getLightHitPenalty(isWeapon);
         toHit.addModifier(night_modifier, game.getPlanetaryConditions()
                 .getLightDisplayableName());
 
@@ -125,12 +122,11 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
             illuminated = te.isIlluminated();
             // hack for unresolved actions so client shows right BTH
             if (!illuminated) {
-                for (Enumeration<EntityAction> actions = game.getActions(); 
-                        actions.hasMoreElements();) {
-                    EntityAction a = actions.nextElement();
+                for (Enumeration<AbstractEntityAction> actions = game.getActions();
+                     actions.hasMoreElements();) {
+                    AbstractEntityAction a = actions.nextElement();
                     if (a instanceof SearchlightAttackAction) {
-                        SearchlightAttackAction saa = 
-                                (SearchlightAttackAction) a;
+                        SearchlightAttackAction saa = (SearchlightAttackAction) a;
                         if (saa.willIlluminate(game, te)) {
                             illuminated = true;
                             break;
@@ -139,8 +135,9 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
                 }
             }
         }
-        // Searchlights reduce the penalty to zero (or 1 for pitch-black) 
-        //  (except for dusk/dawn)
+
+        // Searchlights reduce the penalty to zero (or 1 for pitch-black)
+        // (except for dusk/dawn)
         int searchlightMod = Math.min(3, night_modifier);
         if ((te != null) && (lightCond > PlanetaryConditions.L_DUSK)
                 && (te.isUsingSearchlight() || illuminated)) {
@@ -148,8 +145,7 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
                 toHit.addModifier(-searchlightMod, "target using searchlight");
                 night_modifier = night_modifier - searchlightMod;
             } else if (illuminated) {
-                toHit.addModifier(-searchlightMod,
-                        "target illuminated by searchlight");
+                toHit.addModifier(-searchlightMod, "target illuminated by searchlight");
                 night_modifier = night_modifier - searchlightMod;
             }
         } else if (hexIllumLvl.isFlare()) {
@@ -163,9 +159,8 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         } else if (hexIllumLvl.isSearchlight()) {
             toHit.addModifier(-searchlightMod, "target illuminated by searchlight");
             night_modifier -= searchlightMod;
-        }
-        // Certain ammunitions reduce the penalty
-        else if (atype != null) {
+        } else if (atype != null) {
+            // Certain ammunition types reduce the penalty
             if (((atype.getAmmoType() == AmmoType.T_AC) 
                     || (atype.getAmmoType() == AmmoType.T_LAC)
                     || (atype.getAmmoType() == AmmoType.T_AC_IMP)
@@ -190,21 +185,17 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
             else if ((te.heatBuildup > 0) || te.isStealthActive()) {
                 lhsused = true;
             } else {
-                // Unfortunately, we can't just check weapons fired by the
-                // target
-                // because isUsedThisRound() is not valid if the attacker
-                // declared first.
+                // Unfortunately, we can't just check weapons fired by the target because
+                // isUsedThisRound() is not valid if the attacker declared first.
                 // therefore, enumerate WeaponAttackActions...
-                for (Enumeration<EntityAction> actions = game.getActions(); 
-                        actions.hasMoreElements();) {
-                    EntityAction a = actions.nextElement();
+                for (Enumeration<AbstractEntityAction> actions = game.getActions();
+                     actions.hasMoreElements();) {
+                    AbstractEntityAction a = actions.nextElement();
                     if (a instanceof WeaponAttackAction) {
                         WeaponAttackAction waa = (WeaponAttackAction) a;
                         if (waa.getEntityId() == te.getId()) {
-                            Mounted weapon = te.getEquipment(waa
-                                    .getWeaponId());
-                            if ((weapon.getCurrentHeat() != 0)
-                                    || weapon.isRapidfire()) {
+                            Mounted weapon = te.getEquipment(waa.getWeaponId());
+                            if ((weapon.getCurrentHeat() != 0) || weapon.isRapidfire()) {
                                 // target fired a weapon that generates heat
                                 lhsused = true;
                                 break;
@@ -219,8 +210,7 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
             }
         }
 
-
-        //now check for general hit bonuses for heat
+        // now check for general hit bonuses for heat
         if ((te != null) && !attacker.isConventionalInfantry()) {
             int heatBonus = game.getPlanetaryConditions().getLightHeatBonus(te.heat);
             if (heatBonus < 0) {

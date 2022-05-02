@@ -1151,7 +1151,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
         if ((ce() != null) && ce().isCapitalFighter()
                 && GUIPreferences.getInstance().getNagForOverheat()) {
             int totalheat = 0;
-            for (EntityAction action : attacks) {
+            for (AbstractEntityAction action : attacks) {
                 if (action instanceof WeaponAttackAction) {
                     Mounted weapon = ce().getEquipment(
                             ((WeaponAttackAction) action).getWeaponId());
@@ -1182,8 +1182,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
 
         // For bug 1002223
         // Re-compute the to-hit numbers by adding in correct order.
-        Vector<EntityAction> newAttacks = new Vector<>();
-        for (EntityAction o : attacks) {
+        Vector<AbstractEntityAction> newAttacks = new Vector<>();
+        for (AbstractEntityAction o : attacks) {
             if (o instanceof ArtilleryAttackAction) {
                 newAttacks.addElement(o);
             } else if (o instanceof WeaponAttackAction) {
@@ -1214,7 +1214,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
             }
         }
         // now add the attacks in rear/arm arcs
-        for (EntityAction o : attacks) {
+        for (AbstractEntityAction o : attacks) {
             if (o instanceof ArtilleryAttackAction) {
                 // newAttacks.addElement(o);
                 continue;
@@ -1455,7 +1455,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
         // this
         // entity in the attack list and subtract those payloads from the
         // loadout
-        for (EntityAction o : attacks) {
+        for (AbstractEntityAction o : attacks) {
             if (o instanceof WeaponAttackAction) {
                 WeaponAttackAction waa = (WeaponAttackAction) o;
                 if (waa.getEntityId() == ce().getId()) {
@@ -1502,11 +1502,11 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
         if (!game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_NO_FORCED_PRIMARY_TARGETS)
                 && (ce() instanceof Mech) || (ce() instanceof Tank)
                 || (ce() instanceof Protomech)) {
-            EntityAction lastAction = null;
+            AbstractEntityAction lastAction = null;
             try {
                 lastAction = attacks.lastElement();
-            } catch (NoSuchElementException ex) {
-                // ignore
+            } catch (Exception ignored) {
+
             }
 
             if (lastAction instanceof WeaponAttackAction) {
@@ -2103,13 +2103,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
                     if ((targ instanceof Entity) && Compute.isGroundToAir(ce(), targ)) {
                         Entity entTarg = (Entity) targ;
                         boolean alreadyShotAt = false;
-                        List<EntityAction> actions = clientgui.getClient()
+                        List<AbstractEntityAction> actions = clientgui.getClient()
                                 .getGame().getActionsVector();
-                        for (EntityAction action : actions) {
-                            if (!(action instanceof AttackAction)) {
+                        for (AbstractEntityAction action : actions) {
+                            if (!(action instanceof AbstractAttackAction)) {
                                 continue;
                             }
-                            AttackAction aa = (AttackAction) action;
+                            AbstractAttackAction aa = (AbstractAttackAction) action;
                             if ((action.getEntityId() == cen)
                                     && (aa.getTargetId() == entTarg.getId())) {
                                 alreadyShotAt = true;

@@ -73,8 +73,8 @@ public class SearchlightAttackAction extends AbstractAttackAction {
         }
         
         // can't light up more than once per round
-        for (Enumeration<EntityAction> actions = game.getActions(); actions.hasMoreElements();) {
-            EntityAction action = actions.nextElement();
+        for (Enumeration<AbstractEntityAction> actions = game.getActions(); actions.hasMoreElements();) {
+            AbstractEntityAction action = actions.nextElement();
             if (action instanceof SearchlightAttackAction) {
                 SearchlightAttackAction act = (SearchlightAttackAction) action;
                 if (act == exempt) {

@@ -19,9 +19,9 @@ import megamek.MMConstants;
 import megamek.Version;
 import megamek.client.bot.princess.BehaviorSettings;
 import megamek.common.GameTurn.SpecificEntityTurn;
+import megamek.common.actions.AbstractAttackAction;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.ArtilleryAttackAction;
-import megamek.common.actions.AttackAction;
-import megamek.common.actions.EntityAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.event.*;
@@ -108,10 +108,10 @@ public class Game implements Serializable {
     private GamePhase lastPhase = GamePhase.UNKNOWN;
 
     // phase state
-    private Vector<EntityAction> actions = new Vector<>();
-    private Vector<AttackAction> pendingCharges = new Vector<>();
-    private Vector<AttackAction> pendingRams = new Vector<>();
-    private Vector<AttackAction> pendingTeleMissileAttacks = new Vector<>();
+    private Vector<AbstractEntityAction> actions = new Vector<>();
+    private Vector<AbstractAttackAction> pendingCharges = new Vector<>();
+    private Vector<AbstractAttackAction> pendingRams = new Vector<>();
+    private Vector<AbstractAttackAction> pendingTeleMissileAttacks = new Vector<>();
     private Vector<PilotingRollData> pilotRolls = new Vector<>();
     private Vector<PilotingRollData> extremeGravityRolls = new Vector<>();
     private Vector<PilotingRollData> controlRolls = new Vector<>();
@@ -2208,7 +2208,7 @@ public class Game implements Serializable {
     /**
      * Adds the specified action to the actions list for this phase.
      */
-    public void addAction(EntityAction ea) {
+    public void addAction(AbstractEntityAction ea) {
         actions.addElement(ea);
         processGameEvent(new GameNewActionEvent(this, ea));
     }
@@ -2233,7 +2233,7 @@ public class Game implements Serializable {
     /**
      * Returns an Enumeration of actions scheduled for this phase.
      */
-    public Enumeration<EntityAction> getActions() {
+    public Enumeration<AbstractEntityAction> getActions() {
         return actions.elements();
     }
 
@@ -2249,8 +2249,8 @@ public class Game implements Serializable {
      */
     public void removeActionsFor(int entityId) {
         // or rather, only keeps actions NOT by that entity
-        Vector<EntityAction> toKeep = new Vector<>(actions.size());
-        for (EntityAction ea : actions) {
+        Vector<AbstractEntityAction> toKeep = new Vector<>(actions.size());
+        for (AbstractEntityAction ea : actions) {
             if (ea.getEntityId() != entityId) {
                 toKeep.addElement(ea);
             }
@@ -2275,7 +2275,7 @@ public class Game implements Serializable {
      * Returns the actions vector. Do not use to modify the actions; I will be
      * angry. &gt;:[ Used for sending all actions to the client.
      */
-    public List<EntityAction> getActionsVector() {
+    public List<AbstractEntityAction> getActionsVector() {
         return Collections.unmodifiableList(actions);
     }
 
@@ -2314,7 +2314,7 @@ public class Game implements Serializable {
     /**
      * Adds a pending displacement attack to the list for this phase.
      */
-    public void addCharge(AttackAction ea) {
+    public void addCharge(AbstractAttackAction ea) {
         pendingCharges.addElement(ea);
         processGameEvent(new GameNewActionEvent(this, ea));
     }
@@ -2323,7 +2323,7 @@ public class Game implements Serializable {
      * Returns an Enumeration of displacement attacks scheduled for the end of
      * the physical phase.
      */
-    public Enumeration<AttackAction> getCharges() {
+    public Enumeration<AbstractAttackAction> getCharges() {
         return pendingCharges.elements();
     }
 
@@ -2338,14 +2338,14 @@ public class Game implements Serializable {
      * Returns the charges vector. Do not modify. &gt;:[ Used for sending all
      * charges to the client.
      */
-    public List<AttackAction> getChargesVector() {
+    public List<AbstractAttackAction> getChargesVector() {
         return Collections.unmodifiableList(pendingCharges);
     }
 
     /**
      * Adds a pending ramming attack to the list for this phase.
      */
-    public void addRam(AttackAction ea) {
+    public void addRam(AbstractAttackAction ea) {
         pendingRams.addElement(ea);
         processGameEvent(new GameNewActionEvent(this, ea));
     }
@@ -2354,7 +2354,7 @@ public class Game implements Serializable {
      * Returns an Enumeration of ramming attacks scheduled for the end of the
      * physical phase.
      */
-    public Enumeration<AttackAction> getRams() {
+    public Enumeration<AbstractAttackAction> getRams() {
         return pendingRams.elements();
     }
 
@@ -2369,14 +2369,14 @@ public class Game implements Serializable {
      * Returns the rams vector. Do not modify. &gt;:[ Used for sending all charges
      * to the client.
      */
-    public List<AttackAction> getRamsVector() {
+    public List<AbstractAttackAction> getRamsVector() {
         return Collections.unmodifiableList(pendingRams);
     }
 
     /**
      * Adds a pending ramming attack to the list for this phase.
      */
-    public void addTeleMissileAttack(AttackAction ea) {
+    public void addTeleMissileAttack(AbstractAttackAction ea) {
         pendingTeleMissileAttacks.addElement(ea);
         processGameEvent(new GameNewActionEvent(this, ea));
     }
@@ -2384,7 +2384,7 @@ public class Game implements Serializable {
     /**
      * @return an Enumeration of telemissile attacks.
      */
-    public Enumeration<AttackAction> getTeleMissileAttacks() {
+    public Enumeration<AbstractAttackAction> getTeleMissileAttacks() {
         return pendingTeleMissileAttacks.elements();
     }
 
@@ -2399,7 +2399,7 @@ public class Game implements Serializable {
      * This is used to send all telemissile attacks to the client.
      * @return an unmodifiable list of pending telemissile attacks.
      */
-    public List<AttackAction> getTeleMissileAttacksVector() {
+    public List<AbstractAttackAction> getTeleMissileAttacksVector() {
         return Collections.unmodifiableList(pendingTeleMissileAttacks);
     }
 

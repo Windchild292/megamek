@@ -18,13 +18,12 @@ import megamek.client.bot.princess.CardinalEdge;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.ReportDisplay;
 import megamek.common.*;
-import megamek.common.actions.EntityAction;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.event.*;
 import megamek.common.net.Packet;
-import megamek.common.net.enums.PacketCommand;
 import megamek.common.options.OptionsConstants;
 import megamek.common.pathfinder.BoardClusterTracker;
 import megamek.common.preference.PreferenceManager;
@@ -151,7 +150,7 @@ public abstract class BotClient extends Client {
                         break;
                     case CFR_HIDDEN_PBS:
                         try {
-                            Vector<EntityAction> pointBlankShots = calculatePointBlankShot(evt.getEntityId(), evt.getTargetId());
+                            Vector<AbstractEntityAction> pointBlankShots = calculatePointBlankShot(evt.getEntityId(), evt.getTargetId());
                             
                             if (pointBlankShots.isEmpty()) {
                                 sendHiddenPBSCFRResponse(null);
@@ -230,7 +229,7 @@ public abstract class BotClient extends Client {
     @Nullable
     protected abstract PhysicalOption calculatePhysicalTurn();
     
-    protected Vector<EntityAction> calculatePointBlankShot(int firingEntityID, int targetID) { 
+    protected Vector<AbstractEntityAction> calculatePointBlankShot(int firingEntityID, int targetID) {
         return new Vector<>();
     }
     

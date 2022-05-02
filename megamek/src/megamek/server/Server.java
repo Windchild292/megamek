@@ -6578,7 +6578,7 @@ public class Server implements Runnable {
         int prevFacing = curFacing;
         Hex prevHex = game.getBoard().getHex(curPos);
         final boolean isInfantry = entity instanceof Infantry;
-        AttackAction charge = null;
+        AbstractAttackAction charge = null;
         RamAttackAction ram = null;
         // cache this here, otherwise changing MP in the turn causes
         // erroneous gravity PSRs
@@ -9877,11 +9877,11 @@ public class Server implements Runnable {
                 }
 
                 // The second packet contains the attacks to process
-                Vector<EntityAction> attacks = (Vector<EntityAction>) rp.getPacket().getObject(1);
+                Vector<AbstractEntityAction> attacks = (Vector<AbstractEntityAction>) rp.getPacket().getObject(1);
                 // Mark the hidden unit as having taken a PBS
                 hidden.setMadePointblankShot(true);
                 // Process the Actions
-                for (EntityAction ea : attacks) {
+                for (AbstractEntityAction ea : attacks) {
                     Entity entity = game.getEntity(ea.getEntityId());
                     if (ea instanceof TorsoTwistAction) {
                         TorsoTwistAction tta = (TorsoTwistAction) ea;
@@ -13373,7 +13373,7 @@ public class Server implements Runnable {
     @SuppressWarnings("unchecked")
     private void receiveAttack(Packet packet, int connId) {
         Entity entity = game.getEntity(packet.getIntValue(0));
-        Vector<EntityAction> vector = (Vector<EntityAction>) packet.getObject(1);
+        Vector<AbstractEntityAction> vector = (Vector<AbstractEntityAction>) packet.getObject(1);
 
         // is this the right phase?
         if ((game.getPhase() != GamePhase.FIRING)
@@ -13414,7 +13414,7 @@ public class Server implements Runnable {
      * Process a batch of entity attack (or twist) actions by adding them to the
      * proper list to be processed later.
      */
-    private void processAttack(Entity entity, Vector<EntityAction> vector) {
+    private void processAttack(Entity entity, Vector<AbstractEntityAction> vector) {
         // Convert any null vectors to empty vectors to avoid NPEs.
         if (vector == null) {
             vector = new Vector<>(0);
@@ -13423,7 +13423,7 @@ public class Server implements Runnable {
         // Not **all** actions take up the entity's turn.
         boolean setDone = !((game.getTurn() instanceof GameTurn.TriggerAPPodTurn)
                 || (game.getTurn() instanceof GameTurn.TriggerBPodTurn));
-        for (EntityAction ea : vector) {
+        for (AbstractEntityAction ea : vector) {
             // is this the right entity?
             if (ea.getEntityId() != entity.getId()) {
                 LogManager.getLogger().error("Attack packet has wrong attacker");
@@ -14145,10 +14145,10 @@ public class Server implements Runnable {
      * weapons fire that happens. Torso twists, for example.
      */
     private void resolveAllButWeaponAttacks() {
-        Vector<EntityAction> triggerPodActions = new Vector<>();
+        Vector<AbstractEntityAction> triggerPodActions = new Vector<>();
         // loop through actions and handle everything we expect except attacks
-        for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements(); ) {
-            EntityAction ea = i.nextElement();
+        for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements(); ) {
+            AbstractEntityAction ea = i.nextElement();
             Entity entity = game.getEntity(ea.getEntityId());
             if (ea instanceof TorsoTwistAction) {
                 TorsoTwistAction tta = (TorsoTwistAction) ea;
@@ -14396,8 +14396,8 @@ public class Server implements Runnable {
      */
     private void resolveOnlyWeaponAttacks() {
         // loop through received attack actions, getting attack handlers
-        for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements(); ) {
-            EntityAction ea = i.nextElement();
+        for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements(); ) {
+            AbstractEntityAction ea = i.nextElement();
             if (ea instanceof WeaponAttackAction) {
                 WeaponAttackAction waa = (WeaponAttackAction) ea;
                 Entity ae = game.getEntity(waa.getEntityId());
@@ -15030,19 +15030,19 @@ public class Server implements Runnable {
         addReport(new Report(4000, Report.PUBLIC));
 
         // add any pending charges
-        for (Enumeration<AttackAction> i = game.getCharges(); i.hasMoreElements(); ) {
+        for (Enumeration<AbstractAttackAction> i = game.getCharges(); i.hasMoreElements(); ) {
             game.addAction(i.nextElement());
         }
         game.resetCharges();
 
         // add any pending rams
-        for (Enumeration<AttackAction> i = game.getRams(); i.hasMoreElements(); ) {
+        for (Enumeration<AbstractAttackAction> i = game.getRams(); i.hasMoreElements(); ) {
             game.addAction(i.nextElement());
         }
         game.resetRams();
 
         // add any pending Tele Missile Attacks
-        for (Enumeration<AttackAction> i = game.getTeleMissileAttacks(); i.hasMoreElements(); ) {
+        for (Enumeration<AbstractAttackAction> i = game.getTeleMissileAttacks(); i.hasMoreElements(); ) {
             game.addAction(i.nextElement());
         }
         game.resetTeleMissileAttacks();
@@ -15051,10 +15051,10 @@ public class Server implements Runnable {
         cleanupPhysicalAttacks();
 
         // loop thru received attack actions
-        for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements(); ) {
+        for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements(); ) {
             Object o = i.nextElement();
             // verify that the attacker is still active
-            AttackAction aa = (AttackAction) o;
+            AbstractAttackAction aa = (AbstractAttackAction) o;
             if (!game.getEntity(aa.getEntityId()).isActive()
                 && !(o instanceof DfaAttackAction)) {
                 continue;
@@ -15100,10 +15100,10 @@ public class Server implements Runnable {
         if (null != en) {
             allowed = en.getAllowedPhysicalAttacks();
         }
-        Vector<EntityAction> toKeep = new Vector<>();
+        Vector<AbstractEntityAction> toKeep = new Vector<>();
 
-        for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements(); ) {
-            EntityAction action = i.nextElement();
+        for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements(); ) {
+            AbstractEntityAction action = i.nextElement();
             if (action.getEntityId() != entityId) {
                 toKeep.addElement(action);
             } else if (allowed > 0) {
@@ -15119,7 +15119,7 @@ public class Server implements Runnable {
 
         // reset actions and re-add valid elements
         game.resetActions();
-        for (EntityAction entityAction : toKeep) {
+        for (AbstractEntityAction entityAction : toKeep) {
             game.addAction(entityAction);
         }
     }
@@ -15130,10 +15130,10 @@ public class Server implements Runnable {
      * even if the pilot is unconscious, so that he can fail.
      */
     private void removeDeadAttacks() {
-        Vector<EntityAction> toKeep = new Vector<>(game.actionsSize());
+        Vector<AbstractEntityAction> toKeep = new Vector<>(game.actionsSize());
 
-        for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements(); ) {
-            EntityAction action = i.nextElement();
+        for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements(); ) {
+            AbstractEntityAction action = i.nextElement();
             Entity entity = game.getEntity(action.getEntityId());
             if ((entity != null) && !entity.isDestroyed()
                     && (entity.isActive() || (action instanceof DfaAttackAction))) {
@@ -15143,7 +15143,7 @@ public class Server implements Runnable {
 
         // reset actions and re-add valid elements
         game.resetActions();
-        for (EntityAction entityAction : toKeep) {
+        for (AbstractEntityAction entityAction : toKeep) {
             game.addAction(entityAction);
         }
     }
@@ -30805,8 +30805,8 @@ public class Server implements Runnable {
     /**
      * Creates a packet for an attack
      */
-    private Packet createAttackPacket(EntityAction ea, int charge) {
-        Vector<EntityAction> vector = new Vector<>(1);
+    private Packet createAttackPacket(AbstractEntityAction ea, int charge) {
+        Vector<AbstractEntityAction> vector = new Vector<>(1);
         vector.addElement(ea);
         return new Packet(PacketCommand.ENTITY_ATTACK, vector, charge);
     }
@@ -32680,7 +32680,7 @@ public class Server implements Runnable {
         int[] entityIds = (int[]) packet.getObject(0);
         Vector<Player> declared;
         Player other;
-        Enumeration<EntityAction> pending;
+        Enumeration<AbstractEntityAction> pending;
         UnloadStrandedAction action;
         Entity entity;
 

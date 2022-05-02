@@ -1,20 +1,25 @@
 /*
- * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2005 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package megamek.common.event;
 
-import megamek.common.actions.EntityAction;
+import megamek.common.actions.AbstractEntityAction;
 
 /**
  * Instances of this class are sent when new Action added to the game
@@ -22,12 +27,8 @@ import megamek.common.actions.EntityAction;
  * @see GameListener
  */
 public class GameNewActionEvent extends GameEvent {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = 928848699583079097L;
-    protected EntityAction action;
+    protected AbstractEntityAction action;
 
     /**
      * Construct new GameNewActionEvent
@@ -35,7 +36,7 @@ public class GameNewActionEvent extends GameEvent {
      * @param source sender
      * @param action
      */
-    public GameNewActionEvent(Object source, EntityAction action) {
+    public GameNewActionEvent(Object source, AbstractEntityAction action) {
         super(source);
         this.action = action;
     }
@@ -43,7 +44,7 @@ public class GameNewActionEvent extends GameEvent {
     /**
      * @return the action.
      */
-    public EntityAction getAction() {
+    public AbstractEntityAction getAction() {
         return action;
     }
 

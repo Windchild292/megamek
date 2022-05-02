@@ -656,7 +656,7 @@ public class Client implements IClientCommandHandler {
     /**
      * Send a weapon fire command to the server.
      */
-    public void sendAttackData(int aen, Vector<EntityAction> attacks) {
+    public void sendAttackData(int aen, Vector<AbstractEntityAction> attacks) {
         send(new Packet(PacketCommand.ENTITY_ATTACK, aen, attacks));
         flushConn();
     }
@@ -1152,10 +1152,10 @@ public class Client implements IClientCommandHandler {
      */
     @SuppressWarnings("unchecked")
     protected void receiveAttack(Packet c) {
-        List<EntityAction> vector = (List<EntityAction>) c.getObject(0);
+        List<AbstractEntityAction> vector = (List<AbstractEntityAction>) c.getObject(0);
         int charge = c.getIntValue(1);
         boolean addAction = true;
-        for (EntityAction ea : vector) {
+        for (AbstractEntityAction ea : vector) {
             int entityId = ea.getEntityId();
             if ((ea instanceof TorsoTwistAction) && game.hasEntity(entityId)) {
                 TorsoTwistAction tta = (TorsoTwistAction) ea;
@@ -1169,7 +1169,7 @@ public class Client implements IClientCommandHandler {
                 Entity entity = game.getEntity(entityId);
                 entity.dodging = true;
                 addAction = false;
-            } else if (ea instanceof AttackAction) {
+            } else if (ea instanceof AbstractAttackAction) {
                 // The equipment type of a club needs to be restored.
                 if (ea instanceof ClubAttackAction) {
                     ClubAttackAction caa = (ClubAttackAction) ea;
@@ -1183,7 +1183,7 @@ public class Client implements IClientCommandHandler {
                 if (charge == 0) {
                     game.addAction(ea);
                 } else if (charge == 1) {
-                    game.addCharge((AttackAction) ea);
+                    game.addCharge((AbstractAttackAction) ea);
                 }
             }
         }
@@ -1687,7 +1687,7 @@ public class Client implements IClientCommandHandler {
         send(new Packet(PacketCommand.CLIENT_FEEDBACK_REQUEST, PacketCommand.CFR_APDS_ASSIGN, waaIndex));
     }
 
-    public void sendHiddenPBSCFRResponse(Vector<EntityAction> attacks) {
+    public void sendHiddenPBSCFRResponse(Vector<AbstractEntityAction> attacks) {
         send(new Packet(PacketCommand.CLIENT_FEEDBACK_REQUEST, PacketCommand.CFR_HIDDEN_PBS, attacks));
     }
 

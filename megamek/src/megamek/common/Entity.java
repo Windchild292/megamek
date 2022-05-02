@@ -10005,10 +10005,9 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     }
 
     public boolean isAttackingThisTurn() {
-        List<EntityAction> actions = game.getActionsVector();
-        for (EntityAction ea : actions) {
-            if ((ea.getEntityId() == getId())
-                && (ea instanceof AbstractAttackAction)) {
+        List<AbstractEntityAction> actions = game.getActionsVector();
+        for (AbstractEntityAction ea : actions) {
+            if ((ea.getEntityId() == getId()) && (ea instanceof AbstractAttackAction)) {
                 return true;
             }
         }

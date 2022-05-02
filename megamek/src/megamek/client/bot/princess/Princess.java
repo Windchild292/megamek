@@ -26,8 +26,8 @@ import megamek.codeUtilities.StringUtility;
 import megamek.common.*;
 import megamek.common.BulldozerMovePath.MPCostComparator;
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.DisengageAction;
-import megamek.common.actions.EntityAction;
 import megamek.common.actions.FindClubAction;
 import megamek.common.actions.SearchlightAttackAction;
 import megamek.common.annotations.Nullable;
@@ -620,7 +620,7 @@ public class Princess extends BotClient {
                     }
     
                     // tell the game I want to fire
-                    Vector<EntityAction> actions = new Vector<>();
+                    Vector<AbstractEntityAction> actions = new Vector<>();
                     
                     // if using search light, it needs to go before the other actions so we can light up what we're shooting at
                     SearchlightAttackAction searchLightAction = getFireControl(shooter).getSearchLightAction(shooter, plan);
@@ -629,8 +629,8 @@ public class Princess extends BotClient {
                     }
                     
                     actions.addAll(plan.getEntityActionVector());
-                    
-                    EntityAction spotAction = getFireControl(shooter).getSpotAction(plan, shooter, fireControlState);
+
+                    AbstractEntityAction spotAction = getFireControl(shooter).getSpotAction(plan, shooter, fireControlState);
                     if (spotAction != null) {
                         actions.add(spotAction);
                     }
@@ -645,12 +645,12 @@ public class Princess extends BotClient {
             
             // if I have decided to skip firing, let's consider unjamming some weapons or turrets anyway
             if (skipFiring) {
-                Vector<EntityAction> miscPlan = getFireControl(shooter).getUnjamWeaponPlan(shooter);
+                Vector<AbstractEntityAction> miscPlan = getFireControl(shooter).getUnjamWeaponPlan(shooter);
 
                 // if we didn't produce an "unjam weapon" plan, consider spotting and lighting
                 // things up with a searchlight
                 if (miscPlan.isEmpty()) {
-                    EntityAction spotAction = getFireControl(shooter).getSpotAction(null, shooter, fireControlState);
+                    AbstractEntityAction spotAction = getFireControl(shooter).getSpotAction(null, shooter, fireControlState);
                     if (spotAction != null) {
                         miscPlan.add(spotAction);
                     }
@@ -686,7 +686,7 @@ public class Princess extends BotClient {
 
         // if we're crippled, off-board and can do so, disengage
         if (entityToFire.isOffBoard() && entityToFire.canFlee() && entityToFire.isCrippled(true)) {
-            Vector<EntityAction> disengageVector = new Vector<>();
+            Vector<AbstractEntityAction> disengageVector = new Vector<>();
             disengageVector.add(new DisengageAction(entityToFire.getId()));
             sendAttackData(entityToFire.getId(), disengageVector);
             sendDone(true);
@@ -760,7 +760,7 @@ public class Princess extends BotClient {
      * @param targetID the ID of the entity being shot at potentially
      */
     @Override
-    protected Vector<EntityAction> calculatePointBlankShot(int firingEntityID, int targetID) {
+    protected Vector<AbstractEntityAction> calculatePointBlankShot(int firingEntityID, int targetID) {
         Entity shooter = getGame().getEntity(firingEntityID);
         Targetable target = getGame().getEntity(targetID);
         if ((shooter == null) || (target == null)) {

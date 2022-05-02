@@ -1448,7 +1448,7 @@ public class TestBot extends BotClient {
             entity_num = game.getNextEntityNum(getMyTurn(), entity_num);
         } while ((entity_num != first_entity) && (entity_num != -1));
 
-        Vector<EntityAction> av = new Vector<>();
+        Vector<AbstractEntityAction> av = new Vector<>();
         // maximum already selected (or default)
         Entity en = game.getEntity(best_entity);
         if (results != null) {
@@ -1978,8 +1978,7 @@ public class TestBot extends BotClient {
      * must match 1:1 with WeaponAttackActions in Vector.
      */
     private void getAimPoint(TreeSet<AttackOption> attack_tree,
-                             Vector<EntityAction> atk_action_list) {
-
+                             Vector<AbstractEntityAction> atk_action_list) {
         if ((attack_tree == null) || (atk_action_list == null)) {
             return;
         }
@@ -2025,7 +2024,7 @@ public class TestBot extends BotClient {
         // For each attack action
 
         target_id_list = new Vector<>();
-        for (EntityAction aea : atk_action_list) {
+        for (AbstractEntityAction aea : atk_action_list) {
 
             if (aea instanceof WeaponAttackAction) {
                 // Get the attacker
@@ -2275,14 +2274,11 @@ public class TestBot extends BotClient {
                                 ((WeaponAttackAction) atk_action_list
                                         .get(action_index))
                                         .setAimingMode(AimingMode.IMMOBILE);
-
                             }
                         }
 
-                        // Count the refactored damage off each location. Count
-                        // hits to IS.
+                        // Count the refactored damage off each location. Count hits to IS.
                         // Ignore locations that have been previously destroyed
-
                         for (int arr_index = 0; arr_index < 8; arr_index++) {
                             if (arr_index == 0) {
                                 values[arr_index] -= refactored_head;
@@ -2297,9 +2293,6 @@ public class TestBot extends BotClient {
                             }
                         }
                     }
-
-                    // End if (AttackAction against current target)
-
                 }
 
                 action_index++;
@@ -2310,10 +2303,7 @@ public class TestBot extends BotClient {
             for (int arr_index = 0; arr_index < 8; arr_index++) {
                 loc_mod = 0.0;
 
-                // If any location has had its armor stripped but is not
-                // destroyed,
-                // criticals may result
-
+                // If any location has had its armor stripped but is not destroyed, criticals may result
                 if ((values[arr_index] <= 0) & (is_values[arr_index] > 0)) {
                     switch (arr_index) {
                         case 0: // Head hits are very good, pilot damage and
@@ -2477,7 +2467,7 @@ public class TestBot extends BotClient {
 
             // For all weapon attack actions
 
-            for (EntityAction entityAction : atk_action_list) {
+            for (AbstractEntityAction entityAction : atk_action_list) {
                 aimed_attack = (WeaponAttackAction) entityAction;
 
                 // If the target of the action is the current target

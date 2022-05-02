@@ -28,8 +28,8 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.minimap.MiniMapUnitSymbols;
 import megamek.client.ui.swing.boardview.BoardView;
 import megamek.common.*;
-import megamek.common.actions.AttackAction;
-import megamek.common.actions.EntityAction;
+import megamek.common.actions.AbstractAttackAction;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
@@ -49,7 +49,10 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.StreamTokenizer;
 import java.util.List;
 import java.util.*;
 
@@ -536,9 +539,9 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
             
             if (null != game) {
                 // draw declared fire
-                for (EntityAction action : game.getActionsVector()) {
-                    if (action instanceof AttackAction) {
-                        paintAttack(g, (AttackAction) action);
+                for (AbstractEntityAction action : game.getActionsVector()) {
+                    if (action instanceof AbstractAttackAction) {
+                        paintAttack(g, (AbstractAttackAction) action);
                     }
                 }
 
@@ -803,7 +806,7 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
     /**
      * Draw a line to represent an attack
      */
-    private void paintAttack(Graphics g, AttackAction attack) {
+    private void paintAttack(Graphics g, AbstractAttackAction attack) {
         Entity source = game.getEntity(attack.getEntityId());
         Targetable target = game.getTarget(attack.getTargetType(), attack.getTargetId());
         // sanity check...
@@ -852,9 +855,9 @@ public final class MiniMap extends JPanel implements IPreferenceChangeListener {
         g.drawPolygon(xPoints, yPoints, 4);
 
         // if this is mutual fire, draw a half-and-half line
-        for (EntityAction action : game.getActionsVector()) {
-            if (action instanceof AttackAction) {
-                AttackAction otherAttack = (AttackAction) action;
+        for (AbstractEntityAction action : game.getActionsVector()) {
+            if (action instanceof AbstractAttackAction) {
+                AbstractAttackAction otherAttack = (AbstractAttackAction) action;
                 if ((attack.getEntityId() == otherAttack.getTargetId())
                         && (otherAttack.getEntityId() == attack.getTargetId())) {
                     // attackTarget _must_ be an entity since it's shooting back

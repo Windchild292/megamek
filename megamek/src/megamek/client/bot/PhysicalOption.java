@@ -1,33 +1,28 @@
 /*
- * MegaMek -
- * Copyright (C) 2007 Ben Mazur (bmazur@sev.org)
- * 
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * Copyright (c) 2007 - Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This file is part of MegaMek.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either \version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.client.bot;
 
-import java.util.Vector;
+import megamek.common.*;
+import megamek.common.actions.*;
 
-import megamek.common.Entity;
-import megamek.common.INarcPod;
-import megamek.common.Mounted;
-import megamek.common.Targetable;
-import megamek.common.ToHitData;
-import megamek.common.actions.AbstractAttackAction;
-import megamek.common.actions.BrushOffAttackAction;
-import megamek.common.actions.ClubAttackAction;
-import megamek.common.actions.EntityAction;
-import megamek.common.actions.KickAttackAction;
-import megamek.common.actions.PunchAttackAction;
-import megamek.common.actions.PushAttackAction;
+import java.util.Vector;
 
 /**
  * TODO: add more options, pushing, kick both for quad mechs, etc.
@@ -142,9 +137,9 @@ public class PhysicalOption {
         return null;
     }
 
-    public Vector<EntityAction> getVector() {
+    public Vector<AbstractEntityAction> getVector() {
         AbstractAttackAction aaa = toAction();
-        Vector<EntityAction> v = new Vector<>();
+        Vector<AbstractEntityAction> v = new Vector<>();
         if (aaa != null) {
             v.addElement(aaa);
         }

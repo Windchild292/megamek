@@ -4137,7 +4137,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
     /**
      * Adds an attack to the sprite list.
      */
-    public synchronized void addAttack(AttackAction aa) {
+    public synchronized void addAttack(AbstractAttackAction aa) {
         // Don't make sprites for unknown entities and sensor returns
         Entity ae = game.getEntity(aa.getEntityId());
         Targetable t = game.getTarget(aa.getTargetType(), aa.getTargetId());
@@ -4169,35 +4169,22 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
 
                 if (aa instanceof KickAttackAction) {
                     sprite.addWeapon((KickAttackAction) aa);
-                }
-
-                if (aa instanceof PunchAttackAction) {
+                } else if (aa instanceof PunchAttackAction) {
                     sprite.addWeapon((PunchAttackAction) aa);
-                }
-
-                if (aa instanceof PushAttackAction) {
+                } else if (aa instanceof PushAttackAction) {
                     sprite.addWeapon((PushAttackAction) aa);
-                }
-
-                if (aa instanceof ClubAttackAction) {
+                } else if (aa instanceof ClubAttackAction) {
                     sprite.addWeapon((ClubAttackAction) aa);
-                }
-
-                if (aa instanceof ChargeAttackAction) {
+                } else if (aa instanceof ChargeAttackAction) {
                     sprite.addWeapon((ChargeAttackAction) aa);
-                }
-
-                if (aa instanceof DfaAttackAction) {
+                } else if (aa instanceof DfaAttackAction) {
                     sprite.addWeapon((DfaAttackAction) aa);
-                }
-
-                if (aa instanceof ProtomechPhysicalAttackAction) {
+                } else if (aa instanceof ProtomechPhysicalAttackAction) {
                     sprite.addWeapon((ProtomechPhysicalAttackAction) aa);
-                }
-
-                if (aa instanceof SearchlightAttackAction) {
+                } else if (aa instanceof SearchlightAttackAction) {
                     sprite.addWeapon((SearchlightAttackAction) aa);
                 }
+
                 return;
             }
         }
@@ -4237,17 +4224,17 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
      */
     public void refreshAttacks() {
         clearAllAttacks();
-        for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements(); ) {
-            EntityAction ea = i.nextElement();
-            if (ea instanceof AttackAction) {
-                addAttack((AttackAction) ea);
+        for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements(); ) {
+            AbstractEntityAction ea = i.nextElement();
+            if (ea instanceof AbstractAttackAction) {
+                addAttack((AbstractAttackAction) ea);
             }
         }
 
-        for (Enumeration<AttackAction> i = game.getCharges(); i.hasMoreElements(); ) {
-            EntityAction ea = i.nextElement();
+        for (Enumeration<AbstractAttackAction> i = game.getCharges(); i.hasMoreElements(); ) {
+            AbstractEntityAction ea = i.nextElement();
             if (ea instanceof PhysicalAttackAction) {
-                addAttack((AttackAction) ea);
+                addAttack((AbstractAttackAction) ea);
             }
         }
         repaint(100);
@@ -4962,9 +4949,9 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
 
         @Override
         public void gameNewAction(GameNewActionEvent e) {
-            EntityAction ea = e.getAction();
-            if (ea instanceof AttackAction) {
-                addAttack((AttackAction) ea);
+            AbstractEntityAction ea = e.getAction();
+            if (ea instanceof AbstractAttackAction) {
+                addAttack((AbstractAttackAction) ea);
             }
         }
 

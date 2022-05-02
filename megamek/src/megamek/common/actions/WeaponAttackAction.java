@@ -1378,7 +1378,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                 usedRearArc[i] = false;
             }
 
-            for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
+            for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
                 Object o = i.nextElement();
                 if (!(o instanceof WeaponAttackAction)) {
                     continue;
@@ -1456,7 +1456,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         } else if (ae instanceof Dropship) {
             int totalheat = 0;
 
-            for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
+            for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
                 Object o = i.nextElement();
                 if (!(o instanceof WeaponAttackAction)) {
                     continue;
@@ -1674,8 +1674,8 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
 
                 // can only make a strike attack against a single target
                 if (!isStrafing) {
-                    for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
-                        EntityAction ea = i.nextElement();
+                    for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
+                        AbstractEntityAction ea = i.nextElement();
                         if (!(ea instanceof WeaponAttackAction)) {
                             continue;
                         }
@@ -1835,7 +1835,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             if ((ae instanceof BattleArmor) && wtype.hasFlag(WeaponType.F_INFANTRY)) {
                 final int weapId = ae.getEquipmentNum(weapon);
                 // See if this unit has made a previous AP attack
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
                     Object o = i.nextElement();
                     if (!(o instanceof WeaponAttackAction)) {
                         continue;
@@ -1855,8 +1855,8 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             // BA compact narc: we have one weapon for each trooper, but you
             // can fire only at one target at a time
             if (wtype.getName().equals("Compact Narc")) {
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
-                    EntityAction ea = i.nextElement();
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
+                    AbstractEntityAction ea = i.nextElement();
                     if (!(ea instanceof WeaponAttackAction)) {
                         continue;
                     }
@@ -1884,7 +1884,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                     && (wtype.hasFlag(WeaponType.F_TASER) || wtype.getAmmoType() == AmmoType.T_NARC)) {
                 // Go through all of the current actions to see if a NARC or Taser
                 // has been fired
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
                     Object o = i.nextElement();
                     if (!(o instanceof WeaponAttackAction)) {
                         continue;
@@ -1931,7 +1931,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                 // adjacent to a prior one
                 boolean adjacentAltBomb = false;
                 boolean firstAltBomb = true;
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
                     Object o = i.nextElement();
                     if (!(o instanceof WeaponAttackAction)) {
                         continue;
@@ -2143,8 +2143,8 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                 }
                 // check for mixing infantry and field gun attacks
                 double fieldGunWeight = 0.0;
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
-                    EntityAction ea = i.nextElement();
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
+                    AbstractEntityAction ea = i.nextElement();
                     if (!(ea instanceof WeaponAttackAction)) {
                         continue;
                     }
@@ -2201,8 +2201,8 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             
             // air2air and air2ground cannot be combined by any aerospace units
             if (Compute.isAirToAir(ae, target) || Compute.isAirToGround(ae, target)) {
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
-                    EntityAction ea = i.nextElement();
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
+                    AbstractEntityAction ea = i.nextElement();
                     if (!(ea instanceof WeaponAttackAction)) {
                         continue;
                     }
@@ -2236,8 +2236,8 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             // only one ground-to-air attack allowed per turn
             // grounded spheroid dropships dont have this limitation
             if (!ae.isAirborne() && !((ae instanceof Dropship) && ((Aero) ae).isSpheroid())) {
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
-                    EntityAction ea = i.nextElement();
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
+                    AbstractEntityAction ea = i.nextElement();
                     if (!(ea instanceof WeaponAttackAction)) {
                         continue;
                     }
@@ -2397,7 +2397,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             // Check to see if another solo weapon was fired
             boolean hasSoloAttack = false;
             String soloWeaponName = "";
-            for (EntityAction ea : game.getActionsVector()) {
+            for (AbstractEntityAction ea : game.getActionsVector()) {
                 if ((ea.getEntityId() == attackerId) && (ea instanceof WeaponAttackAction)) {
                     WeaponAttackAction otherWAA = (WeaponAttackAction) ea;
                     final Mounted otherWeapon = ae.getEquipment(otherWAA.getWeaponId());
@@ -2419,7 +2419,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             
             // Handle solo attack weapons.
             if (wtype.hasFlag(WeaponType.F_SOLO_ATTACK)) {
-                for (EntityAction ea : game.getActionsVector()) {
+                for (AbstractEntityAction ea : game.getActionsVector()) {
                     if (!(ea instanceof WeaponAttackAction)) {
                         continue;
                     }
@@ -2439,7 +2439,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                     || (weapon.getLocation() == Protomech.LOC_RARM)
                     || (weapon.getLocation() == Protomech.LOC_LARM))) {
                 final boolean firingMainGun = weapon.getLocation() == Protomech.LOC_MAINGUN;
-                for (EntityAction ea : game.getActionsVector()) {
+                for (AbstractEntityAction ea : game.getActionsVector()) {
                     if ((ea.getEntityId() == attackerId) && (ea instanceof WeaponAttackAction)) {
                         WeaponAttackAction otherWAA = (WeaponAttackAction) ea;
                         final Mounted otherWeapon = ae.getEquipment(otherWAA.getWeaponId());
@@ -2608,8 +2608,8 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
      */
     private static boolean isOnlyAttack(Game game, Entity attacker, String attackType, Entity target) {
         // mechs can only be the target of one leg or swarm attack
-        for (Enumeration<EntityAction> actions = game.getActions(); actions.hasMoreElements();) {
-            EntityAction ea = actions.nextElement();
+        for (Enumeration<AbstractEntityAction> actions = game.getActions(); actions.hasMoreElements();) {
+            AbstractEntityAction ea = actions.nextElement();
             if (ea instanceof WeaponAttackAction) {
                 WeaponAttackAction waa = (WeaponAttackAction) ea;
                 Entity waaAE = waa.getEntity(game);
@@ -3684,8 +3684,8 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             // units making air to ground attacks are easier to hit by air-to-air
             // attacks
             if (Compute.isAirToAir(ae, target)) {
-                for (Enumeration<EntityAction> i = game.getActions(); i.hasMoreElements();) {
-                    EntityAction ea = i.nextElement();
+                for (Enumeration<AbstractEntityAction> i = game.getActions(); i.hasMoreElements();) {
+                    AbstractEntityAction ea = i.nextElement();
                     if (!(ea instanceof WeaponAttackAction)) {
                         continue;
                     }

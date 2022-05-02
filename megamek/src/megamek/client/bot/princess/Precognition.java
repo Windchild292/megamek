@@ -770,10 +770,10 @@ public class Precognition implements Runnable {
      */
     @SuppressWarnings("unchecked")
     private void receiveAttack(Packet c) {
-        List<EntityAction> vector = (List<EntityAction>) c.getObject(0);
+        List<AbstractEntityAction> vector = (List<AbstractEntityAction>) c.getObject(0);
         int charge = c.getIntValue(1);
         boolean addAction = true;
-        for (EntityAction ea : vector) {
+        for (AbstractEntityAction ea : vector) {
             int entityId = ea.getEntityId();
             if ((ea instanceof TorsoTwistAction) && getGame().hasEntity(entityId)) {
                 TorsoTwistAction tta = (TorsoTwistAction) ea;
@@ -788,7 +788,7 @@ public class Precognition implements Runnable {
                 Entity entity = getGame().getEntity(entityId);
                 entity.dodging = true;
                 addAction = false;
-            } else if (ea instanceof AttackAction) {
+            } else if (ea instanceof AbstractAttackAction) {
                 // The equipment type of a club needs to be restored.
                 if (ea instanceof ClubAttackAction) {
                     ClubAttackAction caa = (ClubAttackAction) ea;
@@ -801,8 +801,8 @@ public class Precognition implements Runnable {
                 // track in the appropriate list
                 if (charge == 0) {
                     getGame().addAction(ea);
-                } else if ((charge == 1) && (ea instanceof AttackAction)) {
-                    getGame().addCharge((AttackAction) ea);
+                } else if ((charge == 1) && (ea instanceof AbstractAttackAction)) {
+                    getGame().addCharge((AbstractAttackAction) ea);
                 }
             }
         }

@@ -110,7 +110,7 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
     private Targetable target; // target
 
     // shots we have so far.
-    private Vector<EntityAction> attacks;
+    private Vector<AbstractEntityAction> attacks;
 
     // is the shift key held?
     private boolean shiftheld;
@@ -882,7 +882,7 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
         }
 
         // remove attacks, set weapons available again
-        Enumeration<EntityAction> i = attacks.elements();
+        Enumeration<AbstractEntityAction> i = attacks.elements();
         while (i.hasMoreElements()) {
             Object o = i.nextElement();
             if (o instanceof WeaponAttackAction) {
