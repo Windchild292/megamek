@@ -26,7 +26,7 @@ package megamek.common.weapons.prototypes;
 import megamek.common.Game;
 import megamek.common.SimpleTechLevel;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.PrototypeLaserHandler;
 import megamek.common.weapons.lasers.PulseLaserWeapon;

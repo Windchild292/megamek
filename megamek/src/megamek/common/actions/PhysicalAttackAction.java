@@ -17,6 +17,7 @@ package megamek.common.actions;
 
 import megamek.client.ui.Messages;
 import megamek.common.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.options.OptionsConstants;
 

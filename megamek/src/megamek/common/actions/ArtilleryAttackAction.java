@@ -24,6 +24,7 @@ import megamek.common.Game;
 import megamek.common.Mounted;
 import megamek.common.RangeType;
 import megamek.common.WeaponType;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.bayweapons.CapitalMissileBayWeapon;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;

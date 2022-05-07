@@ -27,7 +27,7 @@ import megamek.common.Building.DemolitionCharge;
 import megamek.common.actions.BAVibroClawAttackAction;
 import megamek.common.actions.BreakGrappleAttackAction;
 import megamek.common.actions.GrappleAttackAction;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;

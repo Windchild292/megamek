@@ -14,6 +14,7 @@
 package megamek.common.actions;
 
 import megamek.common.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
 import megamek.common.options.OptionsConstants;
 
 /**

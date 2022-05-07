@@ -14,7 +14,7 @@
 package megamek.common.weapons;
 
 import megamek.common.*;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.server.Server;
 import megamek.server.SmokeCloud;
 

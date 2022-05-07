@@ -17,10 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
-package megamek.common.actions;
+package megamek.common.actions.attackActions;
 
 import megamek.client.Client;
 import megamek.common.*;
+import megamek.common.actions.AbstractEntityAction;
+import megamek.common.actions.SearchlightAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.IlluminationLevel;
 import megamek.common.options.OptionsConstants;
@@ -31,15 +34,20 @@ import java.util.Enumeration;
  * Abstract superclass for any action where an entity is attacking another entity.
  */
 public abstract class AbstractAttackAction extends AbstractEntityAction {
+    //region Variable Declarations
     private static final long serialVersionUID = -897197664652217134L;
     private int targetType;
     private int targetId;
+    //endregion Variable Declarations
 
-    // default to attacking an entity, since this is what most of them are
+    //region Constructors
+    /**
+     * default to attacking an entity, since this is what most of them are
+     * @param entityId
+     * @param targetId
+     */
     public AbstractAttackAction(int entityId, int targetId) {
-        super(entityId);
-        targetType = Targetable.TYPE_ENTITY;
-        this.targetId = targetId;
+        this(entityId, Targetable.TYPE_ENTITY, targetId);
     }
 
     public AbstractAttackAction(int entityId, int targetType, int targetId) {
@@ -47,6 +55,7 @@ public abstract class AbstractAttackAction extends AbstractEntityAction {
         this.targetType = targetType;
         this.targetId = targetId;
     }
+    //endregion Constructors
 
     public int getTargetType() {
         return targetType;

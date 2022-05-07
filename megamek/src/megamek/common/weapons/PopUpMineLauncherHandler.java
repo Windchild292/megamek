@@ -26,7 +26,7 @@ import megamek.common.Mech;
 import megamek.common.Report;
 import megamek.common.Tank;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.server.Server;
 import megamek.server.Server.DamageType;
 

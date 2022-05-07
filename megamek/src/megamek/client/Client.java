@@ -31,6 +31,8 @@ import megamek.common.*;
 import megamek.common.Building.DemolitionCharge;
 import megamek.common.Entity.WeaponSortOrder;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.common.event.*;
 import megamek.common.force.Force;

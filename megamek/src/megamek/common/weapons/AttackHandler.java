@@ -17,7 +17,7 @@ import java.util.Vector;
 
 import megamek.common.Entity;
 import megamek.common.Report;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 
 /**

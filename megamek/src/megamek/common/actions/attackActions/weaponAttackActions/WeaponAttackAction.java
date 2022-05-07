@@ -11,12 +11,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package megamek.common.actions;
+package megamek.common.actions.attackActions.weaponAttackActions;
 
 import megamek.MMConstants;
 import megamek.client.Client;
 import megamek.client.ui.Messages;
 import megamek.common.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.AbstractEntityAction;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;

@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import megamek.client.bot.princess.BotGeometry.ConvexBoardArea;
 import megamek.common.*;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 
 public class NewtonianAerospacePathRanker extends BasicPathRanker implements IPathRanker {

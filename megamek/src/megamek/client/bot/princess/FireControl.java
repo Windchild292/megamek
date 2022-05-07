@@ -15,6 +15,7 @@ package megamek.client.bot.princess;
 
 import megamek.common.*;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.annotations.StaticWrapper;
 import megamek.common.enums.IlluminationLevel;

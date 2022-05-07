@@ -21,6 +21,7 @@ package megamek.client.bot;
 
 import megamek.common.*;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
 
 import java.util.Vector;
 

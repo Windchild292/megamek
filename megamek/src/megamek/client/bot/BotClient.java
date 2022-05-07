@@ -19,7 +19,7 @@ import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.ReportDisplay;
 import megamek.common.*;
 import megamek.common.actions.AbstractEntityAction;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.event.*;

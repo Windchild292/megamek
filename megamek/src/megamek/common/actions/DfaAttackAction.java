@@ -17,13 +17,15 @@ import java.util.Enumeration;
 
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.attackActions.displacementAttackActions.AbstractDisplacementAttackAction;
 import megamek.common.options.OptionsConstants;
 
 /**
  * @author Ben
  * @since March 16, 2002, 11:43 AM
  */
-public class DfaAttackAction extends DisplacementAttackAction {
+public class DfaAttackAction extends AbstractDisplacementAttackAction {
     private static final long serialVersionUID = 3953889779582616903L;
 
     /**

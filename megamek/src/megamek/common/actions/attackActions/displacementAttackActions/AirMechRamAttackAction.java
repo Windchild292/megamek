@@ -11,7 +11,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  */
-package megamek.common.actions;
+package megamek.common.actions.attackActions.displacementAttackActions;
 
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
@@ -20,19 +20,19 @@ import megamek.common.options.OptionsConstants;
 import java.util.Enumeration;
 
 /**
- * Ram attack by an airborne LAM in airmech mode. This is treated like a charge in the movement path,
+ * Ram attack by an airborne LAM in AirMech mode. This is treated like a charge in the movement path,
  * but has significant difference in the way damage is calculated and in the final locations.
  * 
  * @author Neoancient
  */
-public class AirmechRamAttackAction extends DisplacementAttackAction {
+public class AirMechRamAttackAction extends AbstractDisplacementAttackAction {
     private static final long serialVersionUID = 5110608317218688433L;
 
-    public AirmechRamAttackAction(Entity attacker, Targetable target) {
+    public AirMechRamAttackAction(Entity attacker, Targetable target) {
         this(attacker.getId(), target.getTargetType(), target.getTargetId(), target.getPosition());
     }
 
-    public AirmechRamAttackAction(int entityId, int targetType, int targetId, Coords targetPos) {
+    public AirMechRamAttackAction(int entityId, int targetType, int targetId, Coords targetPos) {
         super(entityId, targetType, targetId, targetPos);
     }
 
@@ -100,7 +100,7 @@ public class AirmechRamAttackAction extends DisplacementAttackAction {
         final int targetElevation = target.getElevation()
                                     + targHex.getLevel();
         final int targetHeight = targetElevation + target.getHeight();
-        Building bldg = game.getBoard().getBuildingAt(getTargetPos());
+        Building bldg = game.getBoard().getBuildingAt(getTargetPosition());
         ToHitData toHit = null;
         boolean targIsBuilding = ((getTargetType() == Targetable.TYPE_FUEL_TANK)
                 || (getTargetType() == Targetable.TYPE_BUILDING));
@@ -368,7 +368,7 @@ public class AirmechRamAttackAction extends DisplacementAttackAction {
      * delta_distance is correct.
      */
     public static int getDamageFor(Entity entity) {
-        return AirmechRamAttackAction.getDamageFor(entity, entity.delta_distance);
+        return AirMechRamAttackAction.getDamageFor(entity, entity.delta_distance);
     }
 
     public static int getDamageFor(Entity entity, int hexesMoved) {
@@ -383,7 +383,7 @@ public class AirmechRamAttackAction extends DisplacementAttackAction {
     }
 
     public static int getDamageTakenBy(Entity entity, Targetable target) {
-        return AirmechRamAttackAction.getDamageTakenBy(entity, target, entity.delta_distance);
+        return AirMechRamAttackAction.getDamageTakenBy(entity, target, entity.delta_distance);
     }
 
     public static int getDamageTakenBy(Entity entity, Targetable target, int distance) {

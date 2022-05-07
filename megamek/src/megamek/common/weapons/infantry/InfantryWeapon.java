@@ -14,7 +14,7 @@
 package megamek.common.weapons.infantry;
 
 import megamek.common.*;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.Weapon;
 import megamek.server.Server;

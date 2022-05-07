@@ -28,6 +28,9 @@ import megamek.common.GameTurn.SpecificEntityTurn;
 import megamek.common.GameTurn.UnloadStrandedTurn;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.attackActions.displacementAttackActions.AirMechRamAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.commandline.AbstractCommandLineParser;
 import megamek.common.containers.PlayerIDandList;
@@ -7395,7 +7398,7 @@ public class Server implements Runnable {
                             curPos, cachedGravityLimit);
                     Targetable target = step.getTarget(game);
                     if (target != null) {
-                        AirmechRamAttackAction raa = new AirmechRamAttackAction(
+                        AirMechRamAttackAction raa = new AirMechRamAttackAction(
                                 entity.getId(), target.getTargetType(),
                                 target.getTargetId(), target.getPosition());
                         entity.setDisplacementAttack(raa);
@@ -17505,7 +17508,7 @@ public class Server implements Runnable {
         Report r;
 
         // Which building takes the damage?
-        Building bldg = game.getBoard().getBuildingAt(caa.getTargetPos());
+        Building bldg = game.getBoard().getBuildingAt(caa.getTargetPosition());
 
         // is the attacker dead? because that sure messes up the calculations
         if (ae == null) {
@@ -17577,11 +17580,11 @@ public class Server implements Runnable {
         addReport(r);
 
         // target still in the same position?
-        if (!target.getPosition().equals(caa.getTargetPos())) {
+        if (!target.getPosition().equals(caa.getTargetPosition())) {
             r = new Report(4215);
             r.subject = ae.getId();
             addReport(r);
-            addReport(doEntityDisplacement(ae, ae.getPosition(), caa.getTargetPos(), null));
+            addReport(doEntityDisplacement(ae, ae.getPosition(), caa.getTargetPosition(), null));
             return;
         }
 
@@ -17668,7 +17671,7 @@ public class Server implements Runnable {
      * Handle an Airmech ram attack
      */
     private void resolveAirmechRamAttack(PhysicalResult pr, int lastEntityId) {
-        final AirmechRamAttackAction caa = (AirmechRamAttackAction) pr.aaa;
+        final AirMechRamAttackAction caa = (AirMechRamAttackAction) pr.aaa;
         final Entity ae = game.getEntity(caa.getEntityId());
         final Targetable target = game.getTarget(caa.getTargetType(), caa.getTargetId());
         // get damage, ToHitData and roll from the PhysicalResult
@@ -17695,7 +17698,7 @@ public class Server implements Runnable {
         Report r;
 
         // Which building takes the damage?
-        Building bldg = game.getBoard().getBuildingAt(caa.getTargetPos());
+        Building bldg = game.getBoard().getBuildingAt(caa.getTargetPosition());
 
         // is the attacker dead? because that sure messes up the calculations
         if (ae == null) {
@@ -17809,7 +17812,7 @@ public class Server implements Runnable {
             addReport(damageInfantryIn(bldg, damage, target.getPosition()));
 
             // Apply damage to the attacker.
-            int toAttacker = AirmechRamAttackAction.getDamageTakenBy(ae, target, ae.delta_distance);
+            int toAttacker = AirMechRamAttackAction.getDamageTakenBy(ae, target, ae.delta_distance);
             HitData hit = new HitData(Mech.LOC_CT);
             hit.setGeneralDamageType(HitData.DAMAGE_PHYSICAL);
             addReport(damageEntity(ae, hit, toAttacker, false, DamageType.NONE,
@@ -18169,8 +18172,8 @@ public class Server implements Runnable {
         int damageTaken;
 
         if (airmechRam) {
-            damage = AirmechRamAttackAction.getDamageFor(ae);
-            damageTaken = AirmechRamAttackAction.getDamageTakenBy(ae, te);
+            damage = AirMechRamAttackAction.getDamageFor(ae);
+            damageTaken = AirMechRamAttackAction.getDamageTakenBy(ae, te);
         } else {
             damage = ChargeAttackAction.getDamageFor(ae, te, game.getOptions()
                     .booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_CHARGE_DAMAGE), toHit.getMoS());
@@ -18536,7 +18539,7 @@ public class Server implements Runnable {
         }
 
         final Hex aeHex = game.getBoard().getHex(ae.getPosition());
-        final Hex teHex = game.getBoard().getHex(daa.getTargetPos());
+        final Hex teHex = game.getBoard().getHex(daa.getTargetPosition());
         final Targetable target = game.getTarget(daa.getTargetType(), daa.getTargetId());
         // get damage, ToHitData and roll from the PhysicalResult
         int damage = pr.damage;
@@ -18595,14 +18598,14 @@ public class Server implements Runnable {
             ae.setDisplacementAttack(null);
             if (ae.isProne()) {
                 // attacker prone during weapons phase
-                addReport(doEntityFall(ae, daa.getTargetPos(), 2, 3,
+                addReport(doEntityFall(ae, daa.getTargetPosition(), 2, 3,
                         ae.getBasePilotingRoll(), false, false));
 
             } else {
                 // same effect as successful DFA
                 ae.setElevation(ae.calcElevation(aeHex, teHex, 0, false, false));
                 addReport(doEntityDisplacement(ae, ae.getPosition(),
-                        daa.getTargetPos(), new PilotingRollData(ae.getId(), 4,
+                        daa.getTargetPosition(), new PilotingRollData(ae.getId(), 4,
                                 "executed death from above")));
             }
             return;
@@ -18616,13 +18619,13 @@ public class Server implements Runnable {
         addReport(r);
 
         // target still in the same position?
-        if (!target.getPosition().equals(daa.getTargetPos())) {
+        if (!target.getPosition().equals(daa.getTargetPosition())) {
             r = new Report(4215);
             r.subject = ae.getId();
             addReport(r);
             // entity isn't DFAing any more
             ae.setDisplacementAttack(null);
-            addReport(doEntityFallsInto(ae, ae.getElevation(), ae.getPosition(), daa.getTargetPos(),
+            addReport(doEntityFallsInto(ae, ae.getElevation(), ae.getPosition(), daa.getTargetPosition(),
                     ae.getBasePilotingRoll(), true));
             return;
         }
@@ -18731,7 +18734,7 @@ public class Server implements Runnable {
         if ((target.getTargetType() == Targetable.TYPE_BUILDING)
                 || (target.getTargetType() == Targetable.TYPE_FUEL_TANK)) {
             // Which building takes the damage?
-            Building bldg = game.getBoard().getBuildingAt(daa.getTargetPos());
+            Building bldg = game.getBoard().getBuildingAt(daa.getTargetPosition());
             
             // The building takes the full brunt of the attack.
             Vector<Report> buildingReport = damageBuilding(bldg, damage, target.getPosition());
@@ -32880,10 +32883,10 @@ public class Server implements Runnable {
             } else {
                 damage = ChargeAttackAction.getDamageFor(ae);
             }
-        } else if (aaa instanceof AirmechRamAttackAction) {
-            AirmechRamAttackAction raa = (AirmechRamAttackAction) aaa;
+        } else if (aaa instanceof AirMechRamAttackAction) {
+            AirMechRamAttackAction raa = (AirMechRamAttackAction) aaa;
             toHit = raa.toHit(game);
-            damage = AirmechRamAttackAction.getDamageFor(ae);
+            damage = AirMechRamAttackAction.getDamageFor(ae);
         } else if (aaa instanceof ClubAttackAction) {
             ClubAttackAction caa = (ClubAttackAction) aaa;
             toHit = caa.toHit(game);
@@ -33054,7 +33057,7 @@ public class Server implements Runnable {
         } else if (aaa instanceof ChargeAttackAction) {
             resolveChargeAttack(pr, cen);
             cen = aaa.getEntityId();
-        } else if (aaa instanceof AirmechRamAttackAction) {
+        } else if (aaa instanceof AirMechRamAttackAction) {
             resolveAirmechRamAttack(pr, cen);
             cen = aaa.getEntityId();
         } else if (aaa instanceof DfaAttackAction) {

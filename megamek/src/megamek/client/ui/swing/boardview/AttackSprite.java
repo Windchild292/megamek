@@ -4,6 +4,8 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.util.StraightArrowPolygon;
 import megamek.common.*;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;

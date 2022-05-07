@@ -22,6 +22,9 @@ import megamek.client.ui.swing.calculationReport.DummyCalculationReport;
 import megamek.codeUtilities.StringUtility;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.attackActions.displacementAttackActions.AbstractDisplacementAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.BasementType;
@@ -42,10 +45,8 @@ import megamek.common.weapons.infantry.InfantryWeapon;
 import org.apache.logging.log4j.LogManager;
 
 import java.math.BigInteger;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -356,7 +357,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     private int conversionMode = 0;
     protected EntityMovementMode previousMovementMode;
 
-    protected DisplacementAttackAction displacementAttack = null;
+    protected AbstractDisplacementAttackAction displacementAttack = null;
 
     public int heat = 0;
     public int heatBuildup = 0;
@@ -1856,11 +1857,11 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         return displacementAttack != null;
     }
 
-    public DisplacementAttackAction getDisplacementAttack() {
+    public AbstractDisplacementAttackAction getDisplacementAttack() {
         return displacementAttack;
     }
 
-    public void setDisplacementAttack(DisplacementAttackAction displacementAttack) {
+    public void setDisplacementAttack(AbstractDisplacementAttackAction displacementAttack) {
         this.displacementAttack = displacementAttack;
     }
 
@@ -1876,7 +1877,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * Returns any known displacement attacks (should only be one) that this
      * entity is a target of.
      */
-    public @Nullable DisplacementAttackAction findTargetedDisplacement() {
+    public @Nullable AbstractDisplacementAttackAction findTargetedDisplacement() {
         for (Entity other : game.getEntitiesVector()) {
             if (other.hasDisplacementAttack()
                 && (other.getDisplacementAttack().getTargetId() == id)) {

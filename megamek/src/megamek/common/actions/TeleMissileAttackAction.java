@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 import megamek.common.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.AttackHandler;
 

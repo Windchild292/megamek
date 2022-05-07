@@ -19,7 +19,7 @@ import megamek.MMConstants;
 import megamek.Version;
 import megamek.client.bot.princess.BehaviorSettings;
 import megamek.common.GameTurn.SpecificEntityTurn;
-import megamek.common.actions.AbstractAttackAction;
+import megamek.common.actions.attackActions.AbstractAttackAction;
 import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.annotations.Nullable;

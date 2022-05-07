@@ -17,6 +17,7 @@ import java.util.Enumeration;
 
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.actions.attackActions.displacementAttackActions.AbstractDisplacementAttackAction;
 import megamek.common.options.OptionsConstants;
 
 /**
@@ -27,7 +28,7 @@ import megamek.common.options.OptionsConstants;
  * @author Ben Mazur
  * @since March 12, 2002, 3:23 PM
  */
-public class ChargeAttackAction extends DisplacementAttackAction {
+public class ChargeAttackAction extends AbstractDisplacementAttackAction {
     private static final long serialVersionUID = -3549351664290057785L;
 
     public ChargeAttackAction(Entity attacker, Targetable target) {
@@ -120,7 +121,7 @@ public class ChargeAttackAction extends DisplacementAttackAction {
             targetElevation = target.getElevation() + targHex.getLevel();
         }
         final int targetHeight = targetElevation + target.getHeight();
-        Building bldg = game.getBoard().getBuildingAt(getTargetPos());
+        Building bldg = game.getBoard().getBuildingAt(getTargetPosition());
         ToHitData toHit;
         boolean targIsBuilding = ((getTargetType() == Targetable.TYPE_FUEL_TANK)
                 || (getTargetType() == Targetable.TYPE_BUILDING));

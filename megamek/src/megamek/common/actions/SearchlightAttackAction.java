@@ -26,6 +26,7 @@ import megamek.common.LosEffects;
 import megamek.common.Report;
 import megamek.common.Tank;
 import megamek.common.Targetable;
+import megamek.common.actions.attackActions.AbstractAttackAction;
 
 /**
  * Used for aiming a searchlight at a target.

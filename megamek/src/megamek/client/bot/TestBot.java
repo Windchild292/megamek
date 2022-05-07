@@ -19,6 +19,7 @@ import megamek.client.bot.MoveOption.WeightedComparator;
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.containers.PlayerIDandList;
 import megamek.common.enums.AimingMode;
 import megamek.common.event.GamePlayerChatEvent;

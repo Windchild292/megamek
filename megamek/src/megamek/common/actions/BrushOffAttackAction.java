@@ -25,6 +25,7 @@ import megamek.common.Mounted;
 import megamek.common.TargetRoll;
 import megamek.common.Targetable;
 import megamek.common.ToHitData;
+import megamek.common.actions.attackActions.AbstractAttackAction;
 import megamek.common.options.OptionsConstants;
 
 /**

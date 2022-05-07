@@ -21,7 +21,7 @@ import megamek.common.*;
 import megamek.common.actions.AbstractEntityAction;
 import megamek.common.actions.SearchlightAttackAction;
 import megamek.common.actions.TorsoTwistAction;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;

@@ -14,7 +14,7 @@
 package megamek.common.weapons.bayweapons;
 
 import megamek.common.*;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.common.weapons.*;
 import megamek.server.Server;

@@ -16,7 +16,7 @@ package megamek.common.weapons.artillery;
 import megamek.common.Game;
 import megamek.common.Mounted;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.common.weapons.AmmoWeapon;
 import megamek.common.weapons.ArtilleryWeaponDirectFireHandler;

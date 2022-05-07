@@ -14,12 +14,13 @@
 package megamek.common.actions;
 
 import megamek.common.*;
+import megamek.common.actions.attackActions.displacementAttackActions.AbstractDisplacementAttackAction;
 import megamek.common.options.OptionsConstants;
 
 /**
  * The attacker pushes the target.
  */
-public class PushAttackAction extends DisplacementAttackAction {
+public class PushAttackAction extends AbstractDisplacementAttackAction {
     private static final long serialVersionUID = 6878038939232914083L;
 
     public PushAttackAction(int entityId, int targetId, Coords targetPos) {

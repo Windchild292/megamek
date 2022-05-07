@@ -16,7 +16,7 @@ package megamek.common.weapons.prototypes;
 import megamek.common.Game;
 import megamek.common.Mounted;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.PrototypeCLUltraWeaponHandler;
 import megamek.common.weapons.autocannons.UACWeapon;

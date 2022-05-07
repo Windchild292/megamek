@@ -16,6 +16,8 @@ package megamek.client.bot.princess;
 import megamek.client.bot.princess.BotGeometry.CoordFacingCombo;
 import megamek.common.*;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.AbstractAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.event.*;

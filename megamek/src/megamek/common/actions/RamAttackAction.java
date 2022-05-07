@@ -18,6 +18,7 @@ import java.util.Objects;
 
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.actions.attackActions.AbstractAttackAction;
 import megamek.common.options.OptionsConstants;
 
 /**

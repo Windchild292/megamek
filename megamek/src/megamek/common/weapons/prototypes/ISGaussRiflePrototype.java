@@ -23,7 +23,7 @@ import megamek.common.AmmoType;
 import megamek.common.Game;
 import megamek.common.SimpleTechLevel;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.PrototypeGaussHandler;
 import megamek.common.weapons.gaussrifles.GaussWeapon;

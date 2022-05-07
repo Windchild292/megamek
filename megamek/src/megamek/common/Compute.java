@@ -17,6 +17,7 @@ package megamek.common;
 
 import megamek.common.MovePath.MoveStepType;
 import megamek.common.actions.*;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.BasementType;

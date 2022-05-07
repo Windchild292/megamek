@@ -31,7 +31,7 @@ import megamek.client.ui.swing.widget.SkinSpecification.UIComponents;
 import megamek.common.*;
 import megamek.common.GameTurn.UnloadStrandedTurn;
 import megamek.common.MovePath.MoveStepType;
-import megamek.common.actions.AirmechRamAttackAction;
+import megamek.common.actions.attackActions.displacementAttackActions.AirMechRamAttackAction;
 import megamek.common.actions.ChargeAttackAction;
 import megamek.common.actions.DfaAttackAction;
 import megamek.common.actions.RamAttackAction;
@@ -1783,7 +1783,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                 // check if it's a valid charge
                 ToHitData toHit = null;
                 if (ce.isAirborneVTOLorWIGE()) {
-                    toHit = new AirmechRamAttackAction(cen,
+                    toHit = new AirMechRamAttackAction(cen,
                             target.getTargetType(), target.getTargetId(),
                             target.getPosition()).toHit(clientgui.getClient().getGame(), cmd);
                 } else {
@@ -1797,8 +1797,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
                     int toDefender = 0;
                     int toAttacker = 0;
                     if (ce.isAirborneVTOLorWIGE()) {
-                        toAttacker = AirmechRamAttackAction.getDamageTakenBy(ce, target, cmd.getHexesMoved());
-                        toDefender = AirmechRamAttackAction.getDamageFor(ce, cmd.getHexesMoved());
+                        toAttacker = AirMechRamAttackAction.getDamageTakenBy(ce, target, cmd.getHexesMoved());
+                        toDefender = AirMechRamAttackAction.getDamageFor(ce, cmd.getHexesMoved());
                     } else {
                         toDefender = ChargeAttackAction.getDamageFor(
                                         ce, clientgui.getClient().getGame().getOptions()

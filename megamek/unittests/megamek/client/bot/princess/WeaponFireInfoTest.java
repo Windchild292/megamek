@@ -12,7 +12,7 @@ import megamek.common.Mounted;
 import megamek.common.Targetable;
 import megamek.common.ToHitData;
 import megamek.common.WeaponType;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -17,7 +17,7 @@ import megamek.common.Compute;
 import megamek.common.Game;
 import megamek.common.TargetRoll;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.server.Server;
 
 /**

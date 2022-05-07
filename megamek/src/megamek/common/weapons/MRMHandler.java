@@ -24,7 +24,7 @@ import megamek.common.Minefield;
 import megamek.common.Report;
 import megamek.common.Targetable;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.server.Server;
 
 /**

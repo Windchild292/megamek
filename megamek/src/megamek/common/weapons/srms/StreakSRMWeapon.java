@@ -17,7 +17,7 @@ import megamek.common.AmmoType;
 import megamek.common.Entity;
 import megamek.common.Game;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.StreakHandler;
 import megamek.server.Server;

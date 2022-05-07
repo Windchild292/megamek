@@ -22,7 +22,7 @@ package megamek.common.weapons;
 import megamek.common.Game;
 import megamek.common.HitData;
 import megamek.common.ToHitData;
-import megamek.common.actions.WeaponAttackAction;
+import megamek.common.actions.attackActions.weaponAttackActions.WeaponAttackAction;
 import megamek.server.Server;
 
 public class BombastLaserWeaponHandler extends EnergyWeaponHandler {
