@@ -1,26 +1,29 @@
 /*
- * MegaMek - Copyright (C) 2000-2002 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2000-2002 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
+ * This file is part of MegaMek.
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- * for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.server.commands;
 
-import megamek.common.net.connections.AbstractConnection;
+import megamek.common.Player;
 import megamek.server.Server;
-
-import java.util.Enumeration;
 
 /**
  * Team Chat
- * 
  * @author Torren
  */
 public class TeamCommand extends ServerCommand {
@@ -30,7 +33,7 @@ public class TeamCommand extends ServerCommand {
     }
 
     @Override
-    public void run(int connId, String[] args) {
+    public void run(int connId, String... args) {
         if (args.length > 1) {
             int team = server.getPlayer(connId).getTeam();
             if ((team < 1) || (team > 8)) {
@@ -39,20 +42,18 @@ public class TeamCommand extends ServerCommand {
             }
 
             StringBuilder message = new StringBuilder();
-            String origin = "Team Chat[" + server.getPlayer(connId).getName() + "]";
+            String origin = "Team Chat[" + server.getPlayer(connId).getName() + ']';
 
             for (int pos = 1; pos < args.length; pos++) {
-                message.append(" ");
-                message.append(args[pos]);
+                message.append(' ').append(args[pos]);
             }
 
-            for (Enumeration<AbstractConnection> i = server.getConnections(); i.hasMoreElements();) {
-                AbstractConnection conn = i.nextElement();
-
-                if (server.getPlayer(conn.getId()).getTeam() == team) {
-                    server.sendChat(conn.getId(), origin, message.toString());
+            server.forEachConnection(connection -> {
+                final Player player = server.getPlayerForConnection(connection);
+                if ((player != null) && (player.getTeam() == team)) {
+                    server.sendChat(connection, origin, message.toString());
                 }
-            }
+            });
         }
     }
 }

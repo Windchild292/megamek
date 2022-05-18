@@ -26,6 +26,7 @@ import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.event.*;
 import megamek.common.force.Forces;
+import megamek.common.net.connections.AbstractConnection;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.AttackHandler;
@@ -460,7 +461,14 @@ public class Game implements Serializable {
     }
 
     /**
-     * Returns the individual player assigned the id parameter.
+     * @return the player for the specified connection
+     */
+    public @Nullable Player getPlayer(final AbstractConnection connection) {
+        return getPlayer(connection.getId());
+    }
+
+    /**
+     * @return the individual player assigned the id parameter
      */
     public @Nullable Player getPlayer(final int id) {
         return (Player.PLAYER_NONE == id) ? null : playerIds.get(id);

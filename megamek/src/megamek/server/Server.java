@@ -71,7 +71,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -171,7 +173,7 @@ public class Server implements Runnable {
                 while (!packetQueue.isEmpty()) {
                     ReceivedPacket rp = packetQueue.poll();
                     synchronized (serverLock) {
-                        handle(rp.getConnectionId(), rp.getPacket());
+                        handle(getConnectionForPacket(rp), rp.getPacket());
                     }
                 }
 
@@ -188,7 +190,7 @@ public class Server implements Runnable {
     }
 
     // game info
-    private final Vector<AbstractConnection> connections = new Vector<>(4);
+    private final List<AbstractConnection> connections = new ArrayList<>(4);
 
     private Hashtable<Integer, ConnectionHandler> connectionHandlers = new Hashtable<>();
 
@@ -280,9 +282,9 @@ public class Server implements Runnable {
                 AbstractConnection conn = e.getConnection();
 
                 // write something in the log
-                LogManager.getLogger().info("s: connection " + conn.getId() + " disconnected");
+                LogManager.getLogger().info("Connection Disconnected: " + conn.getId());
 
-                connections.removeElement(conn);
+                getConnections().remove(conn);
                 connectionsPending.removeElement(conn);
                 connectionIds.remove(conn.getId());
                 ConnectionHandler ch = connectionHandlers.get(conn.getId());
@@ -315,7 +317,7 @@ public class Server implements Runnable {
                 case CLIENT_VERSIONS:
                 case CHAT:
                     // Some packets should be handled immediately
-                    handle(rp.getConnectionId(), rp.getPacket());
+                    handle(getConnectionForPacket(rp), rp.getPacket());
                     break;
                 default:
                     synchronized (packetQueue) {
@@ -692,10 +694,8 @@ public class Server implements Runnable {
         send(new Packet(PacketCommand.CLOSE_CONNECTION));
 
         // kill active connections
-        synchronized (connections) {
-            connections.forEach(AbstractConnection::close);
-            connections.clear();
-        }
+        getConnections().forEach(AbstractConnection::close);
+        getConnections().clear();
 
         connectionIds.clear();
 
@@ -890,7 +890,7 @@ public class Server implements Runnable {
 
         // right, switch the connection into the "active" bin
         connectionsPending.removeElement(conn);
-        connections.addElement(conn);
+        getConnections().add(conn);
         connectionIds.put(conn.getId(), conn);
 
         // add and validate the player info
@@ -900,7 +900,7 @@ public class Server implements Runnable {
 
         // if it is not the lounge phase, this player becomes an observer
         Player player = getPlayer(connId);
-        if ((game.getPhase() != GamePhase.LOUNGE) && (null != player)
+        if (!getGame().getPhase().isLounge() && (null != player)
                 && (game.getEntitiesOwnedBy(player) < 1)) {
             player.setObserver(true);
         }
@@ -920,8 +920,7 @@ public class Server implements Runnable {
         final boolean showIPAddressesInChat = PreferenceManager.getClientPreferences().getShowIPAddressesInChat();
 
         try {
-            InetAddress[] addresses = InetAddress.getAllByName(InetAddress
-                    .getLocalHost().getHostName());
+            InetAddress[] addresses = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
             for (InetAddress address : addresses) {
                 LogManager.getLogger().info("s: machine IP " + address.getHostAddress());
                 if (showIPAddressesInChat) {
@@ -950,67 +949,72 @@ public class Server implements Runnable {
         } // Found the player
     }
 
-    /**
-     * Sends a player the info they need to look at the current phase. This is
-     * triggered when a player first connects to the server.
-     */
-    public void sendCurrentInfo(int connId) {
-        // why are these two outside the player != null check below?
-        transmitPlayerConnect(getClient(connId));
-        send(connId, createGameSettingsPacket());
-        send(connId, createPlanetaryConditionsPacket());
+    @Deprecated
+    public void sendCurrentInfo(final int connectionId) {
+        sendCurrentInfo(getClient(connectionId));
+    }
 
-        Player player = getGame().getPlayer(connId);
+    /**
+     * Sends a player the info they need to look at the current phase. This is triggered when a
+     * player first connects to the server.
+     * @param connection the connection to send the current information to
+     */
+    public void sendCurrentInfo(final AbstractConnection connection) {
+        // TODO : why are these two outside the player != null check below?
+        transmitPlayerConnect(connection);
+        send(connection, createGameSettingsPacket());
+        send(connection, createPlanetaryConditionsPacket());
+
+        Player player = getGame().getPlayer(connection);
         if (null != player) {
-            send(connId, new Packet(PacketCommand.SENDING_MINEFIELDS, player.getMinefields()));
+            send(connection, new Packet(PacketCommand.SENDING_MINEFIELDS, player.getMinefields()));
 
             if (getGame().getPhase().isLounge()) {
-                send(connId, createMapSettingsPacket());
+                send(connection, createMapSettingsPacket());
                 send(createMapSizesPacket());
                 // Send Entities *after* the Lounge Phase Change
-                send(connId, new Packet(PacketCommand.PHASE_CHANGE, getGame().getPhase()));
+                send(connection, new Packet(PacketCommand.PHASE_CHANGE, getGame().getPhase()));
                 if (doBlind()) {
-                    send(connId, createFilteredFullEntitiesPacket(player));
+                    send(connection, createFilteredFullEntitiesPacket(player));
                 } else {
-                    send(connId, createFullEntitiesPacket());
+                    send(connection, createFullEntitiesPacket());
                 }
             } else {
-                send(connId, new Packet(PacketCommand.ROUND_UPDATE, getGame().getRoundCount()));
-                send(connId, createBoardPacket());
-                send(connId, createAllReportsPacket(player));
+                send(connection, new Packet(PacketCommand.ROUND_UPDATE, getGame().getRoundCount()));
+                send(connection, createBoardPacket());
+                send(connection, createAllReportsPacket(player));
 
                 // Send entities *before* other phase changes.
                 if (doBlind()) {
-                    send(connId, createFilteredFullEntitiesPacket(player));
+                    send(connection, createFilteredFullEntitiesPacket(player));
                 } else {
-                    send(connId, createFullEntitiesPacket());
+                    send(connection, createFullEntitiesPacket());
                 }
                 player.setDone(getGame().getEntitiesOwnedBy(player) <= 0);
-                send(connId, new Packet(PacketCommand.PHASE_CHANGE, getGame().getPhase()));
+                send(connection, new Packet(PacketCommand.PHASE_CHANGE, getGame().getPhase()));
             }
-            if ((game.getPhase() == GamePhase.FIRING)
-                    || (game.getPhase() == GamePhase.TARGETING)
-                    || (game.getPhase() == GamePhase.OFFBOARD)
-                    || (game.getPhase() == GamePhase.PHYSICAL)) {
+
+            if (Stream.of(GamePhase.FIRING, GamePhase.TARGETING, GamePhase.OFFBOARD, GamePhase.PHYSICAL)
+                    .anyMatch(gamePhase -> getGame().getPhase() == gamePhase)) {
                 // can't go above, need board to have been sent
-                send(connId, createAttackPacket(getGame().getActionsVector(), 0));
-                send(connId, createAttackPacket(getGame().getChargesVector(), 1));
-                send(connId, createAttackPacket(getGame().getRamsVector(), 1));
-                send(connId, createAttackPacket(getGame().getTeleMissileAttacksVector(), 1));
+                send(connection, createAttackPacket(getGame().getActionsVector(), 0));
+                send(connection, createAttackPacket(getGame().getChargesVector(), 1));
+                send(connection, createAttackPacket(getGame().getRamsVector(), 1));
+                send(connection, createAttackPacket(getGame().getTeleMissileAttacksVector(), 1));
             }
-            
+
             if (game.getPhase().hasTurns() && game.hasMoreTurns()) {
-                send(connId, createTurnVectorPacket());
-                send(connId, createTurnIndexPacket(connId));
-            } else if ((game.getPhase() != GamePhase.LOUNGE)
-                    && (game.getPhase() != GamePhase.STARTING_SCENARIO)) {
+                send(connection, createTurnVectorPacket());
+                send(connection, createTurnIndexPacket(connection));
+            } else if (!getGame().getPhase().isLounge()
+                    && !getGame().getPhase().isStartingScenario()) {
                 endCurrentPhase();
             }
 
-            send(connId, createArtilleryPacket(player));
-            send(connId, createFlarePacket());
-            send(connId, createSpecialHexDisplayPacket(connId));
-            send(connId, new Packet(PacketCommand.PRINCESS_SETTINGS, getGame().getBotSettings()));
+            send(connection, createArtilleryPacket(player));
+            send(connection, createFlarePacket());
+            send(connection, createSpecialHexDisplayPacket(connection));
+            send(connection, new Packet(PacketCommand.PRINCESS_SETTINGS, getGame().getBotSettings()));
         }
     }
 
@@ -1359,8 +1363,8 @@ public class Server implements Runnable {
         }
 
         // update all the clients with the new game info
-        for (AbstractConnection conn : connections) {
-            sendCurrentInfo(conn.getId());
+        for (final AbstractConnection connection : getConnections()) {
+            sendCurrentInfo(connection);
         }
         return true;
     }
@@ -1457,6 +1461,10 @@ public class Server implements Runnable {
         return game.getPlayer(id);
     }
 
+    public Player getPlayerForConnection(final AbstractConnection connection) {
+        return getGame().getPlayer(connection.getId());
+    }
+
     /**
      * Removes all entities owned by the given player. Should only be called when it
      * won't cause trouble (the lounge, for instance, or between phases.)
@@ -1509,29 +1517,50 @@ public class Server implements Runnable {
     }
 
     /**
-     * Returns a connection, indexed by id
+     * @return the connections list
      */
-    public Enumeration<AbstractConnection> getConnections() {
-        return connections.elements();
+    public List<AbstractConnection> getConnections() {
+        return connections;
     }
 
     /**
-     * Returns a connection, indexed by id
+     * @param id the connection's id
+     * @return the connection with the supplied id
      */
-    public AbstractConnection getConnection(int connId) {
-        return connectionIds.get(connId);
+    public AbstractConnection getConnection(final int id) {
+        return getConnections().get(id);
+    }
+
+    public AbstractConnection getConnectionForPacket(final ReceivedPacket packet) {
+        return getConnection(packet.getConnectionId());
     }
 
     /**
-     * Returns a pending connection
+     * Executes a function for each part in the warehouse.
+     * @param consumer A function to apply to each part.
      */
-    AbstractConnection getPendingConnection(int connId) {
-        for (AbstractConnection conn : connectionsPending) {
-            if (conn.getId() == connId) {
-                return conn;
-            }
-        }
-        return null;
+    public synchronized void forEachConnection(final Consumer<AbstractConnection> consumer) {
+        getConnections().stream()
+                .filter(Objects::nonNull)
+                .forEach(consumer);
+    }
+
+    /**
+     * Send a packet to all connected clients.
+     */
+    public void send(final Packet packet) {
+        forEachConnection(connection -> connection.send(packet));
+    }
+
+    /**
+     * @param connId the id of the pending connection
+     * @return a pending connection with the specified id
+     */
+    public @Nullable AbstractConnection getPendingConnection(int connId) {
+        return connectionsPending.stream()
+                .filter(conn -> conn.getId() == connId)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -2994,11 +3023,7 @@ public class Server implements Runnable {
     }
 
     private void sendSpecialHexDisplayPackets() {
-        for (int i = 0; i < connections.size(); i++) {
-            if (connections.get(i) != null) {
-                connections.get(i).send(createSpecialHexDisplayPacket(i));
-            }
-        }
+        forEachConnection(connection -> connection.send(createSpecialHexDisplayPacket(connection)));
     }
 
     private void sendTagInfoUpdates() {
@@ -30505,6 +30530,7 @@ public class Server implements Runnable {
     /**
      * Creates a packet containing the player ready status
      */
+    @Deprecated
     private Packet createPlayerDonePacket(int playerId) {
         return new Packet(PacketCommand.PLAYER_READY, playerId, getPlayer(playerId).isDone());
     }
@@ -30516,11 +30542,16 @@ public class Server implements Runnable {
         return new Packet(PacketCommand.SENDING_TURNS, getGame().getTurnVector());
     }
 
+    @Deprecated
+    private Packet createTurnIndexPacket(int playerId) {
+        return createTurnIndexPacket(getClient(playerId));
+    }
+
     /**
      * Creates a packet containing the current turn index
      */
-    private Packet createTurnIndexPacket(int playerId) {
-        return new Packet(PacketCommand.TURN, getGame().getTurnIndex(), playerId);
+    private Packet createTurnIndexPacket(final AbstractConnection connection) {
+        return new Packet(PacketCommand.TURN, getGame().getTurnIndex(), connection.getId());
     }
 
     /**
@@ -30715,11 +30746,16 @@ public class Server implements Runnable {
         return origin + ": " + message;
     }
 
+    public void sendChat(final int connectionId, final String origin, final String message) {
+        sendChat(getClient(connectionId), origin, message);
+    }
+
     /**
      * Transmits a chat message to all players
      */
-    public void sendChat(int connId, String origin, String message) {
-        send(connId, new Packet(PacketCommand.CHAT, formatChatMessage(origin, message)));
+    public void sendChat(final AbstractConnection connection, final String origin,
+                         final String message) {
+        send(connection, new Packet(PacketCommand.CHAT, formatChatMessage(origin, message)));
     }
 
     /**
@@ -30806,12 +30842,11 @@ public class Server implements Runnable {
         return new Packet(PacketCommand.ENTITY_ATTACK, vector, charge);
     }
 
-    private Packet createSpecialHexDisplayPacket(int toPlayer) {
-        Hashtable<Coords, Collection<SpecialHexDisplay>> shdTable = game
-                .getBoard().getSpecialHexDisplayTable();
+    private Packet createSpecialHexDisplayPacket(final AbstractConnection connection) {
+        Hashtable<Coords, Collection<SpecialHexDisplay>> shdTable = getGame().getBoard().getSpecialHexDisplayTable();
         Hashtable<Coords, Collection<SpecialHexDisplay>> shdTable2 = new Hashtable<>();
         LinkedList<SpecialHexDisplay> tempList;
-        Player player = getPlayer(toPlayer);
+        Player player = getPlayerForConnection(connection);
         if (player != null) {
             for (Coords coord : shdTable.keySet()) {
                 tempList = new LinkedList<>();
@@ -30860,17 +30895,6 @@ public class Server implements Runnable {
         return new Packet(PacketCommand.SENDING_FLARES, getGame().getFlares());
     }
 
-    /**
-     * Send a packet to all connected clients.
-     */
-    void send(Packet packet) {
-        synchronized (connections) {
-            connections.stream()
-                    .filter(Objects::nonNull)
-                    .forEach(connection -> connection.send(packet));
-        }
-    }
-
     public void sendNovaChange(int id, String net) {
         send(new Packet(PacketCommand.ENTITY_NOVA_NETWORK_CHANGE, id, net));
     }
@@ -30895,16 +30919,26 @@ public class Server implements Runnable {
             }
         }
 
-        for (Enumeration<AbstractConnection> connEnum = connections.elements(); connEnum.hasMoreElements(); ) {
-            AbstractConnection conn = connEnum.nextElement();
-            Player p = getGame().getPlayer(conn.getId());
-            conn.send(tacticalGeniusReport ? createTacticalGeniusReportPacket() : createReportPacket(p));
+        for (final AbstractConnection connection : getConnections()) {
+            connection.send(tacticalGeniusReport ? createTacticalGeniusReportPacket()
+                    : createReportPacket(getGame().getPlayer(connection.getId())));
+        }
+    }
+
+    public void send(final AbstractConnection connection, final Packet packet) {
+        if (connection == null) {
+            LogManager.getLogger().warn(String.format(
+                    "Attempted to send %s packet to unknown client with connection id %d",
+                    packet.getCommand().name(), connection.getId()));
+        } else {
+            connection.send(packet);
         }
     }
 
     /**
      * Send a packet to a specific connection.
      */
+    @Deprecated // Use the connection-based one instead
     public void send(int connId, Packet packet) {
         if (getClient(connId) != null) {
             getClient(connId).send(packet);
@@ -30948,17 +30982,16 @@ public class Server implements Runnable {
     /**
      * Process a packet from a connection.
      *
-     * @param connId
-     *            - the <code>int</code> ID the connection that received the
-     *            packet.
-     * @param packet
-     *            - the <code>Packet</code> to be processed.
+     * @param connId the connection that received the packet
+     * @param packet the <code>Packet</code> to process
      */
-    protected void handle(int connId, Packet packet) {
-        Player player = game.getPlayer(connId);
+    protected void handle(final AbstractConnection connection, final Packet packet) {
+        // FIXME : Swap to using connection versus the id
+        int connectionId = connection.getId();
+        Player player = game.getPlayer(connection);
         // Check player. Please note, the connection may be pending.
-        if ((null == player) && (null == getPendingConnection(connId))) {
-            LogManager.getLogger().error("Server does not recognize player at connection " + connId);
+        if ((player == null) && (getPendingConnection(connectionId) == null)) {
+            LogManager.getLogger().error("Server does not recognize player at connection " + connection.getId());
             return;
         }
 
@@ -30969,35 +31002,35 @@ public class Server implements Runnable {
         // act on it
         switch (packet.getCommand()) {
             case CLIENT_VERSIONS:
-                final boolean valid = receivePlayerVersion(packet, connId);
+                final boolean valid = receivePlayerVersion(packet, connectionId);
                 if (valid) {
-                    sendToPending(connId, new Packet(PacketCommand.SERVER_GREETING));
+                    sendToPending(connectionId, new Packet(PacketCommand.SERVER_GREETING));
                 } else {
-                    sendToPending(connId, new Packet(PacketCommand.ILLEGAL_CLIENT_VERSION, MMConstants.VERSION));
-                    getPendingConnection(connId).close();
+                    sendToPending(connectionId, new Packet(PacketCommand.ILLEGAL_CLIENT_VERSION, MMConstants.VERSION));
+                    getPendingConnection(connectionId).close();
                 }
                 break;
             case CLOSE_CONNECTION:
                 // We have a client going down!
-                AbstractConnection c = getConnection(connId);
+                AbstractConnection c = getConnection(connectionId);
                 if (c != null) {
                     c.close();
                 }
                 break;
             case CLIENT_NAME:
-                receivePlayerName(packet, connId);
+                receivePlayerName(packet, connectionId);
                 break;
             case PLAYER_UPDATE:
-                receivePlayerInfo(packet, connId);
-                validatePlayerInfo(connId);
-                transmitPlayerUpdate(getPlayer(connId));
+                receivePlayerInfo(packet, connectionId);
+                validatePlayerInfo(connectionId);
+                transmitPlayerUpdate(getPlayer(connectionId));
                 break;
             case PLAYER_TEAM_CHANGE:
-                ServerLobbyHelper.receiveLobbyTeamChange(packet, connId, getGame(), this);
+                ServerLobbyHelper.receiveLobbyTeamChange(packet, connectionId, getGame(), this);
                 break;
             case PLAYER_READY:
-                receivePlayerDone(packet, connId);
-                send(createPlayerDonePacket(connId));
+                receivePlayerDone(packet, connectionId);
+                send(createPlayerDonePacket(connectionId));
                 checkReady();
                 break;
             case PRINCESS_SETTINGS:
@@ -31010,21 +31043,21 @@ public class Server implements Runnable {
                 }
                 break;
             case REROLL_INITIATIVE:
-                receiveInitiativeRerollRequest(packet, connId);
+                receiveInitiativeRerollRequest(packet, connectionId);
                 break;
             case FORWARD_INITIATIVE:
-                receiveForwardIni(connId);
+                receiveForwardIni(connectionId);
                 break;
             case CHAT:
                 String chat = (String) packet.getObject(0);
                 if (chat.startsWith("/")) {
-                    processCommand(connId, chat);
+                    processCommand(connectionId, chat);
                 } else if (packet.getData().length > 1) {
-                    connId = (int) packet.getObject(1);
-                    if (connId == Player.PLAYER_NONE) {
+                    connectionId = (int) packet.getObject(1);
+                    if (connectionId == Player.PLAYER_NONE) {
                         sendServerChat(chat);
                     } else {
-                        sendServerChat(connId, chat);
+                        sendServerChat(connectionId, chat);
                     }
                 } else {
                     sendChat(player.getName(), chat);
@@ -31042,110 +31075,110 @@ public class Server implements Runnable {
                 break;
             case BLDG_EXPLODE:
                 DemolitionCharge charge = (DemolitionCharge) packet.getData()[0];
-                if (charge.playerId == connId) {
+                if (charge.playerId == connectionId) {
                     if (!explodingCharges.contains(charge)) {
                         explodingCharges.add(charge);
-                        Player p = game.getPlayer(connId);
+                        Player p = game.getPlayer(connectionId);
                         sendServerChat(p.getName() + " has touched off explosives "
                                 + "(handled in end phase)!");
                     }
                 }
                 break;
             case ENTITY_MOVE:
-                receiveMovement(packet, connId);
+                receiveMovement(packet, connectionId);
                 break;
             case ENTITY_DEPLOY:
-                receiveDeployment(packet, connId);
+                receiveDeployment(packet, connectionId);
                 break;
             case ENTITY_DEPLOY_UNLOAD:
-                receiveDeploymentUnload(packet, connId);
+                receiveDeploymentUnload(packet, connectionId);
                 break;
             case DEPLOY_MINEFIELDS:
-                receiveDeployMinefields(packet, connId);
+                receiveDeployMinefields(packet, connectionId);
                 break;
             case ENTITY_ATTACK:
-                receiveAttack(packet, connId);
+                receiveAttack(packet, connectionId);
                 break;
             case ENTITY_PREPHASE:
-                receivePrephase(packet, connId);
+                receivePrephase(packet, connectionId);
                 break;
             case ENTITY_GTA_HEX_SELECT:
-                receiveGroundToAirHexSelectPacket(packet, connId);
+                receiveGroundToAirHexSelectPacket(packet, connectionId);
                 break;
             case ENTITY_ADD:
-                receiveEntityAdd(packet, connId);
+                receiveEntityAdd(packet, connectionId);
                 resetPlayersDone();
                 break;
             case ENTITY_UPDATE:
-                receiveEntityUpdate(packet, connId);
+                receiveEntityUpdate(packet, connectionId);
                 resetPlayersDone();
                 break;
             case ENTITY_MULTIUPDATE:
-                receiveEntitiesUpdate(packet, connId);
+                receiveEntitiesUpdate(packet, connectionId);
                 resetPlayersDone();
                 break;
             case ENTITY_ASSIGN:
-                ServerLobbyHelper.receiveEntitiesAssign(packet, connId, getGame(), this);
+                ServerLobbyHelper.receiveEntitiesAssign(packet, connectionId, getGame(), this);
                 resetPlayersDone();
                 break;
             case FORCE_UPDATE:
-                ServerLobbyHelper.receiveForceUpdate(packet, connId, getGame(), this);
+                ServerLobbyHelper.receiveForceUpdate(packet, connectionId, getGame(), this);
                 resetPlayersDone();
                 break;
             case FORCE_ADD:
-                ServerLobbyHelper.receiveForceAdd(packet, connId, getGame(), this);
+                ServerLobbyHelper.receiveForceAdd(packet, connectionId, getGame(), this);
                 resetPlayersDone();
                 break;
             case FORCE_DELETE:
-                receiveForcesDelete(packet, connId);
+                receiveForcesDelete(packet, connectionId);
                 resetPlayersDone();
                 break;
             case FORCE_PARENT:
-                ServerLobbyHelper.receiveForceParent(packet, connId, getGame(), this);
+                ServerLobbyHelper.receiveForceParent(packet, connectionId, getGame(), this);
                 resetPlayersDone();
                 break;
             case FORCE_ADD_ENTITY:
-                ServerLobbyHelper.receiveAddEntititesToForce(packet, connId, getGame(), this);
+                ServerLobbyHelper.receiveAddEntititesToForce(packet, connectionId, getGame(), this);
                 resetPlayersDone();
                 break;
             case FORCE_ASSIGN_FULL:
-                ServerLobbyHelper.receiveForceAssignFull(packet, connId, getGame(), this);
+                ServerLobbyHelper.receiveForceAssignFull(packet, connectionId, getGame(), this);
                 resetPlayersDone();
                 break;
             case ENTITY_LOAD:
-                receiveEntityLoad(packet, connId);
+                receiveEntityLoad(packet, connectionId);
                 resetPlayersDone();
                 transmitAllPlayerDones();
                 break;
             case ENTITY_MODECHANGE:
-                receiveEntityModeChange(packet, connId);
+                receiveEntityModeChange(packet, connectionId);
                 break;
             case ENTITY_SENSORCHANGE:
-                receiveEntitySensorChange(packet, connId);
+                receiveEntitySensorChange(packet, connectionId);
                 break;
             case ENTITY_SINKSCHANGE:
-                receiveEntitySinksChange(packet, connId);
+                receiveEntitySinksChange(packet, connectionId);
                 break;
             case ENTITY_ACTIVATE_HIDDEN:
-                receiveEntityActivateHidden(packet, connId);
+                receiveEntityActivateHidden(packet, connectionId);
                 break;
             case ENTITY_NOVA_NETWORK_CHANGE:
-                receiveEntityNovaNetworkModeChange(packet, connId);
+                receiveEntityNovaNetworkModeChange(packet, connectionId);
                 break;
             case ENTITY_MOUNTED_FACING_CHANGE:
-                receiveEntityMountedFacingChange(packet, connId);
+                receiveEntityMountedFacingChange(packet, connectionId);
                 break;
             case ENTITY_CALLEDSHOTCHANGE:
-                receiveEntityCalledShotChange(packet, connId);
+                receiveEntityCalledShotChange(packet, connectionId);
                 break;
             case ENTITY_SYSTEMMODECHANGE:
-                receiveEntitySystemModeChange(packet, connId);
+                receiveEntitySystemModeChange(packet, connectionId);
                 break;
             case ENTITY_AMMOCHANGE:
-                receiveEntityAmmoChange(packet, connId);
+                receiveEntityAmmoChange(packet, connectionId);
                 break;
             case ENTITY_REMOVE:
-                receiveEntityDelete(packet, connId);
+                receiveEntityDelete(packet, connectionId);
                 resetPlayersDone();
                 break;
             case ENTITY_WORDER_UPDATE:
@@ -31165,11 +31198,11 @@ public class Server implements Runnable {
                 }
                 break;
             case SENDING_GAME_SETTINGS:
-                if (receiveGameOptions(packet, connId)) {
+                if (receiveGameOptions(packet, connectionId)) {
                     resetPlayersDone();
                     transmitAllPlayerDones();
                     send(createGameSettingsPacket());
-                    receiveGameOptionsAux(packet, connId);
+                    receiveGameOptionsAux(packet, connectionId);
                 }
                 break;
             case SENDING_MAP_SETTINGS:
@@ -31214,29 +31247,27 @@ public class Server implements Runnable {
                 }
                 break;
             case UNLOAD_STRANDED:
-                receiveUnloadStranded(packet, connId);
+                receiveUnloadStranded(packet, connectionId);
                 break;
             case SET_ARTILLERY_AUTOHIT_HEXES:
-                receiveArtyAutoHitHexes(packet, connId);
+                receiveArtyAutoHitHexes(packet, connectionId);
                 break;
             case CUSTOM_INITIATIVE:
-                receiveCustomInit(packet, connId);
+                receiveCustomInit(packet, connectionId);
                 resetPlayersDone();
                 transmitAllPlayerDones();
                 break;
             case LOAD_GAME:
                 try {
-                    sendServerChat(getPlayer(connId).getName() + " loaded a new game.");
+                    sendServerChat(getPlayer(connectionId).getName() + " loaded a new game.");
                     setGame((Game) packet.getObject(0));
-                    for (AbstractConnection conn : connections) {
-                        sendCurrentInfo(conn.getId());
-                    }
-                } catch (Exception e) {
-                    LogManager.getLogger().error("Error loading save game sent from client", e);
+                    forEachConnection(this::sendCurrentInfo);
+                } catch (Exception ex) {
+                    LogManager.getLogger().error("Error loading save game sent from client", ex);
                 }
                 break;
             case SQUADRON_ADD:
-                receiveSquadronAdd(packet, connId);
+                receiveSquadronAdd(packet, connectionId);
                 resetPlayersDone();
                 transmitAllPlayerDones();
                 break;

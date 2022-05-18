@@ -1,15 +1,21 @@
 /*
- * MegaMek - Copyright (C) 2000-2002 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2000-2002 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
+ * This file is part of MegaMek.
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- * for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.server.commands;
 
@@ -19,7 +25,6 @@ import megamek.common.net.connections.AbstractConnection;
 import megamek.server.Server;
 
 import java.io.File;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,12 +44,12 @@ public class LoadGameCommand extends ServerCommand {
      * Run this command with the arguments supplied
      */
     @Override
-    public void run(int connId, String[] args) {
+    public void run(int connId, String... args) {
         if (!canRunRestrictedCommand(connId)) {
-            server.sendServerChat(connId,
-                    "Observers are restricted from loading games.");
+            server.sendServerChat(connId, "Observers are restricted from loading games.");
             return;
         }
+
         if (args.length > 1) {
             String sFinalFile = args[1];
             if (!sFinalFile.endsWith(MMConstants.SAVE_FILE_EXT)
@@ -75,10 +80,8 @@ public class LoadGameCommand extends ServerCommand {
         } else {
             server.remapConnIds(nameToIdMap, idToNameMap);
             // update all the clients with the new game info
-            Enumeration<AbstractConnection> connEnum = server.getConnections();
-            while (connEnum.hasMoreElements()) {
-                AbstractConnection conn = connEnum.nextElement();
-                server.sendCurrentInfo(conn.getId());
+            for (final AbstractConnection connection : server.getConnections()) {
+                server.sendCurrentInfo(connection);
             }
         }
     }
