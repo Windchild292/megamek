@@ -36,6 +36,7 @@ import megamek.common.weapons.Weapon;
 import megamek.common.weapons.artillery.ArtilleryWeapon;
 import megamek.common.weapons.bayweapons.TeleOperatedMissileBayWeapon;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;
+import org.apache.logging.log4j.LogManager;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -481,13 +482,10 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
 
                 // We were *supposed* to have found an on-board entity.
                 if (null == ce().getPosition()) {
-                    System.err.println("FiringDisplay: could not find "
-                            + "an on-board entity: " +
-                            en);
+                    LogManager.getLogger().error("Could not find an on-board entity: " + en);
                     return;
                 }
-
-            } // End ce()-not-on-board
+            }
 
             target(null);
             clientgui.getBoardView().highlight(ce().getPosition());
@@ -513,8 +511,7 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
                 clientgui.getBoardView().clearFiringSolutionData();
             }
         } else {
-            System.err.println("TargetingPhaseDisplay: "
-                    + "tried to select non-existant entity: " + en);
+            LogManager.getLogger().error("Tried to select non-existent entity: " + en);
         }
     }
 
