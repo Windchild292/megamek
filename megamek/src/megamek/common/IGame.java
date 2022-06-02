@@ -1,10 +1,26 @@
-/**
+/*
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
+ * This file is part of MegaMek.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.common;
 
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
+import megamek.common.net.connections.AbstractConnection;
 import megamek.common.options.GameOptions;
 
 import java.util.Enumeration;
@@ -18,6 +34,14 @@ public interface IGame {
     GameOptions getOptions();
 
     GamePhase getPhase();
+
+    /**
+     * @param connection the connection to get the player for
+     * @return the player for the specified connection
+     */
+    default @Nullable Player getPlayer(final AbstractConnection connection) {
+        return getPlayer(connection.getId());
+    }
 
     /**
      * @param id a player id

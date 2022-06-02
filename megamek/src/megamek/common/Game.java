@@ -463,9 +463,6 @@ public class Game implements IGame, Serializable {
         return players.size();
     }
 
-    /**
-     * Returns the individual player assigned the id parameter.
-     */
     @Override
     public @Nullable Player getPlayer(final int id) {
         return (Player.PLAYER_NONE == id) ? null : playerIds.get(id);

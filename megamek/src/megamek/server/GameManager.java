@@ -29,6 +29,7 @@ import megamek.common.event.GameListener;
 import megamek.common.event.GameVictoryEvent;
 import megamek.common.force.Force;
 import megamek.common.force.Forces;
+import megamek.common.net.connections.AbstractConnection;
 import megamek.common.net.enums.PacketCommand;
 import megamek.common.net.packets.Packet;
 import megamek.common.options.GameOptions;
@@ -52,6 +53,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
@@ -548,8 +550,18 @@ public class GameManager implements IGameManager {
         }
     }
 
-    public void send(Packet p) {
-        Server.getServerInstance().send(p);
+    /**
+     * @see Server#forEachConnection(Consumer)
+     */
+    public void forEachConnection(final Consumer<AbstractConnection> consumer) {
+        Server.getServerInstance().forEachConnection(consumer);
+    }
+
+    /**
+     * @see Server#send(Packet)
+     */
+    public void send(final Packet packet) {
+        Server.getServerInstance().send(packet);
     }
     
     public void send(int connId, Packet p) {
@@ -591,6 +603,7 @@ public class GameManager implements IGameManager {
      */
     @Override
     public void sendCurrentInfo(int connId) {
+        final AbstractConnection connection = Server.getServerInstance().getConnection(connId);
         send(connId, createGameSettingsPacket());
         send(connId, createPlanetaryConditionsPacket());
 
@@ -643,7 +656,7 @@ public class GameManager implements IGameManager {
 
             send(connId, createArtilleryPacket(player));
             send(connId, createFlarePacket());
-            send(connId, createSpecialHexDisplayPacket(connId));
+            send(connId, createSpecialHexDisplayPacket(connection));
             send(connId, new Packet(PacketCommand.PRINCESS_SETTINGS, getGame().getBotSettings()));
         }
     }
@@ -2313,9 +2326,7 @@ public class GameManager implements IGameManager {
     }
 
     private void sendSpecialHexDisplayPackets() {
-        for (Player player : game.getPlayersVector()) {
-            send(createSpecialHexDisplayPacket(player.getId()));
-        }
+        forEachConnection(connection -> connection.send(createSpecialHexDisplayPacket(connection)));
     }
 
     private void sendTagInfoUpdates() {
@@ -30027,20 +30038,19 @@ public class GameManager implements IGameManager {
         return new Packet(PacketCommand.ENTITY_ATTACK, vector, charge);
     }
 
-    private Packet createSpecialHexDisplayPacket(int toPlayer) {
-        Hashtable<Coords, Collection<SpecialHexDisplay>> shdTable = game
-                .getBoard().getSpecialHexDisplayTable();
+    private Packet createSpecialHexDisplayPacket(final AbstractConnection connection) {
+        Hashtable<Coords, Collection<SpecialHexDisplay>> shdTable = getGame().getBoard().getSpecialHexDisplayTable();
         Hashtable<Coords, Collection<SpecialHexDisplay>> shdTable2 = new Hashtable<>();
-        LinkedList<SpecialHexDisplay> tempList;
-        Player player = game.getPlayer(toPlayer);
+        Player player = getGame().getPlayer(connection);
         if (player != null) {
             for (Coords coord : shdTable.keySet()) {
-                tempList = new LinkedList<>();
+                LinkedList<SpecialHexDisplay> tempList = new LinkedList<>();
                 for (SpecialHexDisplay shd : shdTable.get(coord)) {
                     if (!shd.isObscured(player)) {
                         tempList.add(0, shd);
                     }
                 }
+
                 if (!tempList.isEmpty()) {
                     shdTable2.put(coord, tempList);
                 }

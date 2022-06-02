@@ -43,6 +43,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -125,7 +126,7 @@ public class Server implements Runnable {
     private Hashtable<String, ServerCommand> commandsHash = new Hashtable<>();
 
     // game info
-    private final Vector<AbstractConnection> connections = new Vector<>(4);
+    private final List<AbstractConnection> connections = new ArrayList<>(4);
 
     private Hashtable<Integer, ConnectionHandler> connectionHandlers = new Hashtable<>();
 
@@ -188,9 +189,8 @@ public class Server implements Runnable {
                 AbstractConnection conn = e.getConnection();
 
                 // write something in the log
-                LogManager.getLogger().info("s: connection " + conn.getId() + " disconnected");
-
-                connections.removeElement(conn);
+                LogManager.getLogger().info("Connection Disconnected: " + conn.getId());
+                getConnections().remove(conn);
                 connectionsPending.removeElement(conn);
                 connectionIds.remove(conn.getId());
                 ConnectionHandler ch = connectionHandlers.get(conn.getId());
@@ -220,7 +220,7 @@ public class Server implements Runnable {
                 case CLIENT_VERSIONS:
                 case CHAT:
                     // Some packets should be handled immediately
-                    handle(rp.getConnectionId(), rp.getPacket());
+                    handle(getConnectionForPacket(rp).getId(), rp.getPacket());
                     break;
                 default:
                     synchronized (packetQueue) {
@@ -480,22 +480,20 @@ public class Server implements Runnable {
         }
 
         // kill pending connections
-        for (Enumeration<AbstractConnection> connEnum = connectionsPending.elements(); connEnum.hasMoreElements(); ) {
-            AbstractConnection conn = connEnum.nextElement();
-            conn.close();
-        }
+        forEachPendingConnection(AbstractConnection::close);
         connectionsPending.removeAllElements();
 
         // Send "kill" commands to all connections
         // N.B. I may be starting a race here.
-        send(new Packet(PacketCommand.CLOSE_CONNECTION));
+        synchronized (connections) {
+            send(new Packet(PacketCommand.CLOSE_CONNECTION));
+        }
 
         // kill active connections
         synchronized (connections) {
-            connections.forEach(AbstractConnection::close);
-            connections.clear();
+            forEachConnection(AbstractConnection::close);
+            getConnections().clear();
         }
-
         connectionIds.clear();
 
         // Shutdown Email
@@ -689,7 +687,7 @@ public class Server implements Runnable {
 
         // right, switch the connection into the "active" bin
         connectionsPending.removeElement(conn);
-        connections.addElement(conn);
+        connections.add(conn);
         connectionIds.put(conn.getId(), conn);
 
         // add and validate the player info
@@ -1014,34 +1012,70 @@ public class Server implements Runnable {
     /**
      * a shorter name for getConnection()
      */
+    @Deprecated // Bloody confusing
     private AbstractConnection getClient(int connId) {
         return getConnection(connId);
     }
 
-    /**
-     * Returns a connection, indexed by id
-     */
-    public Enumeration<AbstractConnection> getConnections() {
-        return connections.elements();
+    public List<AbstractConnection> getPendingConnections() {
+        return connectionsPending;
     }
 
     /**
-     * Returns a connection, indexed by id
+     * @param id the id of the pending connection
+     * @return a pending connection with the specified id, or null if there isn't one
      */
-    public AbstractConnection getConnection(int connId) {
-        return connectionIds.get(connId);
+    public @Nullable AbstractConnection getPendingConnection(final int id) {
+        return getPendingConnections().stream()
+                .filter(connection -> connection.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
-     * Returns a pending connection
+     * Executes a function for each part in the warehouse.
+     * @param consumer A function to apply to each part.
      */
-    public @Nullable AbstractConnection getPendingConnection(int connId) {
-        for (AbstractConnection conn : connectionsPending) {
-            if (conn.getId() == connId) {
-                return conn;
-            }
-        }
-        return null;
+    public synchronized void forEachPendingConnection(final Consumer<AbstractConnection> consumer) {
+        getPendingConnections().stream()
+                .filter(Objects::nonNull)
+                .forEach(consumer);
+    }
+
+    /**
+     * @return the connections list
+     */
+    public List<AbstractConnection> getConnections() {
+        return connections;
+    }
+
+    /**
+     * @param id the connection's id
+     * @return the connection with the supplied id
+     */
+    public AbstractConnection getConnection(final int id) {
+        return getConnections().get(id);
+    }
+
+    public AbstractConnection getConnectionForPacket(final ReceivedPacket packet) {
+        return getConnection(packet.getConnectionId());
+    }
+
+    /**
+     * Executes a function for each part in the warehouse.
+     * @param consumer A function to apply to each part.
+     */
+    public void forEachConnection(final Consumer<AbstractConnection> consumer) {
+        getConnections().stream()
+                .filter(Objects::nonNull)
+                .forEach(consumer);
+    }
+
+    /**
+     * Send a packet to all connected clients.
+     */
+    public void send(final Packet packet) {
+        forEachConnection(connection -> connection.send(packet));
     }
 
     /**
@@ -1050,9 +1084,7 @@ public class Server implements Runnable {
     private void transmitPlayerConnect(AbstractConnection connection) {
         for (var player: getGame().getPlayersVector()) {
             var connectionId = connection.getId();
-            connection.send(
-                    createPlayerConnectPacket(player, player.getId() != connectionId)
-            );
+            connection.send(createPlayerConnectPacket(player, player.getId() != connectionId));
         }
     }
 
@@ -1063,9 +1095,7 @@ public class Server implements Runnable {
         synchronized (connections) {
             for (var connection: connections) {
                 var playerId = player.getId();
-                connection.send(
-                        createPlayerConnectPacket(player, playerId != connection.getId())
-                );
+                connection.send(createPlayerConnectPacket(player, playerId != connection.getId()));
             }
         }
     }
@@ -1142,14 +1172,6 @@ public class Server implements Runnable {
 
     public void sendServerChat(String message) {
         sendChat(ORIGIN, message);
-    }
-
-    void send(Packet packet) {
-        synchronized (connections) {
-            connections.stream()
-                    .filter(Objects::nonNull)
-                    .forEach(connection -> connection.send(packet));
-        }
     }
 
     /**
@@ -1349,26 +1371,25 @@ public class Server implements Runnable {
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             DataOutputStream printout = new DataOutputStream(conn.getOutputStream());
-            String content = "port=" + URLEncoder.encode(Integer.toString(serverSocket.getLocalPort()), StandardCharsets.UTF_8);
+            StringBuilder content = new StringBuilder("port=" + URLEncoder.encode(Integer.toString(serverSocket.getLocalPort()), StandardCharsets.UTF_8));
             if (register) {
-                for (AbstractConnection iconn : connections) {
-                    content += "&players[]=" + (getPlayer(iconn.getId()).getName());
-                }
+                forEachConnection(connection ->
+                        content.append("&players[]=").append(getGame().getPlayer(connection).getName()));
                 if ((getGame().getPhase() != GamePhase.LOUNGE)
                         && (getGame().getPhase() != GamePhase.UNKNOWN)) {
-                    content += "&close=yes";
+                    content.append("&close=yes");
                 }
-                content += "&version=" + MMConstants.VERSION;
+                content.append("&version=").append(MMConstants.VERSION);
                 if (isPassworded()) {
-                    content += "&pw=yes";
+                    content.append("&pw=yes");
                 }
             } else {
-                content += "&delete=yes";
+                content.append("&delete=yes");
             }
             if (serverAccessKey != null) {
-                content += "&key=" + serverAccessKey;
+                content.append("&key=").append(serverAccessKey);
             }
-            printout.writeBytes(content);
+            printout.writeBytes(content.toString());
             printout.flush();
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
