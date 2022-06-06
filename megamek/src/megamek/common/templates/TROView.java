@@ -12,8 +12,19 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common.templates;
+
+import freemarker.template.Template;
+import freemarker.template.TemplateMethodModelEx;
+import megamek.common.*;
+import megamek.common.annotations.Nullable;
+import megamek.common.options.IOption;
+import megamek.common.options.IOptionGroup;
+import megamek.common.options.Quirks;
+import megamek.common.util.fileUtils.MegaMekFile;
+import megamek.common.verifier.BayData;
+import megamek.common.verifier.EntityVerifier;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,38 +35,6 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateMethodModelEx;
-import megamek.MegaMek;
-import megamek.common.Aero;
-import megamek.common.AmmoType;
-import megamek.common.BattleArmor;
-import megamek.common.Bay;
-import megamek.common.Configuration;
-import megamek.common.CriticalSlot;
-import megamek.common.Entity;
-import megamek.common.EntityFluff;
-import megamek.common.EquipmentType;
-import megamek.common.Infantry;
-import megamek.common.Jumpship;
-import megamek.common.Mech;
-import megamek.common.Messages;
-import megamek.common.Mounted;
-import megamek.common.Protomech;
-import megamek.common.SmallCraft;
-import megamek.common.Tank;
-import megamek.common.Transporter;
-import megamek.common.TroopSpace;
-import megamek.common.WeaponType;
-import megamek.common.annotations.Nullable;
-import megamek.common.options.IOption;
-import megamek.common.options.IOptionGroup;
-import megamek.common.options.Quirks;
-import megamek.common.util.fileUtils.MegaMekFile;
-import megamek.common.verifier.BayData;
-import megamek.common.verifier.EntityVerifier;
 
 /**
  * Fills in a template to produce a unit summary in TRO format.
@@ -103,14 +82,14 @@ public class TROView {
                 view.template = TemplateConfiguration.getInstance()
                         .getTemplate("tro/" + view.getTemplateFileName(html));
             } catch (final IOException e) {
-                MegaMek.getLogger().error(e);
+                LogManager.getLogger().error("", e);
             }
             view.initModel(view.verifier);
         }
         return view;
     }
 
-    protected String getTemplateFileName(boolean html) {
+    protected @Nullable String getTemplateFileName(boolean html) {
         return null;
     }
 
@@ -123,6 +102,7 @@ public class TROView {
     }
 
     protected void initModel(EntityVerifier verifier) {
+
     }
 
     /**
@@ -140,9 +120,8 @@ public class TROView {
                  final Writer out = new OutputStreamWriter(os)) {
                 template.process(model, out);
                 return os.toString();
-            } catch (TemplateException | IOException e) {
-                MegaMek.getLogger().error(e);
-                e.printStackTrace();
+            } catch (Exception ex) {
+                LogManager.getLogger().error("", ex);
             }
         }
         return null;
@@ -180,22 +159,27 @@ public class TROView {
     protected void addEntityFluff(Entity entity) {
         model.put("year", String.valueOf(entity.getYear()));
         model.put("techRating", entity.getFullRatingName());
-        if (entity.getFluff().getOverview().length() > 0) {
+        if (!entity.getFluff().getOverview().isBlank()) {
             model.put("fluffOverview", entity.getFluff().getOverview());
         }
-        if (entity.getFluff().getCapabilities().length() > 0) {
+
+        if (!entity.getFluff().getCapabilities().isBlank()) {
             model.put("fluffCapabilities", entity.getFluff().getCapabilities());
         }
-        if (entity.getFluff().getDeployment().length() > 0) {
+
+        if (!entity.getFluff().getDeployment().isBlank()) {
             model.put("fluffDeployment", entity.getFluff().getDeployment());
         }
-        if (entity.getFluff().getHistory().length() > 0) {
+
+        if (!entity.getFluff().getHistory().isBlank()) {
             model.put("fluffHistory", entity.getFluff().getHistory());
         }
-        if (entity.getFluff().getManufacturer().length() > 0) {
+
+        if (!entity.getFluff().getManufacturer().isBlank()) {
             model.put("manufacturerDesc", entity.getFluff().getManufacturer());
         }
-        if (entity.getFluff().getPrimaryFactory().length() > 0) {
+
+        if (!entity.getFluff().getPrimaryFactory().isBlank()) {
             model.put("factoryDesc", entity.getFluff().getPrimaryFactory());
         }
     }
@@ -214,17 +198,15 @@ public class TROView {
      */
     protected String formatSystemFluff(EntityFluff.System system, EntityFluff fluff, Supplier<String> altText) {
         final StringJoiner sj = new StringJoiner(" ");
-        if (fluff.getSystemManufacturer(system).length() > 0) {
+        if (!fluff.getSystemManufacturer(system).isBlank()) {
             sj.add(fluff.getSystemManufacturer(system));
         }
-        if (fluff.getSystemModel(system).length() > 0) {
+
+        if (!fluff.getSystemModel(system).isBlank()) {
             sj.add(fluff.getSystemModel(system));
         }
-        if (sj.toString().length() > 0) {
-            return sj.toString();
-        } else {
-            return altText.get();
-        }
+
+        return sj.toString().isBlank() ? altText.get() : sj.toString();
     }
 
     protected void addMechVeeAeroFluff(Entity entity) {
@@ -275,7 +257,7 @@ public class TROView {
         return sb.toString();
     }
 
-    protected String formatArmorType(Entity entity, boolean trim) {
+    public static String formatArmorType(Entity entity, boolean trim) {
         if (entity.hasETypeFlag(Entity.ETYPE_SUPPORT_TANK) || entity.hasETypeFlag(Entity.ETYPE_SUPPORT_VTOL)
                 || entity.hasETypeFlag(Entity.ETYPE_FIXED_WING_SUPPORT)) {
             return "BAR " + entity.getBARRating(Tank.LOC_FRONT);
@@ -604,7 +586,7 @@ public class TROView {
                 bayRow.put("doors", bay.getDoors());
                 bays.add(bayRow);
             } else {
-                MegaMek.getLogger().warning("Could not determine bay type for " + bay);
+                LogManager.getLogger().warn("Could not determine bay type for " + bay);
             }
         }
         setModelData("bays", bays);

@@ -15,25 +15,11 @@
 package megamek.common.pathfinder;
 
 import megamek.client.bot.princess.AeroPathUtil;
-import megamek.common.Building;
-import megamek.common.BulldozerMovePath;
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
-import megamek.common.IBoard;
-import megamek.common.IGame;
-import megamek.common.IHex;
-import megamek.common.MovePath;
+import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
-import megamek.common.Terrains;
+import megamek.common.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Handles the generation of ground-based move paths that contain information relating to the destruction 
@@ -59,7 +45,9 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
      * Ignores move cost and makes note of hexes that need to be cleared for the path to
      * be viable.
      */
-    public BulldozerMovePath findPathToCoords(Entity entity, Set<Coords> destinationCoords, boolean jump, BoardClusterTracker clusterTracker) {
+    public @Nullable BulldozerMovePath findPathToCoords(Entity entity,
+                                                        Set<Coords> destinationCoords, boolean jump,
+                                                        BoardClusterTracker clusterTracker) {
         BulldozerMovePath startPath = new BulldozerMovePath(entity.getGame(), entity);
         
         // if we're calculating a jump path and the entity has jump mp and can jump, start off with a jump
@@ -151,11 +139,12 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
      * Function that generates all possible "legal" moves resulting from the given path
      * and updates the set of visited coordinates so we don't visit them again.
      * @param parentPath The path for which to generate child nodes
-     * @param visitedCoords Set of visited coordinates so we don't loop around
      * @return List of valid children. Between 0 and 3 inclusive.
      */
-    protected List<BulldozerMovePath> generateChildNodes(BulldozerMovePath parentPath, Map<Coords, BulldozerMovePath> shortestPathsToCoords,
-            BoardClusterTracker clusterTracker, Coords destinationCoords) {
+    protected List<BulldozerMovePath> generateChildNodes(BulldozerMovePath parentPath,
+                                                         Map<Coords, BulldozerMovePath> shortestPathsToCoords,
+                                                         BoardClusterTracker clusterTracker,
+                                                         Coords destinationCoords) {
         List<BulldozerMovePath> children = new ArrayList<>();
 
         // there are six possible children of a move path, defined in AeroPathUtil.TURNS
@@ -256,7 +245,7 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
      * Utility function that returns true if an attack on the building in the given coordinates
      * will result in damage to friendly units. Computation is cached as it is somewhat expensive to perform for each possible path node.
      */
-    private boolean friendlyFireCheck(Entity shooter, IGame game, Coords position, boolean includeMobileUnits) {
+    private boolean friendlyFireCheck(Entity shooter, Game game, Coords position, boolean includeMobileUnits) {
         if (friendlyFireCheckResults.containsKey(position)) {
             return friendlyFireCheckResults.get(position);
         }
@@ -288,7 +277,7 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
      * breached legs and effectively immobilize it.
      */
     private boolean underwaterLegBreachCheck(BulldozerMovePath path) {        
-        IHex hex = path.getGame().getBoard().getHex(path.getFinalCoords());
+        Hex hex = path.getGame().getBoard().getHex(path.getFinalCoords());
         
         // investigate: do we want quad mechs with a single breached leg
         // to risk this move? Currently not, but if we did, this is probably where
@@ -308,7 +297,7 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
 
         /**
          * Constructor - initializes the destination edge.
-         * @param targetRegion Destination edge
+         * @param destination Destination edge
          */
         public AStarComparator(Coords destination) {
             this.destination = destination;
@@ -321,7 +310,7 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
          */
         @Override
         public int compare(BulldozerMovePath first, BulldozerMovePath second) {
-            IBoard board = first.getGame().getBoard();
+            Board board = first.getGame().getBoard();
             boolean backwards = false;
             int h1 = first.getFinalCoords().distance(destination)
                     + ShortestPathFinder.getLevelDiff(first, destination, board, false)

@@ -114,7 +114,6 @@ public class BoardDimensions implements Cloneable, Serializable,
         } else if ((obj == null) || (getClass() != obj.getClass())) {
             result = false;
         } else {
-
             BoardDimensions other = (BoardDimensions) obj;
             result = (other.w == w) && (other.h == h);
         }
@@ -122,7 +121,7 @@ public class BoardDimensions implements Cloneable, Serializable,
     }
 
     /**
-     * {@inheritDoc Object#hashCode()
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

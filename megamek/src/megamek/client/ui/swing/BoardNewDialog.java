@@ -1,28 +1,17 @@
 package megamek.client.ui.swing;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import megamek.client.ui.Messages;
+import org.apache.logging.log4j.LogManager;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
-import megamek.client.ui.Messages;
 
 /**
  * a quick class for the new map dialogue box
  */
 public class BoardNewDialog extends JDialog implements ActionListener {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -6109373881940834702L;
     private int xvalue;
     private int yvalue;
     private JLabel labWidth;
@@ -33,21 +22,19 @@ public class BoardNewDialog extends JDialog implements ActionListener {
     private JButton butCancel;
 
     BoardNewDialog(JFrame frame) {
-        super(frame, Messages.getString("BoardEditor.SetDimensions"), true); //$NON-NLS-1$
+        super(frame, Messages.getString("BoardEditor.SetDimensions"), true);
         xvalue = 0;
         yvalue = 0;
-        labWidth = new JLabel(
-                Messages.getString("BoardEditor.labWidth"), SwingConstants.RIGHT); //$NON-NLS-1$
-        labHeight = new JLabel(
-                Messages.getString("BoardEditor.labHeight"), SwingConstants.RIGHT); //$NON-NLS-1$
-        texWidth = new JTextField("16", 2); //$NON-NLS-1$
-        texHeight = new JTextField("17", 2); //$NON-NLS-1$
-        butOkay = new JButton(Messages.getString("Okay")); //$NON-NLS-1$
-        butOkay.setActionCommand("done"); //$NON-NLS-1$
+        labWidth = new JLabel(Messages.getString("BoardEditor.labWidth"), SwingConstants.RIGHT);
+        labHeight = new JLabel(Messages.getString("BoardEditor.labHeight"), SwingConstants.RIGHT);
+        texWidth = new JTextField("16", 2);
+        texHeight = new JTextField("17", 2);
+        butOkay = new JButton(Messages.getString("Okay"));
+        butOkay.setActionCommand("done");
         butOkay.addActionListener(this);
         butOkay.setSize(80, 24);
-        butCancel = new JButton(Messages.getString("Cancel")); //$NON-NLS-1$
-        butCancel.setActionCommand("cancel"); //$NON-NLS-1$
+        butCancel = new JButton(Messages.getString("Cancel"));
+        butCancel.setActionCommand("cancel");
         butCancel.addActionListener(this);
         butCancel.setSize(80, 24);
         GridBagLayout gridbag = new GridBagLayout();
@@ -83,16 +70,17 @@ public class BoardNewDialog extends JDialog implements ActionListener {
                 + frame.getSize().height / 2 - getSize().height / 2);
     }
 
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource().equals(butOkay)) {
+    @Override
+    public void actionPerformed(ActionEvent evt) {
+        if (evt.getSource().equals(butOkay)) {
             try {
-                xvalue = Integer.decode(texWidth.getText()).intValue();
-                yvalue = Integer.decode(texHeight.getText()).intValue();
-            } catch (NumberFormatException ex) {
-                System.err.println(ex.getMessage());
+                xvalue = Integer.decode(texWidth.getText());
+                yvalue = Integer.decode(texHeight.getText());
+            } catch (Exception ex) {
+                LogManager.getLogger().error("", ex);
             }
             setVisible(false);
-        } else if (e.getSource().equals(butCancel)) {
+        } else if (evt.getSource().equals(butCancel)) {
             setVisible(false);
         }
     }

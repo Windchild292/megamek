@@ -16,10 +16,10 @@
  */
 package megamek.common.enums;
 
-import megamek.MegaMek;
 import megamek.client.generator.RandomGenderGenerator;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.ResourceBundle;
@@ -43,13 +43,12 @@ public enum Gender {
     private final String name;
     private final String toolTipText;
     private final boolean internal;
-
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
-            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
     Gender(final String name, final String toolTipText, final boolean internal) {
+        final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
         this.internal = internal;
@@ -133,7 +132,7 @@ public enum Gender {
 
         }
 
-        MegaMek.getLogger().error("Failed to parse the gender value from text String " + text
+        LogManager.getLogger().error("Failed to parse the gender value from text String " + text
                         + ". Returning a newly generated gender.");
         return RandomGenderGenerator.generate();
     }

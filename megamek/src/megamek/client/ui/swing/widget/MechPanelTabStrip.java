@@ -6,22 +6,14 @@
  */
 package megamek.client.ui.swing.widget;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Polygon;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import megamek.client.ui.swing.unitDisplay.UnitDisplay;
 import megamek.common.Configuration;
 import megamek.common.util.fileUtils.MegaMekFile;
+import org.apache.logging.log4j.LogManager;
+
+import java.awt.*;
 
 public class MechPanelTabStrip extends PicMap {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = -1282343469769007184L;
 
     private PMPicPolygonalArea[] tabs = new PMPicPolygonalArea[6];
@@ -55,8 +47,7 @@ public class MechPanelTabStrip extends PicMap {
     }
 
     private void setImages() {
-        UnitDisplaySkinSpecification udSpec = SkinXMLHandler
-                .getUnitDisplaySkin();
+        UnitDisplaySkinSpecification udSpec = SkinXMLHandler.getUnitDisplaySkin();
         MediaTracker mt = new MediaTracker(this);
         Toolkit tk = getToolkit();
         idleImage[0] = tk.getImage(new MegaMekFile(Configuration.widgetsDir(), udSpec.getGeneralTabIdle()).toString());
@@ -89,30 +80,27 @@ public class MechPanelTabStrip extends PicMap {
         mt.addImage(selectedCorner, 0);
         try {
             mt.waitForAll();
-        } catch (InterruptedException e) {
-            System.out.println("TabStrip: Error while image loading."); //$NON-NLS-1$
+        } catch (Exception ex) {
+            LogManager.getLogger().error("", ex);
         }
+
         if (mt.isErrorID(0)) {
-            System.out.println("TabStrip: Could Not load Image."); //$NON-NLS-1$
+            LogManager.getLogger().warn("Could not load image");
         }
 
         for (int i = 0; i < 6; i++) {
             if (idleImage[i].getWidth(null) != activeImage[i].getWidth(null)) {
-                System.out.println("TabStrip Warning: idleImage and "
-                        + "activeImage do not match widths for image " + i);
+                LogManager.getLogger().warn("idleImage and activeImage do not match widths for image " + i);
             }
             if (idleImage[i].getHeight(null) != activeImage[i].getHeight(null)) {
-                System.out.println("TabStrip Warning: idleImage and "
-                        + "activeImage do not match heights for image " + i);
+                LogManager.getLogger().warn("idleImage and activeImage do not match heights for image " + i);
             }
         }
         if (idleCorner.getWidth(null) != selectedCorner.getWidth(null)) {
-            System.out.println("TabStrip Warning: idleCorner and "
-                    + "selectedCorner do not match widths!");
+            LogManager.getLogger().warn("idleCorner and selectedCorner do not match widths!");
         }
         if (idleCorner.getHeight(null) != selectedCorner.getHeight(null)) {
-            System.out.println("TabStrip Warning: idleCorner and "
-                    + "selectedCorner do not match heights!");
+            LogManager.getLogger().warn("idleCorner and selectedCorner do not match heights!");
         }
     }
 
@@ -138,49 +126,36 @@ public class MechPanelTabStrip extends PicMap {
     }
 
     private void setListeners() {
-        tabs[0].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
-                    md.showPanel("movement"); //$NON-NLS-1$
-                }
+        tabs[0].addActionListener(e -> {
+            if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
+                md.showPanel("movement");
             }
         });
-        tabs[1].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
-                    md.showPanel("pilot"); //$NON-NLS-1$
-                }
+        tabs[1].addActionListener(e -> {
+            if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
+                md.showPanel("pilot");
             }
         });
-        tabs[2].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
-                    md.showPanel("armor"); //$NON-NLS-1$
-                }
+        tabs[2].addActionListener(e -> {
+            if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
+                md.showPanel("armor");
             }
         });
-        tabs[3].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
-                    md.showPanel("systems"); //$NON-NLS-1$
-                }
+        tabs[3].addActionListener(e -> {
+            if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
+                md.showPanel("systems");
             }
         });
-        tabs[4].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
-                    md.showPanel("weapons"); //$NON-NLS-1$
-                }
+        tabs[4].addActionListener(e -> {
+            if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
+                md.showPanel("weapons");
             }
         });
-        tabs[5].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
-                    md.showPanel("extras"); //$NON-NLS-1$
-                }
+        tabs[5].addActionListener(e -> {
+            if (e.getActionCommand() == PMHotArea.MOUSE_DOWN) {
+                md.showPanel("extras");
             }
         });
-
     }
 
     private void redrawImages() {
@@ -211,7 +186,6 @@ public class MechPanelTabStrip extends PicMap {
 
     @Override
     public void onResize() {
-        //ignore
+        // ignore
     }
-
 }

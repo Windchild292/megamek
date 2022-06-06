@@ -1,30 +1,18 @@
-/**
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004,2006 Ben Mazur (bmazur@sev.org)
+/*
+ * MegaMek - Copyright (C) 2000-2004, 2006 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Edward Cullen (eddy@obsessedcomputers.co.uk)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing.unitDisplay;
-
-import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 import megamek.client.event.MechDisplayEvent;
 import megamek.client.event.MechDisplayListener;
@@ -35,6 +23,12 @@ import megamek.client.ui.swing.util.MegaMekController;
 import megamek.client.ui.swing.widget.MechPanelTabStrip;
 import megamek.common.Entity;
 import megamek.common.annotations.Nullable;
+import org.apache.logging.log4j.LogManager;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 /**
  * Displays the info for a mech. This is also a sort of interface for special
@@ -42,10 +36,6 @@ import megamek.common.annotations.Nullable;
  */
 public class UnitDisplay extends JPanel {
     // buttons & gizmos for top level
-
-    /**
-     *
-     */
     private static final long serialVersionUID = -2060993542227677984L;
 
     private MechPanelTabStrip tabStrip;
@@ -60,7 +50,7 @@ public class UnitDisplay extends JPanel {
     private ClientGUI clientgui;
 
     private Entity currentlyDisplaying;
-    private ArrayList<MechDisplayListener> eventListeners = new ArrayList<MechDisplayListener>();
+    private ArrayList<MechDisplayListener> eventListeners = new ArrayList<>();
 
     /**
      * Creates and lays out a new mech display.
@@ -83,17 +73,17 @@ public class UnitDisplay extends JPanel {
 
         displayP = new JPanel(new CardLayout());
         mPan = new MovementPanel();
-        displayP.add("movement", mPan); //$NON-NLS-1$
+        displayP.add("movement", mPan);
         pPan = new PilotPanel(this);
-        displayP.add("pilot", pPan); //$NON-NLS-1$
+        displayP.add("pilot", pPan);
         aPan = new ArmorPanel(clientgui != null ? clientgui.getClient().getGame() : null, this);
-        displayP.add("armor", aPan); //$NON-NLS-1$
+        displayP.add("armor", aPan);
         wPan = new WeaponPanel(this);
-        displayP.add("weapons", wPan); //$NON-NLS-1$
+        displayP.add("weapons", wPan);
         sPan = new SystemPanel(this);
-        displayP.add("systems", sPan); //$NON-NLS-1$
+        displayP.add("systems", sPan);
         ePan = new ExtraPanel(this);
-        displayP.add("extras", ePan); //$NON-NLS-1$
+        displayP.add("extras", ePan);
 
         // layout main panel
         GridBagConstraints c = new GridBagConstraints();
@@ -109,7 +99,7 @@ public class UnitDisplay extends JPanel {
         c.weighty = 1.0;
         addBag(displayP, c);
 
-        ((CardLayout) displayP.getLayout()).show(displayP, "movement"); //$NON-NLS-1$
+        ((CardLayout) displayP.getLayout()).show(displayP, "movement");
         
         if (controller != null) {
             registerKeyboardCommands(this, controller);
@@ -257,12 +247,8 @@ public class UnitDisplay extends JPanel {
                 });
     }
 
-    /**
-     *
-     */
     @Override
-    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e,
-            int condition, boolean pressed) {
+    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed) {
         if (!e.isConsumed()) {
             return super.processKeyBinding(ks, e, condition, pressed);
         } else {
@@ -284,7 +270,6 @@ public class UnitDisplay extends JPanel {
      * Displays the specified entity in the panel.
      */
     public void displayEntity(Entity en) {
-
         String enName = en.getShortName();
         switch (en.getDamageLevel()) {
             case Entity.DMG_CRIPPLED:
@@ -302,8 +287,9 @@ public class UnitDisplay extends JPanel {
             default:
                 enName += " [UNDAMAGED]";
         }
+
         if (clientgui != null) {
-            clientgui.mechW.setTitle(enName);
+            clientgui.getUnitDisplayDialog().setTitle(enName);
         }
 
         currentlyDisplaying = en;
@@ -319,7 +305,6 @@ public class UnitDisplay extends JPanel {
     /**
      * Returns the entity we'return currently displaying
      */
-
     public Entity getCurrentEntity() {
         return currentlyDisplaying;
     }
@@ -329,22 +314,22 @@ public class UnitDisplay extends JPanel {
      */
     public void showPanel(String s) {
         ((CardLayout) displayP.getLayout()).show(displayP, s);
-        if ("movement".equals(s)) { //$NON-NLS-1$
+        if ("movement".equals(s)) {
             tabStrip.setTab(0);
         }
-        if ("pilot".equals(s)) { //$NON-NLS-1$
+        if ("pilot".equals(s)) {
             tabStrip.setTab(1);
-        } else if ("armor".equals(s)) { //$NON-NLS-1$
+        } else if ("armor".equals(s)) {
             tabStrip.setTab(2);
-        } else if ("weapons".equals(s)) { //$NON-NLS-1$
+        } else if ("weapons".equals(s)) {
             tabStrip.setTab(4);
-        } else if ("systems".equals(s)) { //$NON-NLS-1$
+        } else if ("systems".equals(s)) {
             tabStrip.setTab(3);
-        } else if ("extras".equals(s)) { //$NON-NLS-1$
+        } else if ("extras".equals(s)) {
             tabStrip.setTab(5);
         }
     }
-    
+
     /**
      * Used to force the display to the Systems tab, on a specific location
      * @param loc
@@ -378,8 +363,7 @@ public class UnitDisplay extends JPanel {
                     lis.weaponSelected(event);
                     break;
                 default:
-                    System.err.println("unknown event " + event.getType()
-                            + " in processMechDisplayEvent");
+                    LogManager.getLogger().error("Received unknown event " + event.getType() + " in processMechDisplayEvent");
                     break;
             }
         }

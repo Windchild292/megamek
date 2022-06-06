@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2003-2004 Ben Mazur (bmazur@sev.org).
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -11,21 +11,13 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
 package megamek.common;
 
 /**
- * Represents a volume of space set aside for carrying infantry platoons
- * aboard large spacecraft and mobile structures.  Marines count as crew and should have at least steerage quarters.
+ * Represents a volume of space set aside for carrying infantry platoons aboard large spacecraft
+ * and mobile structures. Marines count as crew and should have at least steerage quarters.
  */
-
 public final class InfantryBay extends Bay {
-
-    // Protected constructors and methods.
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 946578184870030662L;
     
     /** The amount of space taken up by an infantry unit in a transport bay differs from the space
@@ -62,7 +54,7 @@ public final class InfantryBay extends Bay {
         
         @Override
         public String toString() {
-            return name().substring(0, 1) + name().substring(1).toLowerCase();
+            return name().charAt(0) + name().substring(1).toLowerCase();
         }
         
         public static PlatoonType getPlatoonType(Entity en) {
@@ -91,12 +83,10 @@ public final class InfantryBay extends Bay {
     /**
      * The default constructor is only for serialization.
      */
-    protected InfantryBay() {
+    private InfantryBay() {
         totalSpace = 0;
         currentSpace = 0;
     }
-
-    // Public constructors and methods.
 
     /**
      * Create a space for the given tonnage of troops. This is the total tonnage of the bay;
@@ -122,7 +112,7 @@ public final class InfantryBay extends Bay {
     public double spaceForUnit(Entity unit) {
         PlatoonType type = PlatoonType.getPlatoonType(unit);
         if ((unit instanceof Infantry) && (type == PlatoonType.MECHANIZED)) {
-            return type.getWeight() * ((Infantry)unit).getSquadN();
+            return type.getWeight() * ((Infantry) unit).getSquadN();
         } else {
             return type.getWeight();
         }
@@ -158,7 +148,7 @@ public final class InfantryBay extends Bay {
     }
 
     @Override
-    public String getUnusedString(boolean showrecovery) {
+    public String getUnusedString(boolean showRecovery) {
         StringBuilder sb = new StringBuilder();
         sb.append("Infantry Bay ").append(numDoorsString()).append(" - ")
                 .append(getUnusedSlots())
@@ -181,8 +171,8 @@ public final class InfantryBay extends Bay {
 
     @Override
     public int getPersonnel(boolean clan) {
-        return (int)(totalSpace / platoonType.getWeight())
-                * (clan? platoonType.getClanPersonnel() : platoonType.getISPersonnel());
+        return (int) (totalSpace / platoonType.getWeight())
+                * (clan ? platoonType.getClanPersonnel() : platoonType.getISPersonnel());
     }
 
     @Override
@@ -197,7 +187,8 @@ public final class InfantryBay extends Bay {
 
     @Override
     public String toString() {
-        return "infantrybay:" + (totalSpace / platoonType.getWeight()) + ":" + doors + ":"+ bayNumber + ":" + platoonType.toString();
+        return "infantrybay:" + (totalSpace / platoonType.getWeight()) + ":" + doors + ":"
+                + bayNumber + ":" + platoonType;
     }
     
     public PlatoonType getPlatoonType() {
@@ -209,4 +200,4 @@ public final class InfantryBay extends Bay {
         // Based on the weight of the equipment (not capacity), rounded up to the whole ton
         return 15000L * (long) Math.ceil(getWeight());
     }
-} // End package class TroopSpace implements Transporter
+}

@@ -1,29 +1,28 @@
 /*
  * MegaMek - Copyright (C) 2000-2002 Ben Mazur (bmazur@sev.org)
  * MegaMek - Copyright (C) 2020 - The MegaMek Team  
- * 
- *  This program is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU General Public License as published by the Free 
- *  Software Foundation; either version 2 of the License, or (at your option) 
- *  any later version.
- * 
- *  This program is distributed in the hope that it will be useful, but 
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
- *  for more details.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common;
+
+import jakarta.xml.bind.annotation.XmlElement;
+import megamek.client.bot.princess.BotGeometry.HexLine;
+import megamek.common.annotations.Nullable;
+import megamek.common.enums.HexCardinalDirection;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-
-import megamek.MegaMek;
-import megamek.client.bot.princess.BotGeometry.HexLine;
-import megamek.common.annotations.Nullable;
-import megamek.common.enums.HexCardinalDirection;
 
 /**
  * Coords stores x and y values. Since these are hexes, coordinates with odd x
@@ -45,15 +44,15 @@ public class Coords implements Serializable {
     private static final long serialVersionUID = -4451256806040563030L;
 
     public static final double HEXSIDE = Math.PI / 3.0;
-    public static final int [] ALL_DIRECTIONS = {0, 1, 2, 3, 4, 5};
+    public static final int[] ALL_DIRECTIONS = {0, 1, 2, 3, 4, 5};
 
-    @XmlElement(name="x")
+    @XmlElement(name = "x")
     private final int x;
     
-    @XmlElement(name="y")
+    @XmlElement(name = "y")
     private final int y;
 
-    @XmlElement(name="hash")
+    @XmlElement(name = "hash")
     private int hash;
 
     /** Constructs a new coordinate pair at (x, y). Note: Coords are immutable. */
@@ -79,9 +78,9 @@ public class Coords implements Serializable {
     public Coords translated(final String direction) {
         try {
             return translated(HexCardinalDirection.parseFromString(direction));
-        } catch (Exception e) {
-            MegaMek.getLogger().error("Illegal direction passed of " + direction
-                    + ", translating a random direction", e);
+        } catch (Exception ex) {
+            LogManager.getLogger().error("Illegal direction passed of " + direction
+                    + ", translating a random direction", ex);
             return translated(HexCardinalDirection.RANDOMIZE);
         }
     }
@@ -210,23 +209,23 @@ public class Coords implements Serializable {
         int pointJudgement = startLine.judgePoint(second);
         if (pointJudgement == 0) {
             // we are either directly above or below
-            switch(direction) {
-            case 0:
-                direction = (getY() > second.getY()) ? 0 : 3;
-                break;
-            case 3:
-                direction = (getY() < second.getY()) ? 0 : 3;
-                break;
+            switch (direction) {
+                case 0:
+                    direction = (getY() > second.getY()) ? 0 : 3;
+                    break;
+                case 3:
+                    direction = (getY() < second.getY()) ? 0 : 3;
+                    break;
             }
             return direction;
-        } else if(pointJudgement < 0) {
+        } else if (pointJudgement < 0) {
             directionIncrement = 5;
-        } else if(pointJudgement > 0) {
+        } else if (pointJudgement > 0) {
             directionIncrement = 1;
         }
         
         int newDirection = (initialDirection + directionIncrement) % 6;
-        if(newDirection == previousDirection) {
+        if (newDirection == previousDirection) {
             return newDirection;
         } else {
             return approximateDirection(second, newDirection, initialDirection);
@@ -342,7 +341,7 @@ public class Coords implements Serializable {
 
     /**
      * Returns an array of the Coords of hexes that are crossed by a straight
-     * line from the center of src to the center of dest, including src & dest.
+     * line from the center of src to the center of dest, including src and dest.
      * The returned coordinates are in line order, and if the line passes
      * directly between two hexes, it returns them both. Based on the degree of
      * the angle, the next hex is going to be one of three hexes. We check those
@@ -362,7 +361,7 @@ public class Coords implements Serializable {
 
     /**
      * Returns an array of the Coords of hexes that are crossed by a straight
-     * line from the center of src to the center of dest, including src & dest.
+     * line from the center of src to the center of dest, including src and dest.
      * The returned coordinates are in line order, and if the line passes
      * directly between two hexes, it returns them both. Based on the degree of
      * the angle, the next hex is going to be one of three hexes. We check those
@@ -427,8 +426,9 @@ public class Coords implements Serializable {
      * Pass-thru version of the above that assumes current = iSrc.
      */
     public static Coords nextHex(Coords current, Coords destination) {
-        if (current == destination)
+        if (current == destination) {
             return current;
+        }
         int[] directions;
         if (current.getX() == destination.getX()) {
             if (current.getY() > destination.getY()) {
@@ -476,9 +476,23 @@ public class Coords implements Serializable {
     }
     
     /**
+     * Returns a list of all coordinates at the given distance dist 
+     * and anything less than dist as well.
+     */
+    public ArrayList<Coords> allAtDistanceOrLess(int dist) {
+        ArrayList<Coords> retval = new ArrayList<>();
+        
+        for (int radius = 0; radius < dist; radius++) {
+            retval.addAll(allAtDistance(radius));
+        }
+        
+        return retval;
+    }
+    
+    /**
      * Returns a list of all coordinates at the given distance dist, 
      * regardless of whether they're on the board or not. Returns an 
-     * empty Set for dist < 0 and the calling Coords itself for dist == 0.
+     * empty Set for dist &lt; 0 and the calling Coords itself for dist == 0.
      */
     public ArrayList<Coords> allAtDistance(int dist) { 
         ArrayList<Coords> retval = new ArrayList<>();
@@ -492,8 +506,8 @@ public class Coords implements Serializable {
             // until we circle around. The length of a hex side is equivalent to the radius
             Coords currentHex = translated(4, dist);
 
-            for(int direction = 0; direction < 6; direction++) {
-                for(int translation = 0; translation < dist; translation++) {
+            for (int direction = 0; direction < 6; direction++) {
+                for (int translation = 0; translation < dist; translation++) {
                     currentHex = currentHex.translated(direction);
                     retval.add(currentHex);
                 }

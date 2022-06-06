@@ -1,15 +1,21 @@
-/**
- * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
+/*
+ * Copyright (c) 2005 - Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This file is part of MegaMek.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
  */
 package megamek.common.weapons;
 
@@ -18,7 +24,7 @@ import java.util.Vector;
 import megamek.common.AmmoType;
 import megamek.common.Building;
 import megamek.common.Entity;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Mounted;
 import megamek.common.RangeType;
 import megamek.common.Report;
@@ -27,18 +33,15 @@ import megamek.common.Targetable;
 import megamek.common.ToHitData;
 import megamek.common.WeaponType;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
+import megamek.server.GameManager;
 import megamek.server.Server;
 
 /**
  * @author Jay Lawson
  */
 public class CapitalMissileHandler extends AmmoWeaponHandler {
-
-    /**
-     *
-     */
-
     private static final long serialVersionUID = -1618484541772117621L;
     boolean advancedPD = false;
 
@@ -46,11 +49,10 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
-    public CapitalMissileHandler(ToHitData t, WeaponAttackAction w, IGame g,
-            Server s) {
-        super(t, w, g, s);
+    public CapitalMissileHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
+        super(t, w, g, m);
         advancedPD = g.getOptions().booleanOption(OptionsConstants.ADVAERORULES_STRATOPS_ADV_POINTDEF);
     }
     
@@ -60,7 +62,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
      * @see megamek.common.weapons.AttackHandler#handle(int, java.util.Vector)
      */
     @Override
-    public boolean handle(IGame.Phase phase, Vector<Report> vPhaseReport) {
+    public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (!cares(phase)) {
             return true;
         }
@@ -127,23 +129,23 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
         bDirect = game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_DIRECT_BLOW)
                 && ((toHit.getMoS() / 3) >= 1) && (entityTarget != null);
         
-        // Used when using a grounded dropship with individual weapons
+        // Used when using a grounded DropShip with individual weapons
         // or a fighter squadron loaded with ASM or Alamo bombs.
         nDamPerHit = calcDamagePerHit();
         
-        //Point Defense fire vs Capital Missiles
+        // Point Defense fire vs Capital Missiles
         if (game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_AERO_SANITY)
                 && getParentBayHandler() != null) {
             WeaponHandler bayHandler = getParentBayHandler();
             CounterAV = bayHandler.getCounterAV();
         } else {
-            //This gets used if you're shooting at an airborne dropship. It can defend with PD bays.
+            // This gets used if you're shooting at an airborne DropShip. It can defend with PD bays.
             attackValue = calcAttackValue();
         }
-        //CalcAttackValue triggers counterfire, so now we can safely get this
+        // CalcAttackValue triggers counterfire, so now we can safely get this
         CapMissileAMSMod = getCapMissileAMSMod();
         
-        //Only do this if the missile wasn't destroyed
+        // Only do this if the missile wasn't destroyed
         if (CapMissileAMSMod > 0 && CapMissileArmor > 0) {
             toHit.addModifier(CapMissileAMSMod, "Damage from Point Defenses");
             if (roll < toHit.getValue()) {
@@ -204,7 +206,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
         bMissed = roll < toHit.getValue();
 
         //Report Glancing/Direct Blow here because of Capital Missile weirdness
-        if(!(amsBayEngagedCap || pdBayEngagedCap)) {
+        if (!(amsBayEngagedCap || pdBayEngagedCap)) {
             addGlancingBlowReports(vPhaseReport);
     
             if (bDirect) {
@@ -265,7 +267,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
         }
         
         //Capital missiles shouldn't be able to target buildings, being space-only weapons
-        //but if they aren't defined, handleEntityDamage() doesn't work.
+        // but if they aren't defined, handleEntityDamage() doesn't work.
         int bldgAbsorbs = 0;
 
         // We have to adjust the reports on a miss, so they line up
@@ -310,7 +312,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
                 if (entityTarget != null) {
                     handleEntityDamage(entityTarget, vPhaseReport, bldg, hits,
                             nCluster, bldgAbsorbs);
-                    server.creditKill(entityTarget, ae);
+                    gameManager.creditKill(entityTarget, ae);
                     hits -= nCluster;
                     firstHit = false;
                 }
@@ -492,6 +494,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
      * Checks to see if this point defense/AMS bay can engage a capital missile
      * This should return true. Only when handling capital missile attacks can this be false.
      */
+    @Override
     protected boolean canEngageCapitalMissile(Mounted counter) {
         if (counter.getBayWeapons().size() < 2) {
             return false;

@@ -1,21 +1,19 @@
 /*
- * MegaMek - Copyright (C) 2003,2004,2005,2006 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2003, 2004, 2005, 2006 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common;
 
 // This class is for ranges. It simply has a min/short/med/long ranges
-
 public class RangeType {
 
     public static final int RANGE_MINIMUM = 0;
@@ -54,23 +52,22 @@ public class RangeType {
 
     // returns short/med/long range
     public int getRangeID(int range) {
-        if (range <= r_short)
+        if (range <= r_short) {
             return RANGE_SHORT;
-        else if (range <= r_med)
+        } else if (range <= r_med) {
             return RANGE_MEDIUM;
-        else if (range <= r_long)
+        } else if (range <= r_long) {
             return RANGE_LONG;
-        else if (range <= r_extreme)
+        } else if (range <= r_extreme) {
             return RANGE_EXTREME;
-        else
+        } else {
             return RANGE_OUT;
+        }
     }
 
     // This quickly returns the minimum range modifier
     public int getMinRangeMod(int range) {
-        if (range <= r_min)
-            return (r_min - range + 1);
-        return 0;
+        return (range > r_min) ? 0 : (r_min - range + 1);
     }
 
     /**
@@ -114,5 +111,4 @@ public class RangeType {
         // Return the range.
         return range;
     }
-
 }

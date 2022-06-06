@@ -11,38 +11,20 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
+package megamek.common.util;
 
-/*
- * BuildingBlock.java
- *
- * Created on April 2, 2002, 1:57 PM
- */
+import org.apache.logging.log4j.LogManager;
 
-/**
- *
- * @author Nate Rowden
- * @version 1
- */
-
-package megamek.common.util; // add to this package so BLKMechFile can read
-
-// it's files...
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Vector;
 
 /**
  * buildingBlock is based on a file format I used in an online game. The
  * original was written in PHP, this one is more robust, and written in Java.
+ * @author Nate Rowden
+ * @since April 2, 2002, 1:57 PM
  */
 public class BuildingBlock {
 
@@ -55,7 +37,7 @@ public class BuildingBlock {
      */
     public BuildingBlock() {
         // for holding the file we read/parse
-        rawData = new Vector<String>();
+        rawData = new Vector<>();
     }
 
     /**
@@ -63,13 +45,12 @@ public class BuildingBlock {
      * array.
      *
      * @param data
-     *            This is most usefull for storing one block file inside
+     *            This is most useful for storing one block file inside
      *            another...but <I>data</I> can be an array of anything...such
      *            as comments.
      */
     public BuildingBlock(String[] data) {
-        rawData = new Vector<String>();
-
+        rawData = new Vector<>();
         rawData = makeVector(data);
     }
 
@@ -84,48 +65,37 @@ public class BuildingBlock {
     }
 
     public BuildingBlock(InputStream is) {
-        rawData = new Vector<String>();
-
+        rawData = new Vector<>();
         readInputStream(is);
     }
 
     public boolean readInputStream(InputStream is) {
         String data;
-        BufferedReader in;
+        // empty the rawData holder...
+        rawData.clear();
 
-        try {
-            in = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            // empty the rawData holder...
-            rawData.clear();
-
-            try {
-
-                // read the file till can't read no more...
-                while (in.ready()) {
-
-                    data = in.readLine();
-                    if (data == null) {
-                        continue;
-                    }
-                    data = data.trim();
-
-                    // check for blank lines & comment lines...
-                    // don't add them to the rawData if they are
-                    if ((data.length() > 0) && !data.startsWith("" + BuildingBlock.comment)) {
-                        rawData.add(data);
-                    }
+        try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+             BufferedReader br = new BufferedReader(isr)) {
+            // read the file till can't read anymore...
+            while (br.ready()) {
+                data = br.readLine();
+                if (data == null) {
+                    continue;
                 }
-                in.close();
-            } catch (IOException e) {
-                System.err.println("An IO Exception occured while attempting to read a BuildingBlock stream."); //$NON-NLS-1$
-                return false;
+                data = data.trim();
+
+                // check for blank lines & comment lines... and don't add them to the rawData if
+                // they are
+                if (!data.isBlank() && !data.startsWith("" + BuildingBlock.comment)) {
+                    rawData.add(data);
+                }
             }
-            return true;
-        } catch (UnsupportedEncodingException e1) {
-            System.err.println("An UnsupportedEncodingException occured while attempting to read a BuildingBlock stream."); //$NON-NLS-1$
+        } catch (Exception ignored) {
+            LogManager.getLogger().error("An Exception occurred while attempting to read a BuildingBlock stream.");
             return false;
         }
 
+        return true;
     }
 
     /**
@@ -136,25 +106,19 @@ public class BuildingBlock {
      * @param blockName
      *            The name of the data block to locate.
      * @return Returns the start index of the block data. Or -1 if not found.
-     * @see findEndIndex()
-     * @see getAllDataAsVector()
      */
     public int findStartIndex(String blockName) {
-
         String line;
         int startIndex = -1;
         StringBuffer buf = new StringBuffer();
-        String key = null;
 
         // Translate the block name to a key.
         buf.append('<').append(blockName).append('>');
-        key = buf.toString();
-        buf = null;
+        String key = buf.toString();
 
         // look for the block...
         for (int lineNum = 0; lineNum < rawData.size(); lineNum++) {
-
-            line = rawData.get(lineNum).toString();
+            line = rawData.get(lineNum);
 
             // look for "<blockName>"
             try {
@@ -162,17 +126,10 @@ public class BuildingBlock {
                     startIndex = ++lineNum;
                     break;
                 }
-            } catch (StringIndexOutOfBoundsException e) {
-
-                System.err.print("Was looking for "); //$NON-NLS-1$
-                System.err.print(key);
-                System.err.println(" and caught a"); //$NON-NLS-1$
-                System.err.print("string index out of bounds exception on line: \""); //$NON-NLS-1$
-                System.err.print(line);
-                System.err.println("\""); //$NON-NLS-1$
-                System.err.print("rawData index number: "); //$NON-NLS-1$
-                System.err.println(lineNum);
-
+            } catch (Exception ex) {
+                LogManager.getLogger().error(String.format(
+                        "Was looking for %s and caught an Exception parsing line \n\"%s\" \nat rawData index number %s",
+                        key, line, lineNum), ex);
             }
         }
         return startIndex;
@@ -186,24 +143,19 @@ public class BuildingBlock {
      * @param blockName
      *            The name of the data block to locate.
      * @return Returns the end index of the block data. Or -1 if not found.
-     * @see findStartIndex()
-     * @see getAllDataAsVector()
      */
     public int findEndIndex(String blockName) {
         String line;
         int endIndex = -1;
         StringBuffer buf = new StringBuffer();
-        String key = null;
 
         // Translate the block name to a key.
         buf.append('<').append('/').append(blockName).append('>');
-        key = buf.toString();
-        buf = null;
+        String key = buf.toString();
 
         // look for the block...
         for (int lineNum = 0; lineNum < rawData.size(); lineNum++) {
-
-            line = rawData.get(lineNum).toString();
+            line = rawData.get(lineNum);
 
             // look for "</blockName>"
             try {
@@ -211,16 +163,10 @@ public class BuildingBlock {
                     endIndex = lineNum;
                     break;
                 }
-            } catch (StringIndexOutOfBoundsException e) {
-
-                System.err.print("Was looking for "); //$NON-NLS-1$
-                System.err.print(key);
-                System.err.println(" and caught a"); //$NON-NLS-1$
-                System.err.print("string index out of bounds exception on line: \""); //$NON-NLS-1$
-                System.err.print(line);
-                System.err.println("\""); //$NON-NLS-1$
-                System.err.print("rawData index number: "); //$NON-NLS-1$
-                System.err.println(lineNum);
+            } catch (Exception ex) {
+                LogManager.getLogger().error(String.format(
+                        "Was looking for %s and caught an Exception parsing line \n\"%s\" \nwith rawData index number %s",
+                        key, line, lineNum));
             }
         }
         return endIndex;
@@ -234,7 +180,6 @@ public class BuildingBlock {
      * @return Returns an array of data.
      */
     public String[] getDataAsString(String blockName) {
-
         String[] data;
         int startIndex = 0, endIndex = 0;
 
@@ -245,7 +190,7 @@ public class BuildingBlock {
         if ((startIndex == -1) || (endIndex == -1)) {
 
             data = new String[1];
-            data[0] = ""; //$NON-NLS-1$
+            data[0] = "";
             return data;
         }
 
@@ -257,7 +202,7 @@ public class BuildingBlock {
             // data = new String[size + 1]; // add one so we always have at
             // least a size 1 array...
             data = new String[1];
-            data[0] = ""; //$NON-NLS-1$
+            data[0] = "";
             return data;
         }
 
@@ -273,11 +218,7 @@ public class BuildingBlock {
         return data; // hand back the goods...
     }
 
-    /**
-     * @see getDataAsString()
-     */
     public int[] getDataAsInt(String blockName) {
-
         int[] data;
         int startIndex, endIndex;
 
@@ -286,23 +227,17 @@ public class BuildingBlock {
         endIndex = findEndIndex(blockName);
 
         if ((startIndex == -1) || (endIndex == -1)) {
-
             data = new int[1];
-            data[0] = 0;
             return data;
-
         }
 
-        // calculate the size of our data array by subtracting the two indexes
-        // ...
+        // calculate the size of our data array by subtracting the two indexes...
 
         int size = endIndex - startIndex;
 
         if (size == 0) {
-            // data = new int[size + 1]; // add one so we always have at least a
-            // size 1 array...
+            // data = new int[size + 1]; // add one, so we always have at least a size 1 array...
             data = new int[1];
-            data[0] = 0;
             return data;
         }
         data = new int[size];
@@ -311,30 +246,25 @@ public class BuildingBlock {
 
         // fill up the data array with the raw data we want...
         for (int rawRecord = startIndex; rawRecord < endIndex; rawRecord++) {
-
             try {
-                // Bug with people placing , in the fuel strings like 18,000
+                // Bug with people placing ',' in the fuel strings like 18,000
                 // Should probably change this to a method to weed out all
                 // non-numeric
                 // variables but this is the most common.
-                String rawString = rawData.get(rawRecord).toString();
+                String rawString = rawData.get(rawRecord);
                 if (rawString.indexOf(',') >= 0) {
                     rawString = rawString.replaceAll(",", "");
                 }
                 data[dataRecord] = Integer.parseInt(rawString);
                 dataRecord++;
-            } catch (NumberFormatException oops) {
+            } catch (NumberFormatException ex) {
                 data[0] = 0;
-                System.err.println("getDataAsInt(\"" + blockName + "\") failed.  NumberFormatException was caught."); //$NON-NLS-1$ //$NON-NLS-2$
-                oops.printStackTrace();
+                LogManager.getLogger().error("getDataAsInt(\"" + blockName + "\") failed.", ex);
             }
         }
         return data; // hand back the goods...
     }
 
-    /**
-     * @see getDataAsString()
-     */
     public float[] getDataAsFloat(String blockName) {
 
         float[] data;
@@ -371,35 +301,25 @@ public class BuildingBlock {
 
         // fill up the data array with the raw data we want...
         for (int rawRecord = startIndex; rawRecord < endIndex; rawRecord++) {
-
             try {
-
-                data[dataRecord] = Float.valueOf(rawData.get(rawRecord).toString()).floatValue();
+                data[dataRecord] = Float.parseFloat(rawData.get(rawRecord));
                 dataRecord++;
-
-            } catch (NumberFormatException oops) {
-
+            } catch (NumberFormatException ex) {
                 data[0] = 0;
-                System.err.println("getDataAsFloat(\"" + blockName + "\") failed.  NumberFormatException was caught."); //$NON-NLS-1$ //$NON-NLS-2$
-
+                LogManager.getLogger().error("getDataAsFloat(\"" + blockName + "\") failed.");
             }
-
         }
 
         return data; // hand back the goods...
-
     }
 
-    /**
-     * @see getDataAsString()
-     */
     public double[] getDataAsDouble(String blockName) {
         double[] data;
         int startIndex, endIndex;
 
         startIndex = findStartIndex(blockName);
         endIndex = findEndIndex(blockName);
-        if((startIndex == -1) || (endIndex == -1)) {
+        if ((startIndex == -1) || (endIndex == -1)) {
             return new double[]{0};
         }
 
@@ -413,13 +333,13 @@ public class BuildingBlock {
         int dataRecord = 0;
 
         // fill up the data array with the raw data we want...
-        for(int rawRecord = startIndex; rawRecord < endIndex; rawRecord++) {
+        for (int rawRecord = startIndex; rawRecord < endIndex; rawRecord++) {
             try {
-                data[dataRecord] = Double.valueOf(rawData.get(rawRecord).toString()).doubleValue();
+                data[dataRecord] = Double.parseDouble(rawData.get(rawRecord));
                 dataRecord ++;
-            } catch (NumberFormatException oops) {
+            } catch (NumberFormatException ex) {
                 data[0] = 0;
-                System.err.println("getDataAsDouble(\"" + blockName + "\") failed.  NumberFormatException was caught."); //$NON-NLS-1$ //$NON-NLS-2$
+                LogManager.getLogger().error("getDataAsDouble(\"" + blockName + "\") failed.");
             }
         }
         return data; // hand back the goods...
@@ -432,34 +352,22 @@ public class BuildingBlock {
      *            Name of the block to get data from.
      * @return Returns the data as a Vector.
      */
-    public Vector<String> getDataAsVector(String blockName) {
-
-        Vector<String> data;
-        int startIndex = 0, endIndex = 0;
-
-        startIndex = findStartIndex(blockName);
-
-        endIndex = findEndIndex(blockName);
+    public List<String> getDataAsVector(String blockName) {
+        int startIndex = findStartIndex(blockName);
+        int endIndex = findEndIndex(blockName);
 
         if ((startIndex == -1) || (endIndex == -1)) {
-
-            data = new Vector<String>();
-            data.clear();
-            return data;
-
+            return new Vector<>();
         }
 
-        data = new Vector<String>();
+        List<String> data = new Vector<>();
 
         // fill up the data vector with the raw data we want...
         for (int rawRecord = startIndex; rawRecord < endIndex; rawRecord++) {
-
             data.add(rawData.get(rawRecord));
-
         }
 
         return data; // hand back the goods...
-
     }
 
     /**
@@ -469,54 +377,43 @@ public class BuildingBlock {
      * @return Returns true on success.
      */
     public boolean createNewBlock() {
-
         rawData.clear();
 
-        writeBlockComment("building block data file"); //$NON-NLS-1$
-        this.writeBlockData("BlockVersion", "" + BuildingBlock.version); //$NON-NLS-1$ //$NON-NLS-2$
+        writeBlockComment("building block data file");
+        this.writeBlockData("BlockVersion", "" + BuildingBlock.version);
 
-        writeBlockComment("#Write the version number just in case..."); //$NON-NLS-1$
-        this.writeBlockData("Version", "MAM0"); //$NON-NLS-1$
+        writeBlockComment("#Write the version number just in case...");
+        this.writeBlockData("Version", "MAM0");
 
         return true;
     }
-
-    // to make life easier...
 
     /**
      * @see writeBlockData (String, Vector)
      */
     public boolean writeBlockData(String blockName, String blockData) {
-
         String[] temp = new String[1];
         temp[0] = blockData;
 
         return writeBlockData(blockName, makeVector(temp));
-
     }
 
     /**
      * @see writeBlockData (String, Vector)
      */
     public boolean writeBlockData(String blockName, int blockData) {
-
         String[] temp = new String[1];
-        temp[0] = "" + blockData; //$NON-NLS-1$
+        temp[0] = "" + blockData;
         return writeBlockData(blockName, makeVector(temp));
-
     }
 
     /**
      * @see writeBlockData (String, Vector)
      */
     public boolean writeBlockData(String blockName, int[] blockData) {
-
         String[] temp = new String[blockData.length];
-
         for (int c = 0; c < blockData.length; c++) {
-
-            temp[c] = "" + blockData[c]; //$NON-NLS-1$
-
+            temp[c] = "" + blockData[c];
         }
         return writeBlockData(blockName, makeVector(temp));
 
@@ -526,22 +423,18 @@ public class BuildingBlock {
      * @see writeBlockData (String, Vector)
      */
     public boolean writeBlockData(String blockName, float blockData) {
-
         String[] temp = new String[1];
-        temp[0] = "" + blockData; //$NON-NLS-1$
+        temp[0] = "" + blockData;
         return writeBlockData(blockName, makeVector(temp));
-
     }
 
     /**
      * @see writeBlockData (String, Vector)
      */
     public boolean writeBlockData(String blockName, double blockData) {
-
         String[] temp = new String[1];
-        temp[0] = "" + blockData; //$NON-NLS-1$
+        temp[0] = "" + blockData;
         return writeBlockData(blockName, makeVector(temp));
-
     }
 
 
@@ -549,26 +442,18 @@ public class BuildingBlock {
      * @see writeBlockData (String, Vector)
      */
     public boolean writeBlockData(String blockName, float[] blockData) {
-
         String[] temp = new String[blockData.length];
-
         for (int c = 0; c < blockData.length; c++) {
-
-            temp[c] = "" + blockData[c]; //$NON-NLS-1$
-
+            temp[c] = "" + blockData[c];
         }
-
         return writeBlockData(blockName, makeVector(temp));
-
     }
 
     /**
      * @see writeBlockData (String, Vector)
      */
     public boolean writeBlockData(String blockName, String[] blockData) {
-
         return writeBlockData(blockName, makeVector(blockData));
-
     }
 
     /**
@@ -581,69 +466,56 @@ public class BuildingBlock {
      * @return Returns true on success.
      */
     public boolean writeBlockData(String blockName, List<String> blockData) {
+        rawData.add("<" + blockName + ">");
 
-        rawData.add(new String("<" + blockName + ">")); //$NON-NLS-1$ //$NON-NLS-2$
-
-        for (int c = 0; c < blockData.size(); c++) {
-            rawData.add(blockData.get(c).trim());
+        for (String blockDatum : blockData) {
+            rawData.add(blockDatum.trim());
         }
 
-        rawData.add(new String("</" + blockName + ">")); //$NON-NLS-1$ //$NON-NLS-2$
-        rawData.add(new String("")); //$NON-NLS-1$
+        rawData.add("</" + blockName + ">");
+        rawData.add("");
 
         return true;
-
     }
 
     /**
      * Writes a comment.
      *
-     * @param theComment
-     *            The comment to be written.
+     * @param theComment The comment to be written.
      * @return Returns true on success.
      */
     public boolean writeBlockComment(String theComment) {
-
         rawData.add(BuildingBlock.comment + theComment);
         return true;
-
     }
 
     /**
      * Writes the buildingBlock data to a file.
      *
-     * @param fileName
-     *            File to write. Overwrites existing files.
-     * @return Returns true on success.
+     * @param fileName File to write. Overwrites existing files.
+     * @return true on success.
      */
     public boolean writeBlockFile(String fileName) {
-
         File file = new File(fileName);
 
         if (file.exists()) {
             if (!file.delete()) {
-
-                System.err.println("Unable to delete file...(so I could re-write it)"); //$NON-NLS-1$
+                LogManager.getLogger().error("Unable to delete file with name " + fileName);
                 return false;
             }
         }
 
-        try {
-
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
-
-            for (int c = 0; c < rawData.size(); c++) {
-
-                out.write(rawData.get(c).toString());
-                out.newLine();
-
+        try (OutputStream fos = new FileOutputStream(file);
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+             BufferedWriter bw = new BufferedWriter(osw)) {
+            for (String rawDatum : rawData) {
+                bw.write(rawDatum);
+                bw.newLine();
             }
 
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-
-            System.err.println("Unable to save block file " + fileName); //$NON-NLS-1$
+            bw.flush();
+        } catch (Exception e) {
+            LogManager.getLogger().error("Unable to save block file " + fileName, e);
             return false;
         }
 
@@ -679,7 +551,7 @@ public class BuildingBlock {
      */
     public Vector<String> makeVector(String[] stringArray) {
 
-        Vector<String> newVect = new Vector<String>();
+        Vector<String> newVect = new Vector<>();
         int c = 0;
 
         try {
@@ -757,19 +629,13 @@ public class BuildingBlock {
      * @return Returns the number in the [0] position.
      */
     public int getReturnedArraySize(String[] array) {
-
         try {
-
             return Integer.parseInt(array[0]);
-
-        } catch (NumberFormatException e) {
-
+        } catch (Exception ignored) {
             // couldn't parse it...
-            System.err.println("Couldn't find array size at [0]...is this an array I returned...?"); //$NON-NLS-1$
-            System.err.println("Trying to find size anyway..."); //$NON-NLS-1$
+            LogManager.getLogger().error("Couldn't find array size at [0]...is this an array I returned...? Trying to find the size anyway...");
             return this.countArray(array);
         }
-
     }
 
     // for those of us who like doing things indirectly ; -?
@@ -792,16 +658,12 @@ public class BuildingBlock {
      * @see getReturnedArraySize (String[])
      */
     public int getReturnedArraySize(float[] array) {
-
         try {
-            return Integer.parseInt("" + array[0]); //$NON-NLS-1$
-        } catch (NumberFormatException e) {
-
-            System.err.println("Couldn't find array size at [0]...is this an array I returned...?"); //$NON-NLS-1$
-            System.err.println("Trying to find size anyway..."); //$NON-NLS-1$
+            return Integer.parseInt("" + array[0]);
+        } catch (Exception ignored) {
+            LogManager.getLogger().error("Couldn't find array size at [0]...is this an array I returned...? Trying to find the size anyway...");
             return this.countArray(array);
         }
-
     }
 
     /**
@@ -812,9 +674,7 @@ public class BuildingBlock {
      * @return Returns the array's size.
      */
     public int countArray(String[] array) {
-
         return array.length;
-
     }
 
     /**

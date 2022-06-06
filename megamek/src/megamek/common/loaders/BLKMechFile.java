@@ -11,37 +11,19 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
-/*
- * BLkFile.java
- *
- * Created on April 6, 2002, 2:06 AM
- */
-
-/**
- *
- * @author njrkrynn
- * @version
- */
 package megamek.common.loaders;
 
+import megamek.common.*;
+import megamek.common.util.BuildingBlock;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.List;
 import java.util.Vector;
 
-import megamek.common.BattleArmor;
-import megamek.common.BipedMech;
-import megamek.common.CriticalSlot;
-import megamek.common.Engine;
-import megamek.common.Entity;
-import megamek.common.EquipmentType;
-import megamek.common.LocationFullException;
-import megamek.common.Mech;
-import megamek.common.MiscType;
-import megamek.common.Mounted;
-import megamek.common.QuadMech;
-import megamek.common.TechConstants;
-import megamek.common.WeaponType;
-import megamek.common.util.BuildingBlock;
-
+/**
+ * @author njrkrynn
+ * @since April 6, 2002, 2:06 AM
+ */
 public class BLKMechFile extends BLKFile implements IMechLoader {
 
     // armor locatioms
@@ -61,12 +43,11 @@ public class BLKMechFile extends BLKFile implements IMechLoader {
     public static final int RT = 6;
     public static final int LT = 2;
 
-    //
-
     public BLKMechFile(BuildingBlock bb) {
         dataFile = bb;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Entity getEntity() throws EntityLoadingException {
 
@@ -96,7 +77,9 @@ public class BLKMechFile extends BLKFile implements IMechLoader {
             throw new EntityLoadingException("Could not find block.");
         }
         mech.setModel(dataFile.getDataAsString("Model")[0]);
-
+        if (dataFile.exists(MtfFile.MUL_ID)) {
+            mech.setMulId(dataFile.getDataAsInt(MtfFile.MUL_ID)[0]);
+        }
         setTechLevel(mech);
         setFluff(mech);
         checkManualBV(mech);
@@ -161,14 +144,11 @@ public class BLKMechFile extends BLKFile implements IMechLoader {
             throw new EntityLoadingException("Could not find block.");
         }
 
-        int[] armor = new int[11]; // only 11 locations...
-
         if (dataFile.getDataAsInt("armor").length < 11) {
-            System.err.println("BLKMechFile->Read armor array doesn't match my armor array...");
+            LogManager.getLogger().error("Read armor array doesn't match my armor array...");
             throw new EntityLoadingException("Could not find block.");
-
         }
-        armor = dataFile.getDataAsInt("Armor");
+        int[] armor = dataFile.getDataAsInt("Armor");
 
         mech.initializeArmor(armor[BLKMechFile.HD], Mech.LOC_HEAD);
 
@@ -218,7 +198,7 @@ public class BLKMechFile extends BLKFile implements IMechLoader {
         }
 
         // load equipment stuff...
-        Vector<String>[] criticals = new Vector[8];
+        List<String>[] criticals = new Vector[8];
 
         criticals[Mech.LOC_HEAD] = dataFile.getDataAsVector("hd criticals");
         criticals[Mech.LOC_LARM] = dataFile.getDataAsVector("la criticals");
@@ -276,7 +256,7 @@ public class BLKMechFile extends BLKFile implements IMechLoader {
                     facing = 2;
                     critName = critName.substring(0, critName.length() - 4).trim();
                 }
-                if (critName.indexOf("Engine") != -1) {
+                if (critName.contains("Engine")) {
                     mech.setCritical(loc, c, new CriticalSlot(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE, true, armored));
                     continue;
                 } else if (critName.equalsIgnoreCase("Life Support")) {
@@ -326,10 +306,6 @@ public class BLKMechFile extends BLKFile implements IMechLoader {
 
             }// end of specific location
         }// end of all crits
-
-        if (mech.isClan()) {
-            mech.addClanCase();
-        }
 
         if (dataFile.exists("omni")) {
             mech.setOmni(true);

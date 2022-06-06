@@ -1,18 +1,17 @@
 /*
- * MegaMek - Copyright (C) 2000,2001,2002,2003,2004,2006 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2000-2004, 2006 Ben Mazur (bmazur@sev.org)
  * Copyright © 2015 Nicholas Walczak (walczak@cs.umn.edu)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing.skinEditor;
 
 import java.awt.Color;
@@ -49,8 +48,7 @@ import megamek.common.Configuration;
  * 
  * @author arlith
  */
-public class SkinSpecPanel extends JPanel implements ListSelectionListener,
-        ActionListener {
+public class SkinSpecPanel extends JPanel implements ListSelectionListener, ActionListener {
 
     JFileChooser fileChooser = new JFileChooser(Configuration.widgetsDir());
 
@@ -84,7 +82,7 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
 
         List<JButton> removeButtons = new ArrayList<>();
 
-        JButton addButton = new JButton(Messages.getString("SkinEditor.Add")); //$NON-NLS-1$
+        JButton addButton = new JButton(Messages.getString("SkinEditor.Add"));
 
         boolean displayTiled = false;
 
@@ -98,30 +96,24 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
          * @param elementName
          * @param imgPath
          */
-        BorderElement(SkinSpecPanel skinPanel, String elementName,
-                String imgPath) {
+        BorderElement(SkinSpecPanel skinPanel, String elementName, String imgPath) {
             super(new GridBagLayout());
             this.skinPanel = skinPanel;
-            setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createEmptyBorder(), elementName,
-                    TitledBorder.LEFT, TitledBorder.TOP));
+            setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(),
+                    elementName, TitledBorder.LEFT, TitledBorder.TOP));
 
             displayTiled = false;
 
-            JButton newPathLbl = new JButton(
-                    Messages.getString("SkinEditor.Path")); //$NON-NLS-1$
+            JButton newPathLbl = new JButton(Messages.getString("SkinEditor.Path"));
             newPathLbl.setMargin(new Insets(1, 1, 1, 1));
-            newPathLbl.setToolTipText(Messages.getString(
-                    "SkinEditor.PathToolTip", //$NON-NLS-1$
-                    new Object[] { Configuration.widgetsDir().getPath() }));
+            newPathLbl.setToolTipText(Messages.getString("SkinEditor.PathToolTip",
+                    Configuration.widgetsDir().getPath()));
             newPathLbl.addActionListener(this);
             pathLbl.add(newPathLbl);
             JTextField newPath = new JTextField(imgPath, TEXTFIELD_COLS);
             newPath.getDocument().addDocumentListener(this);
             path.add(newPath);
-            JCheckBox newTiled = new JCheckBox(
-                    Messages.getString("SkinEditor.Tiled"), //$NON-NLS-1$
-                    false);
+            JCheckBox newTiled = new JCheckBox(Messages.getString("SkinEditor.Tiled"), false);
             newTiled.addActionListener(this);
             tiled.add(newTiled);
             removeButtons.add(new JButton());
@@ -142,8 +134,8 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
          * @param imgPath
          * @param isTiled
          */
-        BorderElement(SkinSpecPanel skinPanel, String elementName,
-                List<String> imgPath, List<Boolean> isTiled) {
+        BorderElement(SkinSpecPanel skinPanel, String elementName, List<String> imgPath,
+                      List<Boolean> isTiled) throws Exception {
             this(skinPanel, elementName, imgPath, isTiled, imgPath.size() > 1);
         }
 
@@ -160,9 +152,8 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
          * @param removeEnabled
          *            Determines if remove buttons are enabled
          */
-        BorderElement(SkinSpecPanel skinPanel, String elementName,
-                List<String> imgPath, List<Boolean> isTiled,
-                boolean removeEnabled) {
+        BorderElement(SkinSpecPanel skinPanel, String elementName, List<String> imgPath,
+                      List<Boolean> isTiled, boolean removeEnabled) throws Exception {
             super(new GridBagLayout());
             this.skinPanel = skinPanel;
             setBorder(BorderFactory.createTitledBorder(
@@ -170,12 +161,14 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
                     TitledBorder.LEFT, TitledBorder.TOP));
 
             displayTiled = true;
-            assert (imgPath.size() == isTiled.size());
+            if (imgPath.size() != isTiled.size()) {
+                throw new Exception();
+            }
+
             for (int i = 0; i < imgPath.size(); i++) {
                 addPathRow(imgPath.get(i), isTiled.get(i), removeEnabled);
             }
-            addButton.setToolTipText(Messages
-                    .getString("SkinEditor.AddButtonToolTip")); //$NON-NLS-1$
+            addButton.setToolTipText(Messages.getString("SkinEditor.AddButtonToolTip"));
             addButton.setMargin(new Insets(1, 1, 1, 1));
             addButton.setMaximumSize(new Dimension(40, 14));
             addButton.setPreferredSize(new Dimension(40, 14));
@@ -190,28 +183,21 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
          */
         protected void addPathRow(String imgPath, boolean isTiled,
                 boolean removeEnabled) {
-            JButton newPathLbl = new JButton(
-                    Messages.getString("SkinEditor.Path")); //$NON-NLS-1$
+            JButton newPathLbl = new JButton(Messages.getString("SkinEditor.Path"));
             newPathLbl.setMargin(new Insets(1, 1, 1, 1));
-            newPathLbl.setToolTipText(Messages.getString(
-                    "SkinEditor.PathToolTip", //$NON-NLS-1$
-                    new Object[] { Configuration.widgetsDir().getPath() }));
+            newPathLbl.setToolTipText(Messages.getString("SkinEditor.PathToolTip",
+                    Configuration.widgetsDir().getPath()));
             newPathLbl.addActionListener(this);
-            pathLbl.add(newPathLbl); //$NON-NLS-1$
+            pathLbl.add(newPathLbl);
             JTextField newPath = new JTextField(imgPath, TEXTFIELD_COLS);
             newPath.getDocument().addDocumentListener(this);
             path.add(newPath);
-            JCheckBox newTiled = new JCheckBox(
-                    Messages.getString("SkinEditor.Tiled"), //$NON-NLS-1$
-                    isTiled);
-            newTiled.setToolTipText(Messages
-                    .getString("SkinEditor.TiledToolTip")); //$NON-NLS-1$
+            JCheckBox newTiled = new JCheckBox(Messages.getString("SkinEditor.Tiled"), isTiled);
+            newTiled.setToolTipText(Messages.getString("SkinEditor.TiledToolTip"));
             newTiled.addActionListener(this);
             tiled.add(newTiled);
-            JButton newRemoveButton = new JButton(
-                    Messages.getString("SkinEditor.RemoveButton")); //$NON-NLS-1$
-            newRemoveButton.setToolTipText(Messages
-                    .getString("SkinEditor.RemoveButtonToolTip")); //$NON-NLS-1$
+            JButton newRemoveButton = new JButton(Messages.getString("SkinEditor.RemoveButton"));
+            newRemoveButton.setToolTipText(Messages.getString("SkinEditor.RemoveButtonToolTip"));
             newRemoveButton.setMargin(new Insets(0, 0, 1, 0));
             newRemoveButton.setPreferredSize(new Dimension(14, 14));
             newRemoveButton.setMaximumSize(new Dimension(14, 14));
@@ -349,17 +335,17 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
         }
 
         @Override
-        public void changedUpdate(DocumentEvent arg0) {
+        public void changedUpdate(DocumentEvent evt) {
             skinPanel.notifySkinChanges(false);
         }
 
         @Override
-        public void insertUpdate(DocumentEvent arg0) {
+        public void insertUpdate(DocumentEvent evt) {
             skinPanel.notifySkinChanges(false);
         }
 
         @Override
-        public void removeUpdate(DocumentEvent arg0) {
+        public void removeUpdate(DocumentEvent evt) {
             skinPanel.notifySkinChanges(false);
         }
     }
@@ -369,21 +355,16 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
      * where each background image shares the same shouldTile state.
      * 
      * @author arlith
-     *
      */
     private class BackgroundElement extends BorderElement {
-
-        /**
-         * 
-         */
         private static final long serialVersionUID = 3448867645483831732L;
 
-        BackgroundElement(SkinSpecPanel skinPanel, List<String> imgPath,
-                List<Boolean> isTiled) {
-            super(skinPanel, Messages.getString("SkinEditor.Background"), //$NON-NLS-1$
-                    imgPath, isTiled, true);
+        BackgroundElement(SkinSpecPanel skinPanel, List<String> imgPath, List<Boolean> isTiled)
+                throws Exception {
+            super(skinPanel, Messages.getString("SkinEditor.Background"), imgPath, isTiled, true);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             boolean tiledChecked = false;
             boolean newValue = false;
@@ -412,12 +393,8 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
             }
             super.actionPerformed(e);
         }
-
     }
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -37452332974426228L;
 
     BorderElement tlCorner, trCorner, blCorner, brCorner;
@@ -426,31 +403,23 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
 
     BackgroundElement background;
 
-    JCheckBox showScrollBars = new JCheckBox(
-            Messages.getString("SkinEditor.ShowScrollBars")); //$NON-NLS-1$
+    JCheckBox showScrollBars = new JCheckBox(Messages.getString("SkinEditor.ShowScrollBars"));
 
     ArrayList<JButton> colorButtons = new ArrayList<>();
 
-    JButton addColor = new JButton(
-            Messages.getString("SkinEditor.AddColor.Text")); //$NON-NLS-1$
+    JButton addColor = new JButton(Messages.getString("SkinEditor.AddColor.Text"));
 
-    JButton removeColor = new JButton(
-            Messages.getString("SkinEditor.RemoveColor.Text")); //$NON-NLS-1$
+    JButton removeColor = new JButton(Messages.getString("SkinEditor.RemoveColor.Text"));
 
-    JLabel colorLbl = new JLabel(Messages.getString("SkinEditor.Color")); //$NON-NLS-1$
+    JLabel colorLbl = new JLabel(Messages.getString("SkinEditor.Color"));
 
     SkinSpecEditor skinEditor;
 
-    /**
-     * 
-     */
     public SkinSpecPanel(SkinSpecEditor skinEditor) {
         super(new GridBagLayout());
         this.skinEditor = skinEditor;
-        addColor.setToolTipText(Messages
-                .getString("SkinEditor.AddColor.ToolTip"));
-        removeColor.setToolTipText(Messages
-                .getString("SkinEditor.RemoveColor.ToolTip"));
+        addColor.setToolTipText(Messages.getString("SkinEditor.AddColor.ToolTip"));
+        removeColor.setToolTipText(Messages.getString("SkinEditor.RemoveColor.ToolTip"));
     }
 
     /**
@@ -465,7 +434,7 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
     }
 
     /**
-     * Remove thsi SkinSpecEditor as a listener from all components.
+     * Remove this SkinSpecEditor as a listener from all components.
      */
     private void removeListeners() {
         for (JButton colorButton : colorButtons) {
@@ -493,7 +462,6 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
      * Update the given SkinSpecification based on the state of the UI elements.
      *
      * @param skinSpec
-     * @return
      */
     public void updateSkinSpec(SkinSpecification skinSpec, boolean enableBorders) {
 
@@ -538,7 +506,7 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
             skinSpec.backgrounds.add(background.path.get(i).getText());
         }
         skinSpec.tileBackground = false;
-        if (background.tiled.size() > 0) {
+        if (!background.tiled.isEmpty()) {
             skinSpec.tileBackground = background.tiled.get(0).isSelected();
         }
 
@@ -556,7 +524,7 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
     /**
      * Update the editing panel with the currently selected SkinSpecification.
      */
-    public void setupSkinEditPanel(SkinSpecification skinSpec) {
+    public void setupSkinEditPanel(SkinSpecification skinSpec) throws Exception {
         removeListeners();
         removeAll();
 
@@ -573,20 +541,20 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
         // borderPanel.setLayout(new BoxLayout(borderPanel, BoxLayout.Y_AXIS));
         borderPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.BLACK),
-                Messages.getString("SkinEditor.Borders"), TitledBorder.TOP, //$NON-NLS-1$
+                Messages.getString("SkinEditor.Borders"), TitledBorder.TOP,
                 TitledBorder.DEFAULT_POSITION));
         borderPanel.setEnabled(enableBorders);
 
         // Top Left Corner
         tlCorner = new BorderElement(this,
-                Messages.getString("SkinEditor.TLC"), //$NON-NLS-1$
+                Messages.getString("SkinEditor.TLC"),
                 skinSpec.tl_corner);
         tlCorner.setEnabled(enableBorders);
         borderPanel.add(tlCorner, gbc);
         gbc.gridx++;
         // Top Right Corner
         trCorner = new BorderElement(this,
-                Messages.getString("SkinEditor.TRC"), //$NON-NLS-1$
+                Messages.getString("SkinEditor.TRC"),
                 skinSpec.tr_corner);
         trCorner.setEnabled(enableBorders);
         borderPanel.add(trCorner, gbc);
@@ -594,14 +562,14 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
         gbc.gridy++;
         // Bottom Left Corner
         blCorner = new BorderElement(this,
-                Messages.getString("SkinEditor.BLC"), //$NON-NLS-1$
+                Messages.getString("SkinEditor.BLC"),
                 skinSpec.bl_corner);
         blCorner.setEnabled(enableBorders);
         borderPanel.add(blCorner, gbc);
         gbc.gridx++;
         // Bottom Right Corner
         brCorner = new BorderElement(this,
-                Messages.getString("SkinEditor.BRC"), //$NON-NLS-1$
+                Messages.getString("SkinEditor.BRC"),
                 skinSpec.br_corner);
         brCorner.setEnabled(enableBorders);
         borderPanel.add(brCorner, gbc);
@@ -609,16 +577,14 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
         gbc.gridx = 0;
 
         // Top Edge
-        topEdge = new BorderElement(this,
-                Messages.getString("SkinEditor.TopEdge"), //$NON-NLS-1$
+        topEdge = new BorderElement(this, Messages.getString("SkinEditor.TopEdge"),
                 skinSpec.topEdge, skinSpec.topShouldTile);
         topEdge.setEnabled(enableBorders);
         borderPanel.add(topEdge, gbc);
         gbc.gridx++;
 
         // Bottom Edge
-        bottomEdge = new BorderElement(this,
-                Messages.getString("SkinEditor.BottomEdge"), //$NON-NLS-1$
+        bottomEdge = new BorderElement(this, Messages.getString("SkinEditor.BottomEdge"),
                 skinSpec.bottomEdge, skinSpec.bottomShouldTile);
         bottomEdge.setEnabled(enableBorders);
         borderPanel.add(bottomEdge, gbc);
@@ -626,16 +592,14 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
         gbc.gridy++;
 
         // Left Edge
-        leftEdge = new BorderElement(this,
-                Messages.getString("SkinEditor.LeftEdge"), //$NON-NLS-1$
+        leftEdge = new BorderElement(this, Messages.getString("SkinEditor.LeftEdge"),
                 skinSpec.leftEdge, skinSpec.leftShouldTile);
         leftEdge.setEnabled(enableBorders);
         borderPanel.add(leftEdge, gbc);
         gbc.gridx++;
 
         // Right Edge
-        rightEdge = new BorderElement(this,
-                Messages.getString("SkinEditor.RightEdge"), //$NON-NLS-1$
+        rightEdge = new BorderElement(this, Messages.getString("SkinEditor.RightEdge"),
                 skinSpec.rightEdge, skinSpec.rightShouldTile);
         rightEdge.setEnabled(enableBorders);
         borderPanel.add(rightEdge, gbc);
@@ -646,8 +610,7 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
         add(borderPanel, gbc);
 
         background = new BackgroundElement(this, skinSpec.backgrounds,
-                Collections.nCopies(skinSpec.backgrounds.size(),
-                        skinSpec.tileBackground));
+                Collections.nCopies(skinSpec.backgrounds.size(), skinSpec.tileBackground));
 
         gbc.gridy++;
 
@@ -678,9 +641,6 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        if (e.getValueIsAdjusting()) {
-            return;
-        }
 
     }
 
@@ -707,7 +667,7 @@ public class SkinSpecPanel extends JPanel implements ListSelectionListener,
             } else if (colorButtons.contains(e.getSource())) {
                 JButton colorButton = (JButton) e.getSource();
                 Color newColor = JColorChooser.showDialog(this,
-                        Messages.getString("SkinEditor.ColorChoice"), //$NON-NLS-1$
+                        Messages.getString("SkinEditor.ColorChoice"),
                         colorButton.getBackground());
                 if (newColor != null) {
                     colorButton.setBackground(newColor);

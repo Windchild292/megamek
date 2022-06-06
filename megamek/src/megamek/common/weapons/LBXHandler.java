@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2004,2005 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2004, 2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,7 +17,7 @@ import java.util.Vector;
 
 import megamek.common.AmmoType;
 import megamek.common.Compute;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Infantry;
 import megamek.common.RangeType;
 import megamek.common.Report;
@@ -25,6 +25,7 @@ import megamek.common.ToHitData;
 import megamek.common.WeaponType;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
+import megamek.server.GameManager;
 import megamek.server.Server;
 
 /**
@@ -38,10 +39,10 @@ public class LBXHandler extends AmmoWeaponHandler {
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
-    public LBXHandler(ToHitData t, WeaponAttackAction w, IGame g, Server s) {
-        super(t, w, g, s);
+    public LBXHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
+        super(t, w, g, m);
         sSalvoType = " pellet(s) ";
     }
 
@@ -140,11 +141,6 @@ public class LBXHandler extends AmmoWeaponHandler {
     @Override
     protected boolean usesClusterTable() {
         return ((AmmoType) ammo.getType()).getMunitionType() == AmmoType.M_CLUSTER;
-    }
-
-    @Override
-    protected boolean canDoDirectBlowDamage() {
-        return false;
     }
 
 }

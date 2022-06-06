@@ -1,49 +1,44 @@
-/**
- * MegaMek - Copyright (C) 2004,2005,2006,2007 Ben Mazur (bmazur@sev.org)
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
- *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
- */
 /*
- * Created on Oct 19, 2004
+ * MegaMek - Copyright (C) 2004, 2005, 2006, 2007 Ben Mazur (bmazur@sev.org)
  *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common.weapons;
 
 import java.util.Vector;
 
 import megamek.common.Entity;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Infantry;
 import megamek.common.Report;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.server.GameManager;
 import megamek.server.Server;
 
 /**
  * @author Andrew Hunter
+ * @since Oct 19, 2004
  */
 public class RACHandler extends UltraWeaponHandler {
-    /**
-     *
-     */
     private static final long serialVersionUID = -4859480151505343638L;
 
     /**
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
-    public RACHandler(ToHitData t, WeaponAttackAction w, IGame g, Server s) {
-        super(t, w, g, s);
+    public RACHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
+        super(t, w, g, m);
     }
 
     /*
@@ -82,14 +77,15 @@ public class RACHandler extends UltraWeaponHandler {
             default:
                 break;
         }
-        if (jams && !(ae instanceof Infantry)) {
+
+        if (jams) {
             Report r = new Report(3160);
             r.subject = subjectId;
             r.add(" shot(s)");
             vPhaseReport.addElement(r);
             weapon.setJammed(true);
-            return false;
         }
+
         return false;
     }
 
@@ -151,11 +147,6 @@ public class RACHandler extends UltraWeaponHandler {
     @Override
     protected boolean usesClusterTable() {
         return true;
-    }
-
-    @Override
-    protected boolean canDoDirectBlowDamage() {
-        return false;
     }
 
     @Override

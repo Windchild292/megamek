@@ -16,22 +16,20 @@
  */
 package megamek.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import megamek.common.options.OptionsConstants;
 
 public class BipedMech extends Mech {
-    /**
-     *
-     */
     private static final long serialVersionUID = 4166375446709772785L;
 
     private static final String[] LOCATION_NAMES =
-            {"Head", "Center Torso", "Right Torso", "Left Torso", "Right Arm", "Left Arm", "Right Leg", "Left Leg"};
+            { "Head", "Center Torso", "Right Torso", "Left Torso", "Right Arm", "Left Arm", "Right Leg", "Left Leg" };
 
-    private static final String[] LOCATION_ABBRS =
-            {"HD", "CT", "RT", "LT", "RA", "LA", "RL", "LL"};
+    private static final String[] LOCATION_ABBRS = { "HD", "CT", "RT", "LT", "RA", "LA", "RL", "LL" };
 
-    private static final int[] NUM_OF_SLOTS =
-            {6, 12, 12, 12, 12, 12, 6, 6};
+    private static final int[] NUM_OF_SLOTS = { 6, 12, 12, 12, 12, 12, 6, 6 };
 
     public BipedMech(String inGyroType, String inCockpitType) {
         this(getGyroTypeForString(inGyroType), getCockpitTypeForString(inCockpitType));
@@ -187,7 +185,7 @@ public class BipedMech extends Mech {
     }
 
     /**
-     * Returns this mech's running/flank mp modified for leg loss & stuff.
+     * Returns this mech's running/flank mp modified for leg loss and stuff.
      */
     @Override
     public int getRunMP(boolean gravity, boolean ignoreheat, boolean ignoremodulararmor) {
@@ -198,9 +196,8 @@ public class BipedMech extends Mech {
     }
 
     /**
-     * Returns run MP without considering MASC modified for leg loss & stuff.
+     * Returns run MP without considering MASC modified for leg loss and stuff.
      */
-
     @Override
     public int getRunMPwithoutMASC(boolean gravity, boolean ignoreheat, boolean ignoremodulararmor) {
         if (countBadLegs() == 0) {
@@ -545,7 +542,7 @@ public class BipedMech extends Mech {
 
     /**
      * Does the mech have an active shield This should only be called by
-     * hasActiveShield(location,rear)
+     * hasActiveShield(location, rear)
      */
     @Override
     public boolean hasActiveShield(int location) {
@@ -615,7 +612,7 @@ public class BipedMech extends Mech {
 
     /**
      * Does the mech have a passive shield This should only be called by
-     * hasPassiveShield(location,rear)
+     * hasPassiveShield(location, rear)
      */
     @Override
     public boolean hasPassiveShield(int location) {
@@ -851,4 +848,36 @@ public class BipedMech extends Mech {
                 && !isProne();
     }
 
+    /**
+     * Based on the mech's current damage status, return valid brace locations.
+     */
+    @Override
+    public List<Integer> getValidBraceLocations() {
+        List<Integer> validLocations = new ArrayList<>();
+        
+        if (!isLocationBad(Mech.LOC_RARM)) {
+            validLocations.add(Mech.LOC_RARM);
+        }
+        
+        if (!isLocationBad(Mech.LOC_LARM)) {
+            validLocations.add(Mech.LOC_LARM);
+        }
+        
+        return validLocations;
+    }
+
+    @Override
+    public boolean canBrace() {
+        return getCrew().isActive()
+                && !isShutDown()
+                // needs to have at least one functional arm
+                && (!isLocationBad(Mech.LOC_RARM)
+                || !isLocationBad(Mech.LOC_LARM))
+                && !isProne();
+    }
+    
+    @Override
+    public int getBraceMPCost() {
+        return 1;
+    }
 }

@@ -29,7 +29,7 @@ public class PMValueLabel extends PMSimpleLabel {
      * Create the label.
      */
     PMValueLabel(FontMetrics fm, Color c) {
-        super("", fm, c); //$NON-NLS-1$
+        super("", fm, c);
     }
 
     /*
@@ -50,8 +50,9 @@ public class PMValueLabel extends PMSimpleLabel {
      */
     @Override
     public void drawInto(Graphics g) {
-        if (!visible)
+        if (!visible) {
             return;
+        }
         Color temp = g.getColor();
         g.setColor(color);
         g.drawString(string, x - width / 2, y - fm.getMaxDescent());

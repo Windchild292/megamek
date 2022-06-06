@@ -1,6 +1,6 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005,2006,2007,2008 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2008 Ben Mazur (bmazur@sev.org)
  * Copyright © 2013 Nicholas Walczak (walczak@cs.umn.edu)
  *
  *  This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@ import javax.swing.SwingConstants;
 
 import megamek.common.Configuration;
 import megamek.common.util.fileUtils.MegaMekFile;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * A subclass of JButton that supports specifying the look and feel of the
@@ -210,9 +211,8 @@ public class MegamekButton extends JButton implements MouseListener {
         // Otherwise, try to load in all of the images.
         try {
             if (spec.backgrounds.size() < 2) {
-                System.out.println("Error: skin specification for a "
-                        + "Megamek Button does not contain at least "
-                        + "2 background images!");
+                LogManager.getLogger().error(
+                        "Skin specification for a MegamekButton does not contain at least 2 background images!");
                 iconsLoaded = false;
             }
             java.net.URI imgURL = new MegaMekFile(Configuration.widgetsDir(),
@@ -221,14 +221,13 @@ public class MegamekButton extends JButton implements MouseListener {
             imgURL = new MegaMekFile(Configuration.widgetsDir(),
                     spec.backgrounds.get(1)).getFile().toURI();
             backgroundPressedIcon = new ImageIcon(imgURL.toURL());
-        } catch (Exception e) {
-            System.out.println("Error: loading background icons for "
-                    + "a Megamekbutton!");
-            System.out.println("Error: " + e.getMessage());
+        } catch (Exception ex) {
+            LogManager.getLogger().error("Loading background icons for a MegamekButton!", ex);
             iconsLoaded = false;
         }
     }
 
+    @Override
     protected void processMouseEvent(MouseEvent e) {
         if (e.getID() == MouseEvent.MOUSE_EXITED) {
             isMousedOver = false;
@@ -243,6 +242,7 @@ public class MegamekButton extends JButton implements MouseListener {
         super.processMouseEvent(e);
     }
 
+    @Override
     protected void paintComponent(Graphics g) {
         // Call super, so this components plays well with Swing
         super.paintComponent(g);
@@ -318,6 +318,7 @@ public class MegamekButton extends JButton implements MouseListener {
         textLabel.paint(g);
     }
 
+    @Override
     public String toString() {
         return getActionCommand();
     }

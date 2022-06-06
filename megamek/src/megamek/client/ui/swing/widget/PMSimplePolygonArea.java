@@ -59,12 +59,17 @@ public class PMSimplePolygonArea implements PMHotArea {
             Color hiBrdColor, boolean highlight, UnitDisplay unitDisplay,
             int loc) {
         this.areaShape = p;
-        if (backColor != null)
+        if (backColor != null) {
             this.backColor = backColor;
-        if (brdColor != null)
+        }
+
+        if (brdColor != null) {
             this.normalBorderColor = brdColor;
-        if (hiBrdColor != null)
+        }
+
+        if (hiBrdColor != null) {
             this.highlightBorderColor = hiBrdColor;
+        }
         this.highlight = highlight;
         this.unitDisplay = unitDisplay;
         this.loc = loc;
@@ -81,17 +86,21 @@ public class PMSimplePolygonArea implements PMHotArea {
     }
 
     // PMElement interface methods
+    @Override
     public void translate(int x, int y) {
         areaShape.translate(x, y);
     }
 
+    @Override
     public Rectangle getBounds() {
         return areaShape.getBounds();
     }
 
+    @Override
     public void drawInto(Graphics g) {
-        if ((g == null) || (!visible))
+        if ((g == null) || (!visible)) {
             return;
+        }
         Color oldColor = g.getColor();
         g.setColor(this.backColor);
         g.fillPolygon(areaShape);
@@ -104,6 +113,7 @@ public class PMSimplePolygonArea implements PMHotArea {
         g.setColor(oldColor);
     }
 
+    @Override
     public void setVisible(boolean v) {
         visible = v;
     }
@@ -117,37 +127,49 @@ public class PMSimplePolygonArea implements PMHotArea {
     }
 
     // PMHotArea interface methods
+    @Override
     public Shape getAreaShape() {
         return this.areaShape;
     }
 
+    @Override
     public Cursor getCursor() {
         return cursor;
     }
 
+    @Override
     public void setCursor(Cursor c) {
         cursor = c;
     }
 
+    @Override
     public void onMouseClick(MouseEvent e) {
         if (e.getClickCount() == 2) {
             unitDisplay.showSpecificSystem(loc);
         }
     }
 
+    @Override
     public void onMouseOver(MouseEvent e) {
-        if (highlight)
+        if (highlight) {
             selected = true;
+        }
     }
 
+    @Override
     public void onMouseExit(MouseEvent e) {
-        if (highlight)
+        if (highlight) {
             selected = false;
+        }
     }
 
+    @Override
     public void onMouseDown(MouseEvent e) {
+
     }
 
+    @Override
     public void onMouseUp(MouseEvent e) {
+
     }
 }

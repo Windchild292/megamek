@@ -1,24 +1,23 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/* Written by Ryan McConnell (oscarmm)
- * Created: May 22, 2005
- */
-
 package megamek.common.util;
 
+/**
+ * @author Ryan McConnell (oscarmm)
+ * @since May 22, 2005
+ */
 public class CircularIntegerBuffer {
 
     private int begin;
@@ -61,11 +60,14 @@ public class CircularIntegerBuffer {
         end++;
         if (end > begin) {
             begin++;
-            if (begin == buffer.length)
+            if (begin == buffer.length) {
                 begin = 0;
+            }
         }
-        if (end == buffer.length)
+
+        if (end == buffer.length) {
             end = 0;
+        }
         buffer[end] = value;
     }
 
@@ -74,8 +76,9 @@ public class CircularIntegerBuffer {
         StringBuffer result = new StringBuffer();
 
         int indexBegin = begin + 1;
-        if (indexBegin == buffer.length)
+        if (indexBegin == buffer.length) {
             indexBegin = 0;
+        }
 
         if (indexBegin <= end) {
             for (int i = indexBegin; i <= end; i++) {

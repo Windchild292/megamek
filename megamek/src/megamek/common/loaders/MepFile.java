@@ -77,7 +77,7 @@ public class MepFile implements IMechLoader {
 
     String[] critData;
 
-    Hashtable<EquipmentType, Mounted> hSharedEquip = new Hashtable<EquipmentType, Mounted>();
+    Hashtable<EquipmentType, Mounted> hSharedEquip = new Hashtable<>();
 
     public MepFile(InputStream is) throws EntityLoadingException {
         try {
@@ -157,6 +157,7 @@ public class MepFile implements IMechLoader {
         }
     }
 
+    @Override
     public Entity getEntity() throws EntityLoadingException {
         try {
             Mech mech;
@@ -176,11 +177,11 @@ public class MepFile implements IMechLoader {
                 mech.setModel(name.substring(5).trim());
             }
 
-            mech.setWeight(Integer.decode(tonnage.trim()).intValue());
+            mech.setWeight(Integer.decode(tonnage.trim()));
             mech.setYear(Integer.parseInt(techYear.trim()));
             mech.setOmni("OmniMech".equals(chassisType.trim()));
 
-            // TODO: this ought to be a better test
+            // TODO : this ought to be a better test
             if ("InnerSphere".equals(innerSphere.trim())) {
                 if (mech.getYear() == 3025) {
                     mech.setTechLevel(TechConstants.T_INTRO_BOXSET);
@@ -313,10 +314,6 @@ public class MepFile implements IMechLoader {
                         mech.addFailedEquipment(critName);
                     }
                 }
-            }
-
-            if (mech.isClan()) {
-                mech.addClanCase();
             }
 
             mech.setArmorTonnage(mech.getArmorWeight());

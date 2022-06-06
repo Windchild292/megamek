@@ -1,5 +1,6 @@
 /*
- * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2003-2004 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2022 - The MegaMek Team. All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -11,38 +12,29 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
 package megamek.common;
 
 /**
- * Represents a volume of space set aside for carrying vehicles <= 200 tons
- * aboard large spacecraft and mobile structures
+ * Represents a volume of space set aside for carrying vehicles &lt;= 200 tons aboard large
+ * spacecraft and mobile structures
  */
-
 public final class SuperHeavyVehicleBay extends Bay {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 3490408642054662664L;
 
     /**
      * The default constructor is only for serialization.
      */
-    protected SuperHeavyVehicleBay() {
+    private SuperHeavyVehicleBay() {
         totalSpace = 0;
         currentSpace = 0;
     }
-
-    // Public constructors and methods.
 
     /**
      * Create a space for the given tonnage of troops. For this class, only the
      * weight of the troops (and their equipment) are considered; if you'd like
      * to think that they are stacked like lumber, be my guest.
      *
-     * @param space
-     *            - The weight of troops (in tons) this space can carry.
+     * @param space The weight of troops (in tons) this space can carry.
      * @param bayNumber
      */
     public SuperHeavyVehicleBay(double space, int doors, int bayNumber) {
@@ -58,10 +50,8 @@ public final class SuperHeavyVehicleBay extends Bay {
      * Determines if this object can accept the given unit. The unit may not be
      * of the appropriate type or there may be no room for the unit.
      *
-     * @param unit
-     *            - the <code>Entity</code> to be loaded.
-     * @return <code>true</code> if the unit can be loaded, <code>false</code>
-     *         otherwise.
+     * @param unit the <code>Entity</code> to be loaded.
+     * @return <code>true</code> if the unit can be loaded, <code>false</code> otherwise.
      */
     @Override
     public boolean canLoad(Entity unit) {
@@ -84,13 +74,13 @@ public final class SuperHeavyVehicleBay extends Bay {
         if (currentdoors < loadedThisTurn) {
             result = false;
         }
-        
+
         // Return our result.
         return result;
     }
 
     @Override
-    public String getUnusedString(boolean showrecovery) {
+    public String getUnusedString(boolean showRecovery) {
         return "Superheavy Vehicle Bay " + numDoorsString() + " - "
                 + String.format("%1$,.0f", getUnused())
                 + (getUnused() > 1 ? " units" : " unit");
@@ -108,7 +98,7 @@ public final class SuperHeavyVehicleBay extends Bay {
 
     @Override
     public int getPersonnel(boolean clan) {
-        return (int)totalSpace * 15;
+        return (int) totalSpace * 15;
     }
 
     @Override
@@ -117,7 +107,8 @@ public final class SuperHeavyVehicleBay extends Bay {
     }
 
     public static TechAdvancement techAdvancement() {
-        return new TechAdvancement(TECH_BASE_ALL).setAdvancement(DATE_PS, DATE_PS, DATE_PS)
+        return new TechAdvancement(TECH_BASE_ALL)
+                .setAdvancement(DATE_PS, DATE_PS, DATE_PS)
                 .setTechRating(RATING_A)
                 .setAvailability(RATING_C, RATING_C, RATING_C, RATING_C)
                 .setStaticTechLevel(SimpleTechLevel.STANDARD);
@@ -133,5 +124,4 @@ public final class SuperHeavyVehicleBay extends Bay {
         // Based on the number of cubicles
         return 20000L * (long) totalSpace;
     }
-
-} // End package class TroopSpace implements Transporter
+}

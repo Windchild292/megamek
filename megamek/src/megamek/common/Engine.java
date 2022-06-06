@@ -1,33 +1,26 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/*
- * Author: Reinhard Vicinus
- */
-
 package megamek.common;
 
 import java.io.Serializable;
 
 /**
- * This class represents an engine, such as those driving mechs.
+ * This class represents an engine, such as those driving 'Meks.
+ * @author Reinhard Vicinus
  */
 public class Engine implements Serializable, ITechnology {
-    /**
-     *
-     */
     private static final long serialVersionUID = -246032529363109609L;
 
     public static final double[] ENGINE_RATINGS = { 0.0, 0.25, 0.5, 0.5,
@@ -76,53 +69,18 @@ public class Engine implements Serializable, ITechnology {
             "ICE", "Fusion", "XL", "XXL", "FuelCell", "Light", "Compact", "Fission", "None",
             "MagLev", "Steam", "Battery", "Solar", "External"
     };
-    
-    //These are the SUPPORT VEHICLE ENGINE WEIGHT MULTIPLIERS from TM PG 127
-    //The other engine types are assumed to have a value of ) in the array
-    //if not listed.
+
+    // These are the SUPPORT VEHICLE ENGINE WEIGHT MULTIPLIERS from TM PG 127 (MagLev from TO:AU&E pg 62)
+    // The other engine types are assumed to have a value of 0 in the array
+    // if not listed.
     private static final double[][] SV_ENGINE_RATINGS = new double[NUM_ENGINE_TYPES][6];
-    static { 
-        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_A] = 4.0;
-        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_B] = 3.5;
-        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_C] = 3.0;
-        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_D] = 2.8;
-        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_E] = 2.6;
-        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_F] = 2.5;
-        
+    static {
         SV_ENGINE_RATINGS[COMBUSTION_ENGINE][EquipmentType.RATING_A] = 0.0;
         SV_ENGINE_RATINGS[COMBUSTION_ENGINE][EquipmentType.RATING_B] = 3.0;
         SV_ENGINE_RATINGS[COMBUSTION_ENGINE][EquipmentType.RATING_C] = 2.0;
         SV_ENGINE_RATINGS[COMBUSTION_ENGINE][EquipmentType.RATING_D] = 1.5;
         SV_ENGINE_RATINGS[COMBUSTION_ENGINE][EquipmentType.RATING_E] = 1.3;
         SV_ENGINE_RATINGS[COMBUSTION_ENGINE][EquipmentType.RATING_F] = 1.0;
-        
-        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_A] = 0.0;
-        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_B] = 0.0;
-        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_C] = 1.5;
-        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_D] = 1.2;
-        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_E] = 1.0;
-        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_F] = 0.8;
-        
-        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_A] = 0.0;
-        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_B] = 0.0;
-        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_C] = 1.2;
-        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_D] = 1.0;
-        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_E] = 0.9;
-        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_F] = 0.7;
-        
-        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_A] = 0.0;
-        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_B] = 0.0;
-        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_C] = 5.0;
-        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_D] = 4.5;
-        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_E] = 4.0;
-        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_F] = 3.5;
-        
-        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_A] = 0.0;
-        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_B] = 0.0;
-        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_C] = 1.75;
-        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_D] = 1.5;
-        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_E] = 1.4;
-        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_F] = 1.3;
 
         SV_ENGINE_RATINGS[NORMAL_ENGINE][EquipmentType.RATING_A] = 0.0;
         SV_ENGINE_RATINGS[NORMAL_ENGINE][EquipmentType.RATING_B] = 0.0;
@@ -130,6 +88,20 @@ public class Engine implements Serializable, ITechnology {
         SV_ENGINE_RATINGS[NORMAL_ENGINE][EquipmentType.RATING_D] = 1.0;
         SV_ENGINE_RATINGS[NORMAL_ENGINE][EquipmentType.RATING_E] = 0.75;
         SV_ENGINE_RATINGS[NORMAL_ENGINE][EquipmentType.RATING_F] = 0.5;
+        
+        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_A] = 0.0;
+        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_B] = 0.0;
+        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_C] = 1.2;
+        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_D] = 1.0;
+        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_E] = 0.9;
+        SV_ENGINE_RATINGS[FUEL_CELL][EquipmentType.RATING_F] = 0.7;
+
+        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_A] = 0.0;
+        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_B] = 0.0;
+        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_C] = 1.75;
+        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_D] = 1.5;
+        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_E] = 1.4;
+        SV_ENGINE_RATINGS[FISSION][EquipmentType.RATING_F] = 1.3;
 
         SV_ENGINE_RATINGS[NONE][EquipmentType.RATING_A] = 0.0;
         SV_ENGINE_RATINGS[NONE][EquipmentType.RATING_B] = 0.0;
@@ -137,6 +109,34 @@ public class Engine implements Serializable, ITechnology {
         SV_ENGINE_RATINGS[NONE][EquipmentType.RATING_D] = 0.0;
         SV_ENGINE_RATINGS[NONE][EquipmentType.RATING_E] = 0.0;
         SV_ENGINE_RATINGS[NONE][EquipmentType.RATING_F] = 0.0;
+
+        SV_ENGINE_RATINGS[MAGLEV][EquipmentType.RATING_A] = 0.0;
+        SV_ENGINE_RATINGS[MAGLEV][EquipmentType.RATING_B] = 0.0;
+        SV_ENGINE_RATINGS[MAGLEV][EquipmentType.RATING_C] = 0.8;
+        SV_ENGINE_RATINGS[MAGLEV][EquipmentType.RATING_D] = 0.7;
+        SV_ENGINE_RATINGS[MAGLEV][EquipmentType.RATING_E] = 0.6;
+        SV_ENGINE_RATINGS[MAGLEV][EquipmentType.RATING_F] = 0.5;
+
+        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_A] = 4.0;
+        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_B] = 3.5;
+        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_C] = 3.0;
+        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_D] = 2.8;
+        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_E] = 2.6;
+        SV_ENGINE_RATINGS[STEAM][EquipmentType.RATING_F] = 2.5;
+
+        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_A] = 0.0;
+        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_B] = 0.0;
+        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_C] = 1.5;
+        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_D] = 1.2;
+        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_E] = 1.0;
+        SV_ENGINE_RATINGS[BATTERY][EquipmentType.RATING_F] = 0.8;
+        
+        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_A] = 0.0;
+        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_B] = 0.0;
+        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_C] = 5.0;
+        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_D] = 4.5;
+        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_E] = 4.0;
+        SV_ENGINE_RATINGS[SOLAR][EquipmentType.RATING_F] = 3.5;
 
         SV_ENGINE_RATINGS[EXTERNAL][EquipmentType.RATING_A] = 0.0;
         SV_ENGINE_RATINGS[EXTERNAL][EquipmentType.RATING_B] = 1.4;
@@ -329,13 +329,11 @@ public class Engine implements Serializable, ITechnology {
         if ((entity.isSupportVehicle() || hasFlag(SUPPORT_VEE_ENGINE))
                 && isValidEngine()) {
             int mp = entity.getOriginalWalkMP();
-            if (entity.getMovementMode().equals(EntityMovementMode.RAIL)
-                    || entity.getMovementMode().equals(EntityMovementMode.MAGLEV)) {
+            if (entity.getMovementMode().isTrain()) {
                 mp = Math.max(0, mp - 2);
             }
             double movementFactor = 4 + mp * mp;
-            double engineWeightMult = SV_ENGINE_RATINGS[engineType][entity
-                    .getEngineTechRating()];
+            double engineWeightMult = SV_ENGINE_RATINGS[engineType][entity.getEngineTechRating()];
             double weight = entity.getBaseEngineValue() * movementFactor
                     * engineWeightMult * entity.getWeight();
             // Fusion engines have a minimum weight of 0.25t at D+ and 0.5t at C. Fission engines have
@@ -345,16 +343,18 @@ public class Engine implements Serializable, ITechnology {
             } else if ((engineType == NORMAL_ENGINE) || (engineType == FISSION)) {
                 weight = Math.max(weight, 0.5);
             }
+
             // Hovercraft have a minimum engine weight of 20% of the vehicle.
-            if (entity.getMovementMode().equals(EntityMovementMode.HOVER)) {
+            if (entity.getMovementMode().isHover()) {
                 weight = Math.max(weight, entity.getWeight() * 0.2);
             }
+
             return roundWeight.round(weight, entity);
-        }
-        // Protomech engines with rating < 40 use a special calculation
-        if (entity.hasETypeFlag(Entity.ETYPE_PROTOMECH) && (engineRating < 40)) {
+        } else if (entity.hasETypeFlag(Entity.ETYPE_PROTOMECH) && (engineRating < 40)) {
+            // ProtoMek engines with rating < 40 use a special calculation
             return roundWeight.round(engineRating * 0.025, entity);
         }
+
         double weight = ENGINE_RATINGS[(int) Math.ceil(engineRating / 5.0)];
         switch (engineType) {
             case COMBUSTION_ENGINE:
@@ -393,7 +393,7 @@ public class Engine implements Serializable, ITechnology {
         
         double toReturn = roundWeight.round(weight, entity);
         // hover have a minimum weight of 20%
-        if ((entity.getMovementMode() == EntityMovementMode.HOVER) && (entity instanceof Tank)) {
+        if (entity.getMovementMode().isHover() && (entity instanceof Tank)) {
             toReturn = Math.max(roundWeight.round(entity.getWeight() / 5.0, entity), toReturn);
         }
         return toReturn;
@@ -750,7 +750,8 @@ public class Engine implements Serializable, ITechnology {
             .setStaticTechLevel(SimpleTechLevel.INTRO);
     
     private static final TechAdvancement LARGE_ICE_TA = new TechAdvancement(TECH_BASE_ALL)
-            .setAdvancement(2630, 3085).setApproximate(false, true)
+            .setAdvancement(DATE_NONE, 2630, 3120, DATE_NONE,DATE_NONE)
+            .setApproximate(false, false, true, false, false)
             .setPrototypeFactions(F_TH)
             .setProductionFactions(F_LC).setTechRating(RATING_C)
             .setAvailability(RATING_A, RATING_A, RATING_A, RATING_A)
@@ -767,9 +768,10 @@ public class Engine implements Serializable, ITechnology {
             .setPrototypeFactions(F_LC).setProductionFactions(F_LC)
             .setTechRating(RATING_D).setAvailability(RATING_X, RATING_X, RATING_E, RATING_E)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
-    
+    //Greekfire requested Errata March 2022 for RS Jihad book. 
     private static final TechAdvancement COMPACT_FUSION_TA = new TechAdvancement(TECH_BASE_IS)
-            .setISAdvancement(3060, 3068, 3072).setISApproximate(true)
+            .setISAdvancement(3060, 3066, 3072, DATE_NONE, DATE_NONE)
+            .setISApproximate(true, false, true,false,false)
             .setPrototypeFactions(F_LC).setProductionFactions(F_LC)
             .setTechRating(RATING_E)
             .setAvailability(RATING_X, RATING_X, RATING_E, RATING_D)
@@ -800,25 +802,31 @@ public class Engine implements Serializable, ITechnology {
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement IS_XXL_TA = new TechAdvancement(TECH_BASE_IS)
-            .setISAdvancement(3055, 3110).setISApproximate(true, true)
+            .setISAdvancement(3055, 3125, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setISApproximate(false, true, false, false, false)
             .setPrototypeFactions(F_FS, F_LC).setProductionFactions(F_LC)
             .setTechRating(RATING_F).setAvailability(RATING_X, RATING_X, RATING_F, RATING_E)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement CLAN_XXL_TA = new TechAdvancement(TECH_BASE_CLAN)
-            .setClanAdvancement(2954, 3084).setApproximate(true, true)
+            .setClanAdvancement(3030, 3125, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setClanApproximate(false, true)
             .setPrototypeFactions(F_CSF).setProductionFactions(F_CSF)
             .setTechRating(RATING_F).setAvailability(RATING_X, RATING_X, RATING_F, RATING_E)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement LARGE_IS_XXL_TA = new TechAdvancement(TECH_BASE_IS)
-            .setISAdvancement(3058, 3130).setTechRating(RATING_F)
+            .setISAdvancement(2630, 3130, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setISApproximate(false, true, false, false, false)
+            .setTechRating(RATING_F)
             .setPrototypeFactions(F_FS).setProductionFactions(F_LC)
             .setAvailability(RATING_X, RATING_X, RATING_F, RATING_F)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
     
     private static final TechAdvancement LARGE_CLAN_XXL_TA = new TechAdvancement(TECH_BASE_CLAN)
-            .setClanAdvancement(3055, 3125).setTechRating(RATING_F)
+            .setClanAdvancement(2630, 3130, DATE_NONE, DATE_NONE, DATE_NONE)
+            .setClanApproximate(false, true, false, false, false)
+            .setTechRating(RATING_F)
             .setPrototypeFactions(F_CSF).setProductionFactions(F_CSF)
             .setAvailability(RATING_X, RATING_X, RATING_F, RATING_F)
             .setStaticTechLevel(SimpleTechLevel.EXPERIMENTAL);
@@ -887,96 +895,95 @@ public class Engine implements Serializable, ITechnology {
             .setTechRating(RATING_B).setAvailability(RATING_C, RATING_D, RATING_C, RATING_C);
 
     public TechAdvancement getTechAdvancement() {
-        switch(engineType) {
-        case COMBUSTION_ENGINE:
-            if (hasFlag(SUPPORT_VEE_ENGINE)) {
-                return SUPPORT_ICE_TA;              
-            } else {
-                if (hasFlag(LARGE_ENGINE)) {
-                    return LARGE_ICE_TA;
+        switch (engineType) {
+            case COMBUSTION_ENGINE:
+                if (hasFlag(SUPPORT_VEE_ENGINE)) {
+                    return SUPPORT_ICE_TA;              
                 } else {
-                    return STANDARD_ICE_TA;
+                    if (hasFlag(LARGE_ENGINE)) {
+                        return LARGE_ICE_TA;
+                    } else {
+                        return STANDARD_ICE_TA;
+                    }
                 }
-            }
-        case NORMAL_ENGINE:
-            if (hasFlag(SUPPORT_VEE_ENGINE)) {
-                return SUPPORT_FUSION_TA;
-            } else {
-                if (hasFlag(LARGE_ENGINE)) {
-                    return LARGE_FUSION_TA;
+            case NORMAL_ENGINE:
+                if (hasFlag(SUPPORT_VEE_ENGINE)) {
+                    return SUPPORT_FUSION_TA;
                 } else {
-                    return STANDARD_FUSION_TA;
+                    if (hasFlag(LARGE_ENGINE)) {
+                        return LARGE_FUSION_TA;
+                    } else {
+                        return STANDARD_FUSION_TA;
+                    }
                 }
-            }
-        case XL_ENGINE:
-            if (hasFlag(CLAN_ENGINE)) {
-                if (hasFlag(LARGE_ENGINE)) {
-                    return LARGE_CLAN_XL_TA;
+            case XL_ENGINE:
+                if (hasFlag(CLAN_ENGINE)) {
+                    if (hasFlag(LARGE_ENGINE)) {
+                        return LARGE_CLAN_XL_TA;
+                    } else {
+                        return CLAN_XL_TA;
+                    }
                 } else {
-                    return CLAN_XL_TA;
+                    if (hasFlag(LARGE_ENGINE)) {
+                        return LARGE_IS_XL_TA;
+                    } else {
+                        return IS_XL_TA;
+                    }
                 }
-            } else {
-                if (hasFlag(LARGE_ENGINE)) {
-                    return LARGE_IS_XL_TA;
+            case XXL_ENGINE:
+                if (hasFlag(CLAN_ENGINE)) {
+                    if (hasFlag(LARGE_ENGINE)) {
+                        return LARGE_CLAN_XXL_TA;
+                    } else {
+                        return CLAN_XXL_TA;
+                    }
                 } else {
-                    return IS_XL_TA;
+                    if (hasFlag(LARGE_ENGINE)) {
+                        return LARGE_IS_XXL_TA;
+                    } else {
+                        return IS_XXL_TA;
+                    }
                 }
-            }
-        case XXL_ENGINE:
-            if (hasFlag(CLAN_ENGINE)) {
-                if (hasFlag(LARGE_ENGINE)) {
-                    return LARGE_CLAN_XXL_TA;
+            case FUEL_CELL:
+                if (hasFlag(SUPPORT_VEE_ENGINE)) {
+                    return SUPPORT_FUEL_CELL_TA;
                 } else {
-                    return CLAN_XXL_TA;
+                    return FUEL_CELL_TA;
                 }
-            } else {
+            case LIGHT_ENGINE:
                 if (hasFlag(LARGE_ENGINE)) {
-                    return LARGE_IS_XXL_TA;
+                    return LARGE_LIGHT_FUSION_TA;
                 } else {
-                    return IS_XXL_TA;
+                    return LIGHT_FUSION_TA;
                 }
-            }
-        case FUEL_CELL:
-            if (hasFlag(SUPPORT_VEE_ENGINE)) {
-                return SUPPORT_FUEL_CELL_TA;
-            } else {
-                return FUEL_CELL_TA;
-            }
-        case LIGHT_ENGINE:
-            if (hasFlag(LARGE_ENGINE)) {
-                return LARGE_LIGHT_FUSION_TA;
-            } else {
-                return LIGHT_FUSION_TA;
-            }
-        case COMPACT_ENGINE:
-            return COMPACT_FUSION_TA;
-        case FISSION:
-            if (hasFlag(SUPPORT_VEE_ENGINE)) {
-                return SUPPORT_FISSION_TA;
-            } else {                
-                return FISSION_TA;
-            }
-        case MAGLEV:
-            return SUPPORT_MAGLEV_TA;
-        case STEAM:
-            return SUPPORT_STEAM_TA;
-        case BATTERY:
-            return SUPPORT_BATTERY_TA;
-        case SOLAR:
-            return SUPPORT_SOLAR_TA;
-        case NONE:
-            return SUPPORT_NONE_TA;
-        case EXTERNAL:
-            return SUPPORT_EXTERNAL_TA;
-        default:
-            return new TechAdvancement();
+            case COMPACT_ENGINE:
+                return COMPACT_FUSION_TA;
+            case FISSION:
+                if (hasFlag(SUPPORT_VEE_ENGINE)) {
+                    return SUPPORT_FISSION_TA;
+                } else {                
+                    return FISSION_TA;
+                }
+            case MAGLEV:
+                return SUPPORT_MAGLEV_TA;
+            case STEAM:
+                return SUPPORT_STEAM_TA;
+            case BATTERY:
+                return SUPPORT_BATTERY_TA;
+            case SOLAR:
+                return SUPPORT_SOLAR_TA;
+            case NONE:
+                return SUPPORT_NONE_TA;
+            case EXTERNAL:
+                return SUPPORT_EXTERNAL_TA;
+            default:
+                return new TechAdvancement();
         }
     }
+
     /**
-     * Return the tech type (tech level + tech base) for the current engine.
-     *
      * @param year The game year
-     * @return     The tech constant
+     * @return the tech type (tech level + tech base) for the current engine.
      */
     public int getTechType(int year) {
         boolean isLarge = hasFlag(LARGE_ENGINE);
@@ -994,14 +1001,11 @@ public class Engine implements Serializable, ITechnology {
                     } else {
                         return TechConstants.T_CLAN_TW;
                     }
-                }
-                if (isClan) {
+                } else if (isClan) {
                     return TechConstants.T_CLAN_TW;
-                }
-                if (isSV) {
+                } else if (isSV) {
                     return TechConstants.T_ALLOWED_ALL;
-                }
-                if (year <= 2285) {
+                } else if (year <= 2285) {
                     return TechConstants.T_IS_UNOFFICIAL;
                 } else {
                     return TechConstants.T_INTRO_BOXSET;
@@ -1015,8 +1019,7 @@ public class Engine implements Serializable, ITechnology {
                     } else {
                         return TechConstants.T_CLAN_ADVANCED;
                     }
-                }
-                if (isClan) {
+                } else if (isClan) {
                     if (year <= 2819) {
                         return TechConstants.T_CLAN_UNOFFICIAL;
                     } else if (year <= 2827) {
@@ -1026,31 +1029,30 @@ public class Engine implements Serializable, ITechnology {
                     } else {
                         return TechConstants.T_CLAN_TW;
                     }
-                }
-                if (isLarge) {
+                } else if (isLarge) {
                     if (year <= 2630) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                        } else if (year <= 2822) {
+                    } else if (year <= 2822) {
                         return TechConstants.T_IS_ADVANCED;
-                        } else if (year <= 3053) {
+                    } else if (year <= 3053) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                        } else if (year <= 3080) {
+                    } else if (year <= 3080) {
                         return TechConstants.T_IS_EXPERIMENTAL;
-                        } else {
+                    } else {
                         return TechConstants.T_IS_ADVANCED;
-                        }
+                    }
                 } else {
                     if (year <= 2556) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                        } else if (year <= 2579) {
+                    } else if (year <= 2579) {
                         return TechConstants.T_IS_EXPERIMENTAL;
-                           } else if (year <= 2865) {
+                    } else if (year <= 2865) {
                         return TechConstants.T_IS_ADVANCED;
-                           } else if (year <= 3035) {
+                    } else if (year <= 3035) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                        } else if (year <=3045){
+                    } else if (year <= 3045) {
                         return TechConstants.T_IS_TW_NON_BOX;
-                        }
+                    }
                 }
             case XXL_ENGINE:
                 if ((isClan) && (isLarge)) {
@@ -1061,33 +1063,25 @@ public class Engine implements Serializable, ITechnology {
                     } else {
                         return TechConstants.T_CLAN_ADVANCED;
                     }
-                }
-                if (isClan) {
-                    if (year <= 2949) {
+                } else if (isClan) {
+                    if (year <= 3030) {
                         return TechConstants.T_CLAN_UNOFFICIAL;
-                    } else if (year <= 3079) {
-                        return TechConstants.T_CLAN_EXPERIMENTAL;
-                    } else {
+                    } else if (year <= 3120) {
                         return TechConstants.T_CLAN_ADVANCED;
-                    }
-                }
-                if (isLarge) {
-                    if (year <= 3058) {
+                    } 
+                } else if (isLarge) {
+                    if (year <= 3055) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                    } else if (year <= 3130) {
-                        return TechConstants.T_IS_EXPERIMENTAL;
-                    } else {
+                    } else if (year <= 3120) {
                         return TechConstants.T_IS_ADVANCED;
-                    }
+                    } 
                 }
             case FISSION:
                 if (isClan) {
                     return TechConstants.T_CLAN_UNOFFICIAL;
-                }
-                if (isSV) {
+                } else if (isSV) {
                     return TechConstants.T_ALLOWED_ALL;
-                }
-                if (isLarge) {
+                } else if (isLarge) {
                     return TechConstants.T_IS_UNOFFICIAL;
                 } else {
                     if (year <= 2470) {
@@ -1101,13 +1095,8 @@ public class Engine implements Serializable, ITechnology {
             case FUEL_CELL:
                 if (isSV) {
                     return TechConstants.T_ALLOWED_ALL;
-                }
-                if (isClan) {
-                    if (year <= 3078) {
-                        return TechConstants.T_CLAN_ADVANCED;
-                    } else {
-                        return TechConstants.T_CLAN_TW;
-                    }
+                } else if (isClan) {
+                    return (year > 3078) ? TechConstants.T_CLAN_TW : TechConstants.T_CLAN_ADVANCED;
                 } else {
                     if (year <= 2285) {
                         return TechConstants.T_IS_UNOFFICIAL;
@@ -1119,12 +1108,10 @@ public class Engine implements Serializable, ITechnology {
                         return TechConstants.T_IS_TW_NON_BOX;
                     }
                 }
-
             case LIGHT_ENGINE:
                 if (isClan) {
                     return TechConstants.T_CLAN_UNOFFICIAL;
-                }
-                if (isLarge) {
+                } else if (isLarge) {
                     if (year < 3064) {
                         return TechConstants.T_IS_UNOFFICIAL;
                     } else if (year < 3065) {
@@ -1133,30 +1120,23 @@ public class Engine implements Serializable, ITechnology {
                         return TechConstants.T_IS_ADVANCED;
                     }
                 } else {
-                    if (year < 3055) {
+                    // Dec 2021 - CGL requested errata to move dates back 5 years for all Tech levels.
+                    if (year < 3050) {
                         return TechConstants.T_IS_UNOFFICIAL;
-                    } else if (year < 3062) {
+                    } else if (year < 3057) {
                         return TechConstants.T_IS_EXPERIMENTAL;
-                    } else if (year < 3067) {
+                    } else if (year < 3061) {
                         return TechConstants.T_IS_ADVANCED;
                     } else {
                         return TechConstants.T_IS_TW_NON_BOX;
                     }
                 }
-
             case COMBUSTION_ENGINE:
                 if (isSV) {
                     return TechConstants.T_ALLOWED_ALL;
-                }
-                if (isClan) {
-                    if (year <= 2807) {
-                        return TechConstants.T_CLAN_UNOFFICIAL;
-                    } else {
-                        return TechConstants.T_CLAN_TW;
-                    }
-
-                }
-                if (isLarge) {
+                } else if (isClan) {
+                    return (year > 2807) ? TechConstants.T_CLAN_TW : TechConstants.T_CLAN_UNOFFICIAL;
+                } else if (isLarge) {
                     if (year <= 2630) {
                         return TechConstants.T_IS_UNOFFICIAL;
                     } else if (year <= 3080) {
@@ -1188,10 +1168,10 @@ public class Engine implements Serializable, ITechnology {
                         return TechConstants.T_IS_TW_NON_BOX;
                     }
                 }
+            default:
+                return TechConstants.T_TECH_UNKNOWN;
         }
-        return TechConstants.T_TECH_UNKNOWN;
     }
-    
 
     public int getEngineType() {
         return engineType;

@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2003-2004 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -11,37 +11,28 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
 package megamek.common;
 
 /**
  * Represents a volume of space set aside for carrying mechs or LAMs aboard large spacecraft and mobile structures
  */
-
 public final class MechBay extends Bay {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 927162989742234173L;
 
     /**
      * The default constructor is only for serialization.
      */
-    protected MechBay() {
+    private MechBay() {
         totalSpace = 0;
         currentSpace = 0;
     }
-
-    // Public constructors and methods.
 
     /**
      * Create a space for the given tonnage of troops. For this class, only the
      * weight of the troops (and their equipment) are considered; if you'd like
      * to think that they are stacked like lumber, be my guest.
      *
-     * @param space
-     *            - The weight of troops (in tons) this space can carry.
+     * @param space The weight of troops (in tons) this space can carry.
      * @param bayNumber
      */
     public MechBay(double space, int doors, int bayNumber) {
@@ -57,10 +48,8 @@ public final class MechBay extends Bay {
      * Determines if this object can accept the given unit. The unit may not be
      * of the appropriate type or there may be no room for the unit.
      *
-     * @param unit
-     *            - the <code>Entity</code> to be loaded.
-     * @return <code>true</code> if the unit can be loaded, <code>false</code>
-     *         otherwise.
+     * @param unit the <code>Entity</code> to be loaded.
+     * @return <code>true</code> if the unit can be loaded, <code>false</code> otherwise.
      */
     @Override
     public boolean canLoad(Entity unit) {
@@ -68,9 +57,9 @@ public final class MechBay extends Bay {
         boolean result = false;
 
         // Only mechs, mech-mode quadvees and mech or airmech-mode Land-Air Mechs
-        if ((unit instanceof Mech) 
-        		|| ((unit instanceof QuadVee) && (unit.getConversionMode() == QuadVee.CONV_MODE_MECH)) 
-        		|| ((unit instanceof LandAirMech) && (unit.getConversionMode() != LandAirMech.CONV_MODE_FIGHTER))) {
+        if (((unit instanceof Mech) && !(unit instanceof QuadVee) && !(unit instanceof LandAirMech))
+                || ((unit instanceof QuadVee) && (unit.getConversionMode() == QuadVee.CONV_MODE_MECH))
+                || ((unit instanceof LandAirMech) && (unit.getConversionMode() != LandAirMech.CONV_MODE_FIGHTER))) {
             result = true;
         }
 
@@ -90,7 +79,7 @@ public final class MechBay extends Bay {
     }
 
     @Override
-    public String getUnusedString(boolean showrecovery) {
+    public String getUnusedString(boolean showRecovery) {
         return "Mech " + numDoorsString() + " - "
                 + String.format("%1$,.0f", getUnused())
                 + (getUnused() > 1 ? " units" : " unit");
@@ -108,7 +97,7 @@ public final class MechBay extends Bay {
 
     @Override
     public int getPersonnel(boolean clan) {
-        return (int)totalSpace * 2;
+        return (int) totalSpace * 2;
     }
 
     @Override
@@ -117,7 +106,8 @@ public final class MechBay extends Bay {
     }
     
     public static TechAdvancement techAdvancement() {
-        return new TechAdvancement(TECH_BASE_ALL).setAdvancement(2445, 2470, 2500)
+        return new TechAdvancement(TECH_BASE_ALL)
+                .setAdvancement(2445, 2470, 2500)
                 .setApproximate(true, false, false).setTechRating(RATING_C)
                 .setAvailability(RATING_D, RATING_C, RATING_C, RATING_C)
                 .setStaticTechLevel(SimpleTechLevel.STANDARD);
@@ -133,5 +123,4 @@ public final class MechBay extends Bay {
         // Based on the number of cubicles
         return 20000L * (long) totalSpace;
     }
-
-} // End package class TroopSpace implements Transporter
+}

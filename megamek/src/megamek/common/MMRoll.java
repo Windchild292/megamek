@@ -1,24 +1,19 @@
 /*
  * MegaMek - Copyright (C) 2004 Ben Mazur (bmazur@sev.org)
- * 
- *  This program is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU General Public License as published by the Free 
- *  Software Foundation; either version 2 of the License, or (at your option) 
- *  any later version.
- * 
- *  This program is distributed in the hope that it will be useful, but 
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
- *  for more details.
- */
-
-/*
- * MMRoll.java
  *
- * Created on July 21, 2004, 7:43 AM
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.common;
+
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -28,19 +23,19 @@ import java.util.Vector;
  * Subclass of the roll tracker for <code>MMRandom</code> entropy sources.
  * 
  * @author Suvarov454
+ * @since July 21, 2004, 7:43 AM
  */
 public class MMRoll extends Roll {
 
     /**
-     * The running total of all of the rolls of each virtual die.
+     * The running total of all the rolls of each virtual die.
      */
     private int total;
-
 
     /**
      * a vector of the result for each roll of the dice
      */
-    private Vector<Integer> all = new Vector<Integer>();
+    private Vector<Integer> all = new Vector<>();
 
     /**
      * In some cases, we may only keep the highest subset of the total dice
@@ -115,16 +110,16 @@ public class MMRoll extends Roll {
         // Store the result for later processing.
         int result = rng.randomInt(this.faces) + this.min;
 
-        all.addElement(Integer.valueOf(result));
+        all.addElement(result);
 
         // Add the current virtual die's roll to the running total.
         this.total += result;
         
         //if we are only keeping a subset then total will be different
-        if(keep != -1 && all.size() >= keep) {
+        if (keep != -1 && all.size() >= keep) {
             this.total = 0;
-            Collections.sort(all, Collections.reverseOrder());
-            for(int i = 0; i < keep; i++) {
+            all.sort(Collections.reverseOrder());
+            for (int i = 0; i < keep; i++) {
                 this.total += all.get(i);
             }
         }
@@ -167,7 +162,7 @@ public class MMRoll extends Roll {
             buffer.append(")");
         }
         
-        if(keep != -1) {
+        if (keep != -1) {
             buffer.append(" [");
             buffer.append(keep);
             buffer.append(" highest]");
@@ -205,7 +200,7 @@ public class MMRoll extends Roll {
             }
         }
 
-        if(keep != -1) {
+        if (keep != -1) {
             buffer.append(" (Keep ");
             buffer.append(keep);
             buffer.append( " highest rolls)");
@@ -216,6 +211,7 @@ public class MMRoll extends Roll {
     }
 
     /**
+     * FIXME : Convert to actual unit testing
      * Test harness for this class.
      * 
      * @param args - the array of <code>String</code> arguments: first is the
@@ -224,7 +220,7 @@ public class MMRoll extends Roll {
      *            (defaults to one for six sided dice, zero for anything else).
      */
     public static void main(String[] args) {
-        MMRandom rng = null;
+        MMRandom rng;
 
         // Parse the input.
         int count = 2;
@@ -248,16 +244,14 @@ public class MMRoll extends Roll {
             
             // Make sure that we got good input.
             if (count < 1) {
-                System.err.println("You must specify at least one roll.");
+                LogManager.getLogger().error("You must specify at least one roll.");
                 System.exit(2);
-            }
-            if (sides < 2) {
-                System.err.println("You must specify at least two faces.");
+            } else if (sides < 2) {
+                LogManager.getLogger().error("You must specify at least two faces.");
                 System.exit(3);
             }
-        } catch (NumberFormatException nfe) {
-            System.err.println("You must only supply integers.");
-            System.err.println(nfe.getMessage());
+        } catch (Exception ex) {
+            LogManager.getLogger().error("You must only supply integers.", ex);
             System.exit(1);
         }
 
@@ -268,16 +262,18 @@ public class MMRoll extends Roll {
 
         // Roll the virtual dice.
         MMRoll roll = new MMRoll(rng, sides, start);
-        for (int loop = 1; loop < count; loop++)
+        for (int loop = 1; loop < count; loop++) {
             roll.addRoll(rng);
+        }
 
         // Output results.
         Roll.output(roll);
 
         // Get a second roll.
         MMRoll roll2 = new MMRoll(rng, sides, start);
-        for (int loop = 1; loop < count; loop++)
+        for (int loop = 1; loop < count; loop++) {
             roll2.addRoll(rng);
+        }
 
         // Output second results.
         Roll.output(roll2);

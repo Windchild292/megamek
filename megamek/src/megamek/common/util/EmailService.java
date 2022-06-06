@@ -1,6 +1,6 @@
 /*
 * MegaMek -
-* Copyright (C) 2021 - The MegaMek Team. All Rights Reserved.
+* Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
 *
 * This program is free software; you can redistribute it and/or modify it under
 * the terms of the GNU General Public License as published by the Free Software
@@ -12,41 +12,31 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common.util;
 
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import megamek.codeUtilities.StringUtility;
+import megamek.common.Game;
+import megamek.common.Player;
+import megamek.common.Report;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Map;
-import java.util.Vector;
-
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import megamek.MegaMek;
-import megamek.common.IGame;
-import megamek.common.IPlayer;
-import megamek.common.Report;
-
 
 public class EmailService {
-
-
     private static class RoundReportMessage extends MimeMessage {
 
 
         private RoundReportMessage(InternetAddress from,
-                                   IPlayer to,
-                                   IGame game,
+                                   Player to,
+                                   Game game,
                                    Vector<Report> reports,
                                    int sequenceNumber,
                                    Session session) throws Exception {
@@ -92,13 +82,14 @@ public class EmailService {
             setText(body.toString(), "UTF-8", "html");
         }
 
+        @Override
         protected void updateMessageID() throws MessagingException {
             // no-op, we have already set it in the ctor
         }
 
         private static String newMessageId(InternetAddress from,
-                                           IPlayer to,
-                                           IGame game,
+                                           Player to,
+                                           Game game,
                                            int actualSequenceNumber) {
             final var address = from.getAddress();
             return String.format(
@@ -113,9 +104,8 @@ public class EmailService {
 
     }
 
-
     private InternetAddress from;
-    private Map<IPlayer,Integer> messageSequences = new HashMap<>();
+    private Map<Player, Integer> messageSequences = new HashMap<>();
     private Properties mailProperties;
     private Session mailSession;
 
@@ -133,8 +123,9 @@ public class EmailService {
         Authenticator auth = null;
         var login = mailProperties.getProperty("megamek.smtp.login", "").trim();
         var password = mailProperties.getProperty("megamek.smtp.password", "").trim();
-        if (login.length() > 0 && password.length() > 0) {
+        if (!login.isBlank() && !password.isBlank()) {
             auth = new Authenticator() {
+                    @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(login, password);
                     }
@@ -143,29 +134,22 @@ public class EmailService {
 
         mailSession = Session.getInstance(mailProperties, auth);
 
-        mailWorker = new Thread() {
-                public void run() {
-                    workerMain();
-                }
-            };
+        mailWorker = new Thread(this::workerMain);
         mailWorker.start();
     }
 
-    public Vector<IPlayer> getEmailablePlayers(IGame game) {
-        Vector<IPlayer> emailable = new Vector<>();
+    public Vector<Player> getEmailablePlayers(Game game) {
+        Vector<Player> emailable = new Vector<>();
         for (var player: game.getPlayersVector()) {
-            if (!StringUtil.isNullOrEmpty(player.getEmail()) &&
-                !player.isBot() &&
-                !player.isObserver()) {
+            if (!StringUtility.isNullOrBlank(player.getEmail()) && !player.isBot()
+                    && !player.isObserver()) {
                 emailable.add(player);
             }
         }
         return emailable;
     }
 
-    public Message newReportMessage(IGame game,
-                                    Vector<Report> reports,
-                                    IPlayer player) throws Exception {
+    public Message newReportMessage(Game game, Vector<Report> reports, Player player) throws Exception {
         int nextSequence = 0;
         synchronized (messageSequences) {
             var messageSequence = messageSequences.get(player);
@@ -198,8 +182,7 @@ public class EmailService {
                 // blocks until a message is received
                 var message = mailQueue.take();
 
-                var transport = mailSession.getTransport(message.getFrom()[0]);
-                try {
+                try (Transport transport = mailSession.getTransport(message.getFrom()[0])) {
                     transport.connect();
                     while (message != null) {
                         message.saveChanges();
@@ -210,16 +193,13 @@ public class EmailService {
                         // still open. This doesn't block;
                         message = mailQueue.poll();
                     }
-                } finally {
-                    transport.close();
                 }
             } catch (InterruptedException ex) {
                 // All good, just shut down
                 running = false;
             } catch (Exception ex) {
-                MegaMek.getLogger().error("Error sending email", ex);
+                LogManager.getLogger().error("Error sending email", ex);
             }
         }
     }
-
 }

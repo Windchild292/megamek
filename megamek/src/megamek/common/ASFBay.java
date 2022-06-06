@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2003-2004 Ben Mazur (bmazur@sev.org).
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -11,18 +11,15 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
 package megamek.common;
 
 import java.util.Vector;
 
 /**
- * Represents a volume of space set aside for carrying and launching ASFs
- * aboard large spacecraft and mobile structures
+ * Represents a volume of space set aside for carrying and launching ASFs aboard large spacecraft
+ * and mobile structures
  */
-
 public final class ASFBay extends Bay {
-
     private static final long serialVersionUID = -4110012474950158433L;
 
     private final boolean arts;
@@ -30,13 +27,11 @@ public final class ASFBay extends Bay {
     /**
      * The default constructor is only for serialization.
      */
-    protected ASFBay() {
+    private ASFBay() {
         totalSpace = 0;
         currentSpace = 0;
         arts = false;
     }
-
-    // Public constructors and methods.
 
     /**
      * Create a space for the given number of fighters.
@@ -48,14 +43,15 @@ public final class ASFBay extends Bay {
     public ASFBay(double space, int doors, int bayNumber) {
         this(space, doors, bayNumber, false);
     }
-        /**
-         * Create a space for the given number of fighters.
-         *
-         * @param space      The number of cubicles
-         * @param doors      The number of bay doors
-         * @param bayNumber  The id number for the bay
-         * @param arts       Whether the bay has the advanced robotic transport system
-         */
+
+    /**
+     * Create a space for the given number of fighters.
+     *
+     * @param space The number of cubicles
+     * @param doors The number of bay doors
+     * @param bayNumber The id number for the bay
+     * @param arts Whether the bay has the advanced robotic transport system
+     */
     public ASFBay(double space, int doors, int bayNumber, boolean arts) {
         totalSpace = space;
         currentSpace = space;
@@ -80,10 +76,8 @@ public final class ASFBay extends Bay {
      * Determines if this object can accept the given unit. The unit may not be
      * of the appropriate type or there may be no room for the unit.
      *
-     * @param unit
-     *            - the <code>Entity</code> to be loaded.
-     * @return <code>true</code> if the unit can be loaded, <code>false</code>
-     *         otherwise.
+     * @param unit the <code>Entity</code> to be loaded.
+     * @return <code>true</code> if the unit can be loaded, <code>false</code> otherwise.
      */
     @Override
     public boolean canLoad(Entity unit) {
@@ -92,12 +86,11 @@ public final class ASFBay extends Bay {
 
         // Only ASFs or Fighter-Mode LAMs
         // (See IO Battleforce section for the rules that allow converted QVs and LAMs to use other bay types)
-        if ((unit.isFighter() && !(unit instanceof FighterSquadron)) || ((unit instanceof LandAirMech) && (unit.getConversionMode() == LandAirMech.CONV_MODE_FIGHTER))) {
+        if ((unit.isFighter() && !(unit instanceof FighterSquadron))
+                || ((unit instanceof LandAirMech) && (unit.getConversionMode() == LandAirMech.CONV_MODE_FIGHTER))) {
             result = true;
         }
 
-        // System.err.print("Current space to load " + unit.getShortName() +
-        // " is " + this.currentSpace + "\n");
         if (getUnused() < 1) {
             result = false;
         }
@@ -114,11 +107,8 @@ public final class ASFBay extends Bay {
     /**
      * Load the given unit.
      *
-     * @param unit
-     *            - the <code>Entity</code> to be loaded.
-     * @throws IllegalArgumentException- If the unit can't be loaded, an
-     *            <code>IllegalArgumentException</code> exception will be
-     *            thrown.
+     * @param unit the <code>Entity</code> to be loaded.
+     * @throws IllegalArgumentException If the unit can't be loaded
      */
     @Override
     public void load(Entity unit) throws IllegalArgumentException {
@@ -153,13 +143,13 @@ public final class ASFBay extends Bay {
     }
 
     @Override
-    public String getUnusedString(boolean showrecovery) {
+    public String getUnusedString(boolean showRecovery) {
         StringBuilder sb = new StringBuilder();
         if (arts) {
             sb.append("ARTS ");
         }
         sb.append("Aerospace Fighter ");
-        if (showrecovery) {
+        if (showRecovery) {
             sb.append(numDoorsString()).append(" - ")
                 .append(String.format("%1$,.0f", getUnused()))
                 .append(" units (").append(getRecoverySlots()).append(" recovery open)");
@@ -191,11 +181,10 @@ public final class ASFBay extends Bay {
     }
 
     public Vector<Integer> initializeRecoverySlots() {
-
         Vector<Integer> slots = new Vector<>();
-        	// We have to account for changes in the number of doors, so remove all slots first.
-        	slots.removeAllElements();
-        	//now add 2 slots back on for each functional door.
+        // We have to account for changes in the number of doors, so remove all slots first.
+        slots.removeAllElements();
+        //now add 2 slots back on for each functional door.
         for (int i = 0; i < currentdoors; i++) {
             slots.add(0);
             slots.add(0);
@@ -233,16 +222,17 @@ public final class ASFBay extends Bay {
     @Override
     public void destroyDoorNext() {
 
-    	if (getDoorsNext() > 0) {
-    		setDoorsNext(getDoorsNext() - 1);
-    	}
+        if (getDoorsNext() > 0) {
+            setDoorsNext(getDoorsNext() - 1);
+        }
 
         // get rid of two empty recovery slots
         // it doesn't matter which ones
-        if (recoverySlots.size() > 0) {
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
-        if (recoverySlots.size() > 0) {
+
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
     }
@@ -250,17 +240,17 @@ public final class ASFBay extends Bay {
     // destroy a door
     @Override
     public void destroyDoor() {
-
-    	if (getCurrentDoors() > 0) {
-    		setCurrentDoors(getCurrentDoors() - 1);
-    	}
+        if (getCurrentDoors() > 0) {
+            setCurrentDoors(getCurrentDoors() - 1);
+        }
 
         // get rid of two empty recovery slots
         // it doesn't matter which ones
-        if (recoverySlots.size() > 0) {
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
-        if (recoverySlots.size() > 0) {
+
+        if (!recoverySlots.isEmpty()) {
             recoverySlots.remove(0);
         }
     }
@@ -281,12 +271,14 @@ public final class ASFBay extends Bay {
     }
 
     public static TechAdvancement techAdvancement() {
-        return new TechAdvancement(TECH_BASE_ALL).setAdvancement(DATE_ES, DATE_ES, DATE_ES)
+        return new TechAdvancement(TECH_BASE_ALL)
+                .setAdvancement(DATE_ES, DATE_ES, DATE_ES)
                 .setTechRating(RATING_C)
                 .setAvailability(RATING_C, RATING_C, RATING_C, RATING_C)
                 .setStaticTechLevel(SimpleTechLevel.STANDARD);
     }
     
+    @Override
     public TechAdvancement getTechAdvancement() {
         if (arts) {
             return Bay.artsTechAdvancement();
@@ -304,5 +296,4 @@ public final class ASFBay extends Bay {
         }
         return cost;
     }
-
 }

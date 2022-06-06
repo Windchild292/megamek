@@ -19,6 +19,7 @@ import java.util.Vector;
 import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
+import megamek.server.GameManager;
 import megamek.server.Server;
 
 /**
@@ -37,9 +38,9 @@ public class InfantryHeatWeaponHandler extends InfantryWeaponHandler {
      * @param w
      * @param g
      */
-    public InfantryHeatWeaponHandler(ToHitData t, WeaponAttackAction w, IGame g,
-            Server s) {
-        super(t, w, g, s);
+    public InfantryHeatWeaponHandler(ToHitData t, WeaponAttackAction w, Game g,
+            GameManager m) {
+        super(t, w, g, m);
         bSalvo = true;
     }
     
@@ -67,7 +68,7 @@ public class InfantryHeatWeaponHandler extends InfantryWeaponHandler {
             r.indent(2);
             if (entityTarget.getArmor(hit) > 0 && 
                     (entityTarget.getArmorType(hit.getLocation()) == 
-                    EquipmentType.T_ARMOR_HEAT_DISSIPATING)){
+                    EquipmentType.T_ARMOR_HEAT_DISSIPATING)) {
                 entityTarget.heatFromExternal += nDamPerHit / 2;
                 r.add(nDamPerHit / 2);
                 r.choose(true);

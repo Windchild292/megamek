@@ -35,13 +35,12 @@ public enum WeatherGenerationMethod {
     //region Variable Declarations
     private final String name;
     private final String toolTipText;
-
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
-            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
     WeatherGenerationMethod(final String name, final String toolTipText) {
+        final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
     }

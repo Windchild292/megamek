@@ -1,17 +1,16 @@
 /*
- * MegaMek - Copyright (C) 2002, 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2002-2004 Ben Mazur (bmazur@sev.org)
  * 
- *  This program is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU General Public License as published by the Free 
- *  Software Foundation; either version 2 of the License, or (at your option) 
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation; either version 2 of the License, or (at your option) 
+ * any later version.
  * 
- *  This program is distributed in the hope that it will be useful, but 
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+ * for more details.
  */
-
 package megamek.client.ui.swing;
 
 import java.awt.Dimension;
@@ -39,27 +38,21 @@ import megamek.client.ui.Messages;
 
 /**
  * A (somewhat primitive) dialog that asks a question and lets the player select
- * from the available choices. The question string is tokenised on "\n". <p/>
+ * from the available choices. The question string is tokenised on "\n". <p>
  * Refactored from SingleChoiceDialog (which was based on Confirm)
  * 
  * @author suvarov454@sourceforge.net
- * @version $version: $
  */
 public class ChoiceDialog extends JDialog implements ActionListener {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 3093043054221558221L;
 
     private boolean confirm;
 
     private JPanel panButtons = new JPanel();
-    private JButton butSelectAll = new JButton(Messages
-            .getString("ChoiceDialog.SelectAll")); //$NON-NLS-1$
-    private JButton butClearAll = new JButton(Messages
-            .getString("ChoiceDialog.ClearAll")); //$NON-NLS-1$
-    private JButton butOK = new JButton(Messages.getString("Okay")); //$NON-NLS-1$
-    private JButton butCancel = new JButton(Messages.getString("Cancel")); //$NON-NLS-1$
+    private JButton butSelectAll = new JButton(Messages.getString("ChoiceDialog.SelectAll"));
+    private JButton butClearAll = new JButton(Messages.getString("ChoiceDialog.ClearAll"));
+    private JButton butOK = new JButton(Messages.getString("Okay"));
+    private JButton butCancel = new JButton(Messages.getString("Cancel"));
 
     /**
      * The checkboxes for available choices.
@@ -79,8 +72,7 @@ public class ChoiceDialog extends JDialog implements ActionListener {
      * @param isSingle - a <code>boolean</code> that identifies whether the
      *            dialog is supposed to be a single choice dialog or support
      */
-    private void initialize(JFrame parent, String question, String[] choices,
-            boolean isSingle, int max) {
+    private void initialize(JFrame parent, String question, String[] choices, boolean isSingle, int max) {
         super.setResizable(false);
 
         this.maxChoices = max;
@@ -144,18 +136,12 @@ public class ChoiceDialog extends JDialog implements ActionListener {
                     radioGroup.add(checkboxes[loop]);
                     choiceArea.add(checkboxes[loop]);
                 }
-            }
-
-            // All others use check boxes.
-            else {
+            } else {
+                // All others use check boxes.
                 checkboxes = new JCheckBox[choices.length];
                 for (int loop = 0; loop < choices.length; loop++) {
                     checkboxes[loop] = new JCheckBox(choices[loop], false);
-                    checkboxes[loop].addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent evt) {
-                            checkDisableChoices();
-                        }
-                    });
+                    checkboxes[loop].addActionListener(evt -> checkDisableChoices());
                     choiceArea.add(checkboxes[loop]);
                 }
                 
@@ -167,15 +153,14 @@ public class ChoiceDialog extends JDialog implements ActionListener {
                 JPanel panAllButtons = new JPanel(grid);
                 panAllButtons.add(butSelectAll);
                 butSelectAll.addActionListener(this);
-                if(maxChoices != -1 && maxChoices < choices.length) {
+                if (maxChoices != -1 && maxChoices < choices.length) {
                     butSelectAll.setEnabled(false);
                 }
                 panAllButtons.add(butClearAll);
                 butClearAll.addActionListener(this);
                 getContentPane().add(panAllButtons, center);
             }
-
-        } // End have-choices
+        }
         
         // Allow the player to confirm or abort the choice.
         setupButtons();
@@ -236,17 +221,16 @@ public class ChoiceDialog extends JDialog implements ActionListener {
     }
 
     public void checkDisableChoices() {
-        if(maxChoices == -1) {
+        if (maxChoices == -1) {
             return;
         }
-        if(countChoices() >= maxChoices) {
+        if (countChoices() >= maxChoices) {
             for (int loop = 0; loop < checkboxes.length; loop++) {
-                if(!checkboxes[loop].isSelected()) {
+                if (!checkboxes[loop].isSelected()) {
                     checkboxes[loop].setEnabled(false);
                 }              
             }
-        }
-        else {
+        } else {
             for (int loop = 0; loop < checkboxes.length; loop++) {
                 checkboxes[loop].setEnabled(true);           
             }
@@ -307,6 +291,7 @@ public class ChoiceDialog extends JDialog implements ActionListener {
         initialize(parent, question, choices, false, -1);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         // No choices, no selection.
         if (checkboxes == null) {
@@ -325,8 +310,7 @@ public class ChoiceDialog extends JDialog implements ActionListener {
             setVisible(false);
         } else if (e.getSource().equals(checkboxes)) {
             
-        }
-        else {
+        } else {
             confirm = false;
             setVisible(false);
         }
@@ -387,7 +371,7 @@ public class ChoiceDialog extends JDialog implements ActionListener {
     
     public int countChoices() {
         int index = 0;
-        if(checkboxes != null) {
+        if (checkboxes != null) {
             for (int loop = 0; loop < checkboxes.length; loop++) {
                 if (checkboxes[loop].isSelected()) {
                     index++;

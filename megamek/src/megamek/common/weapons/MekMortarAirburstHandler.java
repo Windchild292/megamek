@@ -13,24 +13,14 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.AmmoType;
-import megamek.common.BattleArmor;
-import megamek.common.Building;
-import megamek.common.Compute;
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.HitData;
-import megamek.common.IGame;
-import megamek.common.IHex;
-import megamek.common.IPlayer;
-import megamek.common.Mounted;
-import megamek.common.Report;
-import megamek.common.TargetRoll;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
+import megamek.server.GameManager;
 import megamek.server.Server;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.Vector;
 
 /**
  * @author arlith
@@ -38,23 +28,12 @@ import megamek.server.Server;
 public class MekMortarAirburstHandler extends AmmoWeaponHandler {
     private static final long serialVersionUID = -2073773899108954657L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param s
-     */
-    public MekMortarAirburstHandler(ToHitData t, WeaponAttackAction w, IGame g, Server s) {
-        super(t, w, g, s);
+    public MekMortarAirburstHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
+        super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see megamek.common.weapons.AttackHandler#handle(int, java.util.Vector)
-     */
     @Override
-    public boolean handle(IGame.Phase phase, Vector<Report> vPhaseReport) {
+    public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (!cares(phase)) {
             return true;
         }
@@ -62,16 +41,11 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
         Coords targetPos = target.getPosition();
 
         Mounted ammoUsed = ae.getEquipment(waa.getAmmoId());
-        final AmmoType atype = ammoUsed == null ? null : (AmmoType) ammoUsed
-                .getType();
-        
-        if ((atype == null) 
-                || (atype.getMunitionType() != AmmoType.M_AIRBURST)) {
-            System.err
-                    .println("MekMortarFlareHandler: not using airburst ammo!");
+        final AmmoType ammoType = (ammoUsed == null) ? null : (AmmoType) ammoUsed.getType();
+        if ((ammoType == null) || (ammoType.getMunitionType() != AmmoType.M_AIRBURST)) {
+            LogManager.getLogger().error("Not using airburst ammo!");
             return true;
         }
-
 
         // Report weapon attack and its to-hit value.
         Report r = new Report(3120);
@@ -79,7 +53,7 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
         r.newlines = 0;
         r.subject = subjectId;
         if (wtype != null) {
-            r.add(wtype.getName() + " " + atype.getSubMunitionName());
+            r.add(wtype.getName() + " " + ammoType.getSubMunitionName());
         } else {
             r.add("Error: From Nowhwere");
         }
@@ -145,7 +119,7 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
         r.subject = subjectId;
         r.indent(2);
         r.newlines++;
-        r.add(wtype.getName() + " " + atype.getSubMunitionName());
+        r.add(wtype.getName() + " " + ammoType.getSubMunitionName());
         r.add(wtype.getRackSize());
         vPhaseReport.addElement(r);
         
@@ -154,16 +128,15 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
         // Damage building directly
         Building bldg = game.getBoard().getBuildingAt(targetPos);
         if (bldg != null) {
-            newReports = server.damageBuilding(bldg, numRounds, " receives ",
-                    targetPos);
+            newReports = gameManager.damageBuilding(bldg, numRounds, " receives ", targetPos);
             adjustReports(newReports);
             vPhaseReport.addAll(newReports);
         }
         
         // Damage Terrain if applicable
-        IHex h = game.getBoard().getHex(targetPos);
-        newReports = new Vector<Report>();
-        if ((h != null) && h.hasTerrainfactor()) {
+        Hex h = game.getBoard().getHex(targetPos);
+        newReports = new Vector<>();
+        if ((h != null) && h.hasTerrainFactor()) {
             r = new Report(3384);
             r.indent(2);
             r.subject = subjectId;
@@ -173,7 +146,7 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
         }
         
         // Update hex and report any changes
-        newReports.addAll(server.tryClearHex(targetPos, numRounds, subjectId));
+        newReports.addAll(gameManager.tryClearHex(targetPos, numRounds, subjectId));
         adjustReports(newReports);
         vPhaseReport.addAll(newReports);
         
@@ -185,9 +158,9 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
             
             // Units in a building apply damage to building
             if (Compute.isInBuilding(game, target, targetPos)) {
-                IPlayer tOwner = target.getOwner();
+                Player tOwner = target.getOwner();
                 String colorcode = tOwner.getColour().getHexString(0x00F0F0F0);
-                newReports = server.damageBuilding(bldg, numRounds, " shields "
+                newReports = gameManager.damageBuilding(bldg, numRounds, " shields "
                         + target.getShortName() + " (<B><font color='"
                         + colorcode + "'>" + tOwner.getName()
                         + "</font></B>)"
@@ -213,18 +186,17 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
                     hit.setFirstHit(firstHit);
                     hit.setAttackerId(getAttackerId());
                     hit.setBurstFire(true);
-                    newReports = server.damageEntity(target, hit, damage);
+                    newReports = gameManager.damageEntity(target, hit, damage);
                     adjustReports(newReports);
                     vPhaseReport.addAll(newReports);
                     continue;
                 // Battlarmor take damage to each trooper
                 } else if (target instanceof BattleArmor) {
-                    newReports = new Vector<Report>();
+                    newReports = new Vector<>();
                     for (int loc = 0; loc < target.locations(); loc++) {
                         if (target.getInternal(loc) > 0) {
                             HitData hit = new HitData(loc);
-                            newReports.addAll(server.damageEntity(target, hit,
-                                    numRounds));
+                            newReports.addAll(gameManager.damageEntity(target, hit, numRounds));
                         }
                     }
                     adjustReports(newReports);
@@ -242,7 +214,7 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
                     hit.setCapMisCritMod(getCapMisMod());
                     hit.setFirstHit(firstHit);
                     hit.setAttackerId(getAttackerId());
-                    newReports = server.damageEntity(target, hit, 1);
+                    newReports = gameManager.damageEntity(target, hit, 1);
                     adjustReports(newReports);
                     vPhaseReport.addAll(newReports);
                 }
@@ -262,9 +234,9 @@ public class MekMortarAirburstHandler extends AmmoWeaponHandler {
         for (Report nr : reports) {
             nr.indent();
         }
-        if (reports.size() > 0) {
+
+        if (!reports.isEmpty()) {
             reports.get(reports.size() - 1).newlines++;
         }
     }
-
 }

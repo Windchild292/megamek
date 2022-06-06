@@ -20,10 +20,11 @@ import megamek.client.bot.ga.Chromosome;
 import megamek.client.bot.ga.GA;
 import megamek.common.Compute;
 import megamek.common.Entity;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Mech;
 import megamek.common.Terrains;
 import megamek.common.ToHitData;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Need to test the function that moves all firing to a single target
@@ -32,7 +33,7 @@ public class GAAttack extends GA {
 
     protected ArrayList<ArrayList<AttackOption>> attack;
     protected CEntity attacker;
-    protected IGame game;
+    protected Game game;
     protected CEntity.Table targets;
     protected ArrayList<Entity> target_array = null;
     protected ArrayList<Integer> valid_target_indexes = null;
@@ -47,12 +48,12 @@ public class GAAttack extends GA {
         this.attack = attack;
         this.attacker = attacker;
         game = tb.getGame();
-        target_array = new ArrayList<Entity>(game.getEntitiesVector());
-        ArrayList<Integer> temp = new ArrayList<Integer>();
+        target_array = new ArrayList<>(game.getEntitiesVector());
+        ArrayList<Integer> temp = new ArrayList<>();
         for (int i = 0; i < target_array.size(); i++) {
             Entity entity = target_array.get(i);
             if (entity.isEnemyOf(attacker.entity) && entity.isDeployed()) {
-                temp.add(Integer.valueOf(i));
+                temp.add(i);
             }
         }
         targets = new CEntity.Table(tb);
@@ -92,8 +93,7 @@ public class GAAttack extends GA {
         @SuppressWarnings("unused")
         int heat_total = 0;
         if (chromArrayList.genes[chromosomeDim - 1] >= target_array.size()) {
-            chromArrayList.genes[chromosomeDim - 1] = valid_target_indexes.get(
-                    0).intValue();
+            chromArrayList.genes[chromosomeDim - 1] = valid_target_indexes.get(0);
         }
         Entity target = target_array
                 .get(chromArrayList.genes[chromosomeDim - 1]);
@@ -157,11 +157,10 @@ public class GAAttack extends GA {
         Entity target = null;
         try {
             target = target_array.get(chromArrayList.genes[chromosomeDim - 1]);
-        } catch (Exception e) {
-            System.out.println(chromosomeDim
-                    + " " + chromArrayList.genes.length); //$NON-NLS-1$
-            System.out.println(target_array.size());
-            target = target_array.get(valid_target_indexes.get(0).intValue());
+        } catch (Exception ex) {
+            LogManager.getLogger().error(chromosomeDim + " with gene length "
+                    + chromArrayList.genes.length + " with target size of " + target_array.size(), ex);
+            target = target_array.get(valid_target_indexes.get(0));
         }
         for (int iGene = 0; iGene < (chromosomeDim - 1); iGene++) {
             final int[] genes = chromArrayList.genes;
@@ -383,8 +382,7 @@ public class GAAttack extends GA {
                     }
                 }
             }
-            cv.genes[chromosomeDim - 1] = valid_target_indexes.get(
-                    Compute.randomInt(valid_target_indexes.size())).intValue();
+            cv.genes[chromosomeDim - 1] = valid_target_indexes.get(Compute.randomInt(valid_target_indexes.size()));
             chromosomes[i].fitness = getFitness(i);
         }
     }

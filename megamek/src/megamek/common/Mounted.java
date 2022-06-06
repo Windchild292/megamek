@@ -1,31 +1,21 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
-/*
- * Mounted.java
- *
- * Created on April 1, 2002, 1:29 PM
- */
-
 package megamek.common;
 
-import java.io.Serializable;
-import java.util.*;
-
-import megamek.MegaMek;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.options.WeaponQuirks;
 import megamek.common.weapons.AmmoWeapon;
@@ -33,12 +23,15 @@ import megamek.common.weapons.Weapon;
 import megamek.common.weapons.WeaponHandler;
 import megamek.common.weapons.bayweapons.AmmoBayWeapon;
 import megamek.common.weapons.gaussrifles.GaussWeapon;
+import org.apache.logging.log4j.LogManager;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * This describes equipment mounted on a mech.
- *
  * @author Ben
- * @version
+ * @since April 1, 2002, 1:29 PM
  */
 public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
@@ -51,18 +44,14 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     private boolean jammedThisPhase = false;
     private boolean useless = false;
     private boolean fired = false; // Only true for used OS stuff and TSEMP.
-    private boolean tsempDowntime = false; // Needed for "every other turn"
-                                           // TSEMP.
+    private boolean tsempDowntime = false; // Needed for "every other turn" TSEMP.
     private boolean rapidfire = false; // MGs in rapid-fire mode
     private boolean hotloaded = false; // Hotloading for ammoType
     private boolean repairable = true; // can the equipment mounted here be
     // repaired
-    private boolean mechTurretMounted = false; // is this mounted in a
-                                               // mechturret
-    private boolean sponsonTurretMounted = false; // is this mounted in a
-                                                  // sponsonturret
-    private boolean pintleTurretMounted = false; // is this mounted in a
-                                                 // pintleturret
+    private boolean mechTurretMounted = false; // is this mounted in a mechturret
+    private boolean sponsonTurretMounted = false; // is this mounted in a sponsonturret
+    private boolean pintleTurretMounted = false; // is this mounted in a pintleturret
     private int facing = -1; // facing for turrets
 
     private int mode; // Equipment's current state. On or Off. Sixshot or
@@ -98,9 +87,9 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     // A list of ids (equipment numbers) for the weapons and ammo linked to
     // this bay (if the mounted is of the BayWeapon type)
     // I can also use this for weapons of the same type on a capital fighter
-    //and now Machine Gun Arrays too!
-    private Vector<Integer> bayWeapons = new Vector<Integer>();
-    private Vector<Integer> bayAmmo = new Vector<Integer>();
+    // and now Machine Gun Arrays too!
+    private Vector<Integer> bayWeapons = new Vector<>();
+    private Vector<Integer> bayAmmo = new Vector<>();
     
     // on capital fighters and squadrons some weapon mounts actually represent
     // multiple weapons of the same type
@@ -125,9 +114,9 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     // vibrabomb mine setting
     private int vibraSetting = 20;
 
-    //These arrays are used to track individual missing modular components on BA for MHQ
-    //in MM they probably shouldn't need to be touched. They are used to keep track of
-    //whether a modular mount is in use or not for a particular trooper.
+    // These arrays are used to track individual missing modular components on BA for MHQ
+    // in MM they probably shouldn't need to be touched. They are used to keep track of
+    // whether a modular mount is in use or not for a particular trooper.
     private boolean[] missingForTrooper = {false, false, false, false, false, false};
 
     /**
@@ -135,7 +124,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
      */
     private int armorValue = 0;
 
-    private IGame.Phase phase = IGame.Phase.PHASE_UNKNOWN;
+    private GamePhase phase = GamePhase.UNKNOWN;
 
     public static final int MINE_NONE = -1;
     public static final int MINE_CONVENTIONAL = 0;
@@ -207,7 +196,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         }
         if ((type instanceof MiscType)
                 && type.hasFlag(MiscType.F_SENSOR_DISPENSER)) {
-            setShotsLeft(30);
+            setShotsLeft(type.hasFlag(MiscType.F_BA_EQUIPMENT) ? 6 : 30);
         }
         if ((type instanceof MiscType)
                 && ((((MiscType) type).isShield() || type
@@ -232,7 +221,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
     public void changeAmmoType(AmmoType at) {
         if (!(type instanceof AmmoType)) {
-            System.out.println("Attempted to change ammo type of non-ammo");
+            LogManager.getLogger().warn("Attempted to change ammo type of non-ammo");
             return;
         }
         type = at;
@@ -257,9 +246,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         }
 
         if (type == null) {
-            System.err
-                    .println("Mounted.restore: could not restore equipment type \""
-                            + typeName + "\"");
+            LogManager.getLogger().error("Could not restore equipment type \"" + typeName + "\"");
         }
     }
 
@@ -327,9 +314,8 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     /**
      * Sets the equipment mode to the mode denoted by the given mode name
      *
-     * @param newMode
-     *            the name of the desired new mode
-     * @return new mode number on success, <code>-1<code> otherwise.
+     * @param newMode the name of the desired new mode
+     * @return new mode number on success, <code>-1</code> otherwise.
      */
     public int setMode(String newMode) {
         for (int x = 0, e = type.getModesCount(); x < e; x++) {
@@ -353,11 +339,6 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
             if (newMode >= type.getModesCount()) {
                 return false;
             }
-            /*
-             * megamek.debug.Assert.assertTrue(newMode >= 0 && newMode <
-             * type.getModesCount(), "Invalid mode, mode=" + newMode +
-             * ", modesCount=" + type.getModesCount());
-             */
 
             if (canInstantSwitch(newMode)) {
                 mode = newMode;
@@ -370,8 +351,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
                 }
             }
         }
-        // all communications equipment mounteds need to have the same mode at
-        // all times
+        // all communications equipment mounteds need to have the same mode at all times
         if ((getType() instanceof MiscType)
                 && getType().hasFlag(MiscType.F_COMMUNICATIONS)) {
             for (Mounted m : entity.getMisc()) {
@@ -399,6 +379,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
                 && !type.isNextTurnModeSwitch(curModeName);
     }
 
+    @Override
     public void newRound(int roundNumber) {
         setUsedThisRound(false);
 
@@ -409,7 +390,8 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         called.reset();
     }
 
-    public void newPhase(IGame.Phase phase) {
+    @Override
+    public void newPhase(GamePhase phase) {
         jammed = jammedThisPhase;
     }
 
@@ -488,24 +470,24 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         // Append the facing for VGLs
         if (getType().hasFlag(WeaponType.F_VGL)) {
             switch (facing) {
-            case 0:
-                desc.append(" (F)");
-                break;
-            case 1:
-                desc.append(" (FR)");
-                break;
-            case 2:
-                desc.append(" (RR)");
-                break;
-            case 3:
-                desc.append(" (R)");
-                break;
-            case 4:
-                desc.append(" (RL)");
-                break;
-            case 5:
-                desc.append(" (FL)");
-                break;
+                case 0:
+                    desc.append(" (F)");
+                    break;
+                case 1:
+                    desc.append(" (FR)");
+                    break;
+                case 2:
+                    desc.append(" (RR)");
+                    break;
+                case 3:
+                    desc.append(" (R)");
+                    break;
+                case 4:
+                    desc.append(" (RL)");
+                    break;
+                case 5:
+                    desc.append(" (FL)");
+                    break;
             }
         }
         if ((type instanceof AmmoType) && (location != Entity.LOC_NONE)) {
@@ -541,7 +523,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
             desc.append(" (dumping)");
         }
 
-        if (isArmored()){
+        if (isArmored()) {
             desc.append(" (armored)");
         }
         return desc.toString();
@@ -564,7 +546,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
             if (bay != null) {
                 return defaultRounding.round(bay.getCapacity() * 0.05, getEntity());
             }
-            MegaMek.getLogger().warning("Found dumper not linked to a cargo bay. Using zero for the weight.");
+            LogManager.getLogger().warn("Found dumper not linked to a cargo bay. Using zero for the weight.");
             return 0.0;
         }
         double retVal = getType().getTonnage(getEntity(), getLocation(), getSize(), defaultRounding);
@@ -607,15 +589,15 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         if (usedThisRound) {
             phase = entity.game.getPhase();
         } else {
-            phase = IGame.Phase.PHASE_UNKNOWN;
+            phase = GamePhase.UNKNOWN;
         }
     }
 
-    public IGame.Phase usedInPhase() {
+    public GamePhase usedInPhase() {
         if (usedThisRound) {
             return phase;
         }
-        return IGame.Phase.PHASE_UNKNOWN;
+        return GamePhase.UNKNOWN;
     }
 
     public boolean isBreached() {
@@ -641,8 +623,8 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     public void setDestroyed(boolean destroyed) {
         this.destroyed = destroyed;
         if ((destroyed == true)
-                && getType().hasFlag(MiscType.F_RADICAL_HEATSINK)){
-            if (entity != null){
+                && getType().hasFlag(MiscType.F_RADICAL_HEATSINK)) {
+            if (entity != null) {
                 entity.setHasDamagedRHS(true);
             }
         }
@@ -667,8 +649,8 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     public void setHit(boolean hit) {
         this.hit = hit;
         if ((hit == true)
-                && getType().hasFlag(MiscType.F_RADICAL_HEATSINK)){
-            if (entity != null){
+                && getType().hasFlag(MiscType.F_RADICAL_HEATSINK)) {
+            if (entity != null) {
                 entity.setHasDamagedRHS(true);
             }
         }
@@ -769,9 +751,9 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
         // sets number of shots for MG arrays
         if (wtype.hasFlag(WeaponType.F_MGA)) {
             nShots = 0;
-            for(int eqn : getBayWeapons()) {
+            for (int eqn : getBayWeapons()) {
                 Mounted m = entity.getEquipment(eqn);
-                if(null == m) {
+                if (null == m) {
                     continue;
                 }
                 if ((m.getLocation() == getLocation())
@@ -915,9 +897,6 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
             }
 
             isHotLoaded = link.hotloaded;
-            if (((AmmoType) link.getType()).getMunitionType() == AmmoType.M_DEAD_FIRE) {
-                return true;
-            }
 
             // Check to see if the ammo has its mode set to hotloaded.
             // This is for vehicles that can change hotload status during
@@ -932,10 +911,6 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
         if (getType() instanceof AmmoType) {
             isHotLoaded = hotloaded;
-
-            if (((AmmoType) getType()).getMunitionType() == AmmoType.M_DEAD_FIRE) {
-                return true;
-            }
 
             // Check to see if the ammo has its mode set to hotloaded.
             // This is for vehicles that can change hotload status during
@@ -1166,7 +1141,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     }
 
     public boolean isSplitable() {
-        return (((getType() instanceof WeaponType) && ((WeaponType)getType()).isSplitable()) || ((getType() instanceof MiscType) && getType()
+        return (((getType() instanceof WeaponType) && ((WeaponType) getType()).isSplitable()) || ((getType() instanceof MiscType) && getType()
                 .hasFlag(MiscType.F_SPLITABLE)));
     }
 
@@ -1181,7 +1156,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
             int damagePerShot = atype.getDamagePerShot();
             // Anti-ship EW bomb does no damage but deals a 5-point explosion if LAM bomb bay is hit
             if ((type instanceof BombType)
-                    && (((BombType)type).getBombType() == BombType.B_ASEW)) {
+                    && (((BombType) type).getBombType() == BombType.B_ASEW)) {
                 damagePerShot = 5;
             }
             
@@ -1290,7 +1265,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
             return 0;
         }
         // um, otherwise, I'm not sure
-        MegaMek.getLogger().error("mounted: unable to determine explosion damage for " + typeName);
+        LogManager.getLogger().error("mounted: unable to determine explosion damage for " + typeName);
         return 0;
     }
 
@@ -1613,13 +1588,13 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
             int heat = wtype.getHeat();
 
             // AR10's have heat based upon the loaded missile
-            if (wtype.getName().equals("AR10")){
-                AmmoType ammoType = (AmmoType)getLinked().getType();
-                if (ammoType.hasFlag(AmmoType.F_AR10_BARRACUDA)){
+            if (wtype.getName().equals("AR10")) {
+                AmmoType ammoType = (AmmoType) getLinked().getType();
+                if (ammoType.hasFlag(AmmoType.F_AR10_BARRACUDA)) {
                     return 10;
-                }else if (ammoType.hasFlag(AmmoType.F_AR10_WHITE_SHARK)){
+                } else if (ammoType.hasFlag(AmmoType.F_AR10_WHITE_SHARK)) {
                     return 15;
-                } else { // AmmoType.F_AR10_KILLER_WHALTE
+                } else { // AmmoType.F_AR10_KILLER_WHALE
                     return 20;
                 }
             }
@@ -1682,11 +1657,11 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
     }
     
     public boolean isOmniPodMounted() {
-    	return omniPodMounted;
+        return omniPodMounted;
     }
     
     public void setOmniPodMounted(boolean omniPodMounted) {
-    	this.omniPodMounted = omniPodMounted;
+        this.omniPodMounted = omniPodMounted;
     }
 
     public boolean isWeaponGroup() {
@@ -1939,7 +1914,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
      * Checks whether this mount is either one a one-shot weapon or ammo for a one-shot weapon.
      * @return
      */
-    public boolean isOneShot(){
+    public boolean isOneShot() {
         if (isOneShotWeapon()) {
             return true;
         } else if ((getType() instanceof AmmoType) && getLinkedBy() != null) {
@@ -1988,7 +1963,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
     public void setMissingForTrooper(int trooper, boolean b) {
         trooper = trooper-BattleArmor.LOC_TROOPER_1;
-        if((trooper < 0) || (trooper >= missingForTrooper.length)) {
+        if ((trooper < 0) || (trooper >= missingForTrooper.length)) {
             return;
         }
         missingForTrooper[trooper] = b;
@@ -1996,15 +1971,15 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
     public boolean isMissingForTrooper(int trooper) {
         trooper = trooper-BattleArmor.LOC_TROOPER_1;
-        if((trooper < 0) || (trooper >= missingForTrooper.length)) {
+        if ((trooper < 0) || (trooper >= missingForTrooper.length)) {
             return false;
         }
         return missingForTrooper[trooper];
     }
 
     public boolean isAnyMissingTroopers() {
-        for(int i = 0; i < missingForTrooper.length; i++) {
-            if(missingForTrooper[i]) {
+        for (int i = 0; i < missingForTrooper.length; i++) {
+            if (missingForTrooper[i]) {
                 return true;
             }
         }
@@ -2013,7 +1988,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
 
     public String getMissingTrooperString() {
         StringBuffer missings = new StringBuffer();
-        for(int i = 0; i < missingForTrooper.length; i++) {
+        for (int i = 0; i < missingForTrooper.length; i++) {
             missings.append(missingForTrooper[i]).append("::");
         }
         return missings.toString();
@@ -2060,7 +2035,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
                 && getType().getInternalName().equals("ISBAAPDS")) {
             return true;
         } else if (getType() instanceof WeaponType) {
-            return ((WeaponType)getType()).getAmmoType() == AmmoType.T_APDS;
+            return ((WeaponType) getType()).getAmmoType() == AmmoType.T_APDS;
         } else {
             return false;
         }
@@ -2070,7 +2045,7 @@ public class Mounted implements Serializable, RoundUpdated, PhaseUpdated {
      * Returns true if this Mounted is ammunition in homing mode.
      */
     public boolean isHomingAmmoInHomingMode() {
-        if(!(getType() instanceof AmmoType)) {
+        if (!(getType() instanceof AmmoType)) {
             return false;
         }
         

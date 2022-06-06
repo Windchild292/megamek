@@ -19,7 +19,7 @@ import megamek.common.AmmoType;
 import megamek.common.Building;
 import megamek.common.Compute;
 import megamek.common.Entity;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Infantry;
 import megamek.common.MiscType;
 import megamek.common.Mounted;
@@ -30,8 +30,9 @@ import megamek.common.Targetable;
 import megamek.common.ToHitData;
 import megamek.common.WeaponType;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
-import megamek.server.Server;
+import megamek.server.GameManager;
 
 /**
  * @author Jay Lawson
@@ -48,11 +49,11 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
-    public MissileBayWeaponHandler(ToHitData t, WeaponAttackAction w, IGame g,
-            Server s) {
-        super(t, w, g, s);        
+    public MissileBayWeaponHandler(ToHitData t, WeaponAttackAction w, Game g,
+            GameManager m) {
+        super(t, w, g, m);
     }
 
     /**
@@ -207,8 +208,9 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
      * check for special munitions and their effect on av 
      * 
      */
+    @Override
     protected double updateAVforAmmo(double current_av, AmmoType atype,
-            WeaponType bayWType, int range, int wId) {
+                                     WeaponType bayWType, int range, int wId) {
         Mounted bayW = ae.getEquipment(wId);
         Mounted mLinker = bayW.getLinkedBy();
         int bonus = 0;
@@ -260,9 +262,9 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
     }     
    
     @Override
-    public boolean handle(IGame.Phase phase, Vector<Report> vPhaseReport) {
+    public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         
-        if(game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_AERO_SANITY)) {
+        if (game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_AERO_SANITY)) {
             return handleAeroSanity(phase, vPhaseReport);
         }
 
@@ -273,7 +275,7 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
                 && (target.getTargetType() != Targetable.TYPE_HEX_CLEAR 
                 &&  target.getTargetType() != Targetable.TYPE_HEX_IGNITE
                 &&  target.getTargetType() != Targetable.TYPE_BUILDING)) 
-        		|| game.getBoard().inSpace()) {
+                || game.getBoard().inSpace()) {
             return super.handle(phase, vPhaseReport);
         } 
 
@@ -373,16 +375,16 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
         CounterAV = getCounterAV();
         //use this if counterfire destroys all the missiles
         if (amsBayEngaged && (attackValue <= 0)) {
-        	r = new Report(3356);
-        	r.indent();
-        	r.subject = subjectId;
-        	vPhaseReport.addElement(r);
+            r = new Report(3356);
+            r.indent();
+            r.subject = subjectId;
+            vPhaseReport.addElement(r);
         } else if (amsBayEngaged) {
-        	r = new Report(3354);
-        	r.indent();
-        	r.add(CounterAV);
-        	r.subject = subjectId;
-        	vPhaseReport.addElement(r);
+            r = new Report(3354);
+            r.indent();
+            r.add(CounterAV);
+            r.subject = subjectId;
+            vPhaseReport.addElement(r);
         }
 
         // Any necessary PSRs, jam checks, etc.
@@ -496,7 +498,7 @@ public class MissileBayWeaponHandler extends AmmoBayWeaponHandler {
 
             handleEntityDamage(entityTarget, vPhaseReport, bldg, hits,
                     nCluster, bldgAbsorbs);
-            server.creditKill(entityTarget, ae);
+            gameManager.creditKill(entityTarget, ae);
         } // Handle the next weapon in the bay
         Report.addNewline(vPhaseReport); 
         return false;

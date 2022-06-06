@@ -17,11 +17,11 @@
  */
 package megamek.common;
 
-import megamek.MegaMek;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.*;
 import megamek.common.util.EncodeControl;
-import megamek.utils.MegaMekXmlUtil;
+import megamek.utilities.xml.MMXMLUtility;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -210,7 +210,7 @@ public class PlanetaryConditions implements Serializable {
     public String getTemperatureDisplayableName(final double temperature) {
         return isExtremeTemperature(temperature)
                 ? String.format("%.1f (%s)", temperature, resources.getString(
-                        (temperature > 0) ? "ExtremeHeat.text" : "ExtremeCold.text"))
+                (temperature > 0) ? "ExtremeHeat.text" : "ExtremeCold.text"))
                 : String.valueOf(temperature);
     }
 
@@ -532,8 +532,8 @@ public class PlanetaryConditions implements Serializable {
         switch (getWindStrength()) {
             case LIGHT_GALE:
                 if (!(entity instanceof BattleArmor)
-                        && ((entity.getMovementMode() == EntityMovementMode.INF_LEG)
-                        || (entity.getMovementMode() == EntityMovementMode.INF_JUMP))) {
+                        && (entity.getMovementMode().isLegInfantry()
+                        || entity.getMovementMode().isJumpInfantry())) {
                     mod -= 1;
                 }
                 break;
@@ -560,17 +560,13 @@ public class PlanetaryConditions implements Serializable {
         // atmospheric pressure mods
         switch (getAtmosphericPressure()) {
             case THIN:
-                if ((entity.getMovementMode() == EntityMovementMode.HOVER)
-                        || (entity.getMovementMode() == EntityMovementMode.WIGE)
-                        || (entity.getMovementMode() == EntityMovementMode.VTOL)) {
+                if (entity.getMovementMode().isHoverVTOLOrWiGE()) {
                     mod -= 2;
                 }
                 break;
             case HIGH:
             case VERY_HIGH:
-                if ((entity.getMovementMode() == EntityMovementMode.HOVER)
-                        || (entity.getMovementMode() == EntityMovementMode.WIGE)
-                        || (entity.getMovementMode() == EntityMovementMode.VTOL)) {
+                if (entity.getMovementMode().isHoverVTOLOrWiGE()) {
                     mod += 1;
                 }
                 break;
@@ -591,16 +587,13 @@ public class PlanetaryConditions implements Serializable {
      * is the given entity type doomed in these conditions?
      * @return a string given the reason for being doomed, null if not doomed
      */
-    public @Nullable String whyDoomed(final IGame game, final Entity entity) {
+    public @Nullable String whyDoomed(final Game game, final Entity entity) {
         if (getAtmosphericPressure().isTraceOrVacuum() && entity.doomedInVacuum()) {
             return "vacuum";
         } else if (getWindStrength().isTornadoF4() && !(entity instanceof Mech)) {
             return "tornado";
         } else if (getWindStrength().isTornadoF13()
-                && (entity.isConventionalInfantry()
-                || ((entity.getMovementMode() == EntityMovementMode.HOVER)
-                || (entity.getMovementMode() == EntityMovementMode.WIGE)
-                || (entity.getMovementMode() == EntityMovementMode.VTOL)))) {
+                && (entity.isConventionalInfantry() || entity.getMovementMode().isHoverVTOLOrWiGE())) {
             return "tornado";
         } else if (getWindStrength().isStorm() && entity.isConventionalInfantry()) {
             return "storm";
@@ -875,91 +868,91 @@ public class PlanetaryConditions implements Serializable {
 
     //region File I/O
     public void writeToXML(final PrintWriter pw, int indent) {
-        MegaMekXmlUtil.writeSimpleXMLOpenIndentedLine(pw, indent++, "planetaryConditions");
+        MMXMLUtility.writeSimpleXMLOpenTag(pw, indent++, "planetaryConditions");
         //region Atmosphere
         if (!getAtmosphere().isBreathable()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "atmosphere", getAtmosphere().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "atmosphere", getAtmosphere().name());
         }
 
         if (!getAtmosphericPressure().isStandard()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "atmosphericPressure", getAtmosphericPressure().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "atmosphericPressure", getAtmosphericPressure().name());
         }
         //endregion Atmosphere
 
         //region Gravity
         if (getGravity() != 1.0f) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "gravity", getGravity());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "gravity", getGravity());
         }
         //endregion Gravity
 
         //region Temperature
-        MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "temperature", getTemperature());
+        MMXMLUtility.writeSimpleXMLTag(pw, indent, "temperature", getTemperature());
         if (getOldTemperature() != getTemperature()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "oldTemperature", getOldTemperature());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "oldTemperature", getOldTemperature());
         }
         //endregion Temperature
 
         //region Light
         if (!getLight().isDay()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "light", getLight().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "light", getLight().name());
         }
         //endregion Light
 
         //region Wind
         if (!getWindStrength().isCalm()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "windStrength", getWindStrength().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "windStrength", getWindStrength().name());
         }
 
         if (isShiftingWindStrength()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "windDirection", isShiftingWindStrength());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "windDirection", isShiftingWindStrength());
         }
 
         if (!getMinimumWindStrength().isCalm()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "minimumWindStrength", getMinimumWindStrength().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "minimumWindStrength", getMinimumWindStrength().name());
         }
 
         if (!getMaximumWindStrength().isTornadoF4()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "maximumWindStrength", getMaximumWindStrength().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "maximumWindStrength", getMaximumWindStrength().name());
         }
 
         if (!getWindDirection().isRandomize()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "windDirection", getWindDirection().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "windDirection", getWindDirection().name());
         }
 
         if (isShiftingWindDirection()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "shiftingWindDirection", isShiftingWindDirection());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "shiftingWindDirection", isShiftingWindDirection());
         }
         //endregion Wind
 
         //region Fog
         if (!getFog().isNone()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "fog", getFog().name());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "fog", getFog().name());
         }
         //endregion Fog
 
         //region Misc
         if (getEarthquakeMagnitude() != 0) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "earthquake", getEarthquakeMagnitude());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "earthquake", getEarthquakeMagnitude());
         }
 
         if (isEMI()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "emi", isEMI());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "emi", isEMI());
         }
 
         if (isMeteorShower()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "meteorShower", isMeteorShower());
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "meteorCount", getMeteorCount());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "meteorShower", isMeteorShower());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "meteorCount", getMeteorCount());
         }
 
         if (!isTerrainAffected()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "terrainAffected", isTerrainAffected());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "terrainAffected", isTerrainAffected());
         }
 
         if (isRunOnce()) {
-            MegaMekXmlUtil.writeSimpleXMLTag(pw, indent, "runOnce", isRunOnce());
+            MMXMLUtility.writeSimpleXMLTag(pw, indent, "runOnce", isRunOnce());
         }
         //endregion Misc
-        MegaMekXmlUtil.writeSimpleXMLCloseIndentedLine(pw, --indent, "planetaryConditions");
+        MMXMLUtility.writeSimpleXMLCloseTag(pw, --indent, "planetaryConditions");
     }
 
     public static @Nullable PlanetaryConditions generateInstanceFromXML(final NodeList nl) {
@@ -1069,8 +1062,8 @@ public class PlanetaryConditions implements Serializable {
                         break;
                 }
             }
-        } catch (Exception e) {
-            MegaMek.getLogger().error(e);
+        } catch (Exception ex) {
+            LogManager.getLogger().error(ex);
             return null;
         }
 

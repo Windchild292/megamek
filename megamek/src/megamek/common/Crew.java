@@ -1,6 +1,6 @@
 /*
 * MegaMek -
-* Copyright (C) 2000, 2001, 2002, 2003, 2004 Ben Mazur (bmazur@sev.org)
+* Copyright (C) 2000-2004 Ben Mazur (bmazur@sev.org)
 * Copyright (C) 2018 - The MegaMek Team. All Rights Reserved.
 *
 * This program is free software; you can redistribute it and/or modify it under
@@ -67,7 +67,7 @@ public class Crew implements Serializable {
 
     // StratOps fatigue points
     private int fatigue;
-    //also need to track turns for fatigue by pilot because some may have later deployment
+    // also need to track turns for fatigue by pilot because some may have later deployment
     private int fatigueCount;
 
     //region RPG Skills
@@ -107,7 +107,7 @@ public class Crew implements Serializable {
     private final boolean[] koThisRound; // did I go KO this game round?
 
     // TODO: Allow individual crew to have SPAs, which involves determining which work for individuals
-    //and which work for the entire unit.
+    // and which work for the entire unit.
     private PilotOptions options = new PilotOptions();
 
     // SPA RangeMaster range bands
@@ -138,18 +138,6 @@ public class Crew implements Serializable {
             {1.24, 1.12, 1.07, 1.02, 0.94, 0.85, 0.81, 0.77, 0.72},
             {1.17, 1.06, 1.01, 0.96, 0.88, 0.80, 0.76, 0.72, 0.68},
             {1.10, 0.99, 0.95, 0.90, 0.83, 0.75, 0.71, 0.68, 0.64},
-    };
-
-    private static final double[][] alternateBvMod = new double[][]{
-            {2.70, 2.52, 2.34, 2.16, 1.98, 1.80, 1.75, 1.67, 1.59},
-            {2.40, 2.24, 2.08, 1.98, 1.76, 1.60, 1.58, 1.51, 1.44},
-            {2.10, 1.96, 1.82, 1.68, 1.54, 1.40, 1.33, 1.31, 1.25},
-            {1.80, 1.68, 1.56, 1.44, 1.32, 1.20, 1.14, 1.08, 1.06},
-            {1.50, 1.40, 1.30, 1.20, 1.10, 1.00, 0.95, 0.90, 0.85},
-            {1.50, 1.35, 1.26, 1.17, 1.04, 0.90, 0.86, 0.81, 0.77},
-            {1.43, 1.33, 1.19, 1.11, 0.98, 0.85, 0.81, 0.77, 0.72},
-            {1.36, 1.26, 1.16, 1.04, 0.92, 0.80, 0.76, 0.72, 0.68},
-            {1.28, 1.19, 1.10, 1.01, 0.86, 0.75, 0.71, 0.68, 0.64},
     };
 
     //region extraData inner map keys
@@ -325,7 +313,7 @@ public class Crew implements Serializable {
         resetActedFlag();
 
         //set a random UUID for external ID, this will help us sort enemy salvage and prisoners in MHQ
-        //and should have no effect on MM (but need to make sure it doesn't screw up MekWars)
+        // and should have no effect on MM (but need to make sure it doesn't screw up MekWars)
         externalId = new String[slots];
         for (int i = 0; i < slots; i++) {
             externalId[i] = UUID.randomUUID().toString();
@@ -997,22 +985,20 @@ public class Crew implements Serializable {
     }
 
     /**
-     * Returns the BV multiplier for this pilot's gunnery/piloting
-     *
-     * @param game the game to use to determine the modifier
+     * @param game The {@link Game} to use to determine the modifier
+     * @return the BV multiplier for this pilot's gunnery/piloting
      */
-    public double getBVSkillMultiplier(IGame game) {
+    public double getBVSkillMultiplier(Game game) {
         return getBVSkillMultiplier(true, game);
     }
 
     /**
-     * Returns the BV multiplier for this pilot's gunnery/piloting
-     *
      * @param usePiloting whether or not to use the default value non-anti-mech
      *                    infantry/BA should not use the anti-mech skill
-     * @param game the game to use to determine the modifier
+     * @param game The {@link Game} to use to determine the modifier
+     * @return the BV multiplier for this pilot's gunnery/piloting
      */
-    public double getBVSkillMultiplier(boolean usePiloting, IGame game) {
+    public double getBVSkillMultiplier(boolean usePiloting, Game game) {
         int pilotVal = getPiloting();
         if (!usePiloting) {
             pilotVal = 5;
@@ -1022,7 +1008,7 @@ public class Crew implements Serializable {
 
     public double getBVImplantMultiplier() {
 
-        // get highest level
+        // get the highest level
         int level = 1;
         if (options.booleanOption(OptionsConstants.MD_PAIN_SHUNT)) {
             level = 2;
@@ -1051,10 +1037,7 @@ public class Crew implements Serializable {
         return getBVSkillMultiplier(gunnery, piloting, null);
     }
 
-    public static double getBVSkillMultiplier(int gunnery, int piloting, IGame game) {
-        if ((game != null) && game.getOptions().booleanOption(OptionsConstants.ADVANCED_ALTERNATE_PILOT_BV_MOD)) {
-            return alternateBvMod[Math.max(Math.min(8, gunnery), 0)][Math.max(Math.min(8, piloting), 0)];
-        }
+    public static double getBVSkillMultiplier(int gunnery, int piloting, Game game) {
         return bvMod[Math.max(Math.min(8, gunnery), 0)][Math.max(Math.min(8, piloting), 0)];
     }
 
@@ -1284,7 +1267,7 @@ public class Crew implements Serializable {
      */
     private void activeStatusChanged() {
         //Cockpit command console can be swapped deliberately by the player and should not be changed
-        //automatically unless the current pilot becomes inactive.
+        // automatically unless the current pilot becomes inactive.
         if (crewType.equals(CrewType.COMMAND_CONSOLE)
                 && isActive(getCurrentPilotIndex())) {
             return;

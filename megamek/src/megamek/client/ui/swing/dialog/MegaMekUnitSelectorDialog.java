@@ -25,10 +25,13 @@ import megamek.client.ui.Messages;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.UnitFailureDialog;
 import megamek.client.ui.swing.UnitLoadingDialog;
-import megamek.common.*;
+import megamek.common.Entity;
+import megamek.common.MechSummaryCache;
+import megamek.common.Player;
+import megamek.common.TechConstants;
 import megamek.common.enums.Gender;
 import megamek.common.options.OptionsConstants;
-import megamek.common.preference.IClientPreferences;
+import megamek.common.preference.ClientPreferences;
 import megamek.common.preference.PreferenceManager;
 
 import javax.swing.*;
@@ -114,27 +117,14 @@ public class MegaMekUnitSelectorDialog extends AbstractUnitSelectorDialog {
         }
     }
 
-    private void autoSetSkillsAndName(Entity e, IPlayer player) {
-        IClientPreferences cs = PreferenceManager.getClientPreferences();
+    private void autoSetSkillsAndName(Entity e, Player player) {
+        ClientPreferences cs = PreferenceManager.getClientPreferences();
+
+        if (cs.useAverageSkills()) {
+            clientGUI.getClient().getSkillGenerator().setRandomSkills(e, true);
+        }
+
         for (int i = 0; i < e.getCrew().getSlotCount(); i++) {
-            if (cs.useAverageSkills()) {
-                int[] skills = clientGUI.getClient().getRandomSkillsGenerator().getRandomSkills(e, true);
-
-                e.getCrew().setGunnery(skills[0], i);
-                // For conventional infantry, piloting doubles as anti-mek skill, and this is set
-                // based on  whether the unit has anti-mek training, which gets set in the BLK file.
-                // We therefore check if they are anti-mek trained before setting
-                if (!e.isConventionalInfantry() || ((Infantry) e).isAntiMekTrained()) {
-                    e.getCrew().setPiloting(skills[1], i);
-                }
-
-                if (e.getCrew() instanceof LAMPilot) {
-                    skills = clientGUI.getClient().getRandomSkillsGenerator().getRandomSkills(e, true);
-                    ((LAMPilot) e.getCrew()).setGunneryAero(skills[0]);
-                    ((LAMPilot) e.getCrew()).setPilotingAero(skills[1]);
-                }
-            }
-
             if (cs.generateNames()) {
                 Gender gender = RandomGenderGenerator.generate();
                 e.getCrew().setGender(gender, i);
@@ -143,7 +133,6 @@ public class MegaMekUnitSelectorDialog extends AbstractUnitSelectorDialog {
                         : RandomNameGenerator.getInstance().generate(gender), i);
             }
         }
-        e.getCrew().sortRandomSkills();
     }
 
     private void updatePlayerChoice() {
@@ -182,7 +171,7 @@ public class MegaMekUnitSelectorDialog extends AbstractUnitSelectorDialog {
         // we don't care about the failed loads.
         if (mscInstance.isInitialized()) {
             final Map<String, String> hFailedFiles = MechSummaryCache.getInstance().getFailedFiles();
-            if ((hFailedFiles != null) && (hFailedFiles.size() > 0)) {
+            if ((hFailedFiles != null) && !hFailedFiles.isEmpty()) {
                 // self-showing dialog
                 new UnitFailureDialog(frame, hFailedFiles);
             }
@@ -191,7 +180,7 @@ public class MegaMekUnitSelectorDialog extends AbstractUnitSelectorDialog {
 
     @Override
     public void setVisible(boolean visible) {
-        // Set the cursor in the text filter and mark the content so it can be directly replaced
+        // Set the cursor in the text filter and mark the content, so it can be directly replaced
         textFilter.grabFocus();
         textFilter.select(0, textFilter.getText().length());
         updatePlayerChoice();

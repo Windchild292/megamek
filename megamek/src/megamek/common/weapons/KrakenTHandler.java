@@ -13,10 +13,10 @@
  */
 package megamek.common.weapons;
 
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
-import megamek.server.Server;
+import megamek.server.GameManager;
 
 /**
  * @author Jay Lawson
@@ -32,10 +32,10 @@ public class KrakenTHandler extends TeleMissileHandler {
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
-    public KrakenTHandler(ToHitData t, WeaponAttackAction w, IGame g, Server s) {
-        super(t, w, g, s);
+    public KrakenTHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
+        super(t, w, g, m);
     }
 
     @Override

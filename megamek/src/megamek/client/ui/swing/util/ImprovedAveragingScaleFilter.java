@@ -1,17 +1,16 @@
 /*
  * MegaMek - Copyright (C) 2004 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing.util;
 
 import java.awt.image.AreaAveragingScaleFilter;
@@ -25,7 +24,9 @@ import java.awt.image.ColorModel;
  * @author Ben Smith
  */
 public class ImprovedAveragingScaleFilter extends AreaAveragingScaleFilter {
-    private int savedWidth, savedHeight, savedPixels[];
+    private int savedWidth;
+    private int savedHeight;
+    private int[] savedPixels;
     private static ColorModel defaultCM = ColorModel.getRGBdefault();
 
     public ImprovedAveragingScaleFilter(int savedWidth, int savedHeight,
@@ -52,13 +53,13 @@ public class ImprovedAveragingScaleFilter extends AreaAveragingScaleFilter {
 
     @Override
     public void setPixels(int x, int y, int width, int height, ColorModel cm,
-            byte pixels[], int offset, int scansize) {
+                          byte[] pixels, int offset, int scansize) {
         setThePixels(x, y, width, height, cm, pixels, offset, scansize);
     }
 
     @Override
     public void setPixels(int x, int y, int width, int height, ColorModel cm,
-            int pixels[], int offset, int scansize) {
+                          int[] pixels, int offset, int scansize) {
         setThePixels(x, y, width, height, cm, pixels, offset, scansize);
     }
 
@@ -69,13 +70,13 @@ public class ImprovedAveragingScaleFilter extends AreaAveragingScaleFilter {
         int destinationOffset = y * savedWidth + x;
         boolean bytearray = (pixels instanceof byte[]);
         for (int yy = 0; yy < height; yy++) {
-            for (int xx = 0; xx < width; xx++)
-                if (bytearray)
-                    savedPixels[destinationOffset++] = cm
-                            .getRGB(((byte[]) pixels)[sourceOffset++] & 0xff);
-                else
-                    savedPixels[destinationOffset++] = cm
-                            .getRGB(((int[]) pixels)[sourceOffset++]);
+            for (int xx = 0; xx < width; xx++) {
+                if (bytearray) {
+                    savedPixels[destinationOffset++] = cm.getRGB(((byte[]) pixels)[sourceOffset++] & 0xff);
+                } else {
+                    savedPixels[destinationOffset++] = cm.getRGB(((int[]) pixels)[sourceOffset++]);
+                }
+            }
             sourceOffset += (scansize - width);
             destinationOffset += (savedWidth - width);
         }
@@ -88,7 +89,7 @@ public class ImprovedAveragingScaleFilter extends AreaAveragingScaleFilter {
             return;
         }
         // get orig image width and height
-        int pixels[] = new int[savedWidth];
+        int[] pixels = new int[savedWidth];
         int position;
         for (int yy = 0; yy < savedHeight; yy++) {
             position = 0;

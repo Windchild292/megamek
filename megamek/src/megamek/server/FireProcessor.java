@@ -1,6 +1,6 @@
 /*
 * MegaMek -
-* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Ben Mazur (bmazur@sev.org)
+* Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
 * Copyright (C) 2018 The MegaMek Team
 *
 * This program is free software; you can redistribute it and/or modify it under
@@ -15,39 +15,27 @@
 */
 package megamek.server;
 
-import megamek.common.Building;
-import megamek.common.Compute;
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.IBoard;
-import megamek.common.IGame;
-import megamek.common.IHex;
-import megamek.common.Report;
-import megamek.common.TargetRoll;
-import megamek.common.Terrains;
+import megamek.common.*;
+import megamek.common.annotations.Nullable;
 import megamek.common.enums.HexCardinalDirection;
 import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
+import org.apache.logging.log4j.LogManager;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 public class FireProcessor extends DynamicTerrainProcessor {
 
-    private IGame game;
+    private Game game;
     Vector<Report> vPhaseReport;
 
-    public FireProcessor(Server server) {
-        super(server);
+    public FireProcessor(GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
     void doEndPhaseChanges(Vector<Report> vPhaseReport) {
-        game = server.getGame();
+        game = gameManager.getGame();
         if (game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_START_FIRE)) {
             this.vPhaseReport = vPhaseReport;
             resolveFire();
@@ -57,12 +45,12 @@ public class FireProcessor extends DynamicTerrainProcessor {
 
     /**
      * Make fires spread, smoke spread, and make sure that all fires started
-     * this turn are marked as "burning" for next turn. What turn the fire startd on is no
+     * this turn are marked as "burning" for next turn. What turn the fire started on is no
      * longer determined by level but is rather a characteristic of the hex.
      * Level now denotes standard and inferno fires.
      */
     private void resolveFire() {
-        IBoard board = game.getBoard();
+        Board board = game.getBoard();
         int width = board.getWidth();
         int height = board.getHeight();
         final HexCardinalDirection windDirection = game.getPlanetaryConditions().getWindDirection();
@@ -94,10 +82,8 @@ public class FireProcessor extends DynamicTerrainProcessor {
                         r = new Report(5120, Report.PUBLIC);
                         r.add(bldg.getName());
                         vPhaseReport.addElement(r);
-                    }
-
-                    // If it doesn't collapse under its load, mark it for update.
-                    else if (!server.checkForCollapse(bldg, positionMap, coords, false, vPhaseReport)) {
+                    } else if (!gameManager.checkForCollapse(bldg, positionMap, coords, false, vPhaseReport)) {
+                        // If it doesn't collapse under its load, mark it for update.
                         bldg.setPhaseCF(cf, coords);
                     }
                 }
@@ -108,15 +94,14 @@ public class FireProcessor extends DynamicTerrainProcessor {
         for (int currentXCoord = 0; currentXCoord < width; currentXCoord++) {
             for (int currentYCoord = 0; currentYCoord < height; currentYCoord++) {
                 Coords currentCoords = new Coords(currentXCoord, currentYCoord);
-                IHex currentHex = board.getHex(currentXCoord, currentYCoord);
+                Hex currentHex = board.getHex(currentXCoord, currentYCoord);
 
                 if (currentHex.containsTerrain(Terrains.FIRE)) {
                     //If the woods has been cleared, or the building
                     // has collapsed put non-inferno fires out.
-                    if ((currentHex.terrainLevel(Terrains.FIRE)
-                            == Terrains.FIRE_LVL_NORMAL)
+                    if ((currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_NORMAL)
                             && !currentHex.isIgnitable()) {
-                        server.removeFire(currentCoords, "lack of fuel");
+                        gameManager.removeFire(currentCoords, "lack of fuel");
                         continue;
                     }
 
@@ -124,20 +109,16 @@ public class FireProcessor extends DynamicTerrainProcessor {
                     if (currentHex.getFireTurn() > 0) {
                         //optional rule, woods burn down
                         Vector<Report> burnReports = null;
-                        if ((currentHex.containsTerrain(Terrains.WOODS) || currentHex
-                                .containsTerrain(Terrains.JUNGLE))
-                                && game.getOptions().booleanOption(
-                                        OptionsConstants.ADVANCED_WOODS_BURN_DOWN)) {
+                        if ((currentHex.containsTerrain(Terrains.WOODS)
+                                || currentHex.containsTerrain(Terrains.JUNGLE))
+                                && game.getOptions().booleanOption(OptionsConstants.ADVANCED_WOODS_BURN_DOWN)) {
                             burnReports = burnDownWoods(currentCoords);
                         }
                         //report and check for fire spread
                         r = new Report(5125, Report.PUBLIC);
-                        if ((currentHex.terrainLevel(Terrains.FIRE)
-                                == Terrains.FIRE_LVL_INFERNO)
-                                || (currentHex.terrainLevel(Terrains.FIRE)
-                                        == Terrains.FIRE_LVL_INFERNO_BOMB)
-                                || (currentHex.terrainLevel(Terrains.FIRE)
-                                        == Terrains.FIRE_LVL_INFERNO_IV)) {
+                        if ((currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO)
+                                || (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO_BOMB)
+                                || (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO_IV)) {
                             r.messageId = 5130;
                         }
                         r.add(currentCoords.getBoardNum());
@@ -151,18 +132,18 @@ public class FireProcessor extends DynamicTerrainProcessor {
             }
         }
 
-        //Cycle through all hexes again, reporting new fires, spreading smoke, and incrementing the fire turn.
-        //Can't do this in first loop because new fires may be spread
+        // Cycle through all hexes again, reporting new fires, spreading smoke, and incrementing the fire turn.
+        // Can't do this in first loop because new fires may be spread
         for (int currentXCoord = 0; currentXCoord < width; currentXCoord++) {
             for (int currentYCoord = 0; currentYCoord < height; currentYCoord++) {
                 Coords currentCoords = new Coords(currentXCoord, currentYCoord);
-                IHex currentHex = board.getHex(currentXCoord, currentYCoord);
+                Hex currentHex = board.getHex(currentXCoord, currentYCoord);
 
                 if (currentHex.containsTerrain(Terrains.FIRE)) {
                     Building bldg = game.getBoard().getBuildingAt(currentCoords);
-                    //was the fire started this turn?
+                    // Was the fire started this turn?
                     if (currentHex.getFireTurn() == 0) {
-                        //report fire started this round
+                        // Report fire started this round
                         r = new Report(5135, Report.PUBLIC);
                         r.add(currentCoords.getBoardNum());
                         vPhaseReport.addElement(r);
@@ -173,8 +154,8 @@ public class FireProcessor extends DynamicTerrainProcessor {
                         }
                     }
 
-                    //check for any explosions
-                    server.checkExplodeIndustrialZone(currentCoords, vPhaseReport);
+                    // Check for any explosions
+                    gameManager.checkExplodeIndustrialZone(currentCoords, vPhaseReport);
 
                     // Add smoke, unless tornado or optional rules
                     boolean containsForest = (currentHex.containsTerrain(Terrains.WOODS)
@@ -184,22 +165,21 @@ public class FireProcessor extends DynamicTerrainProcessor {
                             && !(game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_FOREST_FIRES_NO_SMOKE)
                                     && containsForest && (bldg == null))) {
                         final List<Coords> smokeList = new ArrayList<>();
-
                         smokeList.add(currentCoords.translated(windDirection));
                         smokeList.add(currentCoords.translated(windDirection.rotate(1)));
                         smokeList.add(currentCoords.translated(windDirection.rotate(-1)));
 
-                        server.addSmoke(smokeList, windDirection, bInferno);
+                        gameManager.addSmoke(smokeList, windDirection, bInferno);
                         board.initializeAround(currentXCoord, currentYCoord);
                     }
-                    //increment the fire turn counter
+
+                    // increment the fire turn counter
                     currentHex.incrementFireTurn();
-                    server.getHexUpdateSet().add(currentCoords);
+                    gameManager.getHexUpdateSet().add(currentCoords);
                 }
             }
         }
-
-    } // End the ResolveFire() method
+    }
 
     public Vector<Report> burnDownWoods(Coords coords) {
         Vector<Report> burnReports = new Vector<>();
@@ -207,16 +187,16 @@ public class FireProcessor extends DynamicTerrainProcessor {
         try {
             burnDamage = game.getOptions().intOption(OptionsConstants.ADVANCED_WOODS_BURN_DOWN_AMOUNT);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LogManager.getLogger().error("", ex);
         }
+
         // Report that damage applied to terrain
         Report r = new Report(3383, Report.PUBLIC);
         r.indent(1);
         r.add(burnDamage);
         burnReports.addElement(r);
 
-        Vector<Report> newReports =
-                server.tryClearHex(coords, burnDamage, Entity.NONE);
+        Vector<Report> newReports = gameManager.tryClearHex(coords, burnDamage, Entity.NONE);
         for (Report nr : newReports) {
             nr.indent(2);
         }
@@ -231,10 +211,10 @@ public class FireProcessor extends DynamicTerrainProcessor {
         Coords src = new Coords(x, y);
         Coords nextCoords = src.translated(direction);
 
-        //check for height differences between hexes
+        // check for height differences between hexes
         //TODO: until further clarification only the heights matter (not the base elevation)
         //This means that a fire cannot spread from a level 6 building at base level 0 to
-        //a level 1 building at base level 0, for example.
+        // a level 1 building at base level 0, for example.
 
         final int curHeight = game.getBoard().getHex(src).ceiling();
 
@@ -251,11 +231,10 @@ public class FireProcessor extends DynamicTerrainProcessor {
 
         spreadFire(src, nextCoords, directroll, curHeight);
 
-        // Spread to the next hex downwind on a 12 if the first hex wasn't
-        // burning...
+        // Spread to the next hex downwind on a 12 if the first hex wasn't burning...
         // unless a higher hex intervenes
-        IHex nextHex = game.getBoard().getHex(nextCoords);
-        IHex jumpHex = game.getBoard().getHex(nextCoords.translated(direction));
+        Hex nextHex = game.getBoard().getHex(nextCoords);
+        Hex jumpHex = game.getBoard().getHex(nextCoords.translated(direction));
         if ((nextHex != null) && (jumpHex != null) && !(nextHex.containsTerrain(Terrains.FIRE))
                 && ((curHeight >= nextHex.ceiling()) || (jumpHex.ceiling() >= nextHex.ceiling()))) {
             // we've already gone one step in the wind direction, now go another
@@ -281,13 +260,13 @@ public class FireProcessor extends DynamicTerrainProcessor {
      */
     public void spreadFire(final Coords origin, final Coords coords, final TargetRoll roll,
                            final int height) {
-        IHex hex = game.getBoard().getHex(coords);
+        Hex hex = game.getBoard().getHex(coords);
         if ((hex == null) || (Math.abs(hex.ceiling() - height) > 4)) {
             // Don't attempt to spread fire off the board or for large differences in height
             return;
         }
 
-        if (!(hex.containsTerrain(Terrains.FIRE)) && server.checkIgnition(coords, roll)) {
+        if (!(hex.containsTerrain(Terrains.FIRE)) && gameManager.checkIgnition(coords, roll)) {
             Report r = new Report(5150, Report.PUBLIC);
             r.add(coords.getBoardNum());
             r.add(origin.getBoardNum());
@@ -304,10 +283,10 @@ public class FireProcessor extends DynamicTerrainProcessor {
      * driftAddSmoke, driftSmokeDissipate, driftSmokeReport
      */
     private void resolveSmoke() {
-        IBoard board = game.getBoard();
+        Board board = game.getBoard();
         final HexCardinalDirection direction = game.getPlanetaryConditions().getWindDirection();
         Wind wind = game.getPlanetaryConditions().getWindStrength();
-        //if the breeze option is turned on, then treat wind strength like light gale if none
+        // if the breeze option is turned on, then treat wind strength like light gale if calm
         if (wind.isCalm() && game.getOptions().booleanOption(OptionsConstants.BASE_BREEZE)) {
             wind = Wind.LIGHT_GALE;
         }
@@ -316,7 +295,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
         HashMap<SmokeCloud, ArrayList<Coords>> smokeCloudData = new HashMap<>();
 
         // Cycle through all smokeclouds
-        for (SmokeCloud cloud : server.getSmokeCloudList()) {
+        for (SmokeCloud cloud : gameManager.getSmokeCloudList()) {
             smokeToAdd = new ArrayList<>();
             for (Coords currentCoords : cloud.getCoordsList()) {
                 Coords smokeCoords = driftAddSmoke(currentCoords, direction, wind);
@@ -327,8 +306,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
                     vPhaseReport.addElement(r);
                     r = new Report(5222,Report.PUBLIC);
                     vPhaseReport.addElement(r);
-                }
-                else if (board.contains(smokeCoords) && !currentCoords.equals(smokeCoords)) {
+                } else if (board.contains(smokeCoords) && !currentCoords.equals(smokeCoords)) {
                     // don't add it to the vector if it's not on board!
                     smokeToAdd.add(smokeCoords);
                     cloud.setDrift(true);
@@ -338,73 +316,75 @@ public class FireProcessor extends DynamicTerrainProcessor {
                     r.add(currentCoords.getBoardNum());
                     vPhaseReport.addElement(r);
                 }
-
-            } // end the loop through Cloud coordinates
-            if (smokeToAdd.size() > 0) {
-                smokeCloudData.put(cloud,smokeToAdd);
             }
-        } // end the loop through clouds
 
-        //update all the new coords for the smoke cloud.
+            if (!smokeToAdd.isEmpty()) {
+                smokeCloudData.put(cloud, smokeToAdd);
+            }
+        }
+
+        // update all the new coords for the smoke cloud.
         for (SmokeCloud cloud : smokeCloudData.keySet()) {
             smokeToAdd = smokeCloudData.get(cloud);
-            server.updateSmoke(cloud, smokeToAdd);
+            gameManager.updateSmoke(cloud, smokeToAdd);
         }
 
-        // Cycle through the vector again and dissipate the smoke, then
-        // reporting it
-        for (SmokeCloud cloud : server.getSmokeCloudList()) {
-                int roll = Compute.d6(2);
+        // Cycle through the vector again and dissipate the smoke, then reporting it
+        for (SmokeCloud cloud : gameManager.getSmokeCloudList()) {
+            int roll = Compute.d6(2);
+            boolean dissipated = driftSmokeDissipate(cloud, roll, wind);
 
-                boolean dissipated = driftSmokeDissipate(cloud, roll, wind);
-
-                if (dissipated || cloud.didDrift()) {
-                    driftSmokeReport(cloud, dissipated);
-                    if (dissipated) {
-                        cloud.reduceSmokeLevel();
-                    }
+            if (dissipated || cloud.didDrift()) {
+                driftSmokeReport(cloud, dissipated);
+                if (dissipated) {
+                    cloud.reduceSmokeLevel();
                 }
-                cloud.setDrift(false);
+            }
+            cloud.setDrift(false);
         }
-
-    } // end smoke resolution
-
-    /**
-     * Override for the main driftAddSmoke to allow for 0 direction changes
-     * @param coords the origin coordinates
-     * @param direction the direction of the wind
-     * @param wind the wind pushing the smoke
-     * @return the drifted smoke's new coordinates
-     */
-    public Coords driftAddSmoke(Coords coords, HexCardinalDirection direction, Wind wind) {
-        return driftAddSmoke(coords, direction, wind, 0);
     }
 
     /**
-     * Smoke cannot climb more then 4 hexes if the next hex is more then 4 in elevation then
-     * The smoke will try to go right. If it cannot go right it'll try to go left
-     * if it cannot go left it'll stay put.
-     *
-     * @param src the source hex
-     * @param direction the direction of the wind
-     * @param wind the wind pushing the smoke
-     * @param directionChanges How many times the smoke has tried to change directions to get around an obsticle.
-     * @return the new coordinates for the smoke
+     * Override for the main driftAddSmoke to allow for 0 direction changes
+     * @param source the source coordinates
+     * @param direction the wind's direction
+     * @param wind the wind's strength
+     * @return the coordinates where the smoke has drifted to, or null if it dissipates while on the
+     * board.
      */
-    public Coords driftAddSmoke(final Coords src, final HexCardinalDirection direction,
-                                final Wind wind, int directionChanges) {
+    public @Nullable Coords driftAddSmoke(final Coords source, final HexCardinalDirection direction,
+                                          final Wind wind) {
+        return driftAddSmoke(source, direction, wind, 0);
+    }
+
+    /**
+     * Smoke cannot climb more than 4 hexes if the next hex is more than 4 in elevation then the
+     * smoke will try to go right. If it cannot go right it'll try to go left. If it cannot go left
+     * it'll stay put.
+     *
+     * @param src the source coordinates
+     * @param direction the wind's direction
+     * @param wind the wind pushing the smoke
+     * @param directionChanges How many times the smoke has tried to change directions to get around an obstacle.
+     * @return the coordinates where the smoke has drifted to, or null if it dissipates while on the
+     * board.
+     */
+    public @Nullable Coords driftAddSmoke(final Coords src, final HexCardinalDirection direction,
+                                          final Wind wind, int directionChanges) {
         Coords nextCoords = src.translated(direction);
-        IBoard board = game.getBoard();
+        Board board = game.getBoard();
 
         // if the wind conditions are calm, then don't drift it
         if (wind.isCalm()) {
             return src;
         }
 
-        // if it is no longer on the board then return it now to avoid getting null arguments later
+        // The smoke has blown off the map, so we return the next coords to note that and prevent
+        // null issues later
         if (!board.contains(nextCoords)) {
             return nextCoords;
         }
+
         // if the smoke didn't start on the board because of shifting wind then return it
         if (!board.contains(src)) {
             return src;
@@ -421,7 +401,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
             hexElevation += board.getHex(src).terrainLevel(Terrains.BLDG_ELEV);
         }
 
-        //If the smoke moves into a hex that has a greater then 4 elevation drop it dissipates.
+        // If the smoke moves into a hex that has a greater than 4 elevation drop it dissipates.
         if ((hexElevation - nextElevation) > 4) {
             return null;
         }
@@ -432,6 +412,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
             } else if (directionChanges == 1) {
                 return driftAddSmoke(src, direction.rotate(-1), wind, ++directionChanges);
             } else {
+                // Stay put
                 return src;
             }
         }

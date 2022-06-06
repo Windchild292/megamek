@@ -18,10 +18,10 @@
  */
 package megamek.common.enums;
 
-import megamek.MegaMek;
 import megamek.common.Entity;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ResourceBundle;
 
@@ -47,13 +47,12 @@ public enum Weather {
     //region Variable Declarations
     private final String name;
     private final String toolTipText;
-
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.enums",
-            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
     Weather(final String name, final String toolTipText) {
+        final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
     }
@@ -271,7 +270,7 @@ public enum Weather {
 
         }
 
-        MegaMek.getLogger().error("Unable to parse " + text + " into a Weather. Returning CLEAR.");
+        LogManager.getLogger().error("Unable to parse " + text + " into a Weather. Returning CLEAR.");
 
         return CLEAR;
     }

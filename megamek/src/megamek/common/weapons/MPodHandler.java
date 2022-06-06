@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2004,2005 Ben Mazur (bmazur@sev.org)
+ * MegaMek - Copyright (C) 2004, 2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,11 +16,11 @@ package megamek.common.weapons;
 import java.util.Vector;
 
 import megamek.common.Compute;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Report;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
-import megamek.server.Server;
+import megamek.server.GameManager;
 
 /**
  * @author Sebastian Brocks
@@ -33,10 +33,10 @@ public class MPodHandler extends LBXHandler {
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
-    public MPodHandler(ToHitData t, WeaponAttackAction w, IGame g, Server s) {
-        super(t, w, g, s);
+    public MPodHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
+        super(t, w, g, m);
         sSalvoType = " pellet(s) ";
     }
 
@@ -67,7 +67,7 @@ public class MPodHandler extends LBXHandler {
             hitMod -= 4;
         }
         
-        if(bLowProfileGlancing) {
+        if (bLowProfileGlancing) {
             hitMod -= 4;
         }
         

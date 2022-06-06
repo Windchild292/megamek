@@ -1,5 +1,5 @@
-/**
- * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
+/*
+ * MegaMek - Copyright (c) 2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,19 +13,14 @@
  */
 package megamek.common.weapons.srms;
 
+import megamek.common.SimpleTechLevel;
+
 /**
  * @author Sebastian Brocks
  */
 public class CLSRM2IOS extends SRMWeapon {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 3798165725512473586L;
 
-    /**
-     *
-     */
     public CLSRM2IOS() {
         super();
         name = "SRM 2 (I-OS)";
@@ -46,15 +41,17 @@ public class CLSRM2IOS extends SRMWeapon {
         cost = 8000;
         shortAV = 2;
         maxRange = RANGE_SHORT;
-        rulesRefs = "327,TO";
+        rulesRefs = "327, TO";
+        // Tech Progression tweaked to combine IntOps with TRO Prototypes/3145 NTNU RS
         techAdvancement.setTechBase(TECH_BASE_CLAN)
-        	.setIntroLevel(false)
-        	.setUnofficial(false)
-            .setTechRating(RATING_B)
-            .setAvailability(RATING_X, RATING_X, RATING_F, RATING_E)
-            .setClanAdvancement(3058, 3081, 3085, DATE_NONE, DATE_NONE)
-            .setClanApproximate(false, true, false,false, false)
-            .setPrototypeFactions(F_CNC)
-            .setProductionFactions(F_CNC);
+                .setIntroLevel(false)
+                .setUnofficial(false)
+                .setTechRating(RATING_B)
+                .setAvailability(RATING_X, RATING_X, RATING_F, RATING_E)
+                .setClanAdvancement(DATE_NONE, 3058, 3081, DATE_NONE, DATE_NONE)
+                .setClanApproximate(false, false, true, false, false)
+                .setPrototypeFactions(F_CNC)
+                .setProductionFactions(F_CNC)
+                .setStaticTechLevel(SimpleTechLevel.STANDARD);
     }
 }

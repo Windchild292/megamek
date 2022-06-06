@@ -1,5 +1,5 @@
 /*
- * MegaMek - Copyright (C) 2003, 2004 Ben Mazur (bmazur@sev.org)
+ * Copyright (c) 2003-2004 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -11,38 +11,29 @@
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  */
-
 package megamek.common;
 
 /**
- * Represents a volume of space set aside for carrying vehicles <= 100 tons
- * aboard large spacecraft and mobile structures
+ * Represents a volume of space set aside for carrying vehicles &gt;= 100 tons aboard large
+ * spacecraft and mobile structures
  */
-
 public final class HeavyVehicleBay extends Bay {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 3490408642054662664L;
 
     /**
      * The default constructor is only for serialization.
      */
-    protected HeavyVehicleBay() {
+    private HeavyVehicleBay() {
         totalSpace = 0;
         currentSpace = 0;
     }
-
-    // Public constructors and methods.
 
     /**
      * Create a space for the given tonnage of troops. For this class, only the
      * weight of the troops (and their equipment) are considered; if you'd like
      * to think that they are stacked like lumber, be my guest.
      *
-     * @param space
-     *            - The weight of troops (in tons) this space can carry.
+     * @param space The weight of troops (in tons) this space can carry.
      * @param bayNumber
      */
     public HeavyVehicleBay(double space, int doors, int bayNumber) {
@@ -90,7 +81,7 @@ public final class HeavyVehicleBay extends Bay {
     }
 
     @Override
-    public String getUnusedString(boolean showrecovery) {
+    public String getUnusedString(boolean showRecovery) {
         return "Heavy Vehicle Bay " + numDoorsString() + " - "
                 + String.format("%1$,.0f", getUnused())
                 + (getUnused() > 1 ? " units" : " unit");
@@ -108,7 +99,7 @@ public final class HeavyVehicleBay extends Bay {
 
     @Override
     public int getPersonnel(boolean clan) {
-        return (int)totalSpace * 8;
+        return (int) totalSpace * 8;
     }
 
     @Override
@@ -117,7 +108,8 @@ public final class HeavyVehicleBay extends Bay {
     }
 
     public static TechAdvancement techAdvancement() {
-        return new TechAdvancement(TECH_BASE_ALL).setAdvancement(DATE_PS, DATE_PS, DATE_PS)
+        return new TechAdvancement(TECH_BASE_ALL)
+                .setAdvancement(DATE_PS, DATE_PS, DATE_PS)
                 .setTechRating(RATING_A)
                 .setAvailability(RATING_B, RATING_B, RATING_B, RATING_B)
                 .setStaticTechLevel(SimpleTechLevel.STANDARD);
@@ -133,5 +125,4 @@ public final class HeavyVehicleBay extends Bay {
         // Based on the number of cubicles
         return 10000L * (long) totalSpace;
     }
-
-} // End package class TroopSpace implements Transporter
+}

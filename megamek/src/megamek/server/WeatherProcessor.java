@@ -1,6 +1,6 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,15 +14,9 @@
  */
 package megamek.server;
 
-import java.util.Vector;
+import megamek.common.*;
 
-import megamek.common.Coords;
-import megamek.common.IGame;
-import megamek.common.IHex;
-import megamek.common.ITerrainFactory;
-import megamek.common.PlanetaryConditions;
-import megamek.common.Report;
-import megamek.common.Terrains;
+import java.util.Vector;
 
 /**
  * Cycle through hexes on a map and make any necessary adjustments based on weather
@@ -36,23 +30,23 @@ import megamek.common.Terrains;
  */
 public class WeatherProcessor extends DynamicTerrainProcessor {
 
-    private IGame game;
+    private Game game;
     Vector<Report> vPhaseReport;
 
     //track turns of snow, sleet, and ice
-    //do it this way because we may eventually implement more customizable conditions
+    // do it this way because we may eventually implement more customizable conditions
     int modSnowTurn = 0;
     int heavySnowTurn = 0;
     int sleetTurn = 0;
     int iceTurn = 0;
 
-    public WeatherProcessor(Server server) {
-        super(server);
+    public WeatherProcessor(GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
     void doEndPhaseChanges(Vector<Report> vPhaseReport) {
-        game = server.getGame();
+        game = gameManager.getGame();
         this.vPhaseReport = vPhaseReport;
         resolveWeather();
         this.vPhaseReport = null;
@@ -65,7 +59,6 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
             return;
         }
 
-        final ITerrainFactory tf = Terrains.getTerrainFactory();
         boolean lightSnow = false;
         boolean deepSnow = false;
         boolean ice = false;
@@ -113,9 +106,7 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
         if (lightSnow) {
             Report r = new Report(5505, Report.PUBLIC);
             vPhaseReport.addElement(r);
-        }
-
-        if (deepSnow) {
+        } else if (deepSnow) {
             Report r = new Report(5510, Report.PUBLIC);
             vPhaseReport.addElement(r);
         }
@@ -129,28 +120,25 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
         for (int currentXCoord = 0; currentXCoord < game.getBoard().getWidth(); currentXCoord++) {
             for (int currentYCoord = 0; currentYCoord < game.getBoard().getHeight(); currentYCoord++) {
                 Coords currentCoords = new Coords(currentXCoord, currentYCoord);
-                IHex currentHex = game.getBoard().getHex(currentXCoord, currentYCoord);
+                Hex currentHex = game.getBoard().getHex(currentXCoord, currentYCoord);
 
                 // check for fires and potentially put them out
                 if (currentHex.containsTerrain(Terrains.FIRE)) {
                     // only standard fires get put out
                     if (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_NORMAL) {
                         if (conditions.extinguishFire()) {
-                            server.removeFire(currentCoords, "weather conditions");
+                            gameManager.removeFire(currentCoords, "weather conditions");
                         }
                     // Downgrade Inferno fires so they can burn out
-                    } else if (currentHex.terrainLevel(Terrains.FIRE) 
-                            == Terrains.FIRE_LVL_INFERNO) {
-                        //inferno fires should become regular fires
+                    } else if (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO) {
+                        // inferno fires should become regular fires
                         currentHex.removeTerrain(Terrains.FIRE);
-                        currentHex.addTerrain(tf.createTerrain(Terrains.FIRE,1));
-                        server.getHexUpdateSet().add(currentCoords);
+                        currentHex.addTerrain(new Terrain(Terrains.FIRE, 1));
+                        gameManager.getHexUpdateSet().add(currentCoords);
                     // Check Inferno Bombs
-                    } else if (currentHex.terrainLevel(Terrains.FIRE) 
-                            == Terrains.FIRE_LVL_INFERNO_BOMB) {
+                    } else if (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO_BOMB) {
                         if (currentHex.getFireTurn() > 30) {
-                            server.removeFire(currentCoords, 
-                                    "inferno bomb burning out");
+                            gameManager.removeFire(currentCoords, "inferno bomb burning out");
                         }
                     }
                     // Inferno IV doesn't burn out, TO pg 356
@@ -158,8 +146,8 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
 
                 if (ice && !currentHex.containsTerrain(Terrains.ICE)
                         && currentHex.containsTerrain(Terrains.WATER)) {
-                    currentHex.addTerrain(tf.createTerrain(Terrains.ICE, 1));
-                    server.getHexUpdateSet().add(currentCoords);
+                    currentHex.addTerrain(new Terrain(Terrains.ICE, 1));
+                    gameManager.getHexUpdateSet().add(currentCoords);
                 }
 
                 if (lightSnow
@@ -167,26 +155,26 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
                         && !(currentHex.containsTerrain(Terrains.WATER) 
                                 && !currentHex.containsTerrain(Terrains.ICE))
                         && !currentHex.containsTerrain(Terrains.MAGMA)) {
-                    currentHex.addTerrain(tf.createTerrain(Terrains.SNOW, 1));
-                    server.getHexUpdateSet().add(currentCoords);
+                    currentHex.addTerrain(new Terrain(Terrains.SNOW, 1));
+                    gameManager.getHexUpdateSet().add(currentCoords);
                 }
 
                 if (deepSnow && !(currentHex.terrainLevel(Terrains.SNOW) > 1)
                         && !(currentHex.containsTerrain(Terrains.WATER) 
                                 && !currentHex.containsTerrain(Terrains.ICE))
                         && !currentHex.containsTerrain(Terrains.MAGMA)) {
-                    currentHex.addTerrain(tf.createTerrain(Terrains.SNOW, 2));
-                    server.getHexUpdateSet().add(currentCoords);
+                    currentHex.addTerrain(new Terrain(Terrains.SNOW, 2));
+                    gameManager.getHexUpdateSet().add(currentCoords);
                 }
 
-                //check for the melting of any snow or ice
+                // check for the melting of any snow or ice
                 if (currentHex.terrainLevel(Terrains.SNOW) > 1
                         && currentHex.containsTerrain(Terrains.FIRE) 
                         && currentHex.getFireTurn() == 3) {
                     currentHex.removeTerrain(Terrains.SNOW);
                     if (!currentHex.containsTerrain(Terrains.MUD)
                             && !currentHex.containsTerrain(Terrains.WATER)) {
-                        currentHex.addTerrain(tf.createTerrain(Terrains.MUD, 1));
+                        currentHex.addTerrain(new Terrain(Terrains.MUD, 1));
                     }
                 }
 
@@ -196,7 +184,7 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
                     currentHex.removeTerrain(Terrains.SNOW);
                     if (!currentHex.containsTerrain(Terrains.MUD)
                             && !currentHex.containsTerrain(Terrains.WATER)) {
-                        currentHex.addTerrain(tf.createTerrain(Terrains.MUD, 1));
+                        currentHex.addTerrain(new Terrain(Terrains.MUD, 1));
                     }
                 }
 
@@ -206,22 +194,22 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
                     currentHex.removeTerrain(Terrains.ICE);
                     if (!currentHex.containsTerrain(Terrains.MUD)
                             && !currentHex.containsTerrain(Terrains.WATER)) {
-                        currentHex.addTerrain(tf.createTerrain(Terrains.MUD, 1));
+                        currentHex.addTerrain(new Terrain(Terrains.MUD, 1));
                     }
                 }
 
-                //check for rapids/torrents created by wind
-                //FIXME: This doesn't seem to be doing anything
+                // check for rapids/torrents created by wind
+                // FIXME : This doesn't seem to be doing anything
                 if (conditions.getWindStrength().isStrongGaleOrStronger()
                         && currentHex.containsTerrain(Terrains.WATER)
-                        && (currentHex.depth(true) > 0)) {
+                        && currentHex.depth(true) > 0) {
                     if (conditions.getWindStrength().isTornado()) {
-                        if (currentHex.terrainLevel(Terrains.RAPIDS) <= 1) {
-                            currentHex.addTerrain(tf.createTerrain(Terrains.RAPIDS, 2));
+                        if (!(currentHex.terrainLevel(Terrains.RAPIDS) > 1)) {
+                            currentHex.addTerrain(new Terrain(Terrains.RAPIDS, 2));
                         }
                     } else {
                         if (!currentHex.containsTerrain(Terrains.RAPIDS)) {
-                            currentHex.addTerrain(tf.createTerrain(Terrains.RAPIDS, 1));
+                            currentHex.addTerrain(new Terrain(Terrains.RAPIDS, 1));
                         }
                     }
                 }

@@ -14,37 +14,17 @@
  */
 package megamek.client.bot.ui.swing;
 
-import javax.swing.JFrame;
-
 import megamek.client.bot.BotClient;
 import megamek.client.bot.Messages;
 import megamek.client.ui.dialogs.helpDialogs.BotHelpDialog;
 import megamek.client.ui.swing.ConfirmDialog;
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.common.IGame;
-import megamek.common.event.GameBoardChangeEvent;
-import megamek.common.event.GameBoardNewEvent;
-import megamek.common.event.GameCFREvent;
-import megamek.common.event.GameEndEvent;
-import megamek.common.event.GameEntityChangeEvent;
-import megamek.common.event.GameEntityNewEvent;
-import megamek.common.event.GameEntityNewOffboardEvent;
-import megamek.common.event.GameEntityRemoveEvent;
-import megamek.common.event.GameListener;
-import megamek.common.event.GameMapQueryEvent;
-import megamek.common.event.GameNewActionEvent;
-import megamek.common.event.GamePhaseChangeEvent;
-import megamek.common.event.GamePlayerChangeEvent;
-import megamek.common.event.GamePlayerChatEvent;
-import megamek.common.event.GamePlayerConnectedEvent;
-import megamek.common.event.GamePlayerDisconnectedEvent;
-import megamek.common.event.GameReportEvent;
-import megamek.common.event.GameSettingsChangeEvent;
-import megamek.common.event.GameTurnChangeEvent;
-import megamek.common.event.GameVictoryEvent;
+import megamek.common.enums.GamePhase;
+import megamek.common.event.*;
+
+import javax.swing.*;
 
 public class BotGUI implements GameListener {
-
     private BotClient bot;
     private static boolean WarningShown;
 
@@ -52,14 +32,10 @@ public class BotGUI implements GameListener {
         this.bot = bot;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.GameListener#gamePhaseChange(megamek.common.GamePhaseChangeEvent)
-     */
+    @Override
     public void gamePhaseChange(GamePhaseChangeEvent e) {
-        if (bot.getGame().getPhase() == IGame.Phase.PHASE_LOUNGE
-                || bot.getGame().getPhase() == IGame.Phase.PHASE_STARTING_SCENARIO) {
+        if (bot.getGame().getPhase() == GamePhase.LOUNGE
+                || bot.getGame().getPhase() == GamePhase.STARTING_SCENARIO) {
             notifyOfBot();
         }
     }
@@ -69,8 +45,8 @@ public class BotGUI implements GameListener {
             WarningShown = true;
             
             JFrame frame = new JFrame();
-            String title = Messages.getString("BotGUI.notifyOfBot.title"); //$NON-NLS-1$
-            String body = Messages.getString("BotGUI.notifyOfBot.message"); //$NON-NLS-1$
+            String title = Messages.getString("BotGUI.notifyOfBot.title");
+            String body = Messages.getString("BotGUI.notifyOfBot.message");
             frame.pack();
             frame.setLocationRelativeTo(null);
             ConfirmDialog confirm = new ConfirmDialog(frame, title, body, true);
@@ -107,36 +83,47 @@ public class BotGUI implements GameListener {
     public void gameTurnChange(GameTurnChangeEvent e) {
     }
 
+    @Override
     public void gameReport(GameReportEvent e) {
     }
 
+    @Override
     public void gameEnd(GameEndEvent e) {
     }
 
+    @Override
     public void gameBoardNew(GameBoardNewEvent e) {
     }
 
+    @Override
     public void gameBoardChanged(GameBoardChangeEvent e) {
     }
 
+    @Override
     public void gameSettingsChange(GameSettingsChangeEvent e) {
     }
 
+    @Override
     public void gameMapQuery(GameMapQueryEvent e) {
     }
 
+    @Override
     public void gameEntityNew(GameEntityNewEvent e) {
     }
 
+    @Override
     public void gameEntityNewOffboard(GameEntityNewOffboardEvent e) {
     }
 
+    @Override
     public void gameEntityChange(GameEntityChangeEvent e) {
     }
 
+    @Override
     public void gameNewAction(GameNewActionEvent e) {
     }
 
+    @Override
     public void gameEntityRemove(GameEntityRemoveEvent e) {
     }
     

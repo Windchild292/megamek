@@ -19,6 +19,8 @@ import megamek.common.*;
 import megamek.common.util.BuildingBlock;
 import megamek.common.weapons.infantry.InfantryWeapon;
 
+import java.util.Objects;
+
 /**
  * BLkFile.java
  *
@@ -38,6 +40,7 @@ public class BLKFixedWingSupportFile extends BLKFile implements IMechLoader {
         dataFile = bb;
     }
 
+    @Override
     public Entity getEntity() throws EntityLoadingException {
 
         FixedWingSupport a = new FixedWingSupport();
@@ -50,6 +53,9 @@ public class BLKFixedWingSupportFile extends BLKFile implements IMechLoader {
             a.setModel(dataFile.getDataAsString("Model")[0]);
         } else {
             a.setModel("");
+        }
+        if (dataFile.exists(MtfFile.MUL_ID)) {
+            a.setMulId(dataFile.getDataAsInt(MtfFile.MUL_ID)[0]);
         }
 
         setTechLevel(a);
@@ -171,10 +177,6 @@ public class BLKFixedWingSupportFile extends BLKFile implements IMechLoader {
             a.setOmni(true);
         }
 
-        if (a.isClan()) {
-            a.addClanCase();
-        }
-
         // how many bombs can it carry
         // do this here, after equipment has been loaded, because fixed wing
         // support vees need equipment for this
@@ -279,7 +281,7 @@ public class BLKFixedWingSupportFile extends BLKFile implements IMechLoader {
                             // been set yet, so if the unit carries multiple clips the number of
                             // shots needs to be adjusted.
                             mount.setSize(size);
-                            assert(mount.getLinked() != null);
+                            Objects.requireNonNull(mount.getLinked());
                             mount.getLinked().setOriginalShots((int) size
                                     * ((InfantryWeapon) mount.getType()).getShots());
                             mount.getLinked().setShotsLeft(mount.getLinked().getOriginalShots());
@@ -287,11 +289,12 @@ public class BLKFixedWingSupportFile extends BLKFile implements IMechLoader {
                     } catch (LocationFullException ex) {
                         throw new EntityLoadingException(ex.getMessage());
                     }
-                } else if (!equipName.equals("")) {
+                } else if (!equipName.isBlank()) {
                     t.addFailedEquipment(equipName);
                 }
             }
         }
+
         if (mashOperatingTheaters > 0) {
             for (Mounted m : t.getMisc()) {
                 if (m.getType().hasFlag(MiscType.F_MASH)) {
@@ -301,6 +304,7 @@ public class BLKFixedWingSupportFile extends BLKFile implements IMechLoader {
                 }
             }
         }
+
         if (legacyDCCSCapacity > 0) {
             for (Mounted m : t.getMisc()) {
                 if (m.getType().hasFlag(MiscType.F_DRONE_CARRIER_CONTROL)) {

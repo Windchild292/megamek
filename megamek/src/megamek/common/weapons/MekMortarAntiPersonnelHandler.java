@@ -18,11 +18,12 @@ import java.util.Vector;
 import megamek.common.Building;
 import megamek.common.Compute;
 import megamek.common.Entity;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Report;
 import megamek.common.Targetable;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.server.GameManager;
 import megamek.server.Server;
 
 /**
@@ -37,11 +38,11 @@ public class MekMortarAntiPersonnelHandler extends AmmoWeaponHandler {
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
     public MekMortarAntiPersonnelHandler(ToHitData t, WeaponAttackAction w,
-            IGame g, Server s) {
-        super(t, w, g, s);
+            Game g, GameManager m) {
+        super(t, w, g, m);
     }
 
     /*

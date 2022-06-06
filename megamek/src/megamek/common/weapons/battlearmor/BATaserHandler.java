@@ -1,15 +1,15 @@
-/**
- * MegaMek - Copyright (C) 2004,2005 Ben Mazur (bmazur@sev.org)
+/*
+ * MegaMek - Copyright (C) 2004, 2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common.weapons.battlearmor;
 
@@ -20,7 +20,7 @@ import megamek.common.BattleArmor;
 import megamek.common.Compute;
 import megamek.common.Entity;
 import megamek.common.HitData;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Mech;
 import megamek.common.Protomech;
 import megamek.common.Report;
@@ -28,6 +28,7 @@ import megamek.common.Tank;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.weapons.AmmoWeaponHandler;
+import megamek.server.GameManager;
 import megamek.server.Server;
 
 public class BATaserHandler extends AmmoWeaponHandler {
@@ -43,8 +44,8 @@ public class BATaserHandler extends AmmoWeaponHandler {
      * @param w
      * @param g
      */
-    public BATaserHandler(ToHitData t, WeaponAttackAction w, IGame g, Server s) {
-        super(t, w, g, s);
+    public BATaserHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
+        super(t, w, g, m);
         generalDamageType = HitData.DAMAGE_ENERGY;
     }
 
@@ -56,8 +57,7 @@ public class BATaserHandler extends AmmoWeaponHandler {
      * megamek.common.Entity, boolean)
      */
     @Override
-    protected boolean specialResolution(Vector<Report> vPhaseReport,
-            Entity entityTarget) {
+    protected boolean specialResolution(Vector<Report> vPhaseReport, Entity entityTarget) {
         boolean done = false;
         if (bMissed) {
             return done;
@@ -81,7 +81,7 @@ public class BATaserHandler extends AmmoWeaponHandler {
                 // Check to see if the squad has been eliminated
                 if (entityTarget.getTransferLocation(hit).getLocation() == 
                         Entity.LOC_DESTROYED) {
-                    vPhaseReport.addAll(server.destroyEntity(entityTarget,
+                    vPhaseReport.addAll(gameManager.destroyEntity(entityTarget,
                             "all troopers eliminated", false));
                 }
                 done = true;
@@ -145,7 +145,7 @@ public class BATaserHandler extends AmmoWeaponHandler {
             vPhaseReport.add(r);
             // kill the firing trooper
             // TODO: should just be shut down for remainder of scenario
-            vPhaseReport.addAll(server.criticalEntity(ae, weapon.getLocation(),
+            vPhaseReport.addAll(gameManager.criticalEntity(ae, weapon.getLocation(),
                     false, 0, false, false, 0));
         }
         return done;

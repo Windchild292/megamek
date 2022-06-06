@@ -18,13 +18,13 @@
  */
 package megamek.common.enums;
 
-import megamek.MegaMek;
 import megamek.common.Entity;
 import megamek.common.EntityWeightClass;
 import megamek.common.Mech;
 import megamek.common.Protomech;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ResourceBundle;
 
@@ -41,13 +41,12 @@ public enum AtmosphericPressure {
     //region Variable Declarations
     private final String name;
     private final String toolTipText;
-
-    private final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
-            PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
     //endregion Variable Declarations
 
     //region Constructors
     AtmosphericPressure(final String name, final String toolTipText) {
+        final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
         this.name = resources.getString(name);
         this.toolTipText = resources.getString(toolTipText);
     }
@@ -133,7 +132,7 @@ public enum AtmosphericPressure {
                     return 0;
             }
         } else {
-            MegaMek.getLogger().error("Illegal entity type of " + entity.getClass()
+            LogManager.getLogger().error("Illegal entity type of " + entity.getClass()
                     + " for partial wing jump modifier, returning 0");
             return 0;
         }
@@ -188,7 +187,7 @@ public enum AtmosphericPressure {
 
         }
 
-        MegaMek.getLogger().error("Unable to parse " + text + " into an AtmosphericPressure. Returning STANDARD.");
+        LogManager.getLogger().error("Unable to parse " + text + " into an AtmosphericPressure. Returning STANDARD.");
 
         return STANDARD;
     }

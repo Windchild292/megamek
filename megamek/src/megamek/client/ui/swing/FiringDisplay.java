@@ -1,18 +1,17 @@
 /*
  * MegaMek -
- * Copyright (C) 2000,2001,2002,2003,2004,2005 Ben Mazur (bmazur@sev.org)
+ * Copyright (C) 2000-2005 Ben Mazur (bmazur@sev.org)
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
-
 package megamek.client.ui.swing;
 
 import megamek.client.event.BoardViewEvent;
@@ -21,34 +20,28 @@ import megamek.client.ui.SharedUtility;
 import megamek.client.ui.swing.util.CommandAction;
 import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.util.MegaMekController;
+import megamek.client.ui.swing.util.TurnTimer;
 import megamek.client.ui.swing.widget.MegamekButton;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
-import megamek.common.IGame.Phase;
 import megamek.common.actions.*;
+import megamek.common.enums.AimingMode;
+import megamek.common.enums.GamePhase;
 import megamek.common.event.GamePhaseChangeEvent;
 import megamek.common.event.GameTurnChangeEvent;
 import megamek.common.options.OptionsConstants;
 import megamek.common.util.FiringSolution;
-import megamek.client.ui.swing.util.TurnTimer;
 import megamek.common.weapons.Weapon;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;
+import org.apache.logging.log4j.LogManager;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.*;
 
-public class FiringDisplay extends StatusBarPhaseDisplay implements
-        ItemListener, ListSelectionListener {
-    /**
-     *
-     */
+public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener, ListSelectionListener {
     private static final long serialVersionUID = -5586388490027013723L;
 
     /**
@@ -79,6 +72,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         FIRE_CLEAR_WEAPON("fireClearWeaponJam"),
         FIRE_CALLED("fireCalled"),
         FIRE_CANCEL("fireCancel"),
+        FIRE_ACTIVATE_SPA("fireActivateSPA"),
         FIRE_MORE("fireMore");
 
         String cmd;
@@ -92,18 +86,22 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             cmd = c;
         }
 
+        @Override
         public String getCmd() {
             return cmd;
         }
 
+        @Override
         public int getPriority() {
             return priority;
         }
 
+        @Override
         public void setPriority(int p) {
             priority = p;
         }
 
+        @Override
         public String toString() {
             return Messages.getString("FiringDisplay." + getCmd());
         }
@@ -133,13 +131,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     protected int lastTargetID = -1;
 
     protected AimedShotHandler ash;
-    
+
     protected boolean isStrafing = false;
-    
+
     /**
      * Keeps track of the Coords that are in a strafing run.
      */
-    private ArrayList<Coords> strafingCoords = new ArrayList<Coords>(5);
+    private ArrayList<Coords> strafingCoords = new ArrayList<>(5);
 
     /**
      * Creates and lays out a new firing phase display for the specified
@@ -154,16 +152,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         shiftheld = false;
 
         // fire
-        attacks = new Vector<AbstractEntityAction>();
+        attacks = new Vector<>();
 
-        setupStatusBar(Messages
-                .getString("FiringDisplay.waitingForFiringPhase")); //$NON-NLS-1$
+        setupStatusBar(Messages.getString("FiringDisplay.waitingForFiringPhase"));
 
-        buttons = new HashMap<FiringCommand, MegamekButton>(
-                (int) (FiringCommand.values().length * 1.25 + 0.5));
+        buttons = new HashMap<>((int) (FiringCommand.values().length * 1.25 + 0.5));
         for (FiringCommand cmd : FiringCommand.values()) {
-            String title = Messages.getString("FiringDisplay." //$NON-NLS-1$
-                    + cmd.getCmd());
+            String title = Messages.getString("FiringDisplay." + cmd.getCmd());
             MegamekButton newButton = new MegamekButton(title,
                     SkinSpecification.UIComponents.PhaseDisplayButton.getComp());
             String ttKey = "FiringDisplay." + cmd.getCmd() + ".tooltip";
@@ -175,20 +170,18 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             newButton.setEnabled(false);
             buttons.put(cmd, newButton);
         }
-        numButtonGroups =
-                (int) Math.ceil((buttons.size() + 0.0) / buttonsPerGroup);
+        numButtonGroups = (int) Math.ceil((buttons.size() + 0.0) / buttonsPerGroup);
 
-        butDone.setText("<html><b>" + Messages.getString( //$NON-NLS-1$
-                "FiringDisplay.Done") + "</b></html>"); //$NON-NLS-1$ //$NON-NLS-2$
+        butDone.setText("<html><b>" + Messages.getString("FiringDisplay.Done") + "</b></html>");
         butDone.setEnabled(false);
 
         setupButtonPanel();
 
-        clientgui.bv.addKeyListener(this);
+        clientgui.getBoardView().addKeyListener(this);
 
         // mech display.
-        clientgui.mechD.wPan.weaponList.addListSelectionListener(this);
-        clientgui.mechD.wPan.weaponList.addKeyListener(this);
+        clientgui.getUnitDisplay().wPan.weaponList.addListSelectionListener(this);
+        clientgui.getUnitDisplay().wPan.weaponList.addKeyListener(this);
 
         ash = new AimedShotHandler(this);
 
@@ -202,13 +195,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         MegaMekController controller = clientgui.controller;
         final StatusBarPhaseDisplay display = this;
         // Register the action for UNDO
-        controller.registerCommandAction(KeyCommandBind.UNDO.cmd,
+        controller.registerCommandAction(KeyCommandBind.UNDO_LAST_STEP.cmd,
                 new CommandAction() {
 
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || display.isIgnoringEvents()
                                 || !display.isVisible()) {
                             return false;
@@ -230,7 +223,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -253,7 +246,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -276,11 +269,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()
-                                || !buttons.get(FiringCommand.FIRE_FIRE)
-                                        .isEnabled()) {
+                                || !buttons.get(FiringCommand.FIRE_FIRE).isEnabled()) {
                             return false;
                         } else {
                             return true;
@@ -300,7 +292,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -322,7 +314,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -344,7 +336,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -367,7 +359,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -390,7 +382,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -412,7 +404,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -434,7 +426,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -456,7 +448,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -478,7 +470,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -500,7 +492,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -522,7 +514,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -544,7 +536,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -558,6 +550,37 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                         jumpToTarget(false, true, true);
                     }
                 });
+
+        // Register the action for VIEW_ACTING_UNIT
+        controller.registerCommandAction(KeyCommandBind.VIEW_ACTING_UNIT.cmd,
+                new CommandAction() {
+
+                    @Override
+                    public boolean shouldPerformAction() {
+                        if (!clientgui.getClient().isMyTurn()
+                                || clientgui.getBoardView().getChatterBoxActive()
+                                || !display.isVisible()
+                                || display.isIgnoringEvents()) {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }
+
+                    @Override
+                    public void performAction() {
+                        if (!Objects.equals(ce(), clientgui.getUnitDisplay().getCurrentEntity())
+                                && clientgui.getUnitDisplay().isVisible()) {
+                            Entity en_Target = clientgui.getUnitDisplay().getCurrentEntity();
+                            // Avoided using selectEntity(), to avoid centering on active unit
+                            clientgui.getUnitDisplay().displayEntity(ce());
+                            clientgui.getUnitDisplay().showPanel("weapons");
+                            clientgui.getUnitDisplay().wPan.selectFirstWeapon();
+                            target(en_Target);
+                        }
+                    }
+                });
+
         // Register the action for NEXT_MODE
         controller.registerCommandAction(KeyCommandBind.NEXT_MODE.cmd,
                 new CommandAction() {
@@ -565,7 +588,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || display.isIgnoringEvents()
                                 || !display.isVisible()) {
                             return false;
@@ -587,7 +610,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     @Override
                     public boolean shouldPerformAction() {
                         if (!clientgui.getClient().isMyTurn()
-                                || clientgui.bv.getChatterBoxActive()
+                                || clientgui.getBoardView().getChatterBoxActive()
                                 || display.isIgnoringEvents()
                                 || !display.isVisible()) {
                             return false;
@@ -608,7 +631,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
                     @Override
                     public boolean shouldPerformAction() {
-                        if (clientgui.bv.getChatterBoxActive()
+                        if (clientgui.getBoardView().getChatterBoxActive()
                                 || !display.isVisible()
                                 || display.isIgnoringEvents()) {
                             return false;
@@ -625,10 +648,11 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
     }
 
+    @Override
     protected ArrayList<MegamekButton> getButtonList() {
-        ArrayList<MegamekButton> buttonList = new ArrayList<MegamekButton>();
+        ArrayList<MegamekButton> buttonList = new ArrayList<>();
         int i = 0;
-        FiringCommand commands[] = FiringCommand.values();
+        FiringCommand[] commands = FiringCommand.values();
         CommandComparator comparator = new CommandComparator();
         Arrays.sort(commands, comparator);
         for (FiringCommand cmd : commands) {
@@ -672,47 +696,40 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             clearAttacks();
             refreshAll();
         }
-        
+
         if ((ce() != null) && ce().isWeapOrderChanged()) {
             clientgui.getClient().sendEntityWeaponOrderUpdate(ce());
         }
-        
+
         if (clientgui.getClient().isMyTurn()) {
-            setStatusBarText(Messages
-                    .getString("FiringDisplay.its_your_turn")); //$NON-NLS-1$
+            setStatusBarText(Messages.getString("FiringDisplay.its_your_turn"));
         }
 
         if (clientgui.getClient().getGame().getEntity(en) != null) {
-
             cen = en;
             clientgui.setSelectedEntityNum(en);
-            clientgui.mechD.displayEntity(ce());
+            clientgui.getUnitDisplay().displayEntity(ce());
 
             // If the selected entity is not on the board, use the next one.
             // ASSUMPTION: there will always be *at least one* entity on map.
             if (ce().getPosition() == null) {
 
                 // Walk through the list of entities for this player.
-                for (int nextId = clientgui.getClient().getNextEntityNum(en);
-                     nextId != en; nextId = clientgui
-                        .getClient().getNextEntityNum(nextId)) {
+                for (int nextId = clientgui.getClient().getNextEntityNum(en); nextId != en;
+                     nextId = clientgui.getClient().getNextEntityNum(nextId)) {
 
-                    if (clientgui.getClient().getGame().getEntity(nextId)
-                                 .getPosition() != null) {
+                    if (clientgui.getClient().getGame().getEntity(nextId).getPosition() != null) {
                         cen = nextId;
                         break;
                     }
-
                 } // Check the player's next entity.
 
                 // We were *supposed* to have found an on-board entity.
                 if (ce().getPosition() == null) {
-                    System.err.println("FiringDisplay: could " + //$NON-NLS-1$
-                            "not find an on-board entity: " + en); //$NON-NLS-1$
+                    LogManager.getLogger().error("Could not find an on-board entity " + en);
                     return;
                 }
-
-            } // End ce()-not-on-board
+            }
 
             if (ce().isMakingVTOLGroundAttack()) {
                 this.updateVTOLGroundTarget();
@@ -721,7 +738,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 clearAttacks();
                 int lastTarget = ce().getLastTarget();
                 if (ce() instanceof Mech) {
-                    int grapple = ((Mech) ce()).getGrappled();
+                    int grapple = ce().getGrappled();
                     if (grapple != Entity.NONE) {
                         lastTarget = grapple;
                     }
@@ -740,18 +757,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             cacheVisibleTargets();
 
             if (!ce().isOffBoard()) {
-                clientgui.bv.centerOnHex(ce().getPosition());
+                clientgui.getBoardView().centerOnHex(ce().getPosition());
             }
 
-            // Update the menu bar.
-            clientgui.getMenuBar().setEntity(ce());
-
             // only twist if crew conscious
-            setTwistEnabled(ce().canChangeSecondaryFacing()
-                            && ce().getCrew().isActive());
+            setTwistEnabled(ce().canChangeSecondaryFacing() && ce().getCrew().isActive());
 
-            setFindClubEnabled(FindClubAction.canMechFindClub(
-                    clientgui.getClient().getGame(), en));
+            setFindClubEnabled(FindClubAction.canMechFindClub(clientgui.getClient().getGame(), en));
             setFlipArmsEnabled(ce().canFlipArms());
             updateSearchlight();
             updateClearTurret();
@@ -765,14 +777,11 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 setFindClubEnabled(false);
                 setFlipArmsEnabled(false);
                 setStrafeEnabled(false);
-                clientgui.mechD.wPan.toHitText
-                .setText("Hidden units are only allowed to spot!");
+                clientgui.getUnitDisplay().wPan.toHitText.setText("Hidden units are only allowed to spot!");
             }
         } else {
-            System.err.println("FiringDisplay: tried to " + //$NON-NLS-1$
-                    "select non-existant entity: " + en); //$NON-NLS-1$
+            LogManager.getLogger().error("Tried to select non-existent entity " + en);
         }
-        
 
         if (GUIPreferences.getInstance().getBoolean("FiringSolutions")) {
             setFiringSolutions();
@@ -787,8 +796,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             return;
         }
 
-        IGame game = clientgui.getClient().getGame();
-        IPlayer localPlayer = clientgui.getClient().getLocalPlayer();
+        Game game = clientgui.getClient().getGame();
+        Player localPlayer = clientgui.getClient().getLocalPlayer();
         if (!GUIPreferences.getInstance().getFiringSolutions()) {
             return;
         }
@@ -804,13 +813,12 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         // Calculate firing solutions
         Map<Integer, FiringSolution> fs = new HashMap<>();
         for (Entity target : game.getEntitiesVector()) {
-            boolean friendlyFire = game.getOptions().booleanOption(
-                    OptionsConstants.BASE_FRIENDLY_FIRE); //$NON-NLS-1$
+            boolean friendlyFire = game.getOptions().booleanOption(OptionsConstants.BASE_FRIENDLY_FIRE);
             boolean enemyTarget = target.getOwner().isEnemyOf(ce().getOwner());
             if ((target.getId() != cen)
-                && (friendlyFire || enemyTarget)
-                && (!enemyTarget || EntityVisibilityUtils.detectedOrHasVisual(localPlayer, game, target))
-                && target.isTargetable()) {
+                    && (friendlyFire || enemyTarget)
+                    && (!enemyTarget || EntityVisibilityUtils.detectedOrHasVisual(localPlayer, game, target))
+                    && target.isTargetable()) {
                 ToHitData thd = WeaponAttackAction.toHit(game, cen, target);
                 thd.setLocation(target.getPosition());
                 thd.setRange(ce().getPosition().distance(target.getPosition()));
@@ -826,10 +834,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     protected void beginMyTurn() {
         target = null;
 
-        if (!clientgui.bv.isMovingUnits()) {
-            clientgui.setDisplayVisible(true);
+        if (!clientgui.getBoardView().isMovingUnits()) {
+            clientgui.maybeShowUnitDisplay();
         }
-        clientgui.bv.clearFieldofF();
+        clientgui.getBoardView().clearFieldofF();
 
         selectEntity(clientgui.getClient().getFirstEntityNum());
 
@@ -837,8 +845,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         // There's special processing for triggering AP Pods.
         if ((turn instanceof GameTurn.TriggerAPPodTurn) && (ce() != null)) {
             disableButtons();
-            TriggerAPPodDialog dialog = new TriggerAPPodDialog(
-                    clientgui.getFrame(), ce());
+            TriggerAPPodDialog dialog = new TriggerAPPodDialog(clientgui.getFrame(), ce());
             dialog.setVisible(true);
             attacks.removeAllElements();
             Enumeration<TriggerAPPodAction> actions = dialog.getActions();
@@ -860,13 +867,14 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         } else {
             setNextEnabled(true);
             butDone.setEnabled(true);
-            if (numButtonGroups > 1)
+            if (numButtonGroups > 1) {
                 buttons.get(FiringCommand.FIRE_MORE).setEnabled(true);
+            }
             setFireCalledEnabled(clientgui.getClient().getGame().getOptions()
                     .booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_CALLED_SHOTS));
             clientgui.getBoardView().select(null);
         }
-        //check if there should be a turn timer running
+        // check if there should be a turn timer running
         tt = TurnTimer.init(this, clientgui.getClient());
     }
 
@@ -880,22 +888,22 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             tt = null;
         }
         // end my turn, then.
-        IGame game = clientgui.getClient().getGame();
+        Game game = clientgui.getClient().getGame();
         Entity next = game.getNextEntity(game.getTurnIndex());
-        if ((game.getPhase() == IGame.Phase.PHASE_FIRING)
+        if ((game.getPhase() == GamePhase.FIRING)
             && (next != null) && (ce() != null)
             && (next.getOwnerId() != ce().getOwnerId())) {
-            clientgui.setDisplayVisible(false);
+            clientgui.setUnitDisplayVisible(false);
         }
         cen = Entity.NONE;
         target(null);
         clientgui.getBoardView().select(null);
         clientgui.getBoardView().highlight(null);
         clientgui.getBoardView().cursor(null);
-        clientgui.bv.clearMovementData();
-        clientgui.bv.clearFiringSolutionData();
-        clientgui.bv.clearStrafingCoords();
-        clientgui.bv.clearFieldofF();
+        clientgui.getBoardView().clearMovementData();
+        clientgui.getBoardView().clearFiringSolutionData();
+        clientgui.getBoardView().clearStrafingCoords();
+        clientgui.getBoardView().clearFieldofF();
         clientgui.setSelectedEntityNum(Entity.NONE);
         disableButtons();
 
@@ -927,7 +935,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
      * Fire Mode - Adds a Fire Mode Change to the current Attack Action
      */
     protected void changeMode(boolean forward) {
-        int wn = clientgui.mechD.wPan.getSelectedWeaponNum();
+        int wn = clientgui.getUnitDisplay().wPan.getSelectedWeaponNum();
 
         // Do nothing we have no unit selected.
         if (ce() == null) {
@@ -952,7 +960,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         // number of troopers in the squad.
         if ((ce() instanceof BattleArmor)
                 && (m.getType() instanceof WeaponType)
-                && ((WeaponType)m.getType()).hasFlag(WeaponType.F_BA_INDIVIDUAL)
+                && m.getType().hasFlag(WeaponType.F_BA_INDIVIDUAL)
                 && (m.curMode().getName().contains("-shot"))
                 && (Integer.parseInt(m.curMode().getName().replace("-shot", "")) > ce().getTotalInternal())) {
             m.setMode(0);
@@ -961,25 +969,23 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
         // notify the player
         if (m.canInstantSwitch(nMode)) {
-            clientgui.systemMessage(Messages.getString(
-                    "FiringDisplay.switched", new Object[] { m.getName(),
-                            m.curMode().getDisplayableName(true) })); //$NON-NLS-1$
+            clientgui.systemMessage(Messages.getString("FiringDisplay.switched", m.getName(),
+                    m.curMode().getDisplayableName(true)));
         } else {
-            clientgui.systemMessage(Messages.getString(
-                    "FiringDisplay.willSwitch", new Object[] { m.getName(), //$NON-NLS-1$
-                            m.pendingMode().getDisplayableName(true) }));
+            clientgui.systemMessage(Messages.getString("FiringDisplay.willSwitch", m.getName(),
+                    m.pendingMode().getDisplayableName(true)));
         }
 
         updateTarget();
-        clientgui.mechD.wPan.displayMech(ce());
-        clientgui.mechD.wPan.selectWeapon(wn);
+        clientgui.getUnitDisplay().wPan.displayMech(ce());
+        clientgui.getUnitDisplay().wPan.selectWeapon(wn);
     }
 
     /**
      * Called Shots - changes the current called shots selection
      */
     protected void changeCalled() {
-        int wn = clientgui.mechD.wPan.getSelectedWeaponNum();
+        int wn = clientgui.getUnitDisplay().wPan.getSelectedWeaponNum();
 
         // Do nothing we have no unit selected.
         if (ce() == null) {
@@ -987,7 +993,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
 
         Mounted m = ce().getEquipment(wn);
-        if ((m == null)) {
+        if (m == null) {
             return;
         }
 
@@ -996,41 +1002,36 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         clientgui.getClient().sendCalledShotChange(cen, wn);
 
         updateTarget();
-        clientgui.mechD.wPan.displayMech(ce());
-        clientgui.mechD.wPan.selectWeapon(wn);
+        clientgui.getUnitDisplay().wPan.displayMech(ce());
+        clientgui.getUnitDisplay().wPan.selectWeapon(wn);
     }
 
     /**
      * Cache the list of visible targets. This is used for the 'next target'
      * button.
-     * <p/>
+     * <p>
      * We'll sort it by range to us.
      */
     private void cacheVisibleTargets() {
         clearVisibleTargets();
 
-        List<Entity> vec = clientgui.getClient().getGame()
-                .getValidTargets(ce());
-        Comparator<Entity> sortComp = new Comparator<Entity>() {
-            public int compare(Entity entX, Entity entY) {
-                int rangeToX = ce().getPosition().distance(entX.getPosition());
-                int rangeToY = ce().getPosition().distance(entY.getPosition());
+        List<Entity> vec = clientgui.getClient().getGame().getValidTargets(ce());
+        Comparator<Entity> sortComp = (entX, entY) -> {
+            int rangeToX = ce().getPosition().distance(entX.getPosition());
+            int rangeToY = ce().getPosition().distance(entY.getPosition());
 
-                if (rangeToX == rangeToY) {
-                    return ((entX.getId() < entY.getId()) ? -1 : 1);
-                }
-
-                return ((rangeToX < rangeToY) ? -1 : 1);
+            if (rangeToX == rangeToY) {
+                return ((entX.getId() < entY.getId()) ? -1 : 1);
             }
+
+            return ((rangeToX < rangeToY) ? -1 : 1);
         };
 
         // put the vector in the TreeSet first to sort it.
-        TreeSet<Entity> tree = new TreeSet<Entity>(sortComp);
+        TreeSet<Entity> tree = new TreeSet<>(sortComp);
         visibleTargets = new Entity[vec.size()];
 
-        for (int i = 0; i < vec.size(); i++) {
-            tree.add(vec.get(i));
-        }
+        tree.addAll(vec);
 
         // not go through the sorted Set to cache the targets.
         Iterator<Entity> it = tree.iterator();
@@ -1078,7 +1079,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             //If we've cycled through all visible targets without finding a valid one, stop looping
             count++;
             if (count > visibleTargets.length) {
-            	return null;
+                return null;
             }
             // Store target
             result = visibleTargets[lastTargetID];
@@ -1087,7 +1088,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             if (onlyValid) {
                 ToHitData toHit = WeaponAttackAction.toHit(
                         clientgui.getClient().getGame(), ce().getId(), result,
-                        clientgui.mechD.wPan.getSelectedWeaponNum(),
+                        clientgui.getUnitDisplay().wPan.getSelectedWeaponNum(),
                         isStrafing);
                 done &= toHit.getValue() != TargetRoll.AUTOMATIC_FAIL
                         && toHit.getValue() != TargetRoll.IMPOSSIBLE
@@ -1103,10 +1104,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     /**
      * Jump to our next target. If there isn't one, well, don't do anything.
      */
-    private void jumpToTarget(boolean nextTarg, boolean onlyValid,
-            boolean ignoreAllies) {
+    private void jumpToTarget(boolean nextTarg, boolean onlyValid, boolean ignoreAllies) {
         Entity targ = getNextTarget(nextTarg, onlyValid, ignoreAllies);
-
         if (targ == null) {
             return;
         }
@@ -1114,7 +1113,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         // HACK : don't show the choice dialog.
         showTargetChoice = false;
 
-        clientgui.bv.centerOnHex(targ.getPosition());
+        clientgui.getBoardView().centerOnHex(targ.getPosition());
         clientgui.getBoardView().select(targ.getPosition());
 
         // HACK : show the choice dialog again.
@@ -1128,17 +1127,15 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
      */
     @Override
     public void ready() {
-        if (attacks.isEmpty()
-                && GUIPreferences.getInstance().getNagForNoAction()) {
-            // comfirm this action
-            String title = Messages
-                    .getString("FiringDisplay.DontFireDialog.title"); //$NON-NLS-1$
-            String body = Messages
-                    .getString("FiringDisplay.DontFireDialog.message"); //$NON-NLS-1$
+        if (attacks.isEmpty() && GUIPreferences.getInstance().getNagForNoAction()) {
+            // confirm this action
+            String title = Messages.getString("FiringDisplay.DontFireDialog.title");
+            String body = Messages.getString("FiringDisplay.DontFireDialog.message");
             ConfirmDialog response = clientgui.doYesNoBotherDialog(title, body);
             if (!response.getShowAgain()) {
                 GUIPreferences.getInstance().setNagForNoAction(false);
             }
+
             if (!response.getAnswer()) {
                 return;
             }
@@ -1146,26 +1143,24 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
         // We need to nag for overheat on capital fighters
         if ((ce() != null) && ce().isCapitalFighter()
-            && GUIPreferences.getInstance().getNagForOverheat()) {
+                && GUIPreferences.getInstance().getNagForOverheat()) {
             int totalheat = 0;
             for (EntityAction action : attacks) {
                 if (action instanceof WeaponAttackAction) {
-                    Mounted weapon = ce().getEquipment(
-                            ((WeaponAttackAction) action).getWeaponId());
+                    Mounted weapon = ce().getEquipment(((WeaponAttackAction) action).getWeaponId());
                     totalheat += weapon.getCurrentHeat();
                 }
             }
+
             if (totalheat > ce().getHeatCapacity()) {
-                // comfirm this action
-                String title = Messages
-                        .getString("FiringDisplay.OverheatNag.title"); //$NON-NLS-1$
-                String body = Messages
-                        .getString("FiringDisplay.OverheatNag.message"); //$NON-NLS-1$
-                ConfirmDialog response = clientgui.doYesNoBotherDialog(title,
-                        body);
+                // confirm this action
+                String title = Messages.getString("FiringDisplay.OverheatNag.title");
+                String body = Messages.getString("FiringDisplay.OverheatNag.message");
+                ConfirmDialog response = clientgui.doYesNoBotherDialog(title, body);
                 if (!response.getShowAgain()) {
                     GUIPreferences.getInstance().setNagForOverheat(false);
                 }
+
                 if (!response.getAnswer()) {
                     return;
                 }
@@ -1180,16 +1175,14 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
         // For bug 1002223
         // Re-compute the to-hit numbers by adding in correct order.
-        Vector<EntityAction> newAttacks = new Vector<EntityAction>();
+        Vector<EntityAction> newAttacks = new Vector<>();
         for (EntityAction o : attacks) {
             if (o instanceof ArtilleryAttackAction) {
                 newAttacks.addElement(o);
             } else if (o instanceof WeaponAttackAction) {
                 WeaponAttackAction waa = (WeaponAttackAction) o;
-                Entity attacker = waa
-                        .getEntity(clientgui.getClient().getGame());
-                Targetable target1 = waa.getTarget(clientgui.getClient()
-                        .getGame());
+                Entity attacker = waa.getEntity(clientgui.getClient().getGame());
+                Targetable target1 = waa.getTarget(clientgui.getClient().getGame());
                 boolean curInFrontArc = Compute.isInArc(attacker.getPosition(),
                         attacker.getSecondaryFacing(), target1,
                         attacker.getForwardArc());
@@ -1214,14 +1207,11 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         // now add the attacks in rear/arm arcs
         for (EntityAction o : attacks) {
             if (o instanceof ArtilleryAttackAction) {
-                // newAttacks.addElement(o);
                 continue;
             } else if (o instanceof WeaponAttackAction) {
                 WeaponAttackAction waa = (WeaponAttackAction) o;
-                Entity attacker = waa
-                        .getEntity(clientgui.getClient().getGame());
-                Targetable target1 = waa.getTarget(clientgui.getClient()
-                        .getGame());
+                Entity attacker = waa.getEntity(clientgui.getClient().getGame());
+                Targetable target1 = waa.getTarget(clientgui.getClient().getGame());
                 boolean curInFrontArc = Compute.isInArc(attacker.getPosition(),
                         attacker.getSecondaryFacing(), target1,
                         attacker.getForwardArc());
@@ -1241,10 +1231,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 }
             }
         }
-        
+
         // If the user picked a hex along the flight path, server needs to know
         if ((target instanceof Entity) && Compute.isGroundToAir(ce(), target)) {
-            Coords targetPos = ((Entity)target).getPlayerPickedPassThrough(cen);
+            Coords targetPos = ((Entity) target).getPlayerPickedPassThrough(cen);
             if (targetPos != null) {
                 clientgui.getClient().sendPlayerPickedPassThrough(
                         ((Entity) target).getId(), cen, targetPos);
@@ -1256,9 +1246,6 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
         // clear queue
         attacks.removeAllElements();
-
-        // Clear the menu bar.
-        clientgui.getMenuBar().setEntity(null);
 
         // close aimed shot display, if any
         ash.closeDialog();
@@ -1273,14 +1260,15 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
      * clear turret
      */
     private void doClearTurret() {
-        String title = Messages.getString("FiringDisplay.ClearTurret.title"); //$NON-NLS-1$
-        String body = Messages.getString("FiringDisplay.ClearTurret.message"); //$NON-NLS-1$
+        String title = Messages.getString("FiringDisplay.ClearTurret.title");
+        String body = Messages.getString("FiringDisplay.ClearTurret.message");
         if (!clientgui.doYesNoDialog(title, body)) {
             return;
         }
-        if ((((attacks.size() == 0) && (ce() instanceof Tank) && (((Tank) ce())
-                .isTurretJammed(((Tank) ce()).getLocTurret()))) || ((Tank) ce())
-                .isTurretJammed(((Tank) ce()).getLocTurret2()))) {
+
+        if ((attacks.isEmpty() && (ce() instanceof Tank)
+                && (((Tank) ce()).isTurretJammed(((Tank) ce()).getLocTurret())))
+                || ((Tank) ce()).isTurretJammed(((Tank) ce()).getLocTurret2())) {
             UnjamTurretAction uta = new UnjamTurretAction(ce().getId());
             attacks.add(uta);
             ready();
@@ -1296,18 +1284,16 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         for (int loop = 0; loop < names.length; loop++) {
             names[loop] = weapons.get(loop).getDesc();
         }
-        String input = (String) JOptionPane.showInputDialog(clientgui, Messages
-                .getString("FiringDisplay.ClearWeaponJam" + ".question"), //$NON-NLS-1$ //$NON-NLS-2$
-                Messages.getString("FiringDisplay.ClearWeaponJam.title"), //$NON-NLS-1$
-                //$NON-NLS-1$
+        String input = (String) JOptionPane.showInputDialog(clientgui,
+                Messages.getString("FiringDisplay.ClearWeaponJam.question"),
+                Messages.getString("FiringDisplay.ClearWeaponJam.title"),
                 JOptionPane.QUESTION_MESSAGE, null, names, null);
 
         if (input != null) {
             for (int loop = 0; loop < names.length; loop++) {
                 if (input.equals(names[loop])) {
                     RepairWeaponMalfunctionAction rwma = new RepairWeaponMalfunctionAction(
-                            ce().getId(), ce().getEquipmentNum(
-                                    weapons.get(loop)));
+                            ce().getId(), ce().getEquipmentNum(weapons.get(loop)));
                     attacks.add(rwma);
                     ready();
                 }
@@ -1316,17 +1302,58 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     }
 
     /**
+     * This pops up a menu allowing the user to choose one of several 
+     * SPAs, and then performs the appropriate steps.
+     */
+    private void doActivateSpecialAbility() {
+        Map<String, String> skillNames = new HashMap<>();
+
+        if (canActivateBloodStalker() && (target != null)) {
+            skillNames.put("Blood Stalker", OptionsConstants.GUNNERY_BLOOD_STALKER);
+        }
+
+        String targetString = (target != null) ?
+                String.format("\nTarget: %s", target.getDisplayName()) : "";
+
+        String input = (String) JOptionPane.showInputDialog(clientgui,
+                String.format("Pick a Special Pilot Ability to activate.%s", targetString),
+                "Activate Special Pilot Ability",
+                JOptionPane.QUESTION_MESSAGE, null, skillNames.keySet().toArray(), null);
+
+        // unsafe, but since we're generating it right here, it should be fine.
+        switch (skillNames.get(input)) {
+            case OptionsConstants.GUNNERY_BLOOD_STALKER:
+                // figure out when to clear Blood Stalker (when unit destroyed or flees or fly off no return)
+                ActivateBloodStalkerAction bloodStalkerAction = new ActivateBloodStalkerAction(ce().getId(), target.getTargetId());
+                attacks.add(0, bloodStalkerAction);
+                ce().setBloodStalkerTarget(target.getTargetId());
+                break;
+        }
+
+        updateActivateSPA();
+    }
+
+    /**
+     * Worker function that determines if we can activate the "blood stalker" ability
+     */
+    private boolean canActivateBloodStalker() {
+        // can be activated if the entity can do it and haven't done it already 
+        // and the target is something that can be blood-stalked
+        return (ce() != null) && ce().canActivateBloodStalker() &&
+                (target != null) && (target.getTargetType() == Targetable.TYPE_ENTITY) &&
+                attacks.stream().noneMatch(item -> item instanceof ActivateBloodStalkerAction);
+    }
+
+    /**
      * fire searchlight
      */
     protected void doSearchlight() {
         // validate
         if ((ce() == null) || (target == null)) {
-            throw new IllegalArgumentException(
-                    "current searchlight parameters are invalid"); //$NON-NLS-1$
+            throw new IllegalArgumentException("current searchlight parameters are invalid");
         }
 
-        if (!SearchlightAttackAction.isPossible(
-                clientgui.getClient().getGame(), cen, target, null)) {
+        if (!SearchlightAttackAction.isPossible(clientgui.getClient().getGame(), cen, target, null)) {
             return;
         }
 
@@ -1337,24 +1364,24 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
         // and add it into the game, temporarily
         clientgui.getClient().getGame().addAction(saa);
-        clientgui.bv.addAttack(saa);
+        clientgui.getBoardView().addAttack(saa);
 
         // refresh weapon panel, as bth will have changed
         updateTarget();
     }
-    
+
     private void doStrafe() {
         target(null);
-        clearAttacks();        
+        clearAttacks();
         isStrafing = true;
         setStatusBarText(Messages
                 .getString("FiringDisplay.Strafing.StatusLabel"));
         refreshAll();
     }
-    
+
     private void updateStrafingTargets() {
-        final IGame game = clientgui.getClient().getGame();
-        final int weaponId = clientgui.mechD.wPan.getSelectedWeaponNum();
+        final Game game = clientgui.getClient().getGame();
+        final int weaponId = clientgui.getUnitDisplay().wPan.getSelectedWeaponNum();
         final Mounted m = ce().getEquipment(weaponId);
         ToHitData toHit;
         StringBuffer toHitBuff = new StringBuffer();
@@ -1370,9 +1397,9 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 if (Compute.isInBuilding(game, t) && (t instanceof Infantry)) {
                     continue;
                 }
-                
+
                 toHit = WeaponAttackAction.toHit(game, cen, t, weaponId,
-                        Entity.LOC_NONE, IAimingModes.AIM_MODE_NONE, true);
+                        Entity.LOC_NONE, AimingMode.NONE, true);
                 toHitBuff.append(t.getShortName() + ": ");
                 toHitBuff.append(toHit.getDesc());
                 toHitBuff.append("\n");
@@ -1381,18 +1408,18 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     setFireEnabled(false);
                 }
             }
-            Building bldg = game.getBoard().getBuildingAt(c); 
+            Building bldg = game.getBoard().getBuildingAt(c);
             if (bldg != null) {
                 Targetable t = new BuildingTarget(c, game.getBoard(), false);
                 toHit = WeaponAttackAction.toHit(game, cen, t, weaponId,
-                        Entity.LOC_NONE, IAimingModes.AIM_MODE_NONE, true);
+                        Entity.LOC_NONE, AimingMode.NONE, true);
                 toHitBuff.append(t.getDisplayName() + ": ");
                 toHitBuff.append(toHit.getDesc());
                 toHitBuff.append("\n");
             }
             Targetable hexTarget = new HexTarget(c, HexTarget.TYPE_HEX_CLEAR);
             toHit = WeaponAttackAction.toHit(game, cen, hexTarget, weaponId,
-                    Entity.LOC_NONE, IAimingModes.AIM_MODE_NONE, true);
+                    Entity.LOC_NONE, AimingMode.NONE, true);
             if (m.getType().hasFlag(WeaponType.F_AUTO_TARGET)
                     || (toHit.getValue() == TargetRoll.IMPOSSIBLE)) {
                 setFireEnabled(false);
@@ -1403,7 +1430,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             // Could check legality on buildings, but I don't believe there are
             // any weapons that are still legal that aren't legal on buildings            
         }
-        clientgui.mechD.wPan.toHitText.setText(toHitBuff.toString());
+        clientgui.getUnitDisplay().wPan.toHitText.setText(toHitBuff.toString());
     }
 
     private int[] getBombPayload(boolean isSpace, int limit) {
@@ -1431,7 +1458,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         int numFighters = ce().getActiveSubEntities().size();
         BombPayloadDialog bombsDialog = new BombPayloadDialog(
                 clientgui.frame,
-                Messages.getString("FiringDisplay.BombNumberDialog" + ".title"), //$NON-NLS-1$
+                Messages.getString("FiringDisplay.BombNumberDialog" + ".title"),
                 loadout, isSpace, false, limit, numFighters);
         bombsDialog.setVisible(true);
         if (bombsDialog.getAnswer()) {
@@ -1445,18 +1472,17 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
      * queue.
      */
     void fire() {
-        final IGame game = clientgui.getClient().getGame();
+        final Game game = clientgui.getClient().getGame();
         // get the selected weaponnum
-        final int weaponNum = clientgui.mechD.wPan.getSelectedWeaponNum();
+        final int weaponNum = clientgui.getUnitDisplay().wPan.getSelectedWeaponNum();
         Mounted mounted = ce().getEquipment(weaponNum);
 
         // validate
         if ((ce() == null)
-                || (target == null && (!isStrafing || strafingCoords.size() == 0))
+                || (target == null && (!isStrafing || strafingCoords.isEmpty()))
                 || (mounted == null)
                 || !(mounted.getType() instanceof WeaponType)) {
-            throw new IllegalArgumentException(
-                    "current fire parameters are invalid"); //$NON-NLS-1$
+            throw new IllegalArgumentException("current fire parameters are invalid");
         }
         // check if we now shoot at a target in the front arc and previously
         // shot a target in side/rear arc that then was primary target
@@ -1470,22 +1496,18 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             } catch (NoSuchElementException ex) {
                 // ignore
             }
-            if ((lastAction != null)
-                    && (lastAction instanceof WeaponAttackAction)) {
+
+            if (lastAction instanceof WeaponAttackAction) {
                 WeaponAttackAction oldWaa = (WeaponAttackAction) lastAction;
                 Targetable oldTarget = oldWaa.getTarget(game);
                 if (!oldTarget.equals(target)) {
                     boolean oldInFront = Compute.isInArc(ce().getPosition(),
-                            ce().getSecondaryFacing(), oldTarget, ce()
-                                    .getForwardArc());
+                            ce().getSecondaryFacing(), oldTarget, ce().getForwardArc());
                     boolean curInFront = Compute.isInArc(ce().getPosition(),
-                            ce().getSecondaryFacing(), target, ce()
-                                    .getForwardArc());
+                            ce().getSecondaryFacing(), target, ce().getForwardArc());
                     if (!oldInFront && curInFront) {
-                        String title = Messages
-                                .getString("FiringDisplay.SecondaryTargetToHitChange.title"); //$NON-NLS-1$
-                        String body = Messages
-                                .getString("FiringDisplay.SecondaryTargetToHitChange.message"); //$NON-NLS-1$
+                        String title = Messages.getString("FiringDisplay.SecondaryTargetToHitChange.title");
+                        String body = Messages.getString("FiringDisplay.SecondaryTargetToHitChange.message");
                         if (!clientgui.doYesNoDialog(title, body)) {
                             return;
                         }
@@ -1495,16 +1517,15 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
 
         // declare searchlight, if possible
-        if (GUIPreferences.getInstance().getAutoDeclareSearchlight()
-            && ce().isUsingSearchlight()) {
+        if (GUIPreferences.getInstance().getAutoDeclareSearchlight() && ce().isUsingSearchlight()) {
             doSearchlight();
         }
 
-        ArrayList<Targetable> targets = new ArrayList<Targetable>();
+        ArrayList<Targetable> targets = new ArrayList<>();
         if (isStrafing) {
             for (Coords c : strafingCoords) {
                 targets.add(new HexTarget(c, Targetable.TYPE_HEX_CLEAR));
-                Building bldg = game.getBoard().getBuildingAt(c); 
+                Building bldg = game.getBoard().getBuildingAt(c);
                 if (bldg != null) {
                     targets.add(new BuildingTarget(c, game.getBoard(), false));
                 }
@@ -1520,14 +1541,14 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         } else {
             targets.add(target);
         }
-        
+
         boolean firstShot = true;
         for (Targetable t : targets) {
-        
+
             WeaponAttackAction waa;
             if (!(mounted.getType().hasFlag(WeaponType.F_ARTILLERY)
                     || (mounted.getType() instanceof CapitalMissileWeapon
-                            && Compute.isGroundToGround(ce(), t)))){
+                            && Compute.isGroundToGround(ce(), t)))) {
                 waa = new WeaponAttackAction(cen, t.getTargetType(),
                         t.getTargetId(), weaponNum);
             } else {
@@ -1555,7 +1576,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 AmmoType ammoType = (AmmoType) ammoMount.getType();
                 waa.setAmmoId(ammoMount.getEntity().getEquipmentNum(ammoMount));
                 waa.setAmmoCarrier(ammoMount.getEntity().getId());
-                if (((ammoType.getMunitionType() == AmmoType.M_THUNDER_VIBRABOMB) && 
+                if (((ammoType.getMunitionType() == AmmoType.M_THUNDER_VIBRABOMB) &&
                         ((ammoType.getAmmoType() == AmmoType.T_LRM)
                         || (ammoType.getAmmoType() == AmmoType.T_LRM_IMP)
                         || (ammoType.getAmmoType() == AmmoType.T_MML)))
@@ -1567,13 +1588,12 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 }
             }
 
-            if (ash.allowAimedShotWith(mounted) && ash.inAimingMode()
-                    && ash.isAimingAtLocation()) {
+            if (ash.allowAimedShotWith(mounted) && !ash.getAimingMode().isNone() && ash.isAimingAtLocation()) {
                 waa.setAimedLocation(ash.getAimingAt());
                 waa.setAimingMode(ash.getAimingMode());
             } else {
                 waa.setAimedLocation(Entity.LOC_NONE);
-                waa.setAimingMode(IAimingModes.AIM_MODE_NONE);
+                waa.setAimingMode(AimingMode.NONE);
             }
             waa.setStrafing(isStrafing);
             waa.setStrafingFirstShot(firstShot);
@@ -1584,13 +1604,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
             // and add it into the game, temporarily
             game.addAction(waa);
-        
+
         }
         // set the weapon as used
         mounted.setUsedThisRound(true);
 
         // find the next available weapon
-        int nextWeapon = clientgui.mechD.wPan.getNextWeaponNum();
+        int nextWeapon = clientgui.getUnitDisplay().wPan.getNextWeaponNum();
 
         // we fired a weapon, can't clear turret jams or weapon jams anymore
         updateClearTurret();
@@ -1604,14 +1624,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
 
         // otherwise, display firing info for the next weapon
-        clientgui.mechD.wPan.displayMech(ce());
+        clientgui.getUnitDisplay().wPan.displayMech(ce());
         Mounted nextMounted = ce().getEquipment(nextWeapon);
-        if (!mounted.getType().hasFlag(WeaponType.F_VGL)
-                && (nextMounted != null)
+        if (!mounted.getType().hasFlag(WeaponType.F_VGL) && (nextMounted != null)
                 && nextMounted.getType().hasFlag(WeaponType.F_VGL)) {
-            clientgui.mechD.wPan.setPrevTarget(target);
+            clientgui.getUnitDisplay().wPan.setPrevTarget(target);
         }
-        clientgui.mechD.wPan.selectWeapon(nextWeapon);
+        clientgui.getUnitDisplay().wPan.selectWeapon(nextWeapon);
         updateTarget();
 
     }
@@ -1623,10 +1642,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         if (ce() == null) {
             return;
         }
-        clientgui.mechD.wPan.selectNextWeapon();
+        clientgui.getUnitDisplay().wPan.selectNextWeapon();
 
-        if (ce().getId() != clientgui.mechD.wPan.getSelectedEntityId()) {
-            clientgui.mechD.wPan.displayMech(ce());
+        if (ce().getId() != clientgui.getUnitDisplay().wPan.getSelectedEntityId()) {
+            clientgui.getUnitDisplay().wPan.displayMech(ce());
         }
 
         updateTarget();
@@ -1640,10 +1659,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             return;
         }
 
-        clientgui.mechD.wPan.selectPrevWeapon();
+        clientgui.getUnitDisplay().wPan.selectPrevWeapon();
 
-        if (ce().getId() != clientgui.mechD.wPan.getSelectedEntityId()) {
-            clientgui.mechD.wPan.displayMech(ce());
+        if (ce().getId() != clientgui.getUnitDisplay().wPan.getSelectedEntityId()) {
+            clientgui.getUnitDisplay().wPan.displayMech(ce());
         }
 
         updateTarget();
@@ -1657,10 +1676,9 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             return;
         }
 
-        // comfirm this action
-        String title = Messages.getString("FiringDisplay.FindClubDialog.title"); //$NON-NLS-1$
-        String body = Messages
-                .getString("FiringDisplay.FindClubDialog.message"); //$NON-NLS-1$
+        // confirm this action
+        String title = Messages.getString("FiringDisplay.FindClubDialog.title");
+        String body = Messages.getString("FiringDisplay.FindClubDialog.message");
         if (!clientgui.doYesNoDialog(title, body)) {
             return;
         }
@@ -1678,19 +1696,16 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         if ((ce() == null) || (target == null)) {
             return;
         }
+
         if (ce().isINarcedWith(INarcPod.HAYWIRE)) {
-            String title = Messages
-                    .getString("FiringDisplay.CantSpotDialog.title"); //$NON-NLS-1$
-            String body = Messages
-                    .getString("FiringDisplay.CantSpotDialog.message"); //$NON-NLS-1$
+            String title = Messages.getString("FiringDisplay.CantSpotDialog.title");
+            String body = Messages.getString("FiringDisplay.CantSpotDialog.message");
             clientgui.doAlertDialog(title, body);
             return;
         }
-        // comfirm this action
-        String title = Messages
-                .getString("FiringDisplay.SpotForInderectDialog.title"); //$NON-NLS-1$
-        String body = Messages
-                .getString("FiringDisplay.SpotForInderectDialog.message"); //$NON-NLS-1$
+        // confirm this action
+        String title = Messages.getString("FiringDisplay.SpotForInderectDialog.title");
+        String body = Messages.getString("FiringDisplay.SpotForInderectDialog.message");
         if (!clientgui.doYesNoDialog(title, body)) {
             return;
         }
@@ -1704,13 +1719,13 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     protected void clearAttacks() {
         isStrafing = false;
         strafingCoords.clear();
-        clientgui.bv.clearStrafingCoords();
-        
+        clientgui.getBoardView().clearStrafingCoords();
+
         // We may not have an entity selected yet (race condition).
         if (ce() == null) {
             return;
         }
-        
+
         // remove attacks, set weapons available again
         Enumeration<AbstractEntityAction> i = attacks.elements();
         while (i.hasMoreElements()) {
@@ -1736,7 +1751,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     protected void removeTempAttacks() {
         // remove temporary attacks from game & board
         clientgui.getClient().getGame().removeActionsFor(cen);
-        clientgui.bv.removeAttacksFor(ce());
+        clientgui.getBoardView().removeAttacksFor(ce());
     }
 
     /**
@@ -1749,9 +1764,9 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 WeaponAttackAction waa = (WeaponAttackAction) o;
                 ce().getEquipment(waa.getWeaponId()).setUsedThisRound(false);
                 attacks.removeElement(o);
-                clientgui.mechD.wPan.displayMech(ce());
+                clientgui.getUnitDisplay().wPan.displayMech(ce());
                 clientgui.getClient().getGame().removeAction(o);
-                clientgui.bv.refreshAttacks();
+                clientgui.getBoardView().refreshAttacks();
             }
         }
     }
@@ -1763,10 +1778,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         if (ce() == null) {
             return;
         }
-        clientgui.bv.redrawEntity(ce());
-        clientgui.mechD.displayEntity(ce());
-        clientgui.mechD.showPanel("weapons"); //$NON-NLS-1$
-        clientgui.mechD.wPan.selectFirstWeapon();
+        clientgui.getBoardView().redrawEntity(ce());
+        clientgui.getUnitDisplay().displayEntity(ce());
+        clientgui.getUnitDisplay().showPanel("weapons");
+        clientgui.getUnitDisplay().wPan.selectFirstWeapon();
         if (ce().isMakingVTOLGroundAttack()) {
             this.updateVTOLGroundTarget();
         }
@@ -1780,8 +1795,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         if (ce() == null) {
             return;
         }
-        final int weaponId = clientgui.mechD.wPan.getSelectedWeaponNum();
-        Mounted weapon = ce().getEquipment(weaponId); 
+        final int weaponId = clientgui.getUnitDisplay().wPan.getSelectedWeaponNum();
+        Mounted weapon = ce().getEquipment(weaponId);
         // Some weapons pick an automatic target
         if ((weapon != null) && weapon.getType().hasFlag(WeaponType.F_VGL)) {
             int facing;
@@ -1792,8 +1807,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             }
             facing = (facing + weapon.getFacing()) % 6;
             Coords c = ce().getPosition().translated(facing);
-            Targetable hexTarget = 
-                    new HexTarget(c, Targetable.TYPE_HEX_CLEAR);
+            Targetable hexTarget = new HexTarget(c, Targetable.TYPE_HEX_CLEAR);
             // Ignore events that will be generated by the select/cursor calls
             setIgnoringEvents(true);
             clientgui.getBoardView().select(c);
@@ -1812,8 +1826,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             }
         }
         if ((target instanceof Entity) && Compute.isGroundToAir(ce(), target)) {
-            Coords targetPos = Compute.getClosestFlightPath(cen, ce()
-                    .getPosition(), (Entity) target);
+            Coords targetPos = Compute.getClosestFlightPath(cen, ce().getPosition(), (Entity) target);
             clientgui.getBoardView().cursor(targetPos);
         }
         ash.setAimingMode();
@@ -1826,7 +1839,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
      */
     public void updateTarget() {
         setFireEnabled(false);
-        IGame game = clientgui.getClient().getGame();
+        Game game = clientgui.getClient().getGame();
         // allow spotting
         if ((ce() != null) && !ce().isSpotting() && ce().canSpot() && (target != null)
                 && game.getOptions().booleanOption(OptionsConstants.BASE_INDIRECT_FIRE)) {
@@ -1844,94 +1857,86 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
 
         // update target panel
-        final int weaponId = clientgui.mechD.wPan.getSelectedWeaponNum();
+        final int weaponId = clientgui.getUnitDisplay().wPan.getSelectedWeaponNum();
         if (isStrafing && weaponId != -1) {
-            clientgui.mechD.wPan.wTargetR.setText(Messages
+            clientgui.getUnitDisplay().wPan.wTargetR.setText(Messages
                     .getString("FiringDisplay.Strafing.TargetLabel"));
             updateStrafingTargets();
         } else if ((target != null) && (target.getPosition() != null)
             && (weaponId != -1) && (ce() != null)) {
             ToHitData toHit;
-            if (ash.inAimingMode()) {
+            if (!ash.getAimingMode().isNone()) {
                 Mounted weapon = ce().getEquipment(weaponId);
-                boolean aiming = ash.isAimingAtLocation()
-                        && ash.allowAimedShotWith(weapon);
+                boolean aiming = ash.isAimingAtLocation() && ash.allowAimedShotWith(weapon);
                 ash.setEnableAll(aiming);
                 if (aiming) {
                     toHit = WeaponAttackAction.toHit(game, cen, target,
                             weaponId, ash.getAimingAt(), ash.getAimingMode(),
                             false);
-                    clientgui.mechD.wPan.wTargetR.setText(target
-                            .getDisplayName()
-                            + " (" + ash.getAimingLocation() + ")"); //$NON-NLS-1$ // $NON-NLS-2$
+                    clientgui.getUnitDisplay().wPan.wTargetR.setText(target.getDisplayName()
+                            + " (" + ash.getAimingLocation() + ")");
                 } else {
-                    toHit = WeaponAttackAction.toHit(game, cen, target,
-                            weaponId, Entity.LOC_NONE,
-                            IAimingModes.AIM_MODE_NONE, false);
-                    clientgui.mechD.wPan.wTargetR.setText(target
-                            .getDisplayName());
+                    toHit = WeaponAttackAction.toHit(game, cen, target, weaponId, Entity.LOC_NONE,
+                            AimingMode.NONE, false);
+                    clientgui.getUnitDisplay().wPan.wTargetR.setText(target.getDisplayName());
                 }
                 ash.setPartialCover(toHit.getCover());
             } else {
                 toHit = WeaponAttackAction.toHit(game, cen, target, weaponId,
-                        Entity.LOC_NONE, IAimingModes.AIM_MODE_NONE, false);
-                clientgui.mechD.wPan.wTargetR.setText(target.getDisplayName());
+                        Entity.LOC_NONE, AimingMode.NONE, false);
+                clientgui.getUnitDisplay().wPan.wTargetR.setText(target.getDisplayName());
             }
-            int effectiveDistance = Compute.effectiveDistance(
-                    game, ce(), target);
-            clientgui.mechD.wPan.wRangeR.setText("" + effectiveDistance); //$NON-NLS-1$
+            int effectiveDistance = Compute.effectiveDistance(game, ce(), target);
+            clientgui.getUnitDisplay().wPan.wRangeR.setText("" + effectiveDistance);
             Mounted m = ce().getEquipment(weaponId);
             // If we have a Centurion Weapon System selected, we may need to
             //  update ranges.
             if (m.getType().hasFlag(WeaponType.F_CWS)) {
-                clientgui.mechD.wPan.selectWeapon(weaponId);
+                clientgui.getUnitDisplay().wPan.selectWeapon(weaponId);
             }
             if (m.isUsedThisRound()) {
-                clientgui.mechD.wPan.wToHitR.setText(Messages
-                        .getString("FiringDisplay.alreadyFired")); //$NON-NLS-1$
+                clientgui.getUnitDisplay().wPan.wToHitR.setText(
+                        Messages.getString("FiringDisplay.alreadyFired"));
                 setFireEnabled(false);
-            } else if ((m.getType().hasFlag(WeaponType.F_AUTO_TARGET) && !m.curMode().equals(Weapon.MODE_AMS_MANUAL))
-            			|| (m.getType().hasModes() && m.curMode().equals("Point Defense"))) {
-                clientgui.mechD.wPan.wToHitR.setText(Messages
-                        .getString("FiringDisplay.autoFiringWeapon"));
-                //$NON-NLS-1$
+            } else if ((m.getType().hasFlag(WeaponType.F_AUTO_TARGET)
+                    && !m.curMode().equals(Weapon.MODE_AMS_MANUAL))
+                    || (m.getType().hasModes() && m.curMode().equals("Point Defense"))) {
+                clientgui.getUnitDisplay().wPan.wToHitR.setText(
+                        Messages.getString("FiringDisplay.autoFiringWeapon"));
                 setFireEnabled(false);
             } else if (m.isInBearingsOnlyMode()) {
-                clientgui.mechD.wPan.wToHitR.setText(Messages
-                        .getString("FiringDisplay.bearingsOnlyWrongPhase"));
-                //$NON-NLS-1$
+                clientgui.getUnitDisplay().wPan.wToHitR.setText(
+                        Messages.getString("FiringDisplay.bearingsOnlyWrongPhase"));
                 setFireEnabled(false);
             } else if (toHit.getValue() == TargetRoll.IMPOSSIBLE) {
-                clientgui.mechD.wPan.wToHitR.setText(toHit.getValueAsString());
+                clientgui.getUnitDisplay().wPan.wToHitR.setText(toHit.getValueAsString());
                 setFireEnabled(false);
             } else if (toHit.getValue() == TargetRoll.AUTOMATIC_FAIL) {
-                clientgui.mechD.wPan.wToHitR.setText(toHit.getValueAsString());
+                clientgui.getUnitDisplay().wPan.wToHitR.setText(toHit.getValueAsString());
                 setFireEnabled(true);
             } else {
                 boolean natAptGunnery = ce().hasAbility(OptionsConstants.PILOT_APTITUDE_GUNNERY);
-                clientgui.mechD.wPan.wToHitR.setText(toHit.getValueAsString()
-                        + " ("
-                        + Compute.oddsAbove(toHit.getValue(), natAptGunnery)
-                        + "%)"); //$NON-NLS-1$
-                // $NON-NLS-2$
+                clientgui.getUnitDisplay().wPan.wToHitR.setText(toHit.getValueAsString()
+                        + " (" + Compute.oddsAbove(toHit.getValue(), natAptGunnery) + "%)");
                 setFireEnabled(true);
             }
-            clientgui.mechD.wPan.toHitText.setText(toHit.getDesc());
+            clientgui.getUnitDisplay().wPan.toHitText.setText(toHit.getDesc());
             setSkipEnabled(true);
         } else {
-            clientgui.mechD.wPan.wTargetR.setText("---"); //$NON-NLS-1$
-            clientgui.mechD.wPan.wRangeR.setText("---"); //$NON-NLS-1$
-            clientgui.mechD.wPan.wToHitR.setText("---"); //$NON-NLS-1$
-            clientgui.mechD.wPan.toHitText.setText(""); //$NON-NLS-1$
+            clientgui.getUnitDisplay().wPan.wTargetR.setText("---");
+            clientgui.getUnitDisplay().wPan.wRangeR.setText("---");
+            clientgui.getUnitDisplay().wPan.wToHitR.setText("---");
+            clientgui.getUnitDisplay().wPan.toHitText.setText("");
         }
 
         if ((weaponId != -1) && (ce() != null) && !isStrafing) {
             adaptFireModeEnabled(ce().getEquipment(weaponId));
         } else {
             setFireModeEnabled(false);
-        } 
+        }
 
         updateSearchlight();
+        updateActivateSPA();
 
         // Hidden units can only spot
         if ((ce() != null) && ce().isHidden()) {
@@ -1940,8 +1945,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             setFindClubEnabled(false);
             setFlipArmsEnabled(false);
             setStrafeEnabled(false);
-            clientgui.mechD.wPan.toHitText
-                    .setText("Hidden units are only allowed to spot!");
+            clientgui.getUnitDisplay().wPan.toHitText.setText("Hidden units are only allowed to spot!");
         }
     }
 
@@ -1950,20 +1954,20 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
      * during the movement phase. 
      */
     void updateVTOLGroundTarget() {
-        clientgui.bv.clearStrafingCoords();
+        clientgui.getBoardView().clearStrafingCoords();
         target(null);
         isStrafing = false;
         strafingCoords.clear();
-        if (ce().isBomber() && ((IBomber)ce()).isVTOLBombing()) {
-            target(((IBomber)ce()).getVTOLBombTarget());
-            clientgui.bv.addStrafingCoords(target.getPosition());
-        } else if ((ce() instanceof VTOL) && ((VTOL)ce()).getStrafingCoords().size() > 0) {
-            strafingCoords.addAll(((VTOL)ce()).getStrafingCoords());
-            strafingCoords.forEach(c -> clientgui.bv.addStrafingCoords(c));
+        if (ce().isBomber() && ((IBomber) ce()).isVTOLBombing()) {
+            target(((IBomber) ce()).getVTOLBombTarget());
+            clientgui.getBoardView().addStrafingCoords(target.getPosition());
+        } else if ((ce() instanceof VTOL) && !((VTOL) ce()).getStrafingCoords().isEmpty()) {
+            strafingCoords.addAll(((VTOL) ce()).getStrafingCoords());
+            strafingCoords.forEach(c -> clientgui.getBoardView().addStrafingCoords(c));
             isStrafing = true;
         }
     }
-    
+
     /**
      * Torso twist in the proper direction.
      */
@@ -1971,8 +1975,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         int direction = ce().getFacing();
 
         if (twistTarget != null) {
-            direction = ce().clipSecondaryFacing(
-                    ce().getPosition().direction(twistTarget));
+            direction = ce().clipSecondaryFacing(ce().getPosition().direction(twistTarget));
         }
 
         if (direction != ce().getSecondaryFacing()) {
@@ -2033,7 +2036,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         // control pressed means a line of sight check.
         // added ALT_MASK by kenn
         if (((b.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0)
-            || ((b.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0)) {
+                || ((b.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0)) {
             return;
         }
         // check for shifty goodness
@@ -2069,10 +2072,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             if (isStrafing) {
                 if (validStrafingCoord(evtCoords)) {
                     strafingCoords.add(evtCoords);
-                    clientgui.bv.addStrafingCoords(evtCoords);
+                    clientgui.getBoardView().addStrafingCoords(evtCoords);
                     updateStrafingTargets();
                 }
-            } else if (!evtCoords.equals(ce().getPosition())){
+            } else if (!evtCoords.equals(ce().getPosition())) {
                 // HACK : sometimes we don't show the target choice window
                 Targetable targ = null;
                 if (showTargetChoice) {
@@ -2082,9 +2085,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                     updateFlipArms(false);
                     torsoTwist(b.getCoords());
                 } else if (targ != null && !ce().isMakingVTOLGroundAttack()) {
-                    if ((targ instanceof Entity) 
-                            && Compute.isGroundToAir(ce(), targ)) {
-                        Entity entTarg = (Entity)targ;
+                    if ((targ instanceof Entity) && Compute.isGroundToAir(ce(), targ)) {
+                        Entity entTarg = (Entity) targ;
                         boolean alreadyShotAt = false;
                         List<EntityAction> actions = clientgui.getClient()
                                 .getGame().getActionsVector();
@@ -2092,8 +2094,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                             if (!(action instanceof AttackAction)) {
                                 continue;
                             }
-                            AttackAction aa = (AttackAction)action;
-                            if ((action.getEntityId() == cen) 
+                            AttackAction aa = (AttackAction) action;
+                            if ((action.getEntityId() == cen)
                                     && (aa.getTargetId() == entTarg.getId())) {
                                 alreadyShotAt = true;
                             }
@@ -2117,22 +2119,21 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         if (isIgnoringEvents()) {
             return;
         }
-        // On simultaneous phases, each player ending their turn will generalte a turn change
+        // On simultaneous phases, each player ending their turn will generate a turn change
         // We want to ignore turns from other players and only listen to events we generated
         // Except on the first turn
-        if (clientgui.getClient().getGame().isPhaseSimultaneous()
+        if (clientgui.getClient().getGame().getPhase().isSimultaneous(clientgui.getClient().getGame())
                 && (e.getPreviousPlayerId() != clientgui.getClient().getLocalPlayerNumber())
                 && (clientgui.getClient().getGame().getTurnIndex() != 0)) {
             return;
         }
-        
-        if (clientgui.getClient().getGame().getPhase() == IGame.Phase.PHASE_FIRING) {
+
+        if (clientgui.getClient().getGame().getPhase().isFiring()) {
             if (clientgui.getClient().isMyTurn()) {
                 if (cen == Entity.NONE) {
                     beginMyTurn();
                 }
-                setStatusBarText(Messages
-                        .getString("FiringDisplay.its_your_turn")); //$NON-NLS-1$
+                setStatusBarText(Messages.getString("FiringDisplay.its_your_turn"));
             } else {
                 endMyTurn();
                 String playerName;
@@ -2141,19 +2142,15 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 } else {
                     playerName = "Unknown";
                 }
-                setStatusBarText(Messages.getString(
-                        "FiringDisplay.its_others_turn", //$NON-NLS-1$
-                        new Object[] { playerName }));
+                setStatusBarText(Messages.getString("FiringDisplay.its_others_turn", playerName));
             }
         }
     }
 
     @Override
     public void gamePhaseChange(GamePhaseChangeEvent e) {
-
         // In case of a /reset command, ensure the state gets reset
-        if (clientgui.getClient().getGame().getPhase() 
-                == IGame.Phase.PHASE_LOUNGE) {
+        if (clientgui.getClient().getGame().getPhase().isLounge()) {
             endMyTurn();
         }
 
@@ -2162,29 +2159,24 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             return;
         }
 
-        if (clientgui.getClient().isMyTurn()
-                && (clientgui.getClient().getGame().getPhase() 
-                        != IGame.Phase.PHASE_FIRING)) {
+        if (clientgui.getClient().isMyTurn() && !clientgui.getClient().getGame().getPhase().isFiring()) {
             endMyTurn();
         }
         // if we're ending the firing phase, unregister stuff.
-        if (clientgui.getClient().getGame().getPhase() 
-                == IGame.Phase.PHASE_FIRING) {
-            setStatusBarText(Messages
-                    .getString("FiringDisplay.waitingForFiringPhase")); //$NON-NLS-1$
+        if (clientgui.getClient().getGame().getPhase().isFiring()) {
+            setStatusBarText(Messages.getString("FiringDisplay.waitingForFiringPhase"));
         }
     }
 
     //
     // ActionListener
     //
+    @Override
     public void actionPerformed(ActionEvent ev) {
         // Are we ignoring events?
         if (isIgnoringEvents()) {
             return;
-        }
-
-        if (!clientgui.getClient().isMyTurn()) {
+        } else if (!clientgui.getClient().isMyTurn()) {
             return;
         }
 
@@ -2226,6 +2218,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             doClearWeaponJam();
         } else if (ev.getActionCommand().equals(FiringCommand.FIRE_STRAFE.getCmd())) {
             doStrafe();
+        } else if (ev.getActionCommand().equals(FiringCommand.FIRE_ACTIVATE_SPA.getCmd())) {
+            doActivateSpecialAbility();
         }
     }
 
@@ -2237,8 +2231,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     void updateFlipArms(boolean armsFlipped) {
         if (ce() == null) {
             return;
-        }
-        if (armsFlipped == ce().getArmsFlipped()) {
+        } else if (armsFlipped == ce().getArmsFlipped()) {
             return;
         }
 
@@ -2259,29 +2252,30 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
                 && ce().isUsingSearchlight()
                 && ce().getCrew().isActive()
                 && !ce().isHidden()
-                && SearchlightAttackAction.isPossible(clientgui.getClient()
-                        .getGame(), cen, target, null)
+                && SearchlightAttackAction.isPossible(clientgui.getClient().getGame(), cen, target, null)
                 && !((ce() instanceof Tank) && (((Tank) ce()).getStunnedTurns() > 0)));
     }
 
     private void updateClearTurret() {
-        setFireClearTurretEnabled((ce() instanceof Tank)
-                && ((Tank) ce()).canClearTurret()
-                && (attacks.size() == 0));
+        setFireClearTurretEnabled((ce() instanceof Tank) && ((Tank) ce()).canClearTurret()
+                && attacks.isEmpty());
     }
 
     private void updateClearWeaponJam() {
-        setFireClearWeaponJamEnabled((ce() instanceof Tank)
-                && ((Tank) ce()).canUnjamWeapon()
-                && (attacks.size() == 0));
+        setFireClearWeaponJamEnabled((ce() instanceof Tank) && ((Tank) ce()).canUnjamWeapon()
+                && attacks.isEmpty());
     }
 
     private void updateStrafe() {
         if (ce().isAero()) {
-            setStrafeEnabled(ce().getAltitude() <= 3 && !((IAero)ce()).isSpheroid());
+            setStrafeEnabled(ce().getAltitude() <= 3 && !((IAero) ce()).isSpheroid());
         } else {
             setStrafeEnabled(false);
         }
+    }
+
+    private void updateActivateSPA() {
+        setActivateSPAEnabled(canActivateBloodStalker());
     }
 
     protected void setFireEnabled(boolean enabled) {
@@ -2328,12 +2322,12 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         buttons.get(FiringCommand.FIRE_MODE).setEnabled(enabled);
         clientgui.getMenuBar().setEnabled(FiringCommand.FIRE_MODE.getCmd(), enabled);
     }
-    
+
     /**
      * Enables the mode button when mode switching is allowed
      * (always true except for LAMs with certain weapons) and
      * the weapon has modes. Disables otherwise.
-     *  
+     *
      * @param m The active weapon
      */
     protected void adaptFireModeEnabled(Mounted m) {
@@ -2358,27 +2352,35 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     protected void setStrafeEnabled(boolean enabled) {
         buttons.get(FiringCommand.FIRE_STRAFE).setEnabled(enabled);
         clientgui.getMenuBar().setEnabled(FiringCommand.FIRE_STRAFE.getCmd(), enabled);
-    }    
-    
+    }
+
     protected void setNextEnabled(boolean enabled) {
         buttons.get(FiringCommand.FIRE_NEXT).setEnabled(enabled);
         clientgui.getMenuBar().setEnabled(FiringCommand.FIRE_NEXT.getCmd(), enabled);
     }
 
+    protected void setActivateSPAEnabled(boolean enabled) {
+        buttons.get(FiringCommand.FIRE_ACTIVATE_SPA).setEnabled(enabled);
+        clientgui.getMenuBar().setEnabled(FiringCommand.FIRE_ACTIVATE_SPA.getCmd(), enabled);
+    }
+
     @Override
     public void clear() {
         if (clientgui.getClient().isMyTurn()) {
-            setStatusBarText(Messages
-                    .getString("FiringDisplay.its_your_turn")); //$NON-NLS-1$
+            setStatusBarText(Messages.getString("FiringDisplay.its_your_turn"));
         }
-        if ((target instanceof Entity) 
-                && Compute.isGroundToAir(ce(), target)) {
-            ((Entity)target).setPlayerPickedPassThrough(cen, null);
+        if ((target instanceof Entity) && Compute.isGroundToAir(ce(), target)) {
+            ((Entity) target).setPlayerPickedPassThrough(cen, null);
         }
         if ((ce() != null) && !ce().isMakingVTOLGroundAttack()) {
             target(null);
         }
-        clearAttacks();        
+        // if we're clearing a "blood stalker" activation from the queue, 
+        // clear the local entity's blood stalker 
+        if ((ce() != null) && attacks.stream().anyMatch(item -> item instanceof ActivateBloodStalkerAction)) {
+            ce().setBloodStalkerTarget(Entity.NONE);
+        }
+        clearAttacks();
         clientgui.getBoardView().select(null);
         clientgui.getBoardView().cursor(null);
         refreshAll();
@@ -2387,12 +2389,9 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     //
     // ItemListener
     //
+    @Override
     public void itemStateChanged(ItemEvent ev) {
 
-        // Are we ignoring events?
-        if (isIgnoringEvents()) {
-            return;
-        }
     }
 
     // board view listener
@@ -2404,8 +2403,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
 
         if (clientgui.getClient().isMyTurn() && (ce() != null)) {
-            clientgui.setDisplayVisible(true);
-            clientgui.bv.centerOnHex(ce().getPosition());
+            clientgui.maybeShowUnitDisplay();
+            clientgui.getBoardView().centerOnHex(ce().getPosition());
         }
     }
 
@@ -2418,25 +2417,25 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
         Entity e = clientgui.getClient().getGame().getEntity(b.getEntityId());
         if (clientgui.getClient().isMyTurn()) {
-            if (clientgui.getClient().getMyTurn()
-                         .isValidEntity(e, clientgui.getClient().getGame())) {
+            if (clientgui.getClient().getMyTurn().isValidEntity(e, clientgui.getClient().getGame())) {
                 selectEntity(e.getId());
             }
         } else {
-            clientgui.setDisplayVisible(true);
-            clientgui.mechD.displayEntity(e);
+            clientgui.maybeShowUnitDisplay();
+            clientgui.getUnitDisplay().displayEntity(e);
             if (e.isDeployed()) {
-                clientgui.bv.centerOnHex(e.getPosition());
+                clientgui.getBoardView().centerOnHex(e.getPosition());
             }
         }
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent event) {
         if (event.getValueIsAdjusting()) {
             return;
         }
-        if (event.getSource().equals(clientgui.mechD.wPan.weaponList)
-                && (clientgui.getClient().getGame().getPhase() == Phase.PHASE_FIRING)) {
+        if (event.getSource().equals(clientgui.getUnitDisplay().wPan.weaponList)
+                && clientgui.getClient().getGame().getPhase().isFiring()) {
             // If we aren't in the firing phase, there's no guarantee that cen
             // is set properly, hence we can't update
 
@@ -2448,10 +2447,11 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
     /**
      * Stop just ignoring events and actually stop listening to them.
      */
+    @Override
     public void removeAllListeners() {
         clientgui.getClient().getGame().removeGameListener(this);
         clientgui.getBoardView().removeBoardViewListener(this);
-        clientgui.mechD.wPan.weaponList.removeListSelectionListener(this);
+        clientgui.getUnitDisplay().wPan.weaponList.removeListSelectionListener(this);
     }
 
     /**
@@ -2460,29 +2460,29 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
      * @param pos - the <code>Coords</code> containing targets.
      */
     private Targetable chooseTarget(Coords pos) {
-        final IGame game = clientgui.getClient().getGame();
-        boolean friendlyFire = game.getOptions().booleanOption(OptionsConstants.BASE_FRIENDLY_FIRE); //$NON-NLS-1$
+        final Game game = clientgui.getClient().getGame();
+        boolean friendlyFire = game.getOptions().booleanOption(OptionsConstants.BASE_FRIENDLY_FIRE);
         // Assume that we have *no* choice.
         Targetable choice = null;
         Iterator<Entity> choices;
 
-        int wn = clientgui.mechD.wPan.getSelectedWeaponNum();
+        int wn = clientgui.getUnitDisplay().wPan.getSelectedWeaponNum();
         Mounted weap = ce().getEquipment(wn);
-        
+
         // Check for weapon/ammo types that should automatically target hexes
-        if ((weap != null) && (weap.getLinked() != null) 
+        if ((weap != null) && (weap.getLinked() != null)
                 && (weap.getLinked().getType() instanceof AmmoType)) {
-            AmmoType aType = (AmmoType)weap.getLinked().getType();
+            AmmoType aType = (AmmoType) weap.getLinked().getType();
             long munitionType = aType.getMunitionType();
             // Mek mortar flares should default to deliver flare
-            if ((aType.getAmmoType() == AmmoType.T_MEK_MORTAR) 
+            if ((aType.getAmmoType() == AmmoType.T_MEK_MORTAR)
                     && (munitionType == AmmoType.M_FLARE)) {
                 return new HexTarget(pos, Targetable.TYPE_FLARE_DELIVER);
             // Certain mek mortar types and LRMs should target hexes
             } else if (((aType.getAmmoType() == AmmoType.T_MEK_MORTAR)
                     || (aType.getAmmoType() == AmmoType.T_LRM)
                     || (aType.getAmmoType() == AmmoType.T_LRM_IMP))
-                    && ((munitionType == AmmoType.M_AIRBURST) 
+                    && ((munitionType == AmmoType.M_AIRBURST)
                             || (munitionType == AmmoType.M_SMOKE_WARHEAD))) {
                 return new HexTarget(pos, Targetable.TYPE_HEX_CLEAR);
             } else if (munitionType == AmmoType.M_MINE_CLEARANCE) {
@@ -2497,27 +2497,27 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
 
         // Convert the choices into a List of targets.
-        List<Targetable> targets = new ArrayList<Targetable>();
-        final IPlayer localPlayer = clientgui.getClient().getLocalPlayer();
+        List<Targetable> targets = new ArrayList<>();
+        final Player localPlayer = clientgui.getClient().getLocalPlayer();
         while (choices.hasNext()) {
-            Targetable t = choices.next();
+            Entity t = choices.next();
             boolean isSensorReturn = false;
             boolean isVisible = true;
             boolean isHidden = false;
-            if (t instanceof Entity) {
-                isSensorReturn = ((Entity) t).isSensorReturn(localPlayer);
-                isVisible = ((Entity) t).hasSeenEntity(localPlayer);
-                isHidden = ((Entity) t).isHidden();
+            if (t != null) {
+                isSensorReturn = t.isSensorReturn(localPlayer);
+                isVisible = t.hasSeenEntity(localPlayer);
+                isHidden = t.isHidden();
             }
+
             if (!ce().equals(t) && !isSensorReturn && isVisible && !isHidden) {
                 targets.add(t);
             }
         }
-        
+
         // If there aren't other targets, check for targets flying over pos
-        if (targets.size() == 0) {
-            List<Entity> flyovers = 
-                    clientgui.getBoardView().getEntitiesFlyingOver(pos);
+        if (targets.isEmpty()) {
+            List<Entity> flyovers = clientgui.getBoardView().getEntitiesFlyingOver(pos);
             for (Entity e : flyovers) {
                 if (!targets.contains(e)) {
                     targets.add(e);
@@ -2526,16 +2526,14 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
         }
 
         // Is there a building in the hex?
-        Building bldg = clientgui.getClient().getGame().getBoard()
-                .getBuildingAt(pos);
+        Building bldg = clientgui.getClient().getGame().getBoard().getBuildingAt(pos);
         if (bldg != null) {
-            targets.add(new BuildingTarget(pos, clientgui.getClient().getGame()
-                    .getBoard(), false));
+            targets.add(new BuildingTarget(pos, clientgui.getClient().getGame().getBoard(), false));
         }
-        
+
         // If we clicked on a wooded hex with no other targets, clear woods
-        if (targets.size() == 0) {
-            IHex hex = game.getBoard().getHex(pos);
+        if (targets.isEmpty()) {
+            Hex hex = game.getBoard().getHex(pos);
             if (hex.containsTerrain(Terrains.WOODS)
                     || hex.containsTerrain(Terrains.JUNGLE)) {
                 targets.add(new HexTarget(pos, Targetable.TYPE_HEX_CLEAR));
@@ -2544,72 +2542,63 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
 
         // Do we have a single choice?
         if (targets.size() == 1) {
-
             // Return that choice.
             choice = targets.get(0);
-
-        }
-
-        // If we have multiple choices, display a selection dialog.
-        else if (targets.size() > 1) {
-            String input = (String) JOptionPane
-                    .showInputDialog(clientgui,
-                            Messages.getString(
-                                    "FiringDisplay.ChooseTargetDialog.message",
-                                    new Object[] { pos.getBoardNum() }),
-                            //$NON-NLS-1$                            JOptionPane.QUESTION_MESSAGE, null,
-                            Messages.getString("FiringDisplay.ChooseTargetDialog.title"), //$NON-NLS-1$
-                            JOptionPane.QUESTION_MESSAGE, null, SharedUtility
-                                    .getDisplayArray(targets), null);
+        } else if (targets.size() > 1) {
+            // If we have multiple choices, display a selection dialog.
+            String input = (String) JOptionPane.showInputDialog(clientgui,
+                    Messages.getString("FiringDisplay.ChooseTargetDialog.message", pos.getBoardNum()),
+                    Messages.getString("FiringDisplay.ChooseTargetDialog.title"),
+                    JOptionPane.QUESTION_MESSAGE, null,
+                    SharedUtility.getDisplayArray(targets), null);
             choice = SharedUtility.getTargetPicked(targets, input);
-        } // End have-choices
+        }
 
         // Return the chosen unit.
         return choice;
-
-    } // End private Targetable chooseTarget( Coords )
+    }
 
     public Targetable getTarget() {
         return target;
     }
-    
+
     private boolean validStrafingCoord(Coords newCoord) {
         // Only Aeros can strafe...
         if (ce() == null || !ce().isAero()) {
             return false;
         }
-        
+
         // Can't update strafe hexes after weapons are fired, otherwise we'd
         // have to have a way to update the attacks vector
-        if (attacks.size() > 0) {
+        if (!attacks.isEmpty()) {
             return false;
         }
-        
+
         // Can only strafe hexes that were flown over
         if (!ce().passedThrough(newCoord)) {
             return false;
         }
-        
+
         // No more limitations if it's the first hex
-        if (strafingCoords.size() == 0) {
+        if (strafingCoords.isEmpty()) {
             return true;
         }
-        
+
         // We can only select at most 5 hexes
         if (strafingCoords.size() >= 5) {
             return false;
         }
-        
+
         // Can't strafe the same hex twice
         if (strafingCoords.contains(newCoord)) {
             return false;
         }
-        
+
         boolean isConsecutive = false;
         for (Coords c : strafingCoords) {
             isConsecutive |= (c.distance(newCoord) == 1);
         }
-        
+
         boolean isInaLine = true;
         // If there is only one other coord, then they're linear
         if (strafingCoords.size() > 1) {
@@ -2618,23 +2607,23 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements
             // Define the vector formed by the new coords and the first coords
             for (int i = 1; i < strafingCoords.size(); i++) {
                 IdealHex iHex = new IdealHex(strafingCoords.get(i));
-                isInaLine &= iHex.isIntersectedBy(start.cx, start.cy, newHex.cx,
-                        newHex.cy);
+                isInaLine &= iHex.isIntersectedBy(start.cx, start.cy, newHex.cx, newHex.cy);
             }
         }
         return isConsecutive && isInaLine;
     }
-    
+
     public void FieldofFire(Entity unit, int[][] ranges, int arc, int loc, int facing) {
         // do nothing here outside the movement phase
-        if (!(clientgui.getClient().getGame().getPhase() == Phase.PHASE_FIRING)) return;
-        
-        clientgui.bv.fieldofFireUnit = unit;
-        clientgui.bv.fieldofFireRanges = ranges;
-        clientgui.bv.fieldofFireWpArc = arc;
-        clientgui.bv.fieldofFireWpLoc = loc;
-        
-        clientgui.bv.setWeaponFieldofFire(facing, unit.getPosition());
+        if (!clientgui.getClient().getGame().getPhase().isFiring()) {
+            return;
+        }
+
+        clientgui.getBoardView().fieldofFireUnit = unit;
+        clientgui.getBoardView().fieldofFireRanges = ranges;
+        clientgui.getBoardView().fieldofFireWpArc = arc;
+        clientgui.getBoardView().fieldofFireWpLoc = loc;
+
+        clientgui.getBoardView().setWeaponFieldofFire(facing, unit.getPosition());
     }
-    
 }

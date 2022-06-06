@@ -19,12 +19,13 @@ import megamek.common.Coords;
 import megamek.common.Entity;
 import megamek.common.FighterSquadron;
 import megamek.common.HitData;
-import megamek.common.IGame;
+import megamek.common.Game;
 import megamek.common.Report;
 import megamek.common.TargetRoll;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
-import megamek.server.Server;
+import megamek.common.enums.GamePhase;
+import megamek.server.GameManager;
 
 /**
  * @author Jay Lawson
@@ -41,11 +42,11 @@ public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
      * @param t
      * @param w
      * @param g
-     * @param s
+     * @param m
      */
-    public ScreenLauncherBayHandler(ToHitData t, WeaponAttackAction w, IGame g,
-            Server s) {
-        super(t, w, g, s);
+    public ScreenLauncherBayHandler(ToHitData t, WeaponAttackAction w, Game g,
+            GameManager m) {
+        super(t, w, g, m);
     }
 
     /**
@@ -55,7 +56,7 @@ public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
      *         kept or not
      */
     @Override
-    public boolean handle(IGame.Phase phase, Vector<Report> vPhaseReport) {
+    public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (!this.cares(phase)) {
             return true;
         }
@@ -99,7 +100,7 @@ public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
         for (int i = 0; i < weapon.getBayWeapons().size(); i++) {
             // deliver screen
             Coords coords = target.getPosition();
-            server.deliverScreen(coords, vPhaseReport);
+            gameManager.deliverScreen(coords, vPhaseReport);
             // damage any entities in the hex
             for (Entity entity : game.getEntitiesVector(coords)) {
                 // if fighter squadron all fighters are damaged
@@ -110,16 +111,16 @@ public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
                         squadronToHit.setHitTable(ToHitData.HIT_NORMAL);
                         HitData hit = ent.rollHitLocation(squadronToHit.getHitTable(), ToHitData.SIDE_FRONT);
                         hit.setCapital(false);
-                        vPhaseReport.addAll(server.damageEntity(ent, hit, attackValue));
-                        server.creditKill(ent, ae);
+                        vPhaseReport.addAll(gameManager.damageEntity(ent, hit, attackValue));
+                        gameManager.creditKill(ent, ae);
                     });
                 } else {
                     ToHitData hexToHit = new ToHitData();
                     hexToHit.setHitTable(ToHitData.HIT_NORMAL);
                     HitData hit = entity.rollHitLocation(hexToHit.getHitTable(), ToHitData.SIDE_FRONT);
                     hit.setCapital(false);
-                    vPhaseReport.addAll(server.damageEntity(entity, hit, attackValue));
-                    server.creditKill(entity, ae);
+                    vPhaseReport.addAll(gameManager.damageEntity(entity, hit, attackValue));
+                    gameManager.creditKill(entity, ae);
                 }
             }
         }
