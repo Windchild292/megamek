@@ -914,8 +914,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             setEvadeAeroEnabled(cmd != null && !cmd.contains(MoveStepType.EVADE));
             setEjectEnabled(true);
             // no turning for spheroids in atmosphere
-            if ((((IAero) ce()).isSpheroid() || clientgui.getClient().getGame()
-                    .getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())
+            if ((((IAero) ce()).isSpheroid()
+                    || clientgui.getClient().getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())
                     && !clientgui.getClient().getGame().getBoard().inSpace()) {
                 setTurnEnabled(false);
             }

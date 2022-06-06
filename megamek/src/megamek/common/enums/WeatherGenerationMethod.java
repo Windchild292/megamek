@@ -28,8 +28,7 @@ public enum WeatherGenerationMethod {
     //region Enum Declarations
     NONE("WeatherGenerationMethod.NONE.text", "WeatherGenerationMethod.NONE.toolTipText"),
     ATB("WeatherGenerationMethod.ATB.text", "WeatherGenerationMethod.ATB.toolTipText"),
-    TACTICAL_OPERATIONS("WeatherGenerationMethod.TACTICAL_OPERATIONS.text", "WeatherGenerationMethod.TACTICAL_OPERATIONS.toolTipText"),
-    WINDCHILD("WeatherGenerationMethod.WINDCHILD.text", "WeatherGenerationMethod.WINDCHILD.toolTipText");
+    TACTICAL_OPERATIONS("WeatherGenerationMethod.TACTICAL_OPERATIONS.text", "WeatherGenerationMethod.TACTICAL_OPERATIONS.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -64,10 +63,6 @@ public enum WeatherGenerationMethod {
     public boolean isTacticalOperations() {
         return this == TACTICAL_OPERATIONS;
     }
-
-    public boolean isWindchild() {
-        return this == WINDCHILD;
-    }
     //endregion Boolean Comparison Methods
 
     public AbstractWeatherGenerator getGenerator() {
@@ -76,8 +71,6 @@ public enum WeatherGenerationMethod {
                 return new AtBWeatherGenerator();
             case TACTICAL_OPERATIONS:
                 return new TacOpsWeatherGenerator();
-            case WINDCHILD:
-                return new WindchildWeatherGenerator();
             case NONE:
             default:
                 return new DisabledWeatherGenerator();

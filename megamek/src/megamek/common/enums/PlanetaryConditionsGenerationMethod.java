@@ -29,8 +29,7 @@ public enum PlanetaryConditionsGenerationMethod {
     NONE("PlanetaryConditionsGenerationMethod.NONE.text", "PlanetaryConditionsGenerationMethod.NONE.toolTipText"),
     SPECIFIED("PlanetaryConditionsGenerationMethod.SPECIFIED.text", "PlanetaryConditionsGenerationMethod.SPECIFIED.toolTipText"),
     ATB("PlanetaryConditionsGenerationMethod.ATB.text", "PlanetaryConditionsGenerationMethod.ATB.toolTipText"),
-    TACTICAL_OPERATIONS("PlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.text", "PlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.toolTipText"),
-    WINDCHILD("PlanetaryConditionsGenerationMethod.WINDCHILD.text", "PlanetaryConditionsGenerationMethod.WINDCHILD.toolTipText");
+    TACTICAL_OPERATIONS("PlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.text", "PlanetaryConditionsGenerationMethod.TACTICAL_OPERATIONS.toolTipText");
     //endregion Enum Declarations
 
     //region Variable Declarations
@@ -69,10 +68,6 @@ public enum PlanetaryConditionsGenerationMethod {
     public boolean isTacticalOperations() {
         return this == TACTICAL_OPERATIONS;
     }
-
-    public boolean isWindchild() {
-        return this == WINDCHILD;
-    }
     //endregion Boolean Comparison Methods
 
     public AbstractPlanetaryConditionsGenerator getGenerator(final boolean constantPlanetaryValues,
@@ -88,8 +83,6 @@ public enum PlanetaryConditionsGenerationMethod {
                 return new AtBPlanetaryConditionsGenerator();
             case TACTICAL_OPERATIONS:
                 return new TacOpsPlanetaryConditionsGenerator(constantPlanetaryValues);
-            case WINDCHILD:
-                return new WindchildPlanetaryConditionsGenerator(constantPlanetaryValues);
             case NONE:
             default:
                 return new DisabledPlanetaryConditionsGenerator();
