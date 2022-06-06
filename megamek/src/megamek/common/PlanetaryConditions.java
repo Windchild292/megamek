@@ -449,7 +449,7 @@ public class PlanetaryConditions implements Serializable {
             }
         }
 
-        //atmospheric pressure may limit wind strength
+        // Atmospheric pressure may limit wind strength
         if (getAtmosphericPressure().isTrace() && getWindStrength().isTornado()) {
             setWindStrength(Wind.STORM);
         } else if (getAtmosphericPressure().isThin() && getWindStrength().isTornadoF4()) {
@@ -716,22 +716,6 @@ public class PlanetaryConditions implements Serializable {
             } else {
                 return 30;
             }
-        }
-    }
-
-    public int getDropRate() {
-        // Atmospheric pressure mods
-        switch (getAtmosphericPressure()) {
-            case TRACE:
-                return 8;
-            case THIN:
-                return 5;
-            case HIGH:
-                return 2;
-            case VERY_HIGH:
-                return 1;
-            default:
-                return 3;
         }
     }
 

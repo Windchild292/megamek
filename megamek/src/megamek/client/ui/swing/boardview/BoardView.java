@@ -2580,7 +2580,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             }
         }
 
-        // Darken the hex for nighttime, if applicable
+        // If applicable, darken the hex for nighttime, dusk, and dawn
         if (guip.getBoolean(GUIPreferences.ADVANCED_DARKEN_MAP_AT_NIGHT)
                 && IlluminationLevel.determineIlluminationLevel(game, c).isNone()
                 && (game.getPlanetaryConditions().getLight().isNight()
@@ -2797,7 +2797,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             for (Image image : tileManager.orthoFor(oHex)) {
                 BufferedImage scaledImage = ImageUtil.createAcceleratedImage(getScaledImage(image, true));
 
-                // Darken the hex for nighttime and dawn/dusk, if applicable
+                // If applicable, darken the hex for nighttime, dusk, and dawn
                 if (GUIPreferences.getInstance().getBoolean(GUIPreferences.ADVANCED_DARKEN_MAP_AT_NIGHT)
                         && IlluminationLevel.determineIlluminationLevel(game, c).isNone()
                         && (game.getPlanetaryConditions().getLight().isNight()

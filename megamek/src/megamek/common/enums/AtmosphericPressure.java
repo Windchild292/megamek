@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
+ * Copyright (c) 2021-2022 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
  *
@@ -149,6 +149,24 @@ public enum AtmosphericPressure {
             case STANDARD:
             case HIGH:
             case VERY_HIGH:
+            default:
+                return 3;
+        }
+    }
+
+    /**
+     * @return the rate at which
+     */
+    public int getDropRate() {
+        switch (this) {
+            case TRACE:
+                return 8;
+            case THIN:
+                return 5;
+            case HIGH:
+                return 2;
+            case VERY_HIGH:
+                return 1;
             default:
                 return 3;
         }

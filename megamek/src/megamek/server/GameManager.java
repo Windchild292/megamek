@@ -5935,7 +5935,7 @@ public class GameManager implements IGameManager {
 
         // check for dropping troops and drop them
         if (entity.isDropping() && !md.contains(MovePath.MoveStepType.HOVER)) {
-            entity.setAltitude(entity.getAltitude() - game.getPlanetaryConditions().getDropRate());
+            entity.setAltitude(entity.getAltitude() - game.getPlanetaryConditions().getAtmosphericPressure().getDropRate());
             // they may have changed their facing
             if (md.length() > 0) {
                 entity.setFacing(md.getFinalFacing());
@@ -8170,14 +8170,14 @@ public class GameManager implements IGameManager {
                     if (checkCrash(entity, entity.getPosition(), entity.getAltitude())) {
                         addReport(processCrash(entity, 0, entity.getPosition()));
                     }
-                } else if (entity instanceof EscapePods && entity.isAirborne() && md.getFinalVelocity() < 2) {
-                    //Atmospheric Escape Pods that drop below velocity 2 lose altitude as dropping units
-                    entity.setAltitude(entity.getAltitude()
-                            - game.getPlanetaryConditions().getDropRate());
+                } else if ((entity instanceof EscapePods) && entity.isAirborne()
+                        && (md.getFinalVelocity() < 2)) {
+                    // Atmospheric Escape Pods that drop below velocity 2 lose altitude as dropping units
+                    entity.setAltitude(entity.getAltitude() - game.getPlanetaryConditions().getAtmosphericPressure().getDropRate());
                     r = new Report(6676);
                     r.subject = entity.getId();
                     r.addDesc(entity);
-                    r.add(game.getPlanetaryConditions().getDropRate());
+                    r.add(game.getPlanetaryConditions().getAtmosphericPressure().getDropRate());
                     addReport(r);
                 }
             }

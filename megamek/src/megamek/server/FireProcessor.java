@@ -97,7 +97,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
                 Hex currentHex = board.getHex(currentXCoord, currentYCoord);
 
                 if (currentHex.containsTerrain(Terrains.FIRE)) {
-                    //If the woods has been cleared, or the building
+                    // If the woods has been cleared, or the building
                     // has collapsed put non-inferno fires out.
                     if ((currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_NORMAL)
                             && !currentHex.isIgnitable()) {
@@ -105,7 +105,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
                         continue;
                     }
 
-                    //only check spread for fires that didn't start this turn
+                    // only check spread for fires that didn't start this turn
                     if (currentHex.getFireTurn() > 0) {
                         //optional rule, woods burn down
                         Vector<Report> burnReports = null;
@@ -114,7 +114,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
                                 && game.getOptions().booleanOption(OptionsConstants.ADVANCED_WOODS_BURN_DOWN)) {
                             burnReports = burnDownWoods(currentCoords);
                         }
-                        //report and check for fire spread
+                        // report and check for fire spread
                         r = new Report(5125, Report.PUBLIC);
                         if ((currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO)
                                 || (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO_BOMB)
@@ -212,8 +212,8 @@ public class FireProcessor extends DynamicTerrainProcessor {
         Coords nextCoords = src.translated(direction);
 
         // check for height differences between hexes
-        //TODO: until further clarification only the heights matter (not the base elevation)
-        //This means that a fire cannot spread from a level 6 building at base level 0 to
+        // TODO : until further clarification only the heights matter (not the base elevation)
+        // This means that a fire cannot spread from a level 6 building at base level 0 to
         // a level 1 building at base level 0, for example.
 
         final int curHeight = game.getBoard().getHex(src).ceiling();
@@ -294,12 +294,12 @@ public class FireProcessor extends DynamicTerrainProcessor {
         ArrayList<Coords> smokeToAdd;
         HashMap<SmokeCloud, ArrayList<Coords>> smokeCloudData = new HashMap<>();
 
-        // Cycle through all smokeclouds
+        // Cycle through all smoke clouds
         for (SmokeCloud cloud : gameManager.getSmokeCloudList()) {
             smokeToAdd = new ArrayList<>();
             for (Coords currentCoords : cloud.getCoordsList()) {
                 Coords smokeCoords = driftAddSmoke(currentCoords, direction, wind);
-                //Smoke has Dissipated by moving into a hex with a greater then 4 elevation drop.
+                // Smoke has Dissipated by moving into a hex with a greater than 4 elevation drop.
                 if (smokeCoords == null) {
                     Report r = new Report(5220, Report.PUBLIC);
                     r.add(currentCoords.getBoardNum());
@@ -408,8 +408,10 @@ public class FireProcessor extends DynamicTerrainProcessor {
 
         if ((hexElevation - nextElevation) < -4) {
             if (directionChanges == 0) {
+                // Clockwise
                 return driftAddSmoke(src, direction.rotate(1), wind, ++directionChanges);
             } else if (directionChanges == 1) {
+                // Counterclockwise
                 return driftAddSmoke(src, direction.rotate(-1), wind, ++directionChanges);
             } else {
                 // Stay put
@@ -419,8 +421,7 @@ public class FireProcessor extends DynamicTerrainProcessor {
 
         // stronger wind causes smoke to drift farther
         if (wind.isStrongGaleOrStronger()) {
-            return driftAddSmoke(nextCoords, HexCardinalDirection.values()[directionChanges],
-                    Wind.values()[wind.ordinal() - 1]);
+            return driftAddSmoke(nextCoords, direction, Wind.values()[wind.ordinal() - 1]);
         }
 
         return nextCoords;
@@ -434,6 +435,12 @@ public class FireProcessor extends DynamicTerrainProcessor {
      * @return whether the smoke dissipates
      */
     public boolean driftSmokeDissipate(SmokeCloud cloud, int roll, final Wind wind) {
+        // All smoke goes bye bye in Tornadoes, so just immediately dissipate it
+        if (wind.isTornado()) {
+            cloud.setSmokeLevel(0);
+            return true;
+        }
+
         // HVAC Heavy smoke dissipation
         if ((cloud.getDuration() > 0) && ((cloud.getDuration() - 1) == 0)) {
             cloud.setDuration(0);
@@ -448,12 +455,6 @@ public class FireProcessor extends DynamicTerrainProcessor {
         // Dissipate in various winds
         if ((roll > 10) || ((roll > 9) && wind.isModerateGale())
                 || ((roll > 7) && wind.isStrongGale()) || ((roll > 5) && wind.isStorm())) {
-            return true;
-        }
-
-        // All smoke goes bye bye in Tornadoes
-        if (wind.isTornado()) {
-            cloud.setSmokeLevel(0);
             return true;
         }
 

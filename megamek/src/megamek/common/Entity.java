@@ -2387,8 +2387,8 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
     public boolean isOnAtmosphericGroundMap() {
         // doesn't make sense in english, but "atmospheric" map actually
         // covers maps that are within a planet's gravity well
-        return (!getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()
-                && (getGame().getBoard().onGround() || getGame().getBoard().inAtmosphere()));
+        return !getGame().getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()
+                && (getGame().getBoard().onGround() || getGame().getBoard().inAtmosphere());
     }
 
     /**
@@ -6333,7 +6333,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         // for dropping troops, check to see if they are going to land
         // this turn, if so, then set their assault drop status to true
         if (isAirborne() && !isAero()
-                && (getAltitude() <= game.getPlanetaryConditions().getDropRate())) {
+                && (getAltitude() <= game.getPlanetaryConditions().getAtmosphericPressure().getDropRate())) {
             setAssaultDropInProgress(true);
         }
 
@@ -7052,10 +7052,10 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         PlanetaryConditions conditions = game.getPlanetaryConditions();
         // check light conditions for "running" entities
         if ((moveType == EntityMovementType.MOVE_RUN)
-            || (moveType == EntityMovementType.MOVE_SPRINT)
-            || (moveType == EntityMovementType.MOVE_VTOL_RUN)
-            || (moveType == EntityMovementType.MOVE_OVER_THRUST)
-            || (moveType == EntityMovementType.MOVE_VTOL_SPRINT)) {
+                || (moveType == EntityMovementType.MOVE_SPRINT)
+                || (moveType == EntityMovementType.MOVE_VTOL_RUN)
+                || (moveType == EntityMovementType.MOVE_OVER_THRUST)
+                || (moveType == EntityMovementType.MOVE_VTOL_SPRINT)) {
             int lightPenalty = conditions.getLight().getPilotingPenalty();
             if (lightPenalty > 0) {
                 roll.addModifier(lightPenalty, conditions.getLight().toString());
@@ -7899,15 +7899,15 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         }
 
         Hex currHex = game.getBoard().getHex(currPos);
-        if (movementMode != EntityMovementMode.HOVER
-                && movementMode != EntityMovementMode.VTOL
-                && movementMode != EntityMovementMode.WIGE) {
+        if (!movementMode.isHoverVTOLOrWiGE()) {
             if (currHex.containsTerrain(Terrains.MUD)) {
                 roll.addModifier(+1, "mud");
             }
+
             if (currHex.containsTerrain(Terrains.ICE)) {
-                roll.addModifier(movementMode == EntityMovementMode.TRACKED? 1 : 2, "ice");
+                roll.addModifier(movementMode.isTracked() ? 1 : 2, "ice");
             }
+
             if (game.getPlanetaryConditions().isSleeting()
                     || game.getPlanetaryConditions().getFog().isHeavy()
                     || game.getPlanetaryConditions().getWeather().isHeavyRain()
@@ -7917,7 +7917,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
             }
 
             if (game.getPlanetaryConditions().getWeather().isHeavySnow()) {
-                roll.addModifier(movementMode == EntityMovementMode.TRACKED? 1 : 2, "snow");
+                roll.addModifier(movementMode.isTracked() ? 1 : 2, "snow");
             }
         }
 

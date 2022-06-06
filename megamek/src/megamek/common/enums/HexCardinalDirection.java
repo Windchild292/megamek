@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - The MegaMek Team. All Rights Reserved.
+ * Copyright (c) 2021-2022 - The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMek.
  *
@@ -18,7 +18,6 @@
  */
 package megamek.common.enums;
 
-import megamek.MegaMek;
 import megamek.common.Compute;
 import megamek.common.preference.PreferenceManager;
 import megamek.common.util.EncodeControl;

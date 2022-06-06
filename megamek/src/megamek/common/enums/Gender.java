@@ -68,7 +68,7 @@ public enum Gender {
     }
     //endregion Getters
 
-    //region Boolean Comparisons
+    //region Boolean Comparison Methods
     /**
      * @return true is the person's biological gender is male, otherwise false
      */
@@ -82,7 +82,7 @@ public enum Gender {
     public boolean isFemale() {
         return (this == FEMALE) || (this == OTHER_FEMALE);
     }
-    //endregion Boolean Comparisons
+    //endregion Boolean Comparison Methods
 
     /**
      * @return a list of all external-facing gender options

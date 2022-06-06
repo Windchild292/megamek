@@ -62,14 +62,14 @@ public class Coords implements Serializable {
     }
 
     /**
-     * Returns the coordinate 1 unit in the specified direction dir.
+     * @return the coordinate 1 unit in the specified direction dir.
      */
     public Coords translated(int dir) {
         return translated(dir, 1);
     }
 
     /**
-     * Returns the coordinate 1 unit in the specified direction
+     * @return the coordinate 1 unit in the specified direction
      */
     public Coords translated(final HexCardinalDirection direction) {
         return translated(direction, 1);
