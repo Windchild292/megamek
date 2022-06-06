@@ -96,20 +96,21 @@ public enum HexCardinalDirection {
     //endregion Boolean Comparisons
 
     /**
-     * @return an unbiased random direction, which will not be randomize
+     * @return an unbiased random direction, which will not be RANDOMIZE
      */
     public static HexCardinalDirection getRandomDirection() {
-        final HexCardinalDirection[] CardinalDirections = values();
-        return CardinalDirections[Compute.randomInt(CardinalDirections.length - 1)];
+        final HexCardinalDirection[] cardinalDirections = values();
+        return cardinalDirections[Compute.randomInt(cardinalDirections.length - 1)];
     }
 
     /**
-     * @param rotations positive to rotate clockwise, negative to rotate counterclockwise
+     * @param rotations the rotations value. This is positive to rotate clockwise and negative to
+     *                  rotate counterclockwise
      * @return the rotated direction
      */
     public HexCardinalDirection rotate(final int rotations) {
-        final HexCardinalDirection[] CardinalDirections = values();
-        return CardinalDirections[(ordinal() + rotations) % (CardinalDirections.length - 1)];
+        final HexCardinalDirection[] cardinalDirections = values();
+        return cardinalDirections[(ordinal() + rotations) % (cardinalDirections.length - 1)];
     }
 
     //region File I/O

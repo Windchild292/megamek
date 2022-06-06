@@ -112,7 +112,7 @@ public enum Light {
     //endregion Boolean Comparisons
 
     /**
-     * to-hit penalty for light
+     * @return the to-hit penalty caused by the current light levels
      */
     public int getHitPenalty(final boolean weapon) {
         switch (this) {
@@ -130,7 +130,7 @@ public enum Light {
     }
 
     /**
-     * heat bonus to hit for being overheated in darkness
+     * @return the heat bonus to hit for being overheated in darkness
      */
     public int getHeatBonus(final int heat) {
         final double divisor;
@@ -154,7 +154,7 @@ public enum Light {
     }
 
     /**
-     * piloting penalty for running/flanking/etc for light
+     * @return the piloting penalty for running/flanking/etc caused by the current light levels
      */
     public int getPilotingPenalty() {
         switch (this) {

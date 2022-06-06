@@ -97,7 +97,6 @@ public class AtBWeatherGenerator extends AbstractWeatherGenerator {
         }
     }
 
-
     private void generateGale(final PlanetaryConditions conditions) {
         switch (Compute.randomInt(6)) {
             case 0:

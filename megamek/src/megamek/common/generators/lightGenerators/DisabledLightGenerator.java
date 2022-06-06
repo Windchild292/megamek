@@ -19,10 +19,11 @@
 package megamek.common.generators.lightGenerators;
 
 import megamek.common.PlanetaryConditions;
+import megamek.common.enums.Light;
 import megamek.common.enums.LightGenerationMethod;
 
 /**
- * Disabled always returns that the current light condition is day
+ * Disabled always sets the current light condition to day
  */
 public class DisabledLightGenerator extends AbstractLightGenerator {
     //region Constructors
@@ -33,6 +34,6 @@ public class DisabledLightGenerator extends AbstractLightGenerator {
 
     @Override
     public void generate(final PlanetaryConditions conditions) {
-
+        conditions.setLight(Light.DAY);
     }
 }

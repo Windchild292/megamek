@@ -109,7 +109,7 @@ public enum Wind {
     //endregion Boolean Comparisons
 
     /**
-     * piloting penalty for wind
+     * @return the piloting penalty caused by the current wind levels
      */
     public int getPilotingPenalty(final Entity entity) {
         switch (this) {
@@ -145,7 +145,7 @@ public enum Wind {
     }
 
     /**
-     * @return the ignition modifier from the current weather
+     * @return the ignition modifier from the current wind levels
      */
     public int getIgnitionModifier() {
         switch (this) {

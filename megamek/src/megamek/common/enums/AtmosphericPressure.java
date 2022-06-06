@@ -88,6 +88,11 @@ public enum AtmosphericPressure {
     }
     //endregion Boolean Comparisons
 
+    /**
+     * Determines the Partial Wing jump bonus from this atmospheric pressure for the specified entity
+     * @param entity the entity to determine the partial wing jump bonus for
+     * @return the partial wing jump bonus at this atmospheric pressure for the specified entity
+     */
     public int getPartialWingJumpBonus(final Entity entity) {
         if (entity instanceof Mech) {
             if (entity.getWeightClass() > EntityWeightClass.WEIGHT_MEDIUM) {
@@ -138,6 +143,11 @@ public enum AtmosphericPressure {
         }
     }
 
+    /**
+     * Determines the Partial Wing heat capacity bonus from this atmospheric pressure
+     * This should only be called for 'Mechs
+     * @return the partial wing heat capacity bonus at this atmospheric pressure
+     */
     public int getPartialWingHeatBonus() {
         switch (this) {
             case VACUUM:
@@ -155,7 +165,8 @@ public enum AtmosphericPressure {
     }
 
     /**
-     * @return the rate at which
+     * @return the rate at which the entity's altitude decreases while being assault dropped into
+     * the field
      */
     public int getDropRate() {
         switch (this) {

@@ -25,7 +25,7 @@ import megamek.common.enums.LightGenerationMethod;
 
 /**
  * This is a custom light generation method designed by Windchild, and described in the
- * WindchildPlanetaryConditionsGenerator Excel File in the Docs Folder.
+ * /docs/Windchilds Guides/Windchilds_Light_Generation_Rules.txt file
  * @author Windchild
  */
 public class WindchildLightGenerator extends AbstractLightGenerator {
