@@ -2676,21 +2676,19 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         return getWalkMP(gravity, ignoreHeat, false);
     }
 
-    public int getWalkMP(boolean gravity, boolean ignoreHeat,
-                         boolean ignoreModularArmor) {
+    public int getWalkMP(boolean gravity, boolean ignoreHeat, boolean ignoreModularArmor) {
         int mp = getOriginalWalkMP();
-
         if (!ignoreHeat) {
             mp = Math.max(0, mp - getHeatMPReduction());
         }
         mp = Math.max(mp - getCargoMpReduction(this), 0);
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions()
-                                 .getMovementModifiers(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 mp = Math.max(mp + weatherMod, 0);
             }
         }
+
         if (gravity) {
             mp = applyGravityEffectsOnMP(mp);
         }

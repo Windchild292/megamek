@@ -2013,9 +2013,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         }
 
         final boolean isNight = clientgui.getClient().getGame().getPlanetaryConditions().getLight().isNight();
-        setSearchlightEnabled(
-                isNight && ce.hasSearchlight() && !cmd.contains(MoveStepType.SEARCHLIGHT),
-                ce.isUsingSearchlight());
         setSearchlightEnabled(isNight && ce.hasSearchlight() && !cmd.contains(MoveStepType.SEARCHLIGHT),
                 ce.isUsingSearchlight());
     }

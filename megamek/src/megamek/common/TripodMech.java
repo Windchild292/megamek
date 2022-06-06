@@ -25,9 +25,6 @@ import megamek.common.preference.PreferenceManager;
 import org.apache.logging.log4j.LogManager;
 
 public class TripodMech extends Mech {
-    /**
-     *
-     */
     private static final long serialVersionUID = 4166375446709772785L;
 
     private static final String[] LOCATION_NAMES = {"Head", "Center Torso",
@@ -213,8 +210,7 @@ public class TripodMech extends Mech {
         }
         wmp = Math.max(wmp - getCargoMpReduction(this), 0);
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions()
-                                 .getMovementModifiers(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 wmp = Math.max(wmp + weatherMod, 0);
             }

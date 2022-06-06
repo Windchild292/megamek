@@ -446,13 +446,14 @@ public class BattleArmor extends Infantry {
                 j++;
             }
         }
+
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions()
-                    .getMovementModifiers(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }
         }
+
         if (gravity) {
             j = applyGravityEffectsOnMP(j);
         }
@@ -460,8 +461,7 @@ public class BattleArmor extends Infantry {
     }
 
     @Override
-    public int getRunMP(boolean gravity, boolean ignoreheat,
-            boolean ignoremodulararmor) {
+    public int getRunMP(boolean gravity, boolean ignoreheat, boolean ignoremodulararmor) {
         boolean fastMove = (game != null) &&
                 game.getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_TACOPS_FAST_INFANTRY_MOVE);
         if (fastMove) {

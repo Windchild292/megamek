@@ -54,7 +54,7 @@ public class HVACWeaponHandler extends ACWeaponHandler {
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_START_FIRE)
-                && !game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
+                && !game.getPlanetaryConditions().getAtmosphericPressure().isVacuum()) {
             int rear = (ae.getFacing() + 3 + (weapon.isMechTurretMounted() ? weapon.getFacing() : 0)) % 6;
             Coords src = ae.getPosition();
             Coords rearCoords = src.translated(rear);
