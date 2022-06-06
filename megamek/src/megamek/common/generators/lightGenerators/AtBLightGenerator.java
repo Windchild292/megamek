@@ -41,10 +41,10 @@ public class AtBLightGenerator extends AbstractLightGenerator {
                 conditions.setLight(Light.DAY);
                 break;
             case 5:
-                conditions.setLight(Light.DAWN);
+                conditions.setLight(Light.DUSK);
                 break;
             case 6:
-                conditions.setLight(Light.DUSK);
+                conditions.setLight(Light.DAWN);
                 break;
             case 7:
                 conditions.setLight(Light.FULL_MOON);
