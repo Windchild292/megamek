@@ -25,7 +25,7 @@ import megamek.common.enums.ExtendedPlanetaryConditionsGenerationMethod;
  * This is used to generate any Planetary Conditions that don't fall under the categories of
  * Light (just Light conditions) and Weather (Weather [Rain, Snow, etc.], Wind, Fog).
  *
- * The generated conditions may include planetary values (gravity, temperature) if the
+ * The generated conditions may include planetary values (atmosphere, gravity, temperature) if the
  * constantPlanetaryValues flag is false
  */
 public abstract class AbstractExtendedPlanetaryConditionsGenerator {
@@ -37,8 +37,8 @@ public abstract class AbstractExtendedPlanetaryConditionsGenerator {
     //region Constructors
     /**
      * @param method the method to use in generating extended planetary conditions
-     * @param constantPlanetaryValues ensures planetary values (gravity, temperature) are kept
-     *                                constant when true
+     * @param constantPlanetaryValues ensures planetary values (atmosphere, gravity, temperature)
+     *                                are kept constant when true
      */
     protected AbstractExtendedPlanetaryConditionsGenerator(
             final ExtendedPlanetaryConditionsGenerationMethod method,

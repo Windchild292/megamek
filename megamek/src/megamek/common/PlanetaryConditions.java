@@ -30,14 +30,14 @@ import java.io.Serializable;
 import java.util.ResourceBundle;
 
 /**
- * This class will hold all the information on planetary conditions and a variety of helper
- * functions for those conditions
+ * This class holds all the information on the current planetary conditions and a variety of helper
+ * functions for planetary conditions.
  *
  * Unimplemented:
  *      Earthquake (TO:AR 53)
  *      Meteor Showers (TO:AR 54)
  *      All of Atmosphere (TO:AR 54)
- *      Light: Glare, Solar Flare (TO:AR 56)
+ *      Light: Dawn, Glare, Solar Flare (TO:AR 56)
  *      Weather: Lightning Storm (TO:AR 57)
  */
 public class PlanetaryConditions implements Serializable {
@@ -584,8 +584,8 @@ public class PlanetaryConditions implements Serializable {
     }
 
     /**
-     * is the given entity type doomed in these conditions?
-     * @return a string given the reason for being doomed, null if not doomed
+     * Is the given entity type doomed in these conditions?
+     * @return a string given the reason for being doomed, or null if not doomed
      */
     public @Nullable String whyDoomed(final Game game, final Entity entity) {
         if (getAtmosphericPressure().isTraceOrVacuum() && entity.doomedInVacuum()) {
@@ -635,12 +635,9 @@ public class PlanetaryConditions implements Serializable {
         if (targetIlluminated && !getLight().isDay()) {
             return 45;
         } else if (Spotlight && !getLight().isDay()) {
-            //Using a searchlight? Flat 30 hex range
-            if (isMechVee || isAero || isLargeCraft) {
-                return 30;
-            }
-            // Except infantry/handheld, 10 hexes
-            return 10;
+            // Using a searchlight? Flat 30 hex range
+            // Except for infantry / handheld, where it is 10 hexes
+            return (isMechVee || isAero || isLargeCraft) ? 30 : 10;
         } else if (getLight().isPitchBlack()) {
             if (isMechVee || (isAero && (entity.getAltitude() < 2))) {
                 return 3;

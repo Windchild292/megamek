@@ -34,7 +34,7 @@ public class TacOpsPlanetaryConditionsGenerator extends AbstractPlanetaryConditi
     //endregion Constructors
 
     @Override
-    public void generate(PlanetaryConditions conditions) {
+    public void generate(final PlanetaryConditions conditions) {
         if (getExtendedPlanetaryConditionsGenerator().isConstantPlanetaryValues()) {
             switch (Compute.randomInt(6)) {
                 case 0:
