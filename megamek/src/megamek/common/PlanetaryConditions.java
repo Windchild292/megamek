@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
- * Copyright (C) 2018-2021 - The MegaMek Team. All Rights Reserved.
+ * Copyright (c) 2005 - Ben Mazur (bmazur@sev.org).
+ * Copyright (c) 2018-2022 - The MegaMek Team. All Rights Reserved.
  *
  * MegaMek is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -939,9 +939,9 @@ public class PlanetaryConditions implements Serializable {
     public static @Nullable PlanetaryConditions generateInstanceFromXML(final NodeList nl) {
         final PlanetaryConditions planetaryConditions = new PlanetaryConditions();
 
-        try {
-            for (int x = 0; x < nl.getLength(); x++) {
-                final Node wn = nl.item(x);
+        for (int x = 0; x < nl.getLength(); x++) {
+            final Node wn = nl.item(x);
+            try {
                 switch (wn.getNodeName()) {
                     //region Atmosphere
                     case "atmosphere":
@@ -1042,10 +1042,9 @@ public class PlanetaryConditions implements Serializable {
                     default:
                         break;
                 }
+            } catch (Exception ex) {
+                LogManager.getLogger().error("", ex);
             }
-        } catch (Exception ex) {
-            LogManager.getLogger().error(ex);
-            return null;
         }
 
         return planetaryConditions;
