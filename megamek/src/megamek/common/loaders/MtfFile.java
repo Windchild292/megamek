@@ -836,7 +836,7 @@ public class MtfFile implements IMechLoader {
                         critData[loc][i] = MtfFile.EMPTY;
                         // Compact criticals again
                         compactCriticals(mech, loc);
-                        // Re-parse the same slot, since the compacting
+                        // Reparse the same slot, since the compacting
                         // could have moved new equipment to this slot
                         i--;
                     }

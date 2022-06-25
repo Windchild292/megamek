@@ -14,24 +14,13 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.AmmoType;
-import megamek.common.Compute;
-import megamek.common.Coords;
-import megamek.common.Game;
-import megamek.common.Minefield;
-import megamek.common.Mounted;
-import megamek.common.Report;
-import megamek.common.TargetRoll;
-import megamek.common.Targetable;
-import megamek.common.ToHitData;
-import megamek.common.VTOL;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.server.GameManager;
-import megamek.server.Server;
 import org.apache.logging.log4j.LogManager;
+
+import java.util.Vector;
 
 /**
  * @author Numien, based work by Sebastian Brocks
@@ -158,8 +147,7 @@ public class ArtilleryCannonWeaponHandler extends AmmoWeaponHandler {
             }
         }
 
-        // According to TacOps eratta, artillery cannons can only fire standard
-        // rounds.
+        // According to TacOps errata, artillery cannons can only fire standard rounds.
         // But, they're still in as unofficial tech, because they're fun. :)
         if (ammoType.getMunitionType() == AmmoType.M_FLARE) {
             int radius;
@@ -193,7 +181,7 @@ public class ArtilleryCannonWeaponHandler extends AmmoWeaponHandler {
         // check to see if this is a mine clearing attack
         // According to the RAW you have to hit the right hex to hit even if the
         // scatter hex has minefields
-        // TODO: Does this apply to arty cannons?
+        // TODO : Does this apply to arty cannons?
         boolean mineClear = target.getTargetType() == Targetable.TYPE_MINEFIELD_CLEAR;
         if (mineClear && !isFlak && !bMissed) {
             r = new Report(3255);
@@ -220,9 +208,9 @@ public class ArtilleryCannonWeaponHandler extends AmmoWeaponHandler {
     @Override
     protected int calcDamagePerHit() {
         double toReturn = wtype.getDamage();
-        // area effect damage is double
+        // area effect damage is doubled
         if (target.isConventionalInfantry()) {
-            toReturn /= 0.5;
+            toReturn *= 2d;
         }
 
         toReturn = applyGlancingBlowModifier(toReturn, target.isConventionalInfantry());

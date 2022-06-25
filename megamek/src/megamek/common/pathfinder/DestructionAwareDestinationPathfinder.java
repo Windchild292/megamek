@@ -1,18 +1,21 @@
 /*
-* MegaMek -
-* Copyright (C) 2020 The MegaMek Team
-*
-* This program is free software; you can redistribute it and/or modify it under
-* the terms of the GNU General Public License as published by the Free Software
-* Foundation; either version 2 of the License, or (at your option) any later
-* version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-* details.
-*/
-
+ * Copyright (c) 2020-2022 - The MegaMek Team. All Rights Reserved.
+ *
+ * This file is part of MegaMek.
+ *
+ * MegaMek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MegaMek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MegaMek. If not, see <http://www.gnu.org/licenses/>.
+ */
 package megamek.common.pathfinder;
 
 import java.util.ArrayList;
@@ -186,7 +189,7 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
         // or it needs some "terrain adjustment" to become a legal move)
         // and we haven't already found a path to the destination that's cheaper than what we're considering
         // and we're not going off board 
-        MoveLegalityIndicator mli = isLegalMove((MovePath) child);
+        MoveLegalityIndicator mli = isLegalMove(child);
         
         // if this path goes through terrain that can be leveled
         // but has other problems with it (e.g. elevation change, or the "reduced" terrain still won't let you through)
@@ -299,12 +302,12 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
      * "destination edge" than the other.
      * @author NickAragua
      */
-    private class AStarComparator implements Comparator<BulldozerMovePath> {
+    private static class AStarComparator implements Comparator<BulldozerMovePath> {
         private Coords destination;
 
         /**
          * Constructor - initializes the destination edge.
-         * @param targetRegion Destination edge
+         * @param destination Destination edge
          */
         public AStarComparator(Coords destination) {
             this.destination = destination;

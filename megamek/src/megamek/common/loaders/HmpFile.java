@@ -372,7 +372,7 @@ public class HmpFile implements IMechLoader {
 
     private short readUnsignedByte(DataInputStream dis) throws IOException {
         short b = dis.readByte();
-        b += b < 0 ? 256 : 0;
+        b += (short) ((b < 0) ? 256 : 0);
         return b;
     }
 
@@ -705,13 +705,13 @@ public class HmpFile implements IMechLoader {
                         } else {
                             if (!criticalName.equals("-Empty-")) {
                                 // Can't load this piece of equipment!
-                                // Add it to the list so we can show the user.
+                                // Add it to the list, so we can show the user.
                                 mech.addFailedEquipment(criticalName);
                                 // Make the failed equipment an empty slot
                                 crits[i] = 0;
                                 // Compact criticals again
                                 compactCriticals(crits);
-                                // Re-parse the same slot, since the compacting
+                                // Reparse the same slot, since the compacting
                                 // could have moved new equipment to this slot
                                 i--;
                             }
@@ -719,7 +719,8 @@ public class HmpFile implements IMechLoader {
                     } catch (Exception ex) {
                         LogManager.getLogger().error(String.format(
                                 "Location was full when adding %s to slot #%s of location %s. Aborting entity loading.",
-                                equipment.getInternalName(), i, location), ex);
+                                ((equipment == null) ? "null equipment" : equipment.getInternalName()),
+                                i, location), ex);
                         throw new EntityLoadingException(ex.getMessage());
                     }
                 }

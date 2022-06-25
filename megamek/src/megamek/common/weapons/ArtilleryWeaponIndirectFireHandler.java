@@ -14,14 +14,15 @@
 package megamek.common.weapons;
 
 import megamek.common.*;
+import megamek.common.SpecialHexDisplay.Type;
 import megamek.common.actions.ArtilleryAttackAction;
 import megamek.common.actions.WeaponAttackAction;
+import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.AreaEffectHelper.DamageFalloff;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;
 import megamek.server.GameManager;
-import megamek.server.Server;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.Iterator;
@@ -50,25 +51,11 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see megamek.common.weapons.AttackHandler#cares(int)
-     */
     @Override
-    public boolean cares(GamePhase phase) {
-        if ((phase == GamePhase.OFFBOARD)
-                || (phase == GamePhase.TARGETING)) {
-            return true;
-        }
-        return false;
+    public boolean cares(final GamePhase phase) {
+        return phase.isOffboard() || phase.isTargeting();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see megamek.common.weapons.AttackHandler#handle(int, java.util.Vector)
-     */
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (!cares(phase)) {
@@ -76,7 +63,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
         }
         String artyMsg;
         ArtilleryAttackAction aaa = (ArtilleryAttackAction) waa;
-        if (phase == GamePhase.TARGETING) {
+        if (phase.isTargeting()) {
             if (!handledAmmoAndReport) {
                 addHeat();
                 // Report the firing itself
@@ -94,13 +81,10 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
                         + (game.getRoundCount() + aaa.getTurnsTilHit())
                         + ", fired by "
                         + game.getPlayer(aaa.getPlayerId()).getName();
-                game.getBoard().addSpecialHexDisplay(
-                        aaa.getTarget(game).getPosition(),
-                        new SpecialHexDisplay(
-                                SpecialHexDisplay.Type.ARTILLERY_INCOMING, game
-                                        .getRoundCount() + aaa.getTurnsTilHit(),
-                                game.getPlayer(aaa.getPlayerId()), artyMsg,
-                                SpecialHexDisplay.SHD_OBSCURED_TEAM));
+                game.getBoard().addSpecialHexDisplay(aaa.getTarget(game).getPosition(),
+                        new SpecialHexDisplay(Type.ARTILLERY_INCOMING,
+                                game.getRoundCount() + aaa.getTurnsTilHit(), game.getPlayer(aaa.getPlayerId()),
+                                artyMsg, SpecialHexDisplay.SHD_OBSCURED_TEAM));
             }
             // if this is the last targeting phase before we hit,
             // make it so the firing entity is announced in the
@@ -110,6 +94,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             }
             return true;
         }
+
         if (aaa.getTurnsTilHit() > 0) {
             aaa.decrementTurnsTilHit();
             return true;
@@ -143,8 +128,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
         // Are there any valid spotters?
         if ((null != spottersBefore) && !isFlak) {
             // fetch possible spotters now
-            Iterator<Entity> spottersAfter = game
-                    .getSelectedEntities(new EntitySelector() {
+            Iterator<Entity> spottersAfter = game.getSelectedEntities(new EntitySelector() {
                         public int player = playerId;
 
                         public Targetable targ = target;
@@ -196,7 +180,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             toHit.addModifier(mod, "Spotting modifier");
         }
 
-        // Is the attacker still alive and we're not shooting FLAK?
+        // Is the attacker still alive, and we're not shooting FLAK?
         // then adjust the target
         if (!isFlak) {
 
@@ -287,7 +271,6 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
         }
         
         targetPos = handleReportsAndDirectScatter(isFlak, targetPos, vPhaseReport, aaa);
-        
         if (targetPos == null) {
             return false;
         }
@@ -299,19 +282,14 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
 
         // if we have no ammo for this attack then don't bother doing anything else, but log the error
         if (atype == null) {
-            LogManager.getLogger().error("Artillery weapon fired with no ammo.\n\n" + Thread.currentThread().getStackTrace());
+            LogManager.getLogger().error("Artillery weapon fired with no ammo.", new Exception());
             return false;
-        }
-        
-        if (atype.getMunitionType() == AmmoType.M_FAE) {
-            AreaEffectHelper.processFuelAirDamage(targetPos, 
-                    atype, aaa.getEntity(game), vPhaseReport, gameManager);
-                        
+        } else if (atype.getMunitionType() == AmmoType.M_FAE) {
+            AreaEffectHelper.processFuelAirDamage(targetPos, atype, aaa.getEntity(game),
+                    vPhaseReport, gameManager);
             return false;
-        }
-        
-        if (atype.getMunitionType() == AmmoType.M_FLARE) {
-            int radius;
+        } else if (atype.getMunitionType() == AmmoType.M_FLARE) {
+            final int radius;
             if (atype.getAmmoType() == AmmoType.T_ARROW_IV) {
                 radius = 4;
             } else if (atype.getAmmoType() == AmmoType.T_LONG_TOM) {
@@ -323,8 +301,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             }
             gameManager.deliverArtilleryFlare(targetPos, radius);
             return false;
-        }
-        if (atype.getMunitionType() == AmmoType.M_DAVY_CROCKETT_M) {
+        } else if (atype.getMunitionType() == AmmoType.M_DAVY_CROCKETT_M) {
             // The appropriate term here is "Bwahahahahaha..."
             if (target.isOffBoard()) {
                 AreaEffectHelper.doNuclearExplosion((Entity) aaa.getTarget(game), targetPos, 1, vPhaseReport, gameManager);
@@ -413,7 +390,9 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
      * and direct artillery scatter. 
      * @return Whether or not we should continue attack resolution afterwards
      */
-    private Coords handleReportsAndDirectScatter(boolean isFlak, Coords targetPos, Vector<Report> vPhaseReport, ArtilleryAttackAction aaa) {
+    private @Nullable Coords handleReportsAndDirectScatter(boolean isFlak, Coords targetPos,
+                                                           Vector<Report> vPhaseReport,
+                                                           ArtilleryAttackAction aaa) {
         Coords originalTargetPos = targetPos;
         
         Report r;
@@ -446,11 +425,9 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             String artyMsg = "Artillery hit here on round " + game.getRoundCount() 
                     + ", fired by " + game.getPlayer(aaa.getPlayerId()).getName()
                     + " (this hex is now an auto-hit)";
-            game.getBoard().addSpecialHexDisplay(
-                    targetPos,
-                    new SpecialHexDisplay(SpecialHexDisplay.Type.ARTILLERY_HIT,
-                            game.getRoundCount(), game.getPlayer(aaa
-                                    .getPlayerId()), artyMsg));
+            game.getBoard().addSpecialHexDisplay(targetPos,
+                    new SpecialHexDisplay(Type.ARTILLERY_HIT, game.getRoundCount(),
+                            game.getPlayer(aaa.getPlayerId()), artyMsg));
 
         } else {
             // direct fire artillery only scatters by one d6
@@ -471,13 +448,9 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
                     String artyMsg = "Artillery missed here on round "
                             + game.getRoundCount() + ", fired by "
                             + game.getPlayer(aaa.getPlayerId()).getName();
-                    game.getBoard().addSpecialHexDisplay(
-                            origPos,
-                            new SpecialHexDisplay(
-                                    SpecialHexDisplay.Type.ARTILLERY_HIT, game
-                                            .getRoundCount(), game
-                                            .getPlayer(aaa.getPlayerId()),
-                                    artyMsg));
+                    game.getBoard().addSpecialHexDisplay(origPos,
+                            new SpecialHexDisplay(Type.ARTILLERY_HIT, game.getRoundCount(),
+                                    game.getPlayer(aaa.getPlayerId()), artyMsg));
                 } else {
                     r = new Report(3192);
                 }
@@ -509,7 +482,6 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
     
     /**
      * Worker function that contains logic for "has my shot been observed so that I can be targeted by counter-battery fire"
-     * 
      */
     private void handleCounterBatteryObservation(WeaponAttackAction aaa, Coords targetPos, Vector<Report> vPhaseReport) {
         // if the round landed on the board, and the attacker is an off-board artillery piece
@@ -550,12 +522,7 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             }
         }
     }
-    
-    /*
-     * (non-Javadoc)
-     *
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
+
     @Override
     protected int calcDamagePerHit() {
         double toReturn = wtype.rackSize;
@@ -568,9 +535,10 @@ public class ArtilleryWeaponIndirectFireHandler extends AmmoWeaponHandler {
             BattleArmor ba = (BattleArmor) ae;
             toReturn *= ba.getNumberActiverTroopers();
         }
-        // area effect damage is double
+
+        // area effect damage is doubled
         if (target.isConventionalInfantry()) {
-            toReturn /= 0.5;
+            toReturn *= 2d;
         }
 
         toReturn = applyGlancingBlowModifier(toReturn, target.isConventionalInfantry());

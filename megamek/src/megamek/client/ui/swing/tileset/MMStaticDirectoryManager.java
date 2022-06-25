@@ -34,7 +34,7 @@ public class MMStaticDirectoryManager {
     private static MechTileset mechTileset;
 
     // Re-parsing Prevention Variables: They are True at startup and when the specified directory
-    // should be re-parsed, and are used to avoid re-parsing the directory repeatedly when there's
+    // should be reparsed, and are used to avoid re-parsing the directory repeatedly when there's
     // an error.
     private static boolean parsePortraitDirectory = true;
     private static boolean parseCamouflageDirectory = true;

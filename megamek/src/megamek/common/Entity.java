@@ -7696,26 +7696,19 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         // ineligible because of movement type or unit type
         if (isAirborne()) {
             return 0;
-        }
-
-        if ((this instanceof Infantry)
-            && (step.getMovementType(false) != EntityMovementType.MOVE_JUMP)) {
+        } else if ((this instanceof Infantry)
+                && (step.getMovementType(false) != EntityMovementType.MOVE_JUMP)) {
             return 0;
-        }
-
-        if ((this instanceof Protomech) && (prevStep != null)
-            && (prevStep.getMovementType(false) == EntityMovementType.MOVE_JUMP)) {
+        } else if ((this instanceof Protomech) && (prevStep != null)
+                && (prevStep.getMovementType(false) == EntityMovementType.MOVE_JUMP)) {
             return 0;
         }
 
         // check for movement inside a hangar
         Building curBldg = game.getBoard().getBuildingAt(curPos);
-        if ((null != curBldg)
-            && curBldg.isIn(prevPos)
-            && (curBldg.getBldgClass() == Building.HANGAR)
-            && (curHex.terrainLevel(Terrains.BLDG_ELEV) > height())
-            && (step.getElevation() < curHex
-                .terrainLevel(Terrains.BLDG_ELEV))) {
+        if ((null != curBldg) && curBldg.isIn(prevPos) && (curBldg.getBldgClass() == Building.HANGAR)
+                && (curHex.terrainLevel(Terrains.BLDG_ELEV) > height())
+                && (step.getElevation() < curHex.terrainLevel(Terrains.BLDG_ELEV))) {
             return 0;
         }
 
@@ -7723,10 +7716,9 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         // check current hex for building
         if (step.getElevation() < curHex.terrainLevel(Terrains.BLDG_ELEV)) {
             rv += 2;
-        } else if (((step.getElevation() == curHex
-                .terrainLevel(Terrains.BLDG_ELEV)) || (step.getElevation() == curHex
-                .terrainLevel(Terrains.BRIDGE_ELEV)))
-                   && (step.getMovementType(false) != EntityMovementType.MOVE_JUMP)) {
+        } else if (((step.getElevation() == curHex.terrainLevel(Terrains.BLDG_ELEV))
+                || (step.getElevation() == curHex.terrainLevel(Terrains.BRIDGE_ELEV)))
+                && (step.getMovementType(false) != EntityMovementType.MOVE_JUMP)) {
             rv += 4;
         }
         // check previous hex for building
@@ -7736,32 +7728,29 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                 prevEl = prevStep.getElevation();
             }
             if ((prevEl < prevHex.terrainLevel(Terrains.BLDG_ELEV))
-                && ((curHex.terrainLevel(Terrains.BLDG_CLASS) != 1) || (getHeight() >= curHex
-                    .terrainLevel(Terrains.BLDG_ELEV)))) {
+                    && ((curHex.terrainLevel(Terrains.BLDG_CLASS) != 1)
+                            || (getHeight() >= curHex.terrainLevel(Terrains.BLDG_ELEV)))) {
                 rv += 1;
             }
         }
 
-        // check to see if its a wall
+        // check to see if it's a wall
         if (rv > 1) {
-            Building bldgEntered = null;
-            bldgEntered = game.getBoard().getBuildingAt(curPos);
+            Building bldgEntered = game.getBoard().getBuildingAt(curPos);
             if (bldgEntered.getType() == Building.WALL) {
                 return 4;
             }
         }
 
         // Check for changing levels within a building
-        if (curPos.equals(prevPos)
-            && (curBldg != null)
-            && (prevStep != null)
-            && (step.getElevation() != prevStep.getElevation())
-            && ((step.getType() == MoveStepType.UP) || (step.getType() == MoveStepType.DOWN))) {
+        if (curPos.equals(prevPos) && (curBldg != null) && (prevStep != null)
+                && (step.getElevation() != prevStep.getElevation())
+                && ((step.getType() == MoveStepType.UP) || (step.getType() == MoveStepType.DOWN))) {
             rv = 8;
         }
 
         if ((this instanceof Infantry) || (this instanceof Protomech)) {
-            if ((rv != 2) && (rv != 8) && (rv != 10)) {
+            if ((rv != 2) && (rv != 8)) {
                 rv = 0;
             }
         }
@@ -7775,7 +7764,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                                                    String why, EntityMovementType overallMoveType) {
         PilotingRollData roll = getBasePilotingRoll(overallMoveType);
 
-        if ((this instanceof Mech) && ((Mech) this).isSuperHeavy()) {
+        if ((this instanceof Mech) && this.isSuperHeavy()) {
             roll.addModifier(4, "superheavy mech moving in building");
         }
         
@@ -7800,9 +7789,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                 if (bldg.getBldgClass() != Building.HANGAR) {
                     mod = 1;
                     desc = "Medium";
-                }
-
-                if (bldg.getBldgClass() >= Building.FORTRESS) {
+                } else if (bldg.getBldgClass() >= Building.FORTRESS) {
                     mod = 2;
                     desc = desc + " Fortress";
                 }
@@ -7813,9 +7800,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                 if (bldg.getBldgClass() == Building.HANGAR) {
                     mod = 1;
                     desc = desc + " Hangar";
-                }
-
-                if (bldg.getBldgClass() == Building.FORTRESS) {
+                } else if (bldg.getBldgClass() == Building.FORTRESS) {
                     mod = 3;
                     desc = desc + " Fortress";
                 }

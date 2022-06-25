@@ -413,7 +413,7 @@ public class TdbFile implements IMechLoader {
                         crit.content = "Empty";
                         // Compact criticals again
                         compactCriticals(location);
-                        // Re-parse the same slot, since the compacting
+                        // Reparse the same slot, since the compacting
                         // could have moved new equipment to this slot
                         i--;
                     }

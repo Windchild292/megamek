@@ -89,10 +89,10 @@ public class MapSettings implements Serializable {
      */
     @XmlElement(name = "CLIFFS")
     private int cliffs = 0;
-    /** Maximum difference between highest elevation and lowest sink */
+    /** Maximum difference between the highest elevation and lowest sink */
     @XmlElement(name = "HILLELEVATIONRANGE")
     private int range = 5;
-    /** Probabiltity for invertion of the map, Range 0..100 */
+    /** Probability for inversion of the map, Range 0..100 */
     @XmlElement(name = "HILLINVERTPROB")
     private int probInvert = 5;
 

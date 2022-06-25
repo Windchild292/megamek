@@ -371,7 +371,7 @@ public class HmvFile implements IMechLoader {
 
     private short readUnsignedByte(DataInputStream dis) throws IOException {
         short b = dis.readByte();
-        b += b < 0 ? 256 : 0;
+        b += (short) ((b < 0) ? 256 : 0);
         return b;
     }
 

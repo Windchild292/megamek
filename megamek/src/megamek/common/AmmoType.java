@@ -624,12 +624,12 @@ public class AmmoType extends EquipmentType {
         ArrayList<AmmoType> clanVehicleFlamerAmmos = new ArrayList<>();
         ArrayList<AmmoType> heavyFlamerAmmos = new ArrayList<>();
         ArrayList<AmmoType> clanHeavyFlamerAmmos = new ArrayList<>();
-        ArrayList<AmmoType> fluidGunAmmos = new ArrayList<>();
-        ArrayList<AmmoType> clanFluidGunAmmos = new ArrayList<>();
+//        ArrayList<AmmoType> fluidGunAmmos = new ArrayList<>();
+//        ArrayList<AmmoType> clanFluidGunAmmos = new ArrayList<>();
         ArrayList<AmmoType> clanImprovedLrmsAmmo = new ArrayList<>();
         ArrayList<AmmoType> clanImprovedSrmsAmmo = new ArrayList<>();
         ArrayList<AmmoType> clanImprovedAcAmmo = new ArrayList<>();
-        ArrayList<AmmoType> primLongTomAmmos = new ArrayList<>();
+//        ArrayList<AmmoType> primLongTomAmmos = new ArrayList<>();
         ArrayList<AmmoType> clanProtoAcAmmo = new ArrayList<>();
 
         ArrayList<MunitionMutator> munitions = new ArrayList<>();
