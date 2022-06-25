@@ -335,6 +335,11 @@ public class AmmoType extends EquipmentType {
     // Short name of Ammo or RS Printing
     protected String shortName = "";
 
+    protected int heat;
+    protected RangeType range;
+    protected int tech;
+    protected boolean capital = false;
+
     public AmmoType() {
         criticals = 1;
         tankslots = 0;
@@ -445,11 +450,6 @@ public class AmmoType extends EquipmentType {
     public long getMunitionType() {
         return munitionType;
     }
-
-    protected int heat;
-    protected RangeType range;
-    protected int tech;
-    protected boolean capital = false;
 
     public int getDamagePerShot() {
         return damagePerShot;
@@ -634,10 +634,8 @@ public class AmmoType extends EquipmentType {
 
         ArrayList<MunitionMutator> munitions = new ArrayList<>();
 
-        AmmoType base;
-
         // all level 1 ammo
-        base = AmmoType.createISVehicleFlamerAmmo();
+        AmmoType base = AmmoType.createISVehicleFlamerAmmo();
         vehicleFlamerAmmos.add(base);
         clanVehicleFlamerAmmos.add(base);
         EquipmentType.addType(base);
@@ -897,7 +895,7 @@ public class AmmoType extends EquipmentType {
         EquipmentType.addType(base);
 
         base = AmmoType.createISPrimitiveLongTomAmmo();
-        primLongTomAmmos.add(base);
+        //primLongTomAmmos.add(base);
         EquipmentType.addType(base);
 
         base = AmmoType.createISLongTomCannonAmmo();
@@ -1425,10 +1423,10 @@ public class AmmoType extends EquipmentType {
         EquipmentType.addType(AmmoType.createISCruiseMissile120Ammo());
 
         base = AmmoType.createISFluidGunAmmo();
-        fluidGunAmmos.add(base);
+        //fluidGunAmmos.add(base);
         EquipmentType.addType(base);
         base = AmmoType.createCLFluidGunAmmo();
-        clanFluidGunAmmos.add(base);
+        //clanFluidGunAmmos.add(base);
         EquipmentType.addType(base);
 
         // Rifles
@@ -13142,7 +13140,7 @@ public class AmmoType extends EquipmentType {
                 return true;
             }
         }
-        // TODO: mine clearance munitions
+        // TODO : mine clearance munitions
 
         return false;
     }
