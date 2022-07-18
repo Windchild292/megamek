@@ -92,7 +92,7 @@ class LobbyMekCellFormatter {
         }
 
         // Critical (Red) Warnings
-        if ((entity.getGame().getPlanetaryConditions().whyDoomed(entity, entity.getGame()) != null)
+        if ((entity.getGame().getPlanetaryConditions().whyDoomed(entity.getGame(), entity) != null)
                 || (entity.doomedInAtmosphere() && mapType == MapSettings.MEDIUM_ATMOSPHERE)
                 || (entity.doomedOnGround() && mapType == MapSettings.MEDIUM_GROUND)
                 || (entity.doomedInSpace() && mapType == MapSettings.MEDIUM_SPACE)
@@ -448,7 +448,7 @@ class LobbyMekCellFormatter {
         }
 
         // Critical (Red) Warnings
-        if ((entity.getGame().getPlanetaryConditions().whyDoomed(entity, entity.getGame()) != null)
+        if ((entity.getGame().getPlanetaryConditions().whyDoomed(entity.getGame(), entity) != null)
                 || (entity.doomedInAtmosphere() && mapType == MapSettings.MEDIUM_ATMOSPHERE)
                 || (entity.doomedOnGround() && mapType == MapSettings.MEDIUM_GROUND)
                 || (entity.doomedInSpace() && mapType == MapSettings.MEDIUM_SPACE)

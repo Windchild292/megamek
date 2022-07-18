@@ -19,15 +19,14 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
 import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
 import megamek.server.SmokeCloud;
+
+import java.util.Vector;
 
 public class RapidfireHVACWeaponHandler extends RapidfireACWeaponHandler {
     private static final long serialVersionUID = 7326881584091651519L;
@@ -46,7 +45,7 @@ public class RapidfireHVACWeaponHandler extends RapidfireACWeaponHandler {
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_START_FIRE)
-                && (game.getPlanetaryConditions().getAtmosphere() >= PlanetaryConditions.ATMO_TRACE)) {
+                && !game.getPlanetaryConditions().getAtmosphericPressure().isVacuum()) {
             int rear = (ae.getFacing() + 3 + (weapon.isMechTurretMounted() ? weapon.getFacing() : 0)) % 6;
             Coords src = ae.getPosition();
             Coords rearCoords = src.translated(rear);
@@ -58,10 +57,8 @@ public class RapidfireHVACWeaponHandler extends RapidfireACWeaponHandler {
             } else if (board.getHex(rearCoords).getLevel() > currentHex.getLevel() + 4) {
                 rearCoords = src;
             } else if ((board.getBuildingAt(rearCoords) != null)
-                    && (board.getHex(rearCoords).terrainLevel(
-                            Terrains.BLDG_ELEV)
-                            + board.getHex(rearCoords).getLevel() > currentHex
-                            .getLevel() + 4)) {
+                    && (board.getHex(rearCoords).terrainLevel(Terrains.BLDG_ELEV)
+                            + board.getHex(rearCoords).getLevel() > currentHex.getLevel() + 4)) {
                 rearCoords = src;
             }
 

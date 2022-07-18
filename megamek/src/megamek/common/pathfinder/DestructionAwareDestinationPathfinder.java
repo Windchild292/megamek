@@ -12,20 +12,14 @@
 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 * details.
 */
-
 package megamek.common.pathfinder;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import megamek.client.bot.princess.AeroPathUtil;
 import megamek.common.*;
 import megamek.common.MovePath.MoveStepType;
+import megamek.common.annotations.Nullable;
+
+import java.util.*;
 
 /**
  * Handles the generation of ground-based move paths that contain information relating to the destruction 
@@ -51,25 +45,24 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
      * Ignores move cost and makes note of hexes that need to be cleared for the path to
      * be viable.
      */
-    public BulldozerMovePath findPathToCoords(Entity entity, Set<Coords> destinationCoords, boolean jump, BoardClusterTracker clusterTracker) {
+    public @Nullable BulldozerMovePath findPathToCoords(Entity entity,
+                                                        Set<Coords> destinationCoords, boolean jump,
+                                                        BoardClusterTracker clusterTracker) {
         BulldozerMovePath startPath = new BulldozerMovePath(entity.getGame(), entity);
         
         // if we're calculating a jump path and the entity has jump mp and can jump, start off with a jump
         // if we're trying to calc a jump path and the entity does not have jump mp, we're done
         if (jump && (startPath.getCachedEntityState().getJumpMPWithTerrain() > 0) &&
-                !entity.isProne() && !entity.isHullDown() && 
-                (entity.getGame().getPlanetaryConditions().getWindStrength() != PlanetaryConditions.WI_TORNADO_F4)) {
+                !entity.isProne() && !entity.isHullDown() &&
+                !entity.getGame().getPlanetaryConditions().getWindStrength().isTornadoF4()) {
             startPath.addStep(MoveStepType.START_JUMP);
         // if we specified a jump path, but can't actually jump
         } else if (jump) {
             return null;
         // can't "climb into" anything while jumping
-        } else { 
-            if (entity.hasETypeFlag(Entity.ETYPE_INFANTRY)) {
-                startPath.addStep(MoveStepType.CLIMB_MODE_OFF);
-            } else {
-                startPath.addStep(MoveStepType.CLIMB_MODE_ON);
-            }
+        } else {
+            startPath.addStep(entity.hasETypeFlag(Entity.ETYPE_INFANTRY)
+                    ? MoveStepType.CLIMB_MODE_OFF : MoveStepType.CLIMB_MODE_ON);
         }
         
         // if we're on the ground, let's try to get up first before moving 
@@ -304,7 +297,7 @@ public class DestructionAwareDestinationPathfinder extends BoardEdgePathFinder {
 
         /**
          * Constructor - initializes the destination edge.
-         * @param targetRegion Destination edge
+         * @param destination Destination edge
          */
         public AStarComparator(Coords destination) {
             this.destination = destination;

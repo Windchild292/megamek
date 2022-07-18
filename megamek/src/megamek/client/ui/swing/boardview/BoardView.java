@@ -1358,14 +1358,14 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
                     .getDefaultConfiguration();
 
             // a slightly bigger image to give room for blurring
-            mask = config.createCompatibleImage(orig.getWidth(this)+4, orig.getHeight(this)+4,
+            mask = config.createCompatibleImage(orig.getWidth(this) + 4, orig.getHeight(this) + 4,
                     Transparency.TRANSLUCENT);
             Graphics g = mask.getGraphics();
             g.drawImage(orig, 2, 2, null);
             g.dispose();
             mask = createShadowMask(mask);
             mask = blurOp.filter(mask, null);
-            if (game.getPlanetaryConditions().getLight() != PlanetaryConditions.L_DAY) {
+            if (!game.getPlanetaryConditions().getLight().isDay()) {
                 mask = blurOp.filter(mask, null);
             }
             shadowImageCache.put(orig.hashCode(), mask);
@@ -1431,14 +1431,18 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
 
         Graphics2D g = shadowMap.createGraphics();
 
-        if ((game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_MOONLESS) ||
-        (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_PITCH_BLACK)) {
-            lightDirection = new double[] { 0, 0 };
-        } else if (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DUSK) {
-            // TODO: replace when made user controlled
-            lightDirection = new double[] { -38, 14 };
-        } else {
-            lightDirection = new double[] { -19, 7 };
+        switch (game.getPlanetaryConditions().getLight()) {
+            case DUSK:
+                lightDirection = new double[] { 0, 0 };
+                break;
+            case MOONLESS_NIGHT:
+            case PITCH_BLACK:
+                // TODO : replace when made user controlled
+                lightDirection = new double[] { -38, 14 };
+                break;
+            default:
+                lightDirection = new double[] { -19, 7 };
+                break;
         }
 
         // Shadows for elevation
@@ -2484,7 +2488,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             Point p2DST = new Point(hex_size.width, hex_size.height);
 
             Composite svComp = g.getComposite();
-            if (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DAY) {
+            if (game.getPlanetaryConditions().getLight().isDay()) {
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.55f));
             } else {
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.45f));
@@ -2578,10 +2582,11 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             }
         }
 
-        // Darken the hex for nighttime, if applicable
+        // If applicable, darken the hex for nighttime, dusk, and dawn
         if (guip.getBoolean(GUIPreferences.ADVANCED_DARKEN_MAP_AT_NIGHT)
                 && IlluminationLevel.determineIlluminationLevel(game, c).isNone()
-                && (game.getPlanetaryConditions().getLight() > PlanetaryConditions.L_DAY)) {
+                && (game.getPlanetaryConditions().getLight().isNight()
+                        || game.getPlanetaryConditions().getLight().isDawnOrDusk())) {
             for (int x = 0; x < hexImage.getWidth(); ++x) {
                 for (int y = 0; y < hexImage.getHeight(); ++y) {
                     hexImage.setRGB(x, y, getNightDarkenedColor(hexImage.getRGB(x, y)));
@@ -2794,10 +2799,11 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             for (Image image : tileManager.orthoFor(oHex)) {
                 BufferedImage scaledImage = ImageUtil.createAcceleratedImage(getScaledImage(image, true));
 
-                // Darken the hex for nighttime, if applicable
+                // If applicable, darken the hex for nighttime, dusk, and dawn
                 if (GUIPreferences.getInstance().getBoolean(GUIPreferences.ADVANCED_DARKEN_MAP_AT_NIGHT)
                         && IlluminationLevel.determineIlluminationLevel(game, c).isNone()
-                        && (game.getPlanetaryConditions().getLight() > PlanetaryConditions.L_DAY)) {
+                        && (game.getPlanetaryConditions().getLight().isNight()
+                                || game.getPlanetaryConditions().getLight().isDawnOrDusk())) {
                     for (int x = 0; x < scaledImage.getWidth(null); ++x) {
                         for (int y = 0; y < scaledImage.getHeight(); ++y) {
                             scaledImage.setRGB(x, y, getNightDarkenedColor(scaledImage.getRGB(x, y)));
@@ -2959,13 +2965,13 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
         int al = (rgb >> 24);
 
         switch (game.getPlanetaryConditions().getLight()) {
-            case PlanetaryConditions.L_FULL_MOON:
-            case PlanetaryConditions.L_MOONLESS:
+            case FULL_MOON:
+            case MOONLESS_NIGHT:
                 rd = rd / 4; // 1/4 red
                 gr = gr / 4; // 1/4 green
                 bl = bl / 2; // half blue
                 break;
-            case PlanetaryConditions.L_PITCH_BLACK:
+            case PITCH_BLACK:
                 int gy = (rd + gr + bl) / 16;
                 if (Math.random() < 0.3) {
                     gy = gy * 4 / 5;
@@ -2977,7 +2983,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
                 gr = gy + gr / 5;
                 bl = gy + bl / 5;
                 break;
-            case PlanetaryConditions.L_DUSK:
+            case DUSK:
                 bl = bl * 3 / 4;
                 break;
             default:

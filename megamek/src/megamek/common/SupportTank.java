@@ -41,7 +41,6 @@ public class SupportTank extends Tank {
         }
     }
 
-
     /*
      * (non-Javadoc)
      *
@@ -268,20 +267,19 @@ public class SupportTank extends Tank {
     }
 
     @Override
-    public int getWalkMP(boolean gravity, boolean ignoreheat,
-                         boolean ignoremodulararmor) {
+    public int getWalkMP(boolean gravity, boolean ignoreheat, boolean ignoremodulararmor) {
         int mp = getOriginalWalkMP();
         if (engineHit || isImmobile()) {
             return 0;
         }
+
         if (hasWorkingMisc(MiscType.F_HYDROFOIL)) {
             mp = (int) Math.round(mp * 1.25);
         }
         mp = Math.max(0, mp - motiveDamage);
         mp = Math.max(0, mp - getCargoMpReduction(this));
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions()
-                    .getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 mp = Math.max(mp + weatherMod, 0);
             }
@@ -290,6 +288,7 @@ public class SupportTank extends Tank {
         if (!ignoremodulararmor && hasModularArmor()) {
             mp--;
         }
+
         if (hasWorkingMisc(MiscType.F_DUNE_BUGGY) && (game != null)) {
             mp--;
         }
@@ -298,17 +297,18 @@ public class SupportTank extends Tank {
             mp = applyGravityEffectsOnMP(mp);
         }
 
-        //If the unit is towing trailers, adjust its walkMP, TW p205
+        // If the unit is towing trailers, adjust its walkMP, TW p205
         if ((null != game) && !getAllTowedUnits().isEmpty()) {
             double trainWeight = getWeight();
             int lowestSuspensionFactor = getSuspensionFactor();
-            //Add up the trailers
+            // Add up the trailers
             for (int id : getAllTowedUnits()) {
                 Entity tr = game.getEntity(id);
                 if (tr == null) {
-                    //this isn't supposed to happen, but it can in rare cases when tr is destroyed
+                    // this isn't supposed to happen, but it can in rare cases when tr is destroyed
                     continue;
                 }
+
                 if (tr instanceof Tank) {
                     Tank trailer = (Tank) tr;
                     if (trailer.getSuspensionFactor() < lowestSuspensionFactor) {
@@ -321,7 +321,6 @@ public class SupportTank extends Tank {
         }
 
         return mp;
-
     }
     
     // CONSTRUCTION INFORMATION

@@ -14,9 +14,9 @@
  */
 package megamek.server;
 
-import java.util.Vector;
-
 import megamek.common.*;
+
+import java.util.Vector;
 
 /**
  * Cycle through hexes on a map and make any necessary adjustments based on weather
@@ -54,99 +54,91 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
     }
 
     private void resolveWeather() {
-        Board board = game.getBoard();
-        int width = board.getWidth();
-        int height = board.getHeight();
-        PlanetaryConditions conditions = game.getPlanetaryConditions();
-        boolean lightSnow = false;
-        boolean deepSnow = false;
-        boolean ice = false;
-
+        final PlanetaryConditions conditions = game.getPlanetaryConditions();
         if (!conditions.isTerrainAffected()) {
             return;
         }
 
-        // first we need to increment the conditions
-        if (conditions.getWeather() == PlanetaryConditions.WE_MOD_SNOW
-                || conditions.getWeather() == PlanetaryConditions.WE_SNOW_FLURRIES
-                && game.getBoard().onGround()) {
-            modSnowTurn = modSnowTurn + 1;
-            if (modSnowTurn == 9) {
-                lightSnow = true;
-            }
-            if (modSnowTurn == 19) {
-                deepSnow = true;
-                ice = true;
-            }
-        }
-        if (((conditions.getWeather() == PlanetaryConditions.WE_HEAVY_SNOW)
-                && game.getBoard().onGround())) {
-            heavySnowTurn = heavySnowTurn + 1;
-            if (heavySnowTurn == 4) {
-                lightSnow = true;
-            }
-            if (heavySnowTurn == 14) {
-                deepSnow = true;
-            }
-            if (heavySnowTurn == 19) {
-                ice = true;
-            }
-        }
-        if (conditions.getWeather() == PlanetaryConditions.WE_SLEET
-                && game.getBoard().onGround()) {
-            sleetTurn = sleetTurn + 1;
-            if (sleetTurn == 14) {
-                ice = true;
-            }
-        }
-        if (conditions.getWeather() == PlanetaryConditions.WE_ICE_STORM
-                && game.getBoard().onGround()) {
-            iceTurn = iceTurn + 1;
-            if (iceTurn == 9) {
-                ice = true;
+        boolean lightSnow = false;
+        boolean deepSnow = false;
+        boolean ice = false;
+
+        // First we need to increment the conditions
+        if (game.getBoard().onGround()) {
+            switch (conditions.getWeather()) {
+                case MODERATE_SNOW:
+                case SNOW_FLURRIES:
+                    modSnowTurn++;
+                    if (modSnowTurn == 9) {
+                        lightSnow = true;
+                    } else if (modSnowTurn == 19) {
+                        deepSnow = true;
+                        ice = true;
+                    }
+                    break;
+                case HEAVY_SNOW:
+                    heavySnowTurn++;
+                    if (heavySnowTurn == 4) {
+                        lightSnow = true;
+                    } else if (heavySnowTurn == 14) {
+                        deepSnow = true;
+                    } else if (heavySnowTurn == 19) {
+                        ice = true;
+                    }
+                    break;
+                case SLEET:
+                    sleetTurn++;
+                    if (sleetTurn == 14) {
+                        ice = true;
+                    }
+                    break;
+                case ICE_STORM:
+                    iceTurn++;
+                    if (iceTurn == 9) {
+                        ice = true;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
         if (lightSnow) {
             Report r = new Report(5505, Report.PUBLIC);
             vPhaseReport.addElement(r);
-        }
-        if (deepSnow) {
+        } else if (deepSnow) {
             Report r = new Report(5510, Report.PUBLIC);
             vPhaseReport.addElement(r);
         }
+
         if (ice) {
             Report r = new Report(5515, Report.PUBLIC);
             vPhaseReport.addElement(r);
         }
 
         // Cycle through all hexes, checking for the appropriate weather changes
-        for (int currentXCoord = 0; currentXCoord < width; currentXCoord++) {
-            for (int currentYCoord = 0; currentYCoord < height; currentYCoord++) {
+        for (int currentXCoord = 0; currentXCoord < game.getBoard().getWidth(); currentXCoord++) {
+            for (int currentYCoord = 0; currentYCoord < game.getBoard().getHeight(); currentYCoord++) {
                 Coords currentCoords = new Coords(currentXCoord, currentYCoord);
-                Hex currentHex = board.getHex(currentXCoord, currentYCoord);
+                Hex currentHex = game.getBoard().getHex(currentXCoord, currentYCoord);
 
                 // check for fires and potentially put them out
                 if (currentHex.containsTerrain(Terrains.FIRE)) {
                     // only standard fires get put out
-                    if (currentHex.terrainLevel(Terrains.FIRE)
-                            == Terrains.FIRE_LVL_NORMAL) {
-                        if (conditions.putOutFire()) {
+                    if (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_NORMAL) {
+                        if (conditions.extinguishFire()) {
                             gameManager.removeFire(currentCoords, "weather conditions");
                         }
                     // Downgrade Inferno fires so they can burn out
-                    } else if (currentHex.terrainLevel(Terrains.FIRE) 
-                            == Terrains.FIRE_LVL_INFERNO) {
-                        //inferno fires should become regular fires
+                    } else if (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO) {
+                        // inferno fires should become regular fires
                         currentHex.removeTerrain(Terrains.FIRE);
                         currentHex.addTerrain(new Terrain(Terrains.FIRE, 1));
                         gameManager.getHexUpdateSet().add(currentCoords);
                     // Check Inferno Bombs
-                    } else if (currentHex.terrainLevel(Terrains.FIRE) 
-                            == Terrains.FIRE_LVL_INFERNO_BOMB) {
+                    } else if (currentHex.terrainLevel(Terrains.FIRE) == Terrains.FIRE_LVL_INFERNO_BOMB) {
                         if (currentHex.getFireTurn() > 30) {
-                            gameManager.removeFire(currentCoords,
-                                    "inferno bomb burning out");
+                            gameManager.removeFire(currentCoords, "inferno bomb burning out");
                         }
                     }
                     // Inferno IV doesn't burn out, TO pg 356
@@ -207,12 +199,11 @@ public class WeatherProcessor extends DynamicTerrainProcessor {
                 }
 
                 // check for rapids/torrents created by wind
-                // FIXME: This doesn't seem to be doing anything
-                if (conditions.getWindStrength() > PlanetaryConditions.WI_MOD_GALE
-                        && currentHex.containsTerrain(Terrains.WATER) 
+                // FIXME : This doesn't seem to be doing anything
+                if (conditions.getWindStrength().isStrongGaleOrStronger()
+                        && currentHex.containsTerrain(Terrains.WATER)
                         && currentHex.depth(true) > 0) {
-
-                    if (conditions.getWindStrength() > PlanetaryConditions.WI_STORM) {
+                    if (conditions.getWindStrength().isTornado()) {
                         if (!(currentHex.terrainLevel(Terrains.RAPIDS) > 1)) {
                             currentHex.addTerrain(new Terrain(Terrains.RAPIDS, 2));
                         }

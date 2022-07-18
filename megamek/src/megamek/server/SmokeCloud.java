@@ -46,17 +46,17 @@ public class SmokeCloud implements Serializable {
         this.smokeHexList.add(coords);
         this.smokeLevel = level;
     }
-    
-    public SmokeCloud(ArrayList<Coords> coords, int level, int duration) {
+
+    public SmokeCloud(List<Coords> coords, int level, int duration) {
         this.smokeDuration = duration;
         this.smokeLevel = level;
         this.smokeHexList.addAll(coords);
     }
-    
+
     public void setSmokeLevel(int level) {
         this.smokeLevel = Math.min(6, level);
     }
-    
+
     /**
      * Reduces the level of smoke, heavy goes to light, LI heavy goes to LI 
      * light.
@@ -77,7 +77,7 @@ public class SmokeCloud implements Serializable {
                 break;
         }
     }
-    
+
     /**
      * Returns the level of smoke, odd levels will correspond to light smoke
      * while even levels will be heavy smoke.

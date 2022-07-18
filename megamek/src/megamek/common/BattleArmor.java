@@ -18,6 +18,7 @@ import megamek.client.ui.swing.calculationReport.DummyCalculationReport;
 import megamek.common.battlevalue.BattleArmorBVCalculator;
 import megamek.common.cost.BattleArmorCostCalculator;
 import megamek.common.enums.AimingMode;
+import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.InfantryAttack;
 import megamek.common.weapons.infantry.InfantryWeapon;
@@ -445,13 +446,14 @@ public class BattleArmor extends Infantry {
                 j++;
             }
         }
+
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions()
-                    .getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }
         }
+
         if (gravity) {
             j = applyGravityEffectsOnMP(j);
         }
@@ -459,8 +461,7 @@ public class BattleArmor extends Infantry {
     }
 
     @Override
-    public int getRunMP(boolean gravity, boolean ignoreheat,
-            boolean ignoremodulararmor) {
+    public int getRunMP(boolean gravity, boolean ignoreheat, boolean ignoremodulararmor) {
         boolean fastMove = (game != null) &&
                 game.getOptions().booleanOption(OptionsConstants.ADVGRNDMOV_TACOPS_FAST_INFANTRY_MOVE);
         if (fastMove) {
@@ -511,8 +512,8 @@ public class BattleArmor extends Infantry {
             return 0;
         }
         if (null != game) {
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if (windCond >= PlanetaryConditions.WI_STORM) {
+            final Wind wind = game.getPlanetaryConditions().getWindStrength();
+            if (wind.isStormOrStronger()) {
                 return 0;
             }
         }
@@ -528,7 +529,7 @@ public class BattleArmor extends Infantry {
         // partial wing gives extra MP in atmosphere
         if ((mp > 0)
                 && hasWorkingMisc(MiscType.F_PARTIAL_WING)
-                && ((game == null) || !game.getPlanetaryConditions().isVacuum())) {
+                && ((game == null) || !game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum())) {
             mp++;
         }
         if ((mp > 0) && hasWorkingMisc(MiscType.F_JUMP_BOOSTER)) {

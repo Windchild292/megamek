@@ -1,0 +1,25 @@
+The Windchild Light Condition Generator provides a generation method that can generate any of the potential conditions, with the rarity of generation increasing the harsher the conditions. It uses the first table to generate the light conditions, with the second table providing the percent of generating each condition.
+
+Roll (2d6) | Light Condition
+         2 | Solar Flare
+         3 | Glare
+         4 | Day
+         5 | Dawn
+         6 | Day
+         7 | Day
+         8 | Day
+         9 | Dusk
+        10 | Full Moon
+        11 | Moonless Night
+        12 | Pitch Black
+
+
+Light Condition | Percentage
+Day             | 52.75%
+Dusk            | 11.11%
+Dawn            | 11.11%
+Full Moon       | 8.33%
+Glare           | 5.55%
+Moonless Night  | 5.55%
+Solar Flare     | 2.77%
+Pitch Black     | 2.77%

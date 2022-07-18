@@ -104,10 +104,10 @@ public class Princess extends BotClient {
     public Princess(final String name, final String host, final int port) {
         super(name, host, port);
         setBehaviorSettings(BehaviorSettingsFactory.getInstance().DEFAULT_BEHAVIOR);
-        
+
         fireControlState = new FireControlState();
         pathRankerState = new PathRankerState();
-        
+
         // Start-up precog now, so that it can instantiate its game instance,
         // and it will stay up-to date.
         precognition = new Precognition(this);
@@ -1914,14 +1914,12 @@ public class Princess extends BotClient {
      */
     private void turnOnSearchLight(MovePath path, boolean possibleToInflictDamage) {
         Entity pathEntity = path.getEntity();
-        if (possibleToInflictDamage &&
-                pathEntity.hasSearchlight() && 
-                !pathEntity.isUsingSearchlight() &&
-                (path.getGame().getPlanetaryConditions().getLight() >= PlanetaryConditions.L_FULL_MOON)) {
+        if (possibleToInflictDamage && pathEntity.hasSearchlight() && !pathEntity.isUsingSearchlight()
+                && path.getGame().getPlanetaryConditions().getLight().isNight()) {
             path.addStep(MoveStepType.SEARCHLIGHT);
         }
     }
-    
+
     /**
      * Helper function that adds an "unload" step for units that are transporting infantry
      * if the conditions for unloading are favorable.

@@ -14,17 +14,8 @@
 
 package megamek.client.ui.swing;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-
-import javax.swing.Box;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.awt.*;
+import javax.swing.*;
 import megamek.client.ui.swing.util.UIUtil;
 
 /**
@@ -42,7 +33,7 @@ public class ClientDialog extends JDialog {
 
     /** 
      * Creates a basic ClientDialog.
-     * @see JDialog#JDialog(java.awt.Frame, String) 
+     * @see JDialog#JDialog(Frame, String)
      */
     public ClientDialog(JFrame owner, String title) {
         super(owner, title);

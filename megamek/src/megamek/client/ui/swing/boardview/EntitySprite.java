@@ -18,25 +18,18 @@
  */
 package megamek.client.ui.swing.boardview;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Stroke;
-import java.awt.Transparency;
-import java.util.*;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.EntityWreckHelper;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.HexCardinalDirection;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * Sprite for an entity. Changes whenever the entity changes. Consists of an
@@ -235,19 +228,19 @@ class EntitySprite extends Sprite {
                 bv.getFontMetrics(labelFont).getAscent() + 2);
         
         Coords position = entity.getPosition();
-        if (bv.game.getEntitiesVector(position.translated("SE"), true).isEmpty()) {
+        if (bv.game.getEntitiesVector(position.translated(HexCardinalDirection.SOUTHEAST), true).isEmpty()) {
             labelRect.setLocation((int) (bv.hex_size.width * 0.55), (int) (0.75 * bv.hex_size.height));
             labelPos = Positioning.RIGHT;
-        } else if (bv.game.getEntitiesVector(position.translated("NW"), true).isEmpty()) {
+        } else if (bv.game.getEntitiesVector(position.translated(HexCardinalDirection.NORTHWEST), true).isEmpty()) {
             labelRect.setLocation((int) (bv.hex_size.width * 0.45) - labelRect.width,
                     (int) (0.25 * bv.hex_size.height) - labelRect.height);
             labelPos = Positioning.LEFT;
-        } else if (bv.game.getEntitiesVector(position.translated("NE"), true).isEmpty()) {
-            labelRect.setLocation((int) (bv.hex_size.width * 0.55), 
+        } else if (bv.game.getEntitiesVector(position.translated(HexCardinalDirection.NORTHEAST), true).isEmpty()) {
+            labelRect.setLocation((int) (bv.hex_size.width * 0.55),
                     (int) (0.25 * bv.hex_size.height) - labelRect.height);
             labelPos = Positioning.RIGHT;
-        } else if (bv.game.getEntitiesVector(position.translated("SW"), true).isEmpty()) {
-            labelRect.setLocation((int) (bv.hex_size.width * 0.45) - labelRect.width, 
+        } else if (bv.game.getEntitiesVector(position.translated(HexCardinalDirection.SOUTHWEST), true).isEmpty()) {
+            labelRect.setLocation((int) (bv.hex_size.width * 0.45) - labelRect.width,
                     (int) (0.75 * bv.hex_size.height));
             labelPos = Positioning.LEFT;
         } else {

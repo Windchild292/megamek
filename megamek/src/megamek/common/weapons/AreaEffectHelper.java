@@ -122,8 +122,8 @@ public class AreaEffectHelper {
                                             Vector<Report> vPhaseReport, GameManager gameManager) {
         Game game = attacker.getGame();
         // sanity check: if this attack is happening in vacuum through very thin atmo, add that to the phase report and terminate early 
-        boolean notEnoughAtmo = game.getBoard().inSpace() ||
-                game.getPlanetaryConditions().getAtmosphere() <= PlanetaryConditions.ATMO_TRACE;
+        final boolean notEnoughAtmo = game.getBoard().inSpace()
+                || game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum();
         
         if (notEnoughAtmo) {
             Report r = new Report(9986);
@@ -134,7 +134,7 @@ public class AreaEffectHelper {
             return;
         }
         
-        boolean thinAtmo = game.getPlanetaryConditions().getAtmosphere() == PlanetaryConditions.ATMO_THIN;
+        final boolean thinAtmo = game.getPlanetaryConditions().getAtmosphericPressure().isThin();
         int blastRadius = getFuelAirBlastRadiusIndex(ordnanceType.getInternalName());
         
         if (thinAtmo) {
@@ -179,7 +179,7 @@ public class AreaEffectHelper {
         Game game = attacker.getGame();
         // sanity check: if this attack is happening in vacuum through very thin atmo, add that to the phase report and terminate early 
         boolean notEnoughAtmo = game.getBoard().inSpace() ||
-                game.getPlanetaryConditions().getAtmosphere() <= PlanetaryConditions.ATMO_TRACE;
+                game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum();
         
         if (notEnoughAtmo) {
             Report r = new Report(9986);
@@ -190,7 +190,7 @@ public class AreaEffectHelper {
             return;
         }
         
-        boolean thinAtmo = game.getPlanetaryConditions().getAtmosphere() == PlanetaryConditions.ATMO_THIN;
+        boolean thinAtmo = game.getPlanetaryConditions().getAtmosphericPressure().isThin();
         int blastRadius = getFuelAirBlastRadiusIndex(ordnanceType.getInternalName());
         
         if (thinAtmo) {
@@ -236,8 +236,10 @@ public class AreaEffectHelper {
      * Worker function that checks for and implements instant infantry destruction due to fuel air ordnance, if necessary.
      * Checks all units at given coords.
      */
-    public static void checkInfantryDestruction(Coords coords, int distFromCenter, Entity attacker, Vector<Integer> alreadyHit,
-            Vector<Report> vPhaseReport, Game game, GameManager gameManager) {
+    public static void checkInfantryDestruction(Coords coords, int distFromCenter, Entity attacker,
+                                                Vector<Integer> alreadyHit,
+                                                Vector<Report> vPhaseReport, Game game,
+                                                GameManager gameManager) {
         for (Entity entity : game.getEntitiesVector(coords)) {
             checkInfantryDestruction(entity, distFromCenter, attacker, alreadyHit, vPhaseReport, game, gameManager);
         }

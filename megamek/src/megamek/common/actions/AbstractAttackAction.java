@@ -96,8 +96,7 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         Entity te = (target.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) target : null;
         ToHitData toHit = new ToHitData();
 
-        int lightCond = game.getPlanetaryConditions().getLight();
-        if (lightCond == PlanetaryConditions.L_DAY) {
+        if (game.getPlanetaryConditions().getLight().isDay()) {
             // It's the day, so just return
             return toHit;
         }
@@ -105,8 +104,8 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         // The base night penalty
         final IlluminationLevel hexIllumLvl = IlluminationLevel.determineIlluminationLevel(game,
                 target.getPosition());
-        int night_modifier = game.getPlanetaryConditions().getLightHitPenalty(isWeapon);
-        toHit.addModifier(night_modifier, game.getPlanetaryConditions().getLightDisplayableName());
+        int night_modifier = game.getPlanetaryConditions().getLight().getHitPenalty(isWeapon);
+        toHit.addModifier(night_modifier, game.getPlanetaryConditions().getLight().toString());
 
         boolean illuminated = false;
         if (te != null) {
@@ -128,7 +127,7 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
         // Searchlights reduce the penalty to zero (or 1 for pitch-black) 
         // (except for dusk/dawn)
         int searchlightMod = Math.min(3, night_modifier);
-        if ((te != null) && (lightCond > PlanetaryConditions.L_DUSK)
+        if ((te != null) && game.getPlanetaryConditions().getLight().isNight()
                 && (te.isUsingSearchlight() || illuminated)) {
             if (te.isUsingSearchlight()) {
                 toHit.addModifier(-searchlightMod, "target using searchlight");
@@ -149,8 +148,8 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
             toHit.addModifier(-searchlightMod, "target illuminated by searchlight");
             night_modifier -= searchlightMod;
         } else if (atype != null) {
-            // Certain ammunitions reduce the penalty
-            if (((atype.getAmmoType() == AmmoType.T_AC) 
+            // Certain ammunition types reduce the penalty
+            if (((atype.getAmmoType() == AmmoType.T_AC)
                     || (atype.getAmmoType() == AmmoType.T_LAC)
                     || (atype.getAmmoType() == AmmoType.T_AC_IMP)
                     || (atype.getAmmoType() == AmmoType.T_PAC))
@@ -196,13 +195,13 @@ public abstract class AbstractAttackAction extends AbstractEntityAction implemen
 
         // now check for general hit bonuses for heat
         if ((te != null) && !attacker.isConventionalInfantry()) {
-            int heatBonus = game.getPlanetaryConditions().getLightHeatBonus(te.heat);
+            final int heatBonus = game.getPlanetaryConditions().getLight().getHeatBonus(te.heat);
             if (heatBonus < 0) {
                 toHit.addModifier(heatBonus, "target excess heat at night");
             }
         }
 
-        if ((toHit.getValue() > 0) && (null != attacker.getCrew())
+        if ((toHit.getValue() > 0) && (attacker.getCrew() != null)
                 && attacker.hasAbility(OptionsConstants.UNOFF_BLIND_FIGHTER)) {
             toHit.addModifier(-1, "blind fighter");
         }

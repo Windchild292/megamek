@@ -24,6 +24,7 @@ import megamek.common.actions.AttackAction;
 import megamek.common.actions.EntityAction;
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.HexCardinalDirection;
 import megamek.common.event.*;
 import megamek.common.force.Forces;
 import megamek.common.options.GameOptions;
@@ -3129,31 +3130,30 @@ public class Game implements IGame, Serializable {
             if ((flare.flags & Flare.F_IGNITED) != 0) {
                 flare.turnsToBurn--;
                 if ((flare.flags & Flare.F_DRIFTING) != 0) {
-                    int dir = planetaryConditions.getWindDirection();
-                    int str = planetaryConditions.getWindStrength();
-
-                    // strength 1 and 2: drift 1 hex
-                    // strength 3: drift 2 hexes
-                    // strength 4: drift 3 hexes
-                    // for each above strength 4 (storm), drift one more
-                    if (str > 0) {
-                        flare.position = flare.position.translated(dir);
-                        if (str > 2) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        if (str > 3) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        if (str > 4) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        if (str > 5) {
-                            flare.position = flare.position.translated(dir);
-                        }
-                        r = new Report(5236);
-                        r.add(flare.position.getBoardNum());
-                        r.newlines = 0;
-                        reports.addElement(r);
+                    // No drift if the wind is calm, drift one hex for Moderate/Light Gales,
+                    // and one more for each wind strength increase above a Moderate Gale.
+                    final HexCardinalDirection direction = planetaryConditions.getWindDirection();
+                    // This uses purposeful fallthroughs
+                    switch (planetaryConditions.getWindStrength()) {
+                        case TORNADO_F4:
+                            flare.position = flare.position.translated(direction);
+                        case TORNADO_F13:
+                            flare.position = flare.position.translated(direction);
+                        case STORM:
+                            flare.position = flare.position.translated(direction);
+                        case STRONG_GALE:
+                            flare.position = flare.position.translated(direction);
+                        case MODERATE_GALE:
+                        case LIGHT_GALE:
+                            flare.position = flare.position.translated(direction);
+                            r = new Report(5236);
+                            r.add(flare.position.getBoardNum());
+                            r.newlines = 0;
+                            reports.addElement(r);
+                            break;
+                        case CALM:
+                        default:
+                            break;
                     }
                 }
             } else {
@@ -3178,8 +3178,8 @@ public class Game implements IGame, Serializable {
     }
 
     public boolean gameTimerIsExpired() {
-        return ((getOptions().booleanOption(OptionsConstants.VICTORY_USE_GAME_TURN_LIMIT)) && (getRoundCount() == getOptions()
-                .intOption(OptionsConstants.VICTORY_GAME_TURN_LIMIT)));
+        return getOptions().booleanOption(OptionsConstants.VICTORY_USE_GAME_TURN_LIMIT)
+                && (getRoundCount() == getOptions().intOption(OptionsConstants.VICTORY_GAME_TURN_LIMIT));
     }
 
     /**

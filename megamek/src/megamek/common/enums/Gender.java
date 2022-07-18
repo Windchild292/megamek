@@ -17,10 +17,14 @@
 package megamek.common.enums;
 
 import megamek.client.generator.RandomGenderGenerator;
+import megamek.common.preference.PreferenceManager;
+import megamek.common.util.EncodeControl;
 import org.apache.logging.log4j.LogManager;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Author's Note: This is for Biological Gender (strictly speaking, the term is Sex) only,
@@ -28,30 +32,43 @@ import java.util.List;
  */
 public enum Gender {
     //region Enum Declarations
-    MALE(false, "Male"),
-    FEMALE(false, "Female"),
-    OTHER_MALE(true, "Male"),
-    OTHER_FEMALE(true, "Female"),
-    RANDOMIZE(true);
+    MALE("Gender.MALE.text", "Gender.MALE.toolTipText", false),
+    FEMALE("Gender.FEMALE.text", "Gender.FEMALE.toolTipText", false),
+    OTHER_MALE("Gender.MALE.text", "Gender.MALE.toolTipText", true),
+    OTHER_FEMALE("Gender.FEMALE.text", "Gender.FEMALE.toolTipText", true),
+    RANDOMIZE("Gender.RANDOMIZE.text", "Gender.RANDOMIZE.toolTipText", true);
     //endregion Enum Declarations
 
     //region Variable Declarations
+    private final String name;
+    private final String toolTipText;
     private final boolean internal;
-    private final String displayName;
     //endregion Variable Declarations
 
     //region Constructors
-    Gender(boolean internal) {
-        this(internal, "");
-    }
-
-    Gender(boolean internal, String displayName) {
+    Gender(final String name, final String toolTipText, final boolean internal) {
+        final ResourceBundle resources = ResourceBundle.getBundle("megamek.common.messages",
+                PreferenceManager.getClientPreferences().getLocale(), new EncodeControl());
+        this.name = resources.getString(name);
+        this.toolTipText = resources.getString(toolTipText);
         this.internal = internal;
-        this.displayName = displayName;
     }
     //endregion Constructors
 
-    //region Boolean Checks
+    //region Getters
+    public String getToolTipText() {
+        return toolTipText;
+    }
+
+    /**
+     * @return true if the enum value is only for internal use
+     */
+    public boolean isInternal() {
+        return internal;
+    }
+    //endregion Getters
+
+    //region Boolean Comparison Methods
     /**
      * @return true is the person's biological gender is male, otherwise false
      */
@@ -65,35 +82,13 @@ public enum Gender {
     public boolean isFemale() {
         return (this == FEMALE) || (this == OTHER_FEMALE);
     }
-
-    /**
-     * @return true if the enum value can be shown externally
-     */
-    public boolean isExternal() {
-        return !internal;
-    }
-
-    /**
-     * @return true if the enum value is only for internal use
-     */
-    public boolean isInternal() {
-        return internal;
-    }
-    //endregion Boolean Checks
+    //endregion Boolean Comparison Methods
 
     /**
      * @return a list of all external-facing gender options
      */
     public static List<Gender> getExternalOptions() {
-        List<Gender> externalOptions = new ArrayList<>();
-
-        for (Gender gender : values()) {
-            if (gender.isExternal()) {
-                externalOptions.add(gender);
-            }
-        }
-
-        return externalOptions;
+        return Stream.of(values()).filter(gender -> !gender.isInternal()).collect(Collectors.toList());
     }
 
     /**
@@ -110,20 +105,21 @@ public enum Gender {
         return (this == MALE) ? OTHER_MALE : OTHER_FEMALE;
     }
 
+    //region File I/O
     /**
-     * @param input the string to parse
-     * @return the gender defined by the input, or a randomly generated string if the string isn't a
+     * @param text the string to parse
+     * @return the gender defined by the text, or a randomly generated string if the string isn't a
      * proper value
      */
-    public static Gender parseFromString(String input) {
+    public static Gender parseFromString(final String text) {
         try {
-            return valueOf(input);
+            return valueOf(text);
         } catch (Exception ignored) {
 
         }
 
         try {
-            switch (Integer.parseInt(input)) {
+            switch (Integer.parseInt(text)) {
                 case 0:
                     return MALE;
                 case 1:
@@ -136,13 +132,14 @@ public enum Gender {
 
         }
 
-        LogManager.getLogger().error("Failed to parse the gender value from input String " + input
+        LogManager.getLogger().error("Failed to parse the gender value from text String " + text
                         + ". Returning a newly generated gender.");
         return RandomGenderGenerator.generate();
     }
+    //endregion File I/O
 
     @Override
     public String toString() {
-        return displayName;
+        return name;
     }
 }

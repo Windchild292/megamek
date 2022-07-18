@@ -25,6 +25,7 @@ import megamek.common.battlevalue.InfantryBVCalculator;
 import megamek.common.cost.InfantryCostCalculator;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.infantry.InfantryWeapon;
 import org.apache.logging.log4j.LogManager;
@@ -432,16 +433,19 @@ public class Infantry extends Entity {
                         || (getMovementMode() == EntityMovementMode.INF_JUMP))) {
             mp += 1;
         }
+
         if (hasActiveFieldArtillery()) {
-            //mp of 1 at the most
+            // mp of 1 at the most
             mp = Math.min(mp, 1);
         }
+
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 mp = Math.max(mp + weatherMod, 0);
             }
         }
+
         if (gravity) {
             mp = applyGravityEffectsOnMP(mp);
         }
@@ -497,11 +501,10 @@ public class Infantry extends Entity {
         }
         int windP = 0;
         if (null != game) {
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if (windCond == PlanetaryConditions.WI_MOD_GALE) {
+            final Wind wind = game.getPlanetaryConditions().getWindStrength();
+            if (wind.isModerateGale()) {
                 windP++;
-            }
-            if (windCond >= PlanetaryConditions.WI_STRONG_GALE) {
+            } else if (wind.isStrongGaleOrStronger()) {
                 return 0;
             }
         }
@@ -1721,7 +1724,7 @@ public class Infantry extends Entity {
     @Override
     public void setMovementMode(EntityMovementMode movementMode) {
         super.setMovementMode(movementMode);
-        //movement mode will determine base mp
+        // movement mode will determine base mp
         if (isConventionalInfantry()) {
             setOriginalJumpMP(0);
             switch (getMovementMode()) {
@@ -1841,7 +1844,7 @@ public class Infantry extends Entity {
         }
 
         if (isAntiMekTrained()) {
-            mult +=.015;
+            mult += 0.015;
         }
 
         double ton = men * mult;
@@ -2167,4 +2170,4 @@ public class Infantry extends Entity {
     public int getSpriteDrawPriority() {
         return 1;
     }
-} // End class Infantry
+}

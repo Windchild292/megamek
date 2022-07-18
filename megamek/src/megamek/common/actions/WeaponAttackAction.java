@@ -19,6 +19,7 @@ import megamek.client.ui.Messages;
 import megamek.common.*;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
+import megamek.common.enums.Wind;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.InfantryAttack;
 import megamek.common.weapons.Weapon;
@@ -1820,13 +1821,11 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             }
             
             // Ballistic and Missile weapons are subject to wind conditions
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if ((windCond == PlanetaryConditions.WI_TORNADO_F13) && wtype.hasFlag(WeaponType.F_MISSILE)
+            Wind wind = game.getPlanetaryConditions().getWindStrength();
+            if (wind.isTornadoF13() && wtype.hasFlag(WeaponType.F_MISSILE)
                     && !game.getBoard().inSpace()) {
                 return Messages.getString("WeaponAttackAction.NoMissileTornado");
-            }
-
-            if ((windCond == PlanetaryConditions.WI_TORNADO_F4) && !game.getBoard().inSpace()
+            } else if (wind.isTornadoF4() && !game.getBoard().inSpace()
                     && (wtype.hasFlag(WeaponType.F_MISSILE) || wtype.hasFlag(WeaponType.F_BALLISTIC))) {
                 return Messages.getString("WeaponAttackAction.F4Tornado");
             }
@@ -2786,51 +2785,59 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         TargetRoll weatherToHitMods = new TargetRoll();
 
         // weather mods (not in space)
-        int weatherMod = game.getPlanetaryConditions().getWeatherHitPenalty(ae);
+        int weatherMod = game.getPlanetaryConditions().getWeather().getHitPenalty(ae);
         if ((weatherMod != 0) && !game.getBoard().inSpace()) {
-            weatherToHitMods.addModifier(weatherMod, game.getPlanetaryConditions().getWeatherDisplayableName());
+            weatherToHitMods.addModifier(weatherMod, game.getPlanetaryConditions().getWeather().toString());
         }
 
         // wind mods (not in space)
         if (!game.getBoard().inSpace()) {
-            int windCond = game.getPlanetaryConditions().getWindStrength();
-            if (windCond == PlanetaryConditions.WI_MOD_GALE) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_MISSILE)) {
-                    weatherToHitMods.addModifier(1, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_STRONG_GALE) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
-                    weatherToHitMods.addModifier(1, PlanetaryConditions.getWindDisplayableName(windCond));
-                } else if (wtype != null && wtype.hasFlag(WeaponType.F_MISSILE)) {
-                    weatherToHitMods.addModifier(2, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_STORM) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
-                    weatherToHitMods.addModifier(2, PlanetaryConditions.getWindDisplayableName(windCond));
-                } else if (wtype != null && wtype.hasFlag(WeaponType.F_MISSILE)) {
-                    weatherToHitMods.addModifier(3, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_TORNADO_F13) {
-                if (wtype != null && wtype.hasFlag(WeaponType.F_ENERGY)) {
-                    weatherToHitMods.addModifier(2, PlanetaryConditions.getWindDisplayableName(windCond));
-                } else {
-                    weatherToHitMods.addModifier(3, PlanetaryConditions.getWindDisplayableName(windCond));
-                }
-            } else if (windCond == PlanetaryConditions.WI_TORNADO_F4) {
-                weatherToHitMods.addModifier(3, PlanetaryConditions.getWindDisplayableName(windCond));
+            Wind wind = game.getPlanetaryConditions().getWindStrength();
+            switch (wind) {
+                case MODERATE_GALE:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_MISSILE)) {
+                        weatherToHitMods.addModifier(1, wind.toString());
+                    }
+                    break;
+                case STRONG_GALE:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
+                        weatherToHitMods.addModifier(1, wind.toString());
+                    } else if ((wtype != null) && wtype.hasFlag(WeaponType.F_MISSILE)) {
+                        weatherToHitMods.addModifier(2, wind.toString());
+                    }
+                    break;
+                case STORM:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_BALLISTIC)) {
+                        weatherToHitMods.addModifier(2, wind.toString());
+                    } else if ((wtype != null) && wtype.hasFlag(WeaponType.F_MISSILE)) {
+                        weatherToHitMods.addModifier(3, wind.toString());
+                    }
+                    break;
+                case TORNADO_F13:
+                    if ((wtype != null) && wtype.hasFlag(WeaponType.F_ENERGY)) {
+                        weatherToHitMods.addModifier(2, wind.toString());
+                    } else {
+                        weatherToHitMods.addModifier(3, wind.toString());
+                    }
+                    break;
+                case TORNADO_F4:
+                    weatherToHitMods.addModifier(3, wind.toString());
+                    break;
+                default:
+                    break;
             }
         }
 
         // fog mods (not in space)
-        if (wtype != null && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
-                && (game.getPlanetaryConditions().getFog() == PlanetaryConditions.FOG_HEAVY)) {
+        if ((wtype != null) && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
+                && game.getPlanetaryConditions().getFog().isHeavy()) {
             weatherToHitMods.addModifier(1, Messages.getString("WeaponAttackAction.HeavyFog"));
         }
 
         // blowing sand mods
-        if (wtype != null && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
+        if ((wtype != null) && wtype.hasFlag(WeaponType.F_ENERGY) && !game.getBoard().inSpace()
                 && game.getPlanetaryConditions().isSandBlowing()
-                && (game.getPlanetaryConditions().getWindStrength() > PlanetaryConditions.WI_LIGHT_GALE)) {
+                && game.getPlanetaryConditions().getWindStrength().isModerateGaleOrStronger()) {
             weatherToHitMods.addModifier(1, Messages.getString("WeaponAttackAction.BlowingSand"));
         }
 
@@ -2851,7 +2858,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         }
 
         // Electro-Magnetic Interference
-        if (game.getPlanetaryConditions().hasEMI() && !ae.isConventionalInfantry()) {
+        if (game.getPlanetaryConditions().isEMI() && !ae.isConventionalInfantry()) {
             toHit.addModifier(2, Messages.getString("WeaponAttackAction.EMI"));
         }
         return toHit;

@@ -1,11 +1,11 @@
 package megamek.common;
 
+import megamek.common.enums.AtmosphericPressure;
+import megamek.common.enums.Wind;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -22,98 +22,98 @@ public class PlanetaryConditionsTest {
 
         // Trace atmosphere - Entity doomed in vacuum/trace atmosphere
         PlanetaryConditions planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setAtmosphere(PlanetaryConditions.ATMO_TRACE);
+        planetaryConditions.setAtmosphericPressure(AtmosphericPressure.TRACE);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
         Entity mockEntity = mock(Infantry.class);
         when(mockEntity.doomedInVacuum()).thenReturn(true);
-        assertEquals("vacuum", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("vacuum", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // Trace atmosphere - Entity not doomed in vacuum/trace atmosphere
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setAtmosphere(PlanetaryConditions.ATMO_TRACE);
+        planetaryConditions.setAtmosphericPressure(AtmosphericPressure.TRACE);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
         mockEntity = mock(Infantry.class);
         when(mockEntity.doomedInVacuum()).thenReturn(false);
-        assertNull(planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertNull(planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // F4 Tornado - Entity is a mech (not doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_TORNADO_F4);
+        planetaryConditions.setWindStrength(Wind.TORNADO_F4);
         mockEntity = mock(Mech.class);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertNull(planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertNull(planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
 
         // F4 Tornado - Entity is not a mech (doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_TORNADO_F4);
+        planetaryConditions.setWindStrength(Wind.TORNADO_F4);
         mockEntity = mock(Infantry.class);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertEquals("tornado", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("tornado", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // F1-3 Tornado - Entity movement mode is hover (doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_TORNADO_F13);
+        planetaryConditions.setWindStrength(Wind.TORNADO_F13);
         mockEntity = mock(Tank.class);
         when(mockEntity.getMovementMode()).thenReturn(EntityMovementMode.HOVER);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertEquals("tornado", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("tornado", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // F1-3 Tornado - Entity movement mode is WiGE (doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_TORNADO_F13);
+        planetaryConditions.setWindStrength(Wind.TORNADO_F13);
         mockEntity = mock(Tank.class);
         when(mockEntity.getMovementMode()).thenReturn(EntityMovementMode.WIGE);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertEquals("tornado", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("tornado", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // F1-3 Tornado - Entity movement mode is VTOL (doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_TORNADO_F13);
+        planetaryConditions.setWindStrength(Wind.TORNADO_F13);
         mockEntity = mock(VTOL.class);
         when(mockEntity.getMovementMode()).thenReturn(EntityMovementMode.VTOL);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertEquals("tornado", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("tornado", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // F1-3 Tornado - Entity is regular infantry (doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_TORNADO_F13);
+        planetaryConditions.setWindStrength(Wind.TORNADO_F13);
         mockEntity = mock(Infantry.class);
         when(mockEntity.isConventionalInfantry()).thenReturn(true);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertEquals("tornado", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("tornado", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // F1-3 Tornado - Entity is battle armor infantry (not doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_TORNADO_F13);
+        planetaryConditions.setWindStrength(Wind.TORNADO_F13);
         mockEntity = mock(BattleArmor.class);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertNull(planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertNull(planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // Storm - Entity is regular infantry (doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_STORM);
+        planetaryConditions.setWindStrength(Wind.STORM);
         mockEntity = mock(Infantry.class);
         when(mockEntity.isConventionalInfantry()).thenReturn(true);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertEquals("storm", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("storm", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // Storm - Entity is battle armor infantry (not doomed)
         planetaryConditions = new PlanetaryConditions();
-        planetaryConditions.setWindStrength(PlanetaryConditions.WI_STORM);
+        planetaryConditions.setWindStrength(Wind.STORM);
         mockEntity = mock(BattleArmor.class);
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
-        assertNull(planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertNull(planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
 
         // Extreme temperature - Doomed in extreme temperature, but sheltered in building (not doomed)
@@ -132,7 +132,7 @@ public class PlanetaryConditionsTest {
         when(mockEntity.doomedInExtremeTemp()).thenReturn(true);
         when(mockEntity.getPosition()).thenReturn(mockCoords);
         when(mockEntity.getElevation()).thenReturn(1);
-        assertNull(planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertNull(planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame, mockBoard, mockHex);
 
         // Extreme temperature - Doomed in extreme temperature (doomed)
@@ -142,7 +142,7 @@ public class PlanetaryConditionsTest {
         when(mockGame.getPlanetaryConditions()).thenReturn(planetaryConditions);
         mockEntity = mock(Infantry.class);
         when(mockEntity.doomedInExtremeTemp()).thenReturn(true);
-        assertEquals("extreme temperature", planetaryConditions.whyDoomed(mockEntity, mockGame));
+        assertEquals("extreme temperature", planetaryConditions.whyDoomed(mockGame, mockEntity));
         reset(mockEntity, mockGame);
     }
 

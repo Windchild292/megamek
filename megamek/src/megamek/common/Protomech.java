@@ -17,6 +17,7 @@ import megamek.client.ui.swing.calculationReport.CalculationReport;
 import megamek.common.battlevalue.ProtoMekBVCalculator;
 import megamek.common.cost.ProtoMekCostCalculator;
 import megamek.common.enums.AimingMode;
+import megamek.common.enums.AtmosphericPressure;
 import megamek.common.preference.PreferenceManager;
 import org.apache.logging.log4j.LogManager;
 
@@ -28,7 +29,7 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 /**
- * Protomechs. Level 2 Clan equipment.
+ * ProtoMechs. Level 2 Clan equipment.
  */
 public class Protomech extends Entity {
     private static final long serialVersionUID = -1376410042751538158L;
@@ -226,8 +227,7 @@ public class Protomech extends Entity {
         int wmp = getOriginalWalkMP();
         int j;
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions()
-                    .getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 wmp = Math.max(wmp + weatherMod, 0);
             }
@@ -431,33 +431,13 @@ public class Protomech extends Entity {
                 jump = jump / 2;
                 break;
         }
+
         if (hasWorkingMisc(MiscType.F_PARTIAL_WING)) {
-            int atmo = PlanetaryConditions.ATMO_STANDARD;
-            if (game != null) {
-                atmo = game.getPlanetaryConditions().getAtmosphere();
-            }
-            switch (atmo) {
-                case PlanetaryConditions.ATMO_VHIGH:
-                case PlanetaryConditions.ATMO_HIGH:
-                    jump += 3;
-                    break;
-                case PlanetaryConditions.ATMO_STANDARD:
-                case PlanetaryConditions.ATMO_THIN:
-                    jump += 2;
-                    break;
-                case PlanetaryConditions.ATMO_TRACE:
-                    jump += 1;
-                    break;
-            }
+            jump += ((game == null) ? AtmosphericPressure.STANDARD
+                    : game.getPlanetaryConditions().getAtmosphericPressure()).getPartialWingJumpBonus(this);
         }
-        if (!gravity) {
-            return jump;
-        } else {
-            if (applyGravityEffectsOnMP(jump) > jump) {
-                return jump;
-            }
-            return applyGravityEffectsOnMP(jump);
-        }
+
+        return gravity ? Math.min(applyGravityEffectsOnMP(jump), jump) : jump;
     }
 
     public int getJumpJets() {

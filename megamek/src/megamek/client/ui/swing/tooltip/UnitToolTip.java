@@ -802,8 +802,8 @@ public final class UnitToolTip {
         StringBuilder result = new StringBuilder();
         // Critical (red) warnings
         result.append(guiScaledFontHTML(GUIPreferences.getInstance().getWarningColor())); 
-        if (entity.getGame().getPlanetaryConditions().whyDoomed(entity, entity.getGame()) != null) {
-            result.append("<BR>Cannot survive " + entity.getGame().getPlanetaryConditions().whyDoomed(entity, entity.getGame()));
+        if (entity.getGame().getPlanetaryConditions().whyDoomed(entity.getGame(), entity) != null) {
+            result.append("<BR>Cannot survive ").append(entity.getGame().getPlanetaryConditions().whyDoomed(entity.getGame(), entity));
         }
         if (entity.doomedInAtmosphere() && mapSettings.getMedium() == MapSettings.MEDIUM_ATMOSPHERE) {
             result.append("<BR>Cannot survive on a low/high atmosphere map!");

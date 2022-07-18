@@ -17,6 +17,7 @@ import megamek.client.ui.swing.calculationReport.CalculationReport;
 import megamek.common.battlevalue.AeroBVCalculator;
 import megamek.common.cost.AeroCostCalculator;
 import megamek.common.enums.AimingMode;
+import megamek.common.enums.AtmosphericPressure;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.bayweapons.BayWeapon;
@@ -338,7 +339,7 @@ public class Aero extends Entity implements IAero, IBomber {
         j = Math.max(0, j - (engineHits * engineLoss));
         j = Math.max(0, j - getCargoMpReduction(this));
         if ((null != game) && gravity) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }
@@ -375,7 +376,7 @@ public class Aero extends Entity implements IAero, IBomber {
         int j = getOriginalWalkMP();
         j = Math.max(0, j - getCargoMpReduction(this));
         if (null != game) {
-            int weatherMod = game.getPlanetaryConditions().getMovementMods(this);
+            int weatherMod = game.getPlanetaryConditions().getMovementModifiers(this);
             if (weatherMod != 0) {
                 j = Math.max(j + weatherMod, 0);
             }
@@ -1381,17 +1382,17 @@ public class Aero extends Entity implements IAero, IBomber {
             prd.addModifier(vmod, "Velocity greater than 2x safe thrust");
         }
 
-        int atmoCond = game.getPlanetaryConditions().getAtmosphere();
+        final AtmosphericPressure atmosphere = game.getPlanetaryConditions().getAtmosphericPressure();
         // add in atmospheric effects later
-        if (!(game.getBoard().inSpace() || (atmoCond == PlanetaryConditions.ATMO_VACUUM)) && isAirborne()) {
+        if (!(game.getBoard().inSpace() || atmosphere.isVacuum()) && isAirborne()) {
             prd.addModifier(+2, "Atmospheric operations");
 
             // check type
             if (this instanceof Dropship) {
                 if (isSpheroid()) {
-                    prd.addModifier(+1, "spheroid dropship");
+                    prd.addModifier(+1, "Spheroid DropShip");
                 } else {
-                    prd.addModifier(0, "aerodyne dropship");
+                    prd.addModifier(0, "Aerodyne DropShip");
                 }
             } else {
                 prd.addModifier(-1, "fighter/small craft");
@@ -2783,22 +2784,15 @@ public class Aero extends Entity implements IAero, IBomber {
         // per a recent ruling on the official forums, aero units can't spot
         // for indirect LRM fire, unless they have a recon cam, an infrared or
         // hyperspec imager, or a high-res imager and it's not night
-        if (!isAirborne() || hasWorkingMisc(MiscType.F_RECON_CAMERA) || hasWorkingMisc(MiscType.F_INFRARED_IMAGER)
+        return !isAirborne() || hasWorkingMisc(MiscType.F_RECON_CAMERA) || hasWorkingMisc(MiscType.F_INFRARED_IMAGER)
                 || hasWorkingMisc(MiscType.F_HYPERSPECTRAL_IMAGER)
-                || (hasWorkingMisc(MiscType.F_HIRES_IMAGER)
-                        && ((game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DAY)
-                                || (game.getPlanetaryConditions().getLight() == PlanetaryConditions.L_DUSK)))) {
-            return true;
-        } else {
-            return false;
-        }
+                || (hasWorkingMisc(MiscType.F_HIRES_IMAGER) && !game.getPlanetaryConditions().getLight().isNight());
     }
 
     // Damage a fighter that was part of a squadron when splitting it. Per
     // StratOps pg. 32 & 34
     @Override
     public void doDisbandDamage() {
-
         int dealt = 0;
 
         // Check for critical threshold and if so damage all armor on one facing

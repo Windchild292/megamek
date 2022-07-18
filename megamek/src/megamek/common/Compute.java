@@ -7096,7 +7096,7 @@ public class Compute {
         }
         // aerodyne's will operate like spheroids in vacuum
         if (!((IAero) en).isSpheroid()
-                && !game.getPlanetaryConditions().isVacuum()) {
+                && !game.getPlanetaryConditions().getAtmosphericPressure().isTraceOrVacuum()) {
             return false;
         }
         // are we in atmosphere?
