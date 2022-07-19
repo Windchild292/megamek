@@ -100,8 +100,6 @@ public class GameManager implements IGameManager {
         return vPhaseReport;
     }
 
-    private MapSettings mapSettings = MapSettings.getInstance();
-
     // Track buildings that are affected by an entity's movement.
     private Hashtable<Building, Boolean> affectedBldgs = new Hashtable<>();
 
@@ -148,6 +146,7 @@ public class GameManager implements IGameManager {
         game.getOptions().loadOptions();
 
         game.setPhase(GamePhase.LOUNGE);
+        MapSettings mapSettings = game.getMapSettings();
         mapSettings.setBoardsAvailableVector(ServerBoardHelper.scanForBoards(mapSettings));
         mapSettings.setNullBoards(DEFAULT_BOARD);
 
@@ -177,6 +176,7 @@ public class GameManager implements IGameManager {
         commands.add(new SaveGameCommand(server));
         commands.add(new LoadGameCommand(server));
         commands.add(new SeeAllCommand(server, this));
+        commands.add(new SingleBlindCommand(server, this));
         commands.add(new SkipCommand(server, this));
         commands.add(new VictoryCommand(server, this));
         commands.add(new WhoCommand(server));
@@ -502,7 +502,19 @@ public class GameManager implements IGameManager {
             p.setObserver((getGame().getEntitiesOwnedBy(p) < 1) && !getGame().getPhase().isLounge());
         }
     }
-    
+
+    /**
+     * Checks each player to see if they have entitites, and if true, sets the
+     * singleblindobserver flag for that player if it is a bot. An exception is that there are no
+     * observers during the lounge phase.
+     */
+    public void checkForSingleBlindObservers() {
+        for (Enumeration<Player> e = getGame().getPlayers(); e.hasMoreElements(); ) {
+            Player p = e.nextElement();
+            p.setSingleBlindObserver((getGame().getEntitiesOwnedBy(p) >= 1) && !getGame().getPhase().isLounge());
+        }
+    }
+
     @Override
     public void removeAllEntitiesOwnedBy(Player player) {
         int pid = player.getId();
@@ -625,6 +637,13 @@ public class GameManager implements IGameManager {
                 player.setDone(getGame().getEntitiesOwnedBy(player) <= 0);
                 send(connId, new Packet(PacketCommand.PHASE_CHANGE, getGame().getPhase()));
             }
+
+            // LOUNGE triggers a Game.reset() on the client, which wipes out
+            // the PlanetaryCondition, so resend
+            if (game.getPhase() == GamePhase.LOUNGE) {
+                send(connId, createPlanetaryConditionsPacket());
+            }
+
             if ((game.getPhase() == GamePhase.FIRING)
                     || (game.getPhase() == GamePhase.TARGETING)
                     || (game.getPhase() == GamePhase.OFFBOARD)
@@ -829,13 +848,14 @@ public class GameManager implements IGameManager {
             case SENDING_MAP_SETTINGS:
                 if (game.getPhase().isBefore(GamePhase.DEPLOYMENT)) {
                     MapSettings newSettings = (MapSettings) packet.getObject(0);
-                    if (!mapSettings.equalMapGenParameters(newSettings)) {
+                    if (!game.getMapSettings().equalMapGenParameters(newSettings)) {
                         sendServerChat("Player " + player.getName() + " changed map settings");
                     }
-                    mapSettings = newSettings;
+                    MapSettings mapSettings = newSettings;
                     mapSettings.setBoardsAvailableVector(ServerBoardHelper.scanForBoards(mapSettings));
                     mapSettings.removeUnavailable();
                     mapSettings.setNullBoards(DEFAULT_BOARD);
+                    game.setMapSettings(mapSettings);
                     resetPlayersDone();
                     transmitAllPlayerDones();
                     send(createMapSettingsPacket());
@@ -844,20 +864,20 @@ public class GameManager implements IGameManager {
             case SENDING_MAP_DIMENSIONS:
                 if (game.getPhase().isBefore(GamePhase.DEPLOYMENT)) {
                     MapSettings newSettings = (MapSettings) packet.getObject(0);
-                    if (!mapSettings.equalMapGenParameters(newSettings)) {
+                    if (!game.getMapSettings().equalMapGenParameters(newSettings)) {
                         sendServerChat("Player " + player.getName() + " changed map dimensions");
                     }
-                    mapSettings = newSettings;
+                    MapSettings mapSettings = newSettings;
                     mapSettings.setBoardsAvailableVector(ServerBoardHelper.scanForBoards(mapSettings));
                     mapSettings.removeUnavailable();
                     mapSettings.setNullBoards(DEFAULT_BOARD);
+                    game.setMapSettings(mapSettings);
                     resetPlayersDone();
                     transmitAllPlayerDones();
                     send(createMapSettingsPacket());
                 }
                 break;
             case SENDING_PLANETARY_CONDITIONS:
-                // MapSettings newSettings = (MapSettings) packet.getObject(0);
                 if (game.getPhase().isBefore(GamePhase.DEPLOYMENT)) {
                     PlanetaryConditions conditions = (PlanetaryConditions) packet.getObject(0);
                     sendServerChat("Player " + player.getName() + " changed planetary conditions");
@@ -1576,6 +1596,7 @@ public class GameManager implements IGameManager {
         switch (phase) {
             case LOUNGE:
                 clearReports();
+                MapSettings mapSettings = game.getMapSettings();
                 mapSettings.setBoardsAvailableVector(ServerBoardHelper.scanForBoards(mapSettings));
                 mapSettings.setNullBoards(DEFAULT_BOARD);
                 send(createMapSettingsPacket());
@@ -2604,6 +2625,7 @@ public class GameManager implements IGameManager {
      * specified into one mega-board and sets that board as current.
      */
     public void applyBoardSettings() {
+        MapSettings mapSettings = game.getMapSettings();
         mapSettings.chooseSurpriseBoards();
         Board[] sheetBoards = new Board[mapSettings.getMapWidth() * mapSettings.getMapHeight()];
         List<Boolean> rotateBoard = new ArrayList<>();
@@ -12297,7 +12319,7 @@ public class GameManager implements IGameManager {
             turn = game.getTurnForPlayer(connId);
         }
         if ((turn == null) || !turn.isValid(connId, entity, game)
-                || !(game.getBoard().isLegalDeployment(coords, entity.getStartingPos())
+                || !(game.getBoard().isLegalDeployment(coords, entity)
                 || (assaultDrop && game.getOptions().booleanOption(OptionsConstants.ADVANCED_ASSAULT_DROP)
                 && entity.canAssaultDrop()))) {
             String msg = "server got invalid deployment packet from "
@@ -12935,7 +12957,7 @@ public class GameManager implements IGameManager {
         if (getGame().getPhase().isSimultaneous(getGame())) {
             // Update attack only to player who declared it & observers
             for (Player player : game.getPlayersVector()) {
-                if (player.canSeeAll() || player.isObserver()
+                if (player.canSeeSingleBlind() || player.canSeeAll() || player.isObserver()
                         || (entity.getOwnerId() == player.getId())) {
                     send(player.getId(), p);
                 }
@@ -28376,7 +28398,7 @@ public class GameManager implements IGameManager {
         for (Enumeration<Player> p = game.getPlayers(); p.hasMoreElements();) {
             Player player = p.nextElement();
 
-            if (player.canSeeAll() && !vCanSee.contains(player)) {
+            if (player.canSeeSingleBlind() || player.canSeeAll() && !vCanSee.contains(player)) {
                 vCanSee.addElement(player);
             }
         }
@@ -28526,7 +28548,7 @@ public class GameManager implements IGameManager {
         boolean bTeamVision = game.getOptions().booleanOption(OptionsConstants.ADVANCED_TEAM_VISION);
 
         // If they can see all, return the input list
-        if (pViewer.canSeeAll()) {
+        if (pViewer.canSeeSingleBlind() || pViewer.canSeeAll()) {
             return vEntities;
         }
 
@@ -29721,6 +29743,7 @@ public class GameManager implements IGameManager {
      * @param connId the id for connection that received the packet.
      */
     private void receiveGameOptionsAux(Packet packet, int connId) {
+        MapSettings mapSettings = game.getMapSettings();
         for (Enumeration<?> i = ((Vector<?>) packet.getObject(1)).elements(); i.hasMoreElements(); ) {
             IBasicOption option = (IBasicOption) i.nextElement();
             IOption originalOption = game.getOptions().getOption(option.getName());
@@ -29768,6 +29791,7 @@ public class GameManager implements IGameManager {
      * Creates a packet containing the map settings
      */
     private Packet createMapSettingsPacket() {
+        MapSettings mapSettings = game.getMapSettings();
         return new Packet(PacketCommand.SENDING_MAP_SETTINGS, mapSettings);
     }
 
@@ -30066,7 +30090,7 @@ public class GameManager implements IGameManager {
                 if ((aaa.getPlayerId() == p.getId())
                         || ((team != Player.TEAM_NONE)
                         && (team == game.getPlayer(aaa.getPlayerId()).getTeam()))
-                        || p.getSeeAll()) {
+                        || p.getSingleBlind() || p.getSeeAll()) {
                     v.addElement(aaa);
                 }
             }
@@ -32863,7 +32887,7 @@ public class GameManager implements IGameManager {
                     }
                     if (pe instanceof MechWarrior) {
                         // MWs have a beer together
-                        r = new Report(6415, Report.PUBLIC);
+                        r = new Report(6416, Report.PUBLIC);
                         r.add(pe.getDisplayName());
                         addReport(r);
                         continue;
@@ -32892,7 +32916,7 @@ public class GameManager implements IGameManager {
                     }
                     if (pe instanceof MechWarrior) {
                         // MWs have a beer together
-                        r = new Report(6415, Report.PUBLIC);
+                        r = new Report(6417, Report.PUBLIC);
                         r.add(pe.getDisplayName());
                         addReport(r);
                         continue;

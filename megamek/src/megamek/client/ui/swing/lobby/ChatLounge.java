@@ -123,9 +123,13 @@ public class ChatLounge extends AbstractPhaseDisplay implements
 
     // Game Setup
     private JButton butOptions = new JButton(Messages.getString("ChatLounge.butOptions"));
-    private JToggleButton butGroundMap = new JToggleButton("Ground Map");
+    //private JToggleButton butGroundMap = new JToggleButton("Ground Map");
+    private JToggleButton butGroundMap = new JToggleButton(Messages.getString("ChatLounge.butGroundMap"));
+    //private JToggleButton butLowAtmoMap = new JToggleButton("Low Altitude Map");
     private JToggleButton butLowAtmoMap = new JToggleButton("Low Altitude Map");
+    //private JToggleButton butHighAtmoMap = new JToggleButton("High Altitude Map");
     private JToggleButton butHighAtmoMap = new JToggleButton("High Altitude Map");
+    //private JToggleButton butSpaceMap = new JToggleButton("Space Map");
     private JToggleButton butSpaceMap = new JToggleButton("Space Map");
     private ButtonGroup grpMap = new ButtonGroup();
 
@@ -160,8 +164,10 @@ public class ChatLounge extends AbstractPhaseDisplay implements
     private JButton butCamo = new JButton();
     private JButton butAddBot = new JButton(Messages.getString("ChatLounge.butAddBot"));
     private JButton butRemoveBot = new JButton(Messages.getString("ChatLounge.butRemoveBot"));
-    private JButton butBotSettings = new JButton("Bot Settings...");
-    private JButton butConfigPlayer = new JButton("Configure Player...");
+//    private JButton butBotSettings = new JButton("Bot Settings...");
+//    private JButton butConfigPlayer = new JButton("Configure Player...");
+    private JButton butConfigPlayer = new JButton(Messages.getString("ChatLounge.butConfigPlayer"));
+    private JButton butBotSettings = new JButton(Messages.getString("ChatLounge.butBotSettings"));
     
     private MekTableMouseAdapter mekTableMouseAdapter = new MekTableMouseAdapter();
     private PlayerTableModel playerModel = new PlayerTableModel();
@@ -996,6 +1002,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 // Update the board base image if it's generated and the settings have changed
                 // or the board name has changed
                 String boardName = mapSettings.getBoardsSelectedVector().get(index);
+                if (boardName == null) {
+                    continue;
+                }
                 if (!button.getBoard().equals(boardName) 
                         || oldMapSettings.getMedium() != mapSettings.getMedium()
                         || (!mapSettings.equalMapGenParameters(oldMapSettings) 
@@ -1157,6 +1166,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
      */
     private void refreshGameSettings() {
         refreshTeams();
+        refreshMapSettings();
         refreshDoneButton();
     }
     
@@ -1283,6 +1293,11 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             comboTeam.setSelectedIndex(localPlayer().getTeam());
             comboTeam.addActionListener(lobbyListener);
         }
+    }
+
+    /** Updates the map settings from the Game */
+    private void refreshMapSettings() {
+        mapSettings = game().getMapSettings();
     }
 
     /**
@@ -1502,11 +1517,10 @@ public class ChatLounge extends AbstractPhaseDisplay implements
             // The deployment position
             int startPos = psd.getStartPos();
             final GameOptions gOpts = clientgui.getClient().getGame().getOptions();
-            if (gOpts.booleanOption(OptionsConstants.BASE_DEEP_DEPLOYMENT)
-                    && (startPos >= 1) && (startPos <= 9)) {
-                startPos += 10;
-            }
-            c.getLocalPlayer().setStartingPos(startPos);
+            
+            player.setStartingPos(startPos);
+            player.setStartOffset(psd.getStartOffset());
+            player.setStartWidth(psd.getStartWidth());
             c.sendPlayerInfo();
             
             // If the gameoption set_arty_player_homeedge is set, adjust the player's offboard 
@@ -2338,7 +2352,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         }
         return true;
     }
-    
+
     /**
      * Returns true if the local player can see the given entity.
      * This is true except when a blind drop option is active and one or more
@@ -2469,10 +2483,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements
                 break;
             case PlayerTablePopup.PTP_DEPLOY:
                 int startPos = Integer.parseInt(st.nextToken());
-                if (game().getOptions().booleanOption(OptionsConstants.BASE_DEEP_DEPLOYMENT)
-                        && (startPos >= 1) && (startPos <= 9)) {
-                    startPos += 10;
-                }
 
                 for (Player player: getselectedPlayers()) {
                     if (lobbyActions.isSelfOrLocalBot(player)) {
@@ -3387,6 +3397,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements
         protected Void doInBackground() throws Exception {
             Image image;
             while (!isCancelled()) {
+                // Create thumbnails for the MapSettings boards
                 String boardName = boards.poll(1, TimeUnit.SECONDS);
                 if (boardName != null && !baseImages.containsKey(boardName)) {
                     image = prepareImage(boardName);
