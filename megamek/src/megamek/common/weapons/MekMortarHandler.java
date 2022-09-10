@@ -13,18 +13,11 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Compute;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Infantry;
-import megamek.common.Report;
-import megamek.common.Targetable;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Jason Tighe

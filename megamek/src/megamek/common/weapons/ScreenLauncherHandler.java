@@ -13,47 +13,27 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.FighterSquadron;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Report;
-import megamek.common.TargetRoll;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Jay Lawson
  */
 public class ScreenLauncherHandler extends AmmoWeaponHandler {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = -2536312899803153911L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
-    public ScreenLauncherHandler(ToHitData t, WeaponAttackAction w, Game g,
-            GameManager m) {
+    public ScreenLauncherHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
     /**
      * handle this weapons firing
      * 
-     * @return a <code>boolean</code> value indicating wether this should be
-     *         kept or not
+     * @return a <code>boolean</code> value indicating whether this should be kept or not
      */
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
@@ -120,5 +100,4 @@ public class ScreenLauncherHandler extends AmmoWeaponHandler {
         }
         return false;
     }
-
 }

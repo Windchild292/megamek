@@ -25,7 +25,6 @@ import megamek.common.actions.WeaponAttackAction;
 import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.TAGHandler;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * TAG for conventional infantry. Rules not found in TacOps 2nd printing are in

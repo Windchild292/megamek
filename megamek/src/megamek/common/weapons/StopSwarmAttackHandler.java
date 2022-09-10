@@ -13,17 +13,12 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Entity;
-import megamek.common.Game;
-import megamek.common.Report;
-import megamek.common.TargetRoll;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Andrew Hunter
@@ -32,21 +27,10 @@ import megamek.server.Server;
 public class StopSwarmAttackHandler extends WeaponHandler {
     private static final long serialVersionUID = 7078803294398264979L;
 
-    /**
-     * @param toHit
-     * @param waa
-     * @param g
-     */
-    public StopSwarmAttackHandler(ToHitData toHit, WeaponAttackAction waa,
-            Game g, GameManager m) {
+    public StopSwarmAttackHandler(ToHitData toHit, WeaponAttackAction waa, Game g, GameManager m) {
         super(toHit, waa, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.AttackHandler#handle(int, java.util.Vector)
-     */
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         Entity entityTarget = (Entity) target;
@@ -58,7 +42,7 @@ public class StopSwarmAttackHandler extends WeaponHandler {
             vPhaseReport.addElement(r);
             return false;
         }
-        // swarming ended succesfully
+        // swarming ended successfully
         Report r = new Report(3110);
         r.subject = subjectId;
         vPhaseReport.addElement(r);

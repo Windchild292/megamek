@@ -19,24 +19,13 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.AmmoType;
-import megamek.common.Building;
-import megamek.common.Entity;
-import megamek.common.Game;
-import megamek.common.Mounted;
-import megamek.common.RangeType;
-import megamek.common.Report;
-import megamek.common.TargetRoll;
-import megamek.common.Targetable;
-import megamek.common.ToHitData;
-import megamek.common.WeaponType;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Jay Lawson
@@ -45,22 +34,11 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
     private static final long serialVersionUID = -1618484541772117621L;
     boolean advancedPD = false;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
     public CapitalMissileHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         advancedPD = g.getOptions().booleanOption(OptionsConstants.ADVAERORULES_STRATOPS_ADV_POINTDEF);
     }
-    
-    /*
-     * (non-Javadoc)
-     *
-     * @see megamek.common.weapons.AttackHandler#handle(int, java.util.Vector)
-     */
+
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (!cares(phase)) {
@@ -69,8 +47,7 @@ public class CapitalMissileHandler extends AmmoWeaponHandler {
         
         int numAttacks = 1;
         
-        Entity entityTarget = (target.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) target
-                : null;
+        Entity entityTarget = (target.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) target : null;
         
         if (entityTarget != null) {
             ae.setLastTarget(entityTarget.getId());

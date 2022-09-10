@@ -12,13 +12,11 @@
  */
 package megamek.common;
 
-import java.text.NumberFormat;
-import java.util.Map;
-
 import megamek.client.ui.swing.calculationReport.CalculationReport;
-import megamek.common.cost.MekCostCalculator;
 import megamek.common.cost.WarShipCostCalculator;
 import megamek.common.options.OptionsConstants;
+
+import java.util.Map;
 
 /**
  * @author Jay Lawson
@@ -57,8 +55,7 @@ public class Warship extends Jumpship {
     protected int[] getAsewAffectedTurns() {
         return asewAffectedTurns;
     }
- 
-    
+
     private static final TechAdvancement TA_WARSHIP = new TechAdvancement(TECH_BASE_ALL)
             .setISAdvancement(2295, 2305, DATE_NONE, 2950, 3050)
             .setClanAdvancement(2295, 2305).setApproximate(true, false, false, false, false)

@@ -23,7 +23,6 @@ import megamek.common.weapons.PrototypeACWeaponHandler;
 import megamek.common.weapons.PrototypeLBXHandler;
 import megamek.common.weapons.autocannons.LBXACWeapon;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * @author Andrew Hunter

@@ -19,7 +19,6 @@ import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.RACHandler;
 import megamek.common.weapons.UltraWeaponHandler;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * @author Andrew Hunter
@@ -40,19 +39,10 @@ public abstract class RACWeapon extends UACWeapon {
         atClass = CLASS_AC;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * megamek.common.weapons.Weapon#getCorrectHandler(megamek.common.ToHitData,
-     * megamek.common.actions.WeaponAttackAction, megamek.common.Game,
-     * megamek.server.Server)
-     */
     @Override
-    protected AttackHandler getCorrectHandler(ToHitData toHit,
-            WeaponAttackAction waa, Game game, GameManager manager) {
-        Mounted weapon = game.getEntity(waa.getEntityId()).getEquipment(
-                waa.getWeaponId());
+    protected AttackHandler getCorrectHandler(ToHitData toHit, WeaponAttackAction waa, Game game,
+                                              GameManager manager) {
+        Mounted weapon = game.getEntity(waa.getEntityId()).getEquipment(waa.getWeaponId());
         if (weapon.curMode().equals(MODE_RAC_SIX_SHOT)
                 || weapon.curMode().equals(MODE_RAC_FIVE_SHOT)
                 || weapon.curMode().equals(MODE_RAC_FOUR_SHOT)
@@ -68,7 +58,7 @@ public abstract class RACWeapon extends UACWeapon {
         double damage = 0;
         if (range <= getLongRange()) {
             damage = getRackSize() * 6;
-            if (range == BattleForceElement.SHORT_RANGE && getMinimumRange() > 0) {
+            if ((range == BattleForceElement.SHORT_RANGE) && (getMinimumRange() > 0)) {
                 damage = adjustBattleForceDamageForMinRange(damage);
             }
         }

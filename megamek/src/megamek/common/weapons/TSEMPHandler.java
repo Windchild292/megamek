@@ -18,7 +18,6 @@ import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 import java.util.Vector;
 
@@ -32,21 +31,10 @@ import java.util.Vector;
 public class TSEMPHandler extends EnergyWeaponHandler {
     private static final long serialVersionUID = 5545991061428671743L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
     public TSEMPHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.EnergyWeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
         return 0;
@@ -106,8 +94,7 @@ public class TSEMPHandler extends EnergyWeaponHandler {
         }
         
         if (entityTarget.getEngine() != null &&
-                entityTarget.getEngine().getEngineType() == 
-                    Engine.COMBUSTION_ENGINE) {
+                entityTarget.getEngine().getEngineType() == Engine.COMBUSTION_ENGINE) {
             tsempModifiers -= 1;
         } else if (entityTarget.getEngine() != null &&
                 entityTarget.getEngine().getEngineType() == 

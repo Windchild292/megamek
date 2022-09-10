@@ -13,49 +13,25 @@
  */
 package megamek.common.weapons.battlearmor;
 
-import java.util.Vector;
-
-import megamek.common.Aero;
-import megamek.common.BattleArmor;
-import megamek.common.Compute;
-import megamek.common.Entity;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Mech;
-import megamek.common.Protomech;
-import megamek.common.Report;
-import megamek.common.Tank;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.weapons.AmmoWeaponHandler;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 public class BATaserHandler extends AmmoWeaponHandler {
-
     private static final long serialVersionUID = 1308895663099714573L;
 
     protected BATaserHandler() {
         // deserialization only
     }
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     */
     public BATaserHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         generalDamageType = HitData.DAMAGE_ENERGY;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * megamek.common.weapons.WeaponHandler#specialResolution(java.util.Vector,
-     * megamek.common.Entity, boolean)
-     */
     @Override
     protected boolean specialResolution(Vector<Report> vPhaseReport, Entity entityTarget) {
         boolean done = false;
@@ -144,7 +120,7 @@ public class BATaserHandler extends AmmoWeaponHandler {
             r = new Report(3725);
             vPhaseReport.add(r);
             // kill the firing trooper
-            // TODO: should just be shut down for remainder of scenario
+            // TODO : should just be shut down for remainder of scenario
             vPhaseReport.addAll(gameManager.criticalEntity(ae, weapon.getLocation(),
                     false, 0, false, false, 0));
         }

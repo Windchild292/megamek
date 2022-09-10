@@ -15,16 +15,9 @@ package megamek.common;
 
 import megamek.common.annotations.Nullable;
 import megamek.common.enums.BasementType;
-import org.apache.logging.log4j.LogManager;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.io.Serializable;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -412,12 +405,7 @@ public class Hex implements Serializable {
      * @see Hex#containsAnyTerrainOf(int...)
      */
     public boolean containsAllTerrainsOf(int... types) {
-        for (int type: types) {
-            if (!containsTerrain(type)) {
-                return false;
-            }
-        }
-        return true;
+        return Arrays.stream(types).allMatch(this::containsTerrain);
     }
 
     /**

@@ -13,7 +13,6 @@
  */
 package megamek.server.commands;
 
-import megamek.common.Game;
 import megamek.server.GameManager;
 import megamek.server.Server;
 
@@ -24,7 +23,6 @@ import megamek.server.Server;
  * @since February 19, 2003, 12:16 PM
  */
 public class SkipCommand extends ServerCommand {
-
     private final GameManager gameManager;
 
     /** Creates a new instance of SkipCommand */
@@ -53,5 +51,4 @@ public class SkipCommand extends ServerCommand {
             server.sendServerChat("/skip : skip failed.");
         }
     }
-
 }

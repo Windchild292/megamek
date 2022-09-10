@@ -13,16 +13,11 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Entity;
-import megamek.common.Game;
-import megamek.common.Infantry;
-import megamek.common.Report;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Andrew Hunter
@@ -31,21 +26,10 @@ import megamek.server.Server;
 public class RACHandler extends UltraWeaponHandler {
     private static final long serialVersionUID = -4859480151505343638L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
     public RACHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.UltraWeaponHandler#doChecks(java.util.Vector)
-     */
     @Override
     protected boolean doChecks(Vector<Report> vPhaseReport) {
         if (doAmmoFeedProblemCheck(vPhaseReport)) {
@@ -89,11 +73,6 @@ public class RACHandler extends UltraWeaponHandler {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#useAmmo()
-     */
     @Override
     protected void useAmmo() {
         int actualShots;
@@ -153,5 +132,4 @@ public class RACHandler extends UltraWeaponHandler {
     protected int calcnClusterAero(Entity entityTarget) {
         return 5;
     }
-    
 }

@@ -20,12 +20,11 @@
 package megamek.common.weapons;
 
 import megamek.common.AmmoType;
-import megamek.common.IBomber;
 import megamek.common.Game;
+import megamek.common.IBomber;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * @author Jay Lawson
@@ -54,13 +53,6 @@ public class DiveBombAttack extends Weapon {
         capital = true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * megamek.common.weapons.Weapon#getCorrectHandler(megamek.common.ToHitData,
-     * megamek.common.actions.WeaponAttackAction, megamek.common.Game)
-     */
     @Override
     protected AttackHandler getCorrectHandler(ToHitData toHit, WeaponAttackAction waa, Game game,
                                               GameManager manager) {

@@ -13,22 +13,12 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Building;
-import megamek.common.Compute;
-import megamek.common.Entity;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Hex;
-import megamek.common.Infantry;
-import megamek.common.RangeType;
-import megamek.common.Report;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Jason Tighe
@@ -38,25 +28,12 @@ public class RifleWeaponHandler extends AmmoWeaponHandler {
 
     private HitData hit;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
-    public RifleWeaponHandler(ToHitData t, WeaponAttackAction w, Game g,
-            GameManager m) {
+    public RifleWeaponHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
-
         double toReturn = wtype.getDamage();
         // we default to direct fire weapons for anti-infantry damage
         if (target.isConventionalInfantry()) {

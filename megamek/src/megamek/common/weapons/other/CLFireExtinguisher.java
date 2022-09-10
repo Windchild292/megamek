@@ -21,7 +21,6 @@ import megamek.common.weapons.AttackHandler;
 import megamek.common.weapons.FireExtinguisherHandler;
 import megamek.common.weapons.Weapon;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * @author Sebastian Brocks
@@ -51,16 +50,9 @@ public class CLFireExtinguisher extends Weapon {
         techAdvancement.setAvailability(RATING_X, RATING_B, RATING_B, RATING_X);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * megamek.common.weapons.Weapon#getCorrectHandler(megamek.common.ToHitData,
-     * megamek.common.actions.WeaponAttackAction, megamek.common.Game)
-     */
     @Override
-    protected AttackHandler getCorrectHandler(ToHitData toHit,
-            WeaponAttackAction waa, Game game, GameManager manager) {
+    protected AttackHandler getCorrectHandler(ToHitData toHit, WeaponAttackAction waa, Game game,
+                                              GameManager manager) {
         return new FireExtinguisherHandler(toHit, waa, game, manager);
     }
 }

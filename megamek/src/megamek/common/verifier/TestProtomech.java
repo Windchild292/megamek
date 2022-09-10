@@ -18,7 +18,6 @@ import megamek.common.*;
 import megamek.common.annotations.Nullable;
 import megamek.common.util.StringUtil;
 
-import javax.swing.text.Utilities;
 import java.util.HashMap;
 import java.util.Map;
 

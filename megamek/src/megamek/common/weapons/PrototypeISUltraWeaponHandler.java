@@ -19,7 +19,6 @@ import megamek.common.Report;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 import java.util.Vector;
 
@@ -30,20 +29,10 @@ import java.util.Vector;
 public class PrototypeISUltraWeaponHandler extends UltraWeaponHandler {
     private static final long serialVersionUID = 6441106275439235564L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     */
     public PrototypeISUltraWeaponHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.UltraWeaponHandler#doChecks(java.util.Vector)
-     */
     @Override
     protected boolean doChecks(Vector<Report> vPhaseReport) {
         if (doAmmoFeedProblemCheck(vPhaseReport)) {

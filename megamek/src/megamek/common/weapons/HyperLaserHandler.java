@@ -19,29 +19,16 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Compute;
-import megamek.common.CriticalSlot;
-import megamek.common.Game;
-import megamek.common.Infantry;
-import megamek.common.Mounted;
-import megamek.common.RangeType;
-import megamek.common.Report;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 public class HyperLaserHandler extends EnergyWeaponHandler {
     private static final long serialVersionUID = 1;
 
-    /**
-     * @param toHit
-     * @param waa
-     * @param g
-     */
     public HyperLaserHandler(ToHitData toHit,
             WeaponAttackAction waa, Game g, GameManager m) {
         super(toHit, waa, g, m);
@@ -76,18 +63,13 @@ public class HyperLaserHandler extends EnergyWeaponHandler {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
         int[] nRanges = wtype.getRanges(weapon);
         double toReturn = wtype.getDamage(nRange);
 
         if (game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_ENERGY_WEAPONS)
-            && wtype.hasModes()) {
+                && wtype.hasModes()) {
             toReturn = Compute.dialDownDamage(weapon, wtype, nRange);
         }
 
@@ -142,5 +124,4 @@ public class HyperLaserHandler extends EnergyWeaponHandler {
         toReturn = applyGlancingBlowModifier(toReturn, target.isConventionalInfantry());
         return (int) toReturn;
     }
-
 }

@@ -13,8 +13,6 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
 import megamek.common.Game;
 import megamek.common.Infantry;
 import megamek.common.Report;
@@ -22,7 +20,8 @@ import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Andrew Hunter
@@ -31,20 +30,10 @@ import megamek.server.Server;
 public class RapidfireACWeaponHandler extends UltraWeaponHandler {
     private static final long serialVersionUID = -1770392652874842106L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     */
     public RapidfireACWeaponHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.UltraWeaponHandler#doChecks(java.util.Vector)
-     */
     @Override
     protected boolean doChecks(Vector<Report> vPhaseReport) {
         if (doAmmoFeedProblemCheck(vPhaseReport)) {

@@ -18,8 +18,6 @@
  */
 package megamek;
 
-import java.time.LocalDate;
-
 /**
  * These are constants that hold across the entire MegaMek Suite of MegaMek, MegaMekLab, and MekHQ.
  */

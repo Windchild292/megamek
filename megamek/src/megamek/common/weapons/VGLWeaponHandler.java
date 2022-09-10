@@ -13,27 +13,13 @@
  */
 package megamek.common.weapons;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
-import megamek.common.AmmoType;
-import megamek.common.Building;
-import megamek.common.BuildingTarget;
-import megamek.common.Compute;
-import megamek.common.Coords;
-import megamek.common.Entity;
-import megamek.common.HexTarget;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Infantry;
-import megamek.common.Report;
-import megamek.common.Targetable;
-import megamek.common.ToHitData;
-import megamek.common.WeaponType;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * Weapon handler for vehicular grenade launchers.  Rather than have a separate
@@ -42,19 +28,13 @@ import megamek.server.Server;
  * @author arlith
  */
 public class VGLWeaponHandler extends AmmoWeaponHandler {
-
     private static final long serialVersionUID = -4934490646657484486L;
 
     protected VGLWeaponHandler() {
+
     }
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     */
-    public VGLWeaponHandler(ToHitData t, WeaponAttackAction w, Game g,
-            GameManager m) {
+    public VGLWeaponHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         generalDamageType = HitData.DAMAGE_NONE;
     }
@@ -62,8 +42,7 @@ public class VGLWeaponHandler extends AmmoWeaponHandler {
     /**
      * handle this weapons firing
      *
-     * @return a <code>boolean</code> value indicating whether this should be
-     * kept or not
+     * @return a <code>boolean</code> value indicating whether this should be kept or not
      */
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
@@ -194,6 +173,4 @@ public class VGLWeaponHandler extends AmmoWeaponHandler {
         
         return false;
     }
-
 }
-

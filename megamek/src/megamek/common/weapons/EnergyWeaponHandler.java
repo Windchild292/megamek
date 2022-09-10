@@ -19,37 +19,19 @@
  */
 package megamek.common.weapons;
 
-import megamek.common.BattleArmor;
-import megamek.common.Compute;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Infantry;
-import megamek.common.RangeType;
-import megamek.common.ToHitData;
-import megamek.common.WeaponType;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 public class EnergyWeaponHandler extends WeaponHandler {
     private static final long serialVersionUID = 2452514543790235562L;
 
-    /**
-     * @param toHit
-     * @param waa
-     * @param g
-     */
     public EnergyWeaponHandler(ToHitData toHit, WeaponAttackAction waa, Game g, GameManager m) {
         super(toHit, waa, g, m);
         generalDamageType = HitData.DAMAGE_ENERGY;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
         double toReturn = wtype.getDamage(nRange);
@@ -99,5 +81,4 @@ public class EnergyWeaponHandler extends WeaponHandler {
         toReturn = applyGlancingBlowModifier(toReturn, target.isConventionalInfantry());
         return (int) Math.ceil(toReturn);
     }
-
 }

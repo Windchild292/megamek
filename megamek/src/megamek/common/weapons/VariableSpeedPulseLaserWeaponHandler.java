@@ -19,15 +19,10 @@
  */
 package megamek.common.weapons;
 
-import megamek.common.Compute;
-import megamek.common.Game;
-import megamek.common.Infantry;
-import megamek.common.RangeType;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 public class VariableSpeedPulseLaserWeaponHandler extends EnergyWeaponHandler {
     private static final long serialVersionUID = -5701939682138221449L;
@@ -37,11 +32,6 @@ public class VariableSpeedPulseLaserWeaponHandler extends EnergyWeaponHandler {
         super(toHit, waa, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
         int[] nRanges = wtype.getRanges(weapon);

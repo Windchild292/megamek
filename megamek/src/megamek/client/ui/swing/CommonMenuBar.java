@@ -19,30 +19,32 @@
  */
 package megamek.client.ui.swing;
 
-import java.awt.event.*;
-import java.util.*;
-
-import javax.swing.*;
-
 import megamek.client.Client;
 import megamek.client.ui.swing.util.KeyCommandBind;
 import megamek.client.ui.swing.util.UIUtil;
-
-import static megamek.client.ui.Messages.*;
-import megamek.common.*;
+import megamek.common.KeyBindParser;
 import megamek.common.enums.GamePhase;
 import megamek.common.preference.IPreferenceChangeListener;
 import megamek.common.preference.PreferenceChangeEvent;
-import static megamek.client.ui.swing.ClientGUI.*;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static java.awt.event.KeyEvent.*;
-import static megamek.client.ui.swing.ClientGUI.FILE_UNITS_BROWSE;
+import static megamek.client.ui.Messages.getString;
+import static megamek.client.ui.swing.ClientGUI.*;
 
 /**
  * The menu bar that is used across MM, i.e. in the main menu, the board editor and
  * the lobby and game. 
  */
 public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferenceChangeListener {
-
     private static final GUIPreferences GUIP = GUIPreferences.getInstance();
     
     /** True when this menu is attached to the board editor. */

@@ -38,8 +38,8 @@ public class BattleForceElement {
     static final int RANGE_BAND_NUM_GROUND = 3;
     static final int RANGE_BAND_NUM_AERO = 4;
     
-    static final int[] STANDARD_RANGES = {0, 4, 16, 24};
-    static final int[] CAPITAL_RANGES = {0, 13, 25, 41};
+    static final int[] STANDARD_RANGES = { 0, 4, 16, 24 };
+    static final int[] CAPITAL_RANGES = { 0, 13, 25, 41 };
     
     public static final int SHORT_RANGE = STANDARD_RANGES[RANGE_BAND_SHORT];
     public static final int MEDIUM_RANGE = STANDARD_RANGES[RANGE_BAND_MEDIUM];
@@ -48,7 +48,7 @@ public class BattleForceElement {
     
     protected String name;
     protected int size;
-    protected LinkedHashMap<String,Integer> movement = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Integer> movement = new LinkedHashMap<>();
     protected double armor;
     protected double threshold = -1;
     protected int structure;
@@ -57,7 +57,7 @@ public class BattleForceElement {
     protected String[] locationNames;
     protected int[] heat;
     protected double points;
-    protected EnumMap<BattleForceSPA,Integer> specialAbilities = new EnumMap<>(BattleForceSPA.class);
+    protected EnumMap<BattleForceSPA, Integer> specialAbilities = new EnumMap<>(BattleForceSPA.class);
     
     public BattleForceElement(Entity en) {
         name = en.getShortName();

@@ -17,24 +17,13 @@ import megamek.common.Game;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * @author Jay Lawson
  */
 public class SwordfishHandler extends AmmoWeaponHandler {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = -2536312899903153911L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
     public SwordfishHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
@@ -43,5 +32,4 @@ public class SwordfishHandler extends AmmoWeaponHandler {
     protected int getCapMisMod() {
         return 11;
     }
-
 }

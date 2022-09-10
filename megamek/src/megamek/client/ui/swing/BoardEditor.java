@@ -59,7 +59,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static megamek.common.Terrains.*;
 

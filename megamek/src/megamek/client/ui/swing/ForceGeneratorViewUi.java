@@ -21,7 +21,6 @@ import megamek.client.ui.Messages;
 import megamek.common.Entity;
 import megamek.common.UnitType;
 import megamek.common.annotations.Nullable;
-import megamek.common.enums.GamePhase;
 import megamek.common.enums.SkillLevel;
 import org.apache.logging.log4j.LogManager;
 

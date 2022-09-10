@@ -19,15 +19,14 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
 import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
 import megamek.server.SmokeCloud;
+
+import java.util.Vector;
 
 public class RapidfireHVACWeaponHandler extends RapidfireACWeaponHandler {
     private static final long serialVersionUID = 7326881584091651519L;
@@ -36,13 +35,6 @@ public class RapidfireHVACWeaponHandler extends RapidfireACWeaponHandler {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * megamek.common.weapons.WeaponHandler#handle(megamek.common.Game.Phase,
-     * java.util.Vector)
-     */
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_START_FIRE)
