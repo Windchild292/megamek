@@ -22,6 +22,7 @@ package megamek.client.ui.swing;
 import megamek.client.Client;
 import megamek.client.event.BoardViewEvent;
 import megamek.client.ui.Messages;
+import megamek.client.ui.swing.MovementDisplay.MoveCommand;
 import megamek.common.*;
 import megamek.common.Building.DemolitionCharge;
 import megamek.common.actions.BAVibroClawAttackAction;
@@ -29,7 +30,6 @@ import megamek.common.actions.BreakGrappleAttackAction;
 import megamek.common.actions.GrappleAttackAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
-import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.other.CLFireExtinguisher;
 import megamek.common.weapons.other.ISFireExtinguisher;
@@ -198,7 +198,7 @@ public class MapMenu extends JPopupMenu {
 
             // Traitor Command
             JMenuItem item = new JMenuItem(Messages.getString("MovementDisplay.Traitor"));
-            item.setActionCommand(MovementDisplay.MoveCommand.MOVE_TRAITOR.getCmd());
+            item.setActionCommand(MoveCommand.MOVE_TRAITOR.getCmd());
             item.addActionListener(evt -> {
                 try {
                     if (currentPanel instanceof MovementDisplay) {
@@ -209,7 +209,7 @@ public class MapMenu extends JPopupMenu {
                 }
             });
 
-            if (game.getPhase() == GamePhase.MOVEMENT) {
+            if (game.getPhase().isMovement()) {
                 add(item);
             }
         }

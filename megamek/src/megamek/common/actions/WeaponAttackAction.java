@@ -349,30 +349,25 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                 && (atype.getMunitionType() == AmmoType.M_INFERNO))
                 || (isWeaponInfantry && (wtype.hasFlag(WeaponType.F_INFERNO)));
         
-        boolean isArtilleryDirect = (wtype.hasFlag(WeaponType.F_ARTILLERY) ||
-                (wtype instanceof CapitalMissileWeapon
-                        && Compute.isGroundToGround(ae, target)))
-                && (game.getPhase() == GamePhase.FIRING);
+        boolean isArtilleryDirect = game.getPhase().isFiring()
+                && (wtype.hasFlag(WeaponType.F_ARTILLERY)
+                        || ((wtype instanceof CapitalMissileWeapon) && Compute.isGroundToGround(ae, target)));
         
         boolean isArtilleryIndirect = (wtype.hasFlag(WeaponType.F_ARTILLERY) ||
                 (wtype instanceof CapitalMissileWeapon
                         && Compute.isGroundToGround(ae, target)))
-                && ((game.getPhase() == GamePhase.TARGETING)
-                        || (game.getPhase() == GamePhase.OFFBOARD));
+                && (game.getPhase().isTargeting() || game.getPhase().isOffboard());
         
-        boolean isBearingsOnlyMissile = (weapon.isInBearingsOnlyMode())
-                            && ((game.getPhase() == GamePhase.TARGETING)
-                                    || (game.getPhase() == GamePhase.FIRING));
-        
+        boolean isBearingsOnlyMissile = weapon.isInBearingsOnlyMode()
+                && (game.getPhase().isTargeting() || game.getPhase().isFiring());
+
         boolean isCruiseMissile = (weapon.getType().hasFlag(WeaponType.F_CRUISE_MISSILE)
-                        || (wtype instanceof CapitalMissileWeapon
-                                && Compute.isGroundToGround(ae, target)));
+                || ((wtype instanceof CapitalMissileWeapon)
+                        && Compute.isGroundToGround(ae, target)));
         
         // hack, otherwise when actually resolves shot labeled impossible.
         boolean isArtilleryFLAK = isArtilleryDirect && (te != null)
-                && ((((te.getMovementMode() == EntityMovementMode.VTOL)
-                        || (te.getMovementMode() == EntityMovementMode.WIGE)) && te.isAirborneVTOLorWIGE())
-                        || (te.isAirborne()))
+                && ((te.getMovementMode().isVTOLOrWiGE() && te.isAirborneVTOLorWIGE()) || (te.isAirborne()))
                 && (atype != null) && (usesAmmo && (atype.getMunitionType() == AmmoType.M_STANDARD));
         
         boolean isHaywireINarced = ae.isINarcedWith(INarcPod.HAYWIRE);
@@ -423,17 +418,17 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
                 Mounted bayWAmmo = bayW.getLinked();
 
                 if (bayWAmmo == null) {
-                    //At present, all weapons below using mLinker use ammo, so this won't be a problem
+                    // At present, all weapons below using mLinker use ammo, so this won't be a problem
                     continue;
                 }
                 AmmoType bAmmo = (AmmoType) bayWAmmo.getType();
                 
-                //If we're using optional rules and firing Arrow Homing missiles from a bay...
+                // If we're using optional rules and firing Arrow Homing missiles from a bay...
                 isHoming = bAmmo != null && bAmmo.getMunitionType() == AmmoType.M_HOMING;
                 
-                //If the artillery bay is firing cruise missiles, they have some special rules
-                //It is possible to combine cruise missiles and other artillery in a bay, so
-                //set this to true if any of the weapons are cruise missile launchers.
+                // If the artillery bay is firing cruise missiles, they have some special rules
+                // It is possible to combine cruise missiles and other artillery in a bay, so
+                // set this to true if any of the weapons are cruise missile launchers.
                 if (bayW.getType().hasFlag(WeaponType.F_CRUISE_MISSILE)) {
                     isCruiseMissile = true;
                 }
@@ -452,7 +447,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         
         boolean inSameBuilding = Compute.isInSameBuilding(game, ae, te);
         
-        //Set up the target's relative elevation/depth
+        // Set up the target's relative elevation/depth
         int targEl;
 
         if (te == null) {
@@ -484,7 +479,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         }
         int toSubtract = 0;
         
-        //Convenience variable to test the targetable type value
+        // Convenience variable to test the targetable type value
         final int ttype = target.getTargetType();
       
         // if we're doing indirect fire, find a spotter
@@ -607,10 +602,10 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         int tElev = target.getElevation();
         int distance = Compute.effectiveDistance(game, ae, target);
         
-        //Set up our initial toHit data
+        // Set up our initial toHit data
         ToHitData toHit = new ToHitData();
         
-        //Check to see if this attack is impossible and return the reason code
+        // Check to see if this attack is impossible and return the reason code
         String reasonImpossible = WeaponAttackAction.toHitIsImpossible(game, ae, attackerId, target, ttype, los, losMods,
                 toHit, distance, spotter, wtype, weapon, weaponId, atype, ammo, munition,
                 isArtilleryDirect, isArtilleryFLAK, isArtilleryIndirect, isAttackerInfantry, isBearingsOnlyMissile,
@@ -619,64 +614,68 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         if (reasonImpossible != null) {
             return new ToHitData(TargetRoll.IMPOSSIBLE, reasonImpossible);
         }
-        
-        //Check to see if this attack is automatically successful and return the reason code
+
+        // Check to see if this attack is automatically successful and return the reason code
         String reasonAutoHit = WeaponAttackAction.toHitIsAutomatic(game, ae, target, ttype, los, distance,
                 wtype, weapon, isBearingsOnlyMissile);
         if (reasonAutoHit != null) {
             return new ToHitData(TargetRoll.AUTOMATIC_SUCCESS, reasonAutoHit);
         }
-        
+
         SpecialResolutionTracker srt = new SpecialResolutionTracker();
         srt.setSpecialResolution(false);
-        //Is this an infantry leg/swarm attack?
+        // Is this an infantry leg/swarm attack?
         toHit = handleInfantrySwarmAttacks(game, ae, target, ttype, toHit, wtype, srt);
         if (srt.isSpecialResolution()) {
             return toHit;
         }
-        
-        //Check to see if this attack was made with a weapon that has special to-hit rules
+
+        // Check to see if this attack was made with a weapon that has special to-hit rules
         toHit = handleSpecialWeaponAttacks(game, ae, target, ttype, los, toHit, wtype, atype, srt);
         if (srt.isSpecialResolution()) {
             return toHit;
         }
-        
-        //This attack has now tested possible and doesn't follow any weird special rules,
-        //so let's start adding up the to-hit numbers
-        
-        //Start with the attacker's weapon skill
+
+        // This attack has now tested possible and doesn't follow any weird special rules,
+        // so let's start adding up the to-hit numbers
+
+        // Start with the attacker's weapon skill
         toHit = new ToHitData(ae.getCrew().getGunnery(), Messages.getString("WeaponAttackAction.GunSkill"));
         if (game.getOptions().booleanOption(OptionsConstants.RPG_RPG_GUNNERY)) {
             if (wtype.hasFlag(WeaponType.F_ENERGY)) {
                 toHit = new ToHitData(ae.getCrew().getGunneryL(), Messages.getString("WeaponAttackAction.GunLSkill"));
             }
+
             if (wtype.hasFlag(WeaponType.F_MISSILE)) {
                 toHit = new ToHitData(ae.getCrew().getGunneryM(), Messages.getString("WeaponAttackAction.GunMSkill"));
             }
+
             if (wtype.hasFlag(WeaponType.F_BALLISTIC)) {
                 toHit = new ToHitData(ae.getCrew().getGunneryB(), Messages.getString("WeaponAttackAction.GunBSkill"));
             }
         }
+
         if (wtype.hasFlag(WeaponType.F_ARTILLERY) && game.getOptions().booleanOption(OptionsConstants.RPG_ARTILLERY_SKILL)) {
             toHit = new ToHitData(ae.getCrew().getArtillery(), Messages.getString("WeaponAttackAction.ArtySkill"));
         }
-        
+
         // Is this an Artillery attack?
         if (isArtilleryDirect || isArtilleryIndirect) {
             toHit = handleArtilleryAttacks(game, ae, target, ttype, losMods, toHit, wtype, weapon, atype, isArtilleryDirect,
                     isArtilleryFLAK, isArtilleryIndirect, isHoming, usesAmmo, srt);
         }
+
         if (srt.isSpecialResolution()) {
             return toHit;
         }
-        
-        //Mine launchers have their own base to-hit, but can still be affected by terrain and movement modifiers
-        //thus, they don't qualify for special weapon handling
+
+        // Mine launchers have their own base to-hit, but can still be affected by terrain and movement modifiers.
+        // Thus, they don't qualify for special weapon handling
         if (BattleArmor.MINE_LAUNCHER.equals(wtype.getInternalName())) {
             toHit = new ToHitData(8, Messages.getString("WeaponAttackAction.MagMine"));
         }
 
-        // TODO: mech making DFA could be higher if DFA target hex is higher
+        // TODO : mech making DFA could be higher if DFA target hex is higher
         // BMRr pg. 43, "attacking unit is considered to be in the air
         // above the hex, standing on an elevation 1 level higher than
         // the target hex or the elevation of the hex the attacker is
@@ -798,11 +797,7 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         LosEffects los = LosEffects.calculateLOS(game, ae, target);
 
         if (ae.hasActiveEiCockpit()) {
-            if (los.getLightWoods() > 0) {
-                eistatus = 2;
-            } else {
-                eistatus = 1;
-            }
+            eistatus = (los.getLightWoods() > 0) ? 2 : 1;
         }
 
         ToHitData losMods = los.losModifiers(game, eistatus, ae.isUnderwater());

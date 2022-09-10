@@ -29668,10 +29668,10 @@ public class GameManager implements IGameManager {
         send(createRemoveEntityPacket(ids, affectedForces, IEntityRemovalConditions.REMOVE_NEVER_JOINED));
 
         // Prevents deployment hanging. Only do this during deployment.
-        if (game.getPhase() == GamePhase.DEPLOYMENT) {
+        if (getGame().getPhase().isDeployment()) {
             for (Integer entityId : ids) {
-                final Entity entity = game.getEntity(entityId);
-                game.removeEntity(entityId, IEntityRemovalConditions.REMOVE_NEVER_JOINED);
+                final Entity entity = getGame().getEntity(entityId);
+                getGame().removeEntity(entityId, IEntityRemovalConditions.REMOVE_NEVER_JOINED);
                 endCurrentTurn(entity);
             }
         }
@@ -29682,15 +29682,15 @@ public class GameManager implements IGameManager {
      */
     private void receivePlayerDone(Packet pkt, int connIndex) {
         boolean ready = pkt.getBooleanValue(0);
-        Player player = game.getPlayer(connIndex);
+        Player player = getGame().getPlayer(connIndex);
         if (null != player) {
             player.setDone(ready);
         }
     }
 
     private void receiveInitiativeRerollRequest(Packet pkt, int connIndex) {
-        Player player = game.getPlayer(connIndex);
-        if (GamePhase.INITIATIVE_REPORT != game.getPhase()) {
+        Player player = getGame().getPlayer(connIndex);
+        if (!getGame().getPhase().isInitiativeReport()) {
             StringBuilder message = new StringBuilder();
             if (null == player) {
                 message.append("Player #").append(connIndex);
@@ -29702,12 +29702,15 @@ public class GameManager implements IGameManager {
             sendServerChat(message.toString());
             return;
         }
-        if (game.hasTacticalGenius(player)) {
-            game.addInitiativeRerollRequest(game.getTeamForPlayer(player));
+
+        if (getGame().hasTacticalGenius(player)) {
+            getGame().addInitiativeRerollRequest(getGame().getTeamForPlayer(player));
         }
+
         if (null != player) {
             player.setDone(true);
         }
+
         checkReady();
     }
 
@@ -29718,7 +29721,7 @@ public class GameManager implements IGameManager {
      * @return true if any options have been successfully changed.
      */
     private boolean receiveGameOptions(Packet packet, int connId) {
-        Player player = game.getPlayer(connId);
+        Player player = getGame().getPlayer(connId);
         // Check player
         if (null == player) {
             LogManager.getLogger().error("Server does not recognize player at connection " + connId);
@@ -29731,7 +29734,7 @@ public class GameManager implements IGameManager {
             return false;
         }
 
-        if (game.getPhase().isDuringOrAfter(GamePhase.DEPLOYMENT)) {
+        if (getGame().getPhase().isDuringOrAfter(GamePhase.DEPLOYMENT)) {
             return false;
         }
 
@@ -29739,7 +29742,7 @@ public class GameManager implements IGameManager {
 
         for (Enumeration<?> i = ((Vector<?>) packet.getObject(1)).elements(); i.hasMoreElements(); ) {
             IBasicOption option = (IBasicOption) i.nextElement();
-            IOption originalOption = game.getOptions().getOption(option.getName());
+            IOption originalOption = getGame().getOptions().getOption(option.getName());
 
             if (originalOption == null) {
                 continue;
@@ -29753,10 +29756,10 @@ public class GameManager implements IGameManager {
         }
 
         // Set proper RNG
-        Compute.setRNG(game.getOptions().intOption(OptionsConstants.BASE_RNG_TYPE));
+        Compute.setRNG(getGame().getOptions().intOption(OptionsConstants.BASE_RNG_TYPE));
 
         if (changed > 0) {
-            for (Entity en : game.getEntitiesVector()) {
+            for (Entity en : getGame().getEntitiesVector()) {
                 en.setGameOptions();
             }
             entityAllUpdate();
@@ -33005,21 +33008,21 @@ public class GameManager implements IGameManager {
      * let all Entities make their "break-free-of-swamp-stickyness" PSR
      */
     private void doTryUnstuck() {
-        if (game.getPhase() != GamePhase.MOVEMENT) {
+        if (!getGame().getPhase().isMovement()) {
             return;
         }
 
         Report r;
 
-        Iterator<Entity> stuckEntities = game.getSelectedEntities(Entity::isStuck);
+        Iterator<Entity> stuckEntities = getGame().getSelectedEntities(Entity::isStuck);
         PilotingRollData rollTarget;
         while (stuckEntities.hasNext()) {
             Entity entity = stuckEntities.next();
             if (entity.getPosition() == null) {
                 if (entity.isDeployed()) {
                     LogManager.getLogger().info("Entity #" + entity.getId() + " does not know its position.");
-                } else { // If the Entity isn't deployed, then something goofy
-                    // happened.  We'll just unstuck the Entity
+                } else {
+                    // If the Entity isn't deployed, then something goofy happened. We'll just unstuck the Entity
                     entity.setStuck(false);
                     LogManager.getLogger().info("Entity #" + entity.getId() + " was stuck in a swamp, but not deployed. Stuck state reset");
                 }
@@ -33062,8 +33065,8 @@ public class GameManager implements IGameManager {
      * able to choose whether or not to remove all iNarc Pods that are attached.
      */
     private void resolveVeeINarcPodRemoval() {
-        Iterator<Entity> vees = game.getSelectedEntities(
-                entity -> (entity instanceof Tank) && (entity.mpUsed == 0));
+        Iterator<Entity> vees = game.getSelectedEntities(entity ->
+                (entity instanceof Tank) && (entity.mpUsed == 0));
         boolean canSwipePods;
         while (vees.hasNext()) {
             canSwipePods = true;
@@ -33073,11 +33076,12 @@ public class GameManager implements IGameManager {
                     canSwipePods = false;
                 }
             }
+
             if (((Tank) entity).getStunnedTurns() > 0) {
                 canSwipePods = false;
             }
-            if (canSwipePods && entity.hasINarcPodsAttached()
-                    && entity.getCrew().isActive()) {
+
+            if (canSwipePods && entity.hasINarcPodsAttached() && entity.getCrew().isActive()) {
                 entity.removeAllINarcPods();
                 Report r = new Report(2345);
                 r.addDesc(entity);
@@ -33104,17 +33108,14 @@ public class GameManager implements IGameManager {
             for (Entity e : game.getEntitiesVector(c)) {
                 // If the unit is on the surface, and is no longer allowed in
                 // the hex
-                boolean isHoverOrWiGE = (e.getMovementMode() == EntityMovementMode.HOVER)
-                        || (e.getMovementMode() == EntityMovementMode.WIGE);
+                boolean isHoverOrWiGE = e.getMovementMode().isHoverOrWiGE();
                 if ((e.getElevation() == 0)
                         && !(hex.containsTerrain(Terrains.BLDG_ELEV, 0))
                         && !(isHoverOrWiGE && (e.getRunMP() >= 0))
-                        && (e.getMovementMode() != EntityMovementMode.INF_UMU)
-                        && !e.hasUMU()
+                        && !e.getMovementMode().isUMUInfantry() && !e.hasUMU()
                         && !(e instanceof QuadVee && e.getConversionMode() == QuadVee.CONV_MODE_VEHICLE)) {
                     vPhaseReport.addAll(doEntityFallsInto(e, c,
-                            new PilotingRollData(TargetRoll.AUTOMATIC_FAIL),
-                            true));
+                            new PilotingRollData(TargetRoll.AUTOMATIC_FAIL), true));
                 }
             }
         }

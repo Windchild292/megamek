@@ -19,7 +19,7 @@ public class QuadVee extends QuadMech {
     public static final String[] systemNames = { "Life Support", "Sensors",
             "Cockpit", "Engine", "Gyro", null, null, "Shoulder", "Upper Arm",
             "Lower Arm", "Hand", "Hip", "Upper Leg", "Lower Leg", "Foot",
-            "Conversion Gear"};
+            "Conversion Gear" };
     
     public static final int MOTIVE_UNKNOWN = -1;
     public static final int MOTIVE_TRACK = 0;

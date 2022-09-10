@@ -24,9 +24,9 @@ import megamek.client.ui.swing.util.TurnTimer;
 import megamek.client.ui.swing.widget.MegamekButton;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
+import megamek.common.GameTurn.TriggerBPodTurn;
 import megamek.common.actions.*;
 import megamek.common.enums.AimingMode;
-import megamek.common.enums.GamePhase;
 import megamek.common.event.GamePhaseChangeEvent;
 import megamek.common.event.GameTurnChangeEvent;
 import megamek.common.options.OptionsConstants;
@@ -34,7 +34,6 @@ import megamek.common.util.FiringSolution;
 import megamek.common.weapons.Weapon;
 import megamek.common.weapons.capitalweapons.CapitalMissileWeapon;
 import megamek.common.weapons.mortars.VehicularGrenadeLauncherWeapon;
-
 import org.apache.logging.log4j.LogManager;
 
 import javax.swing.*;
@@ -855,10 +854,10 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
                 attacks.addElement(actions.nextElement());
             }
             ready();
-        } else if ((turn instanceof GameTurn.TriggerBPodTurn) && (null != ce())) {
+        } else if ((turn instanceof TriggerBPodTurn) && (null != ce())) {
             disableButtons();
             TriggerBPodDialog dialog = new TriggerBPodDialog(clientgui, ce(),
-                    ((GameTurn.TriggerBPodTurn) turn).getAttackType());
+                    ((TriggerBPodTurn) turn).getAttackType());
             dialog.setVisible(true);
             attacks.removeAllElements();
             Enumeration<TriggerBPodAction> actions = dialog.getActions();
@@ -892,9 +891,8 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
         // end my turn, then.
         Game game = clientgui.getClient().getGame();
         Entity next = game.getNextEntity(game.getTurnIndex());
-        if ((game.getPhase() == GamePhase.FIRING)
-            && (next != null) && (ce() != null)
-            && (next.getOwnerId() != ce().getOwnerId())) {
+        if (game.getPhase().isFiring() && (next != null) && (ce() != null)
+                && (next.getOwnerId() != ce().getOwnerId())) {
             clientgui.setUnitDisplayVisible(false);
         }
         cen = Entity.NONE;
@@ -1054,8 +1052,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
     /**
      * Get the next target. Return null if we don't have any targets.
      */
-    private Entity getNextTarget(boolean nextOrPrev, boolean onlyValid,
-            boolean ignoreAllies) {
+    private Entity getNextTarget(boolean nextOrPrev, boolean onlyValid, boolean ignoreAllies) {
         if (visibleTargets == null) {
             return null;
         }
@@ -1072,20 +1069,24 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
             } else {
                 lastTargetID--;
             }
+
             // Check bounds
             if (lastTargetID < 0) {
                 lastTargetID = visibleTargets.length - 1;
             } else if (lastTargetID >= visibleTargets.length) {
                 lastTargetID = 0;
             }
-            //If we've cycled through all visible targets without finding a valid one, stop looping
+
+            // If we've cycled through all visible targets without finding a valid one, stop looping
             count++;
             if (count > visibleTargets.length) {
                 return null;
             }
+
             // Store target
             result = visibleTargets[lastTargetID];
             done = true;
+
             // Check done
             if (onlyValid) {
                 ToHitData toHit = WeaponAttackAction.toHit(
@@ -1096,6 +1097,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
                         && toHit.getValue() != TargetRoll.IMPOSSIBLE
                         && toHit.getValue() <= 12;
             }
+
             if (ignoreAllies) {
                 done &= result.isEnemyOf(ce());
             }
@@ -1360,8 +1362,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
         }
 
         // create and queue a searchlight action
-        SearchlightAttackAction saa = new SearchlightAttackAction(cen,
-                target.getTargetType(), target.getTargetId());
+        SearchlightAttackAction saa = new SearchlightAttackAction(cen, target.getTargetType(), target.getTargetId());
         attacks.addElement(saa);
 
         // and add it into the game, temporarily
@@ -1376,8 +1377,7 @@ public class FiringDisplay extends StatusBarPhaseDisplay implements ItemListener
         target(null);
         clearAttacks();
         isStrafing = true;
-        setStatusBarText(Messages
-                .getString("FiringDisplay.Strafing.StatusLabel"));
+        setStatusBarText(Messages.getString("FiringDisplay.Strafing.StatusLabel"));
         refreshAll();
     }
 

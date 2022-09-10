@@ -18,6 +18,7 @@ import megamek.client.bot.princess.CardinalEdge;
 import megamek.client.ui.swing.ClientGUI;
 import megamek.client.ui.swing.ReportDisplay;
 import megamek.common.*;
+import megamek.common.GameTurn.SpecificEntityTurn;
 import megamek.common.actions.EntityAction;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.annotations.Nullable;
@@ -70,7 +71,7 @@ public abstract class BotClient extends Client {
         
         boardClusterTracker = new BoardClusterTracker();
         
-        game.addGameListener(new GameListenerAdapter() {
+        getGame().addGameListener(new GameListenerAdapter() {
 
             @Override
             public void gamePlayerChat(GamePlayerChatEvent e) {
@@ -91,7 +92,7 @@ public abstract class BotClient extends Client {
                     // Run bot's turn processing in a separate thread.
                     // So calling thread is free to process the other actions.
                     Thread worker = new Thread(new CalculateBotTurn(),
-                            getName() + " Turn " + game.getTurnIndex() + " Calc Thread"
+                            getName() + " Turn " + getGame().getTurnIndex() + " Calc Thread"
                     );
                     worker.start();
                     calculatedTurnsThisPhase++;
@@ -116,7 +117,7 @@ public abstract class BotClient extends Client {
 
             @Override
             public void gameReport(GameReportEvent e) {
-                if (game.getPhase() == GamePhase.INITIATIVE_REPORT) {
+                if (getGame().getPhase().isInitiativeReport()) {
                     // Opponent has used tactical genius, must press
                     // "Done" again to advance past initiative report.
                     sendDone(true);
@@ -136,13 +137,13 @@ public abstract class BotClient extends Client {
                     case CFR_AMS_ASSIGN:
                         // Picks the WAA with the highest expected damage,
                         //  essentially same as if the auto_ams option was on
-                        WeaponAttackAction waa = Compute.getHighestExpectedDamage(game, evt.getWAAs(), true);
+                        WeaponAttackAction waa = Compute.getHighestExpectedDamage(getGame(), evt.getWAAs(), true);
                         sendAMSAssignCFRResponse(evt.getWAAs().indexOf(waa));
                         break;
                     case CFR_APDS_ASSIGN:
                         // Picks the WAA with the highest expected damage,
                         //  essentially same as if the auto_ams option was on
-                        waa = Compute.getHighestExpectedDamage(game, evt.getWAAs(), true);
+                        waa = Compute.getHighestExpectedDamage(getGame(), evt.getWAAs(), true);
                         sendAPDSAssignCFRResponse(evt.getWAAs().indexOf(waa));
                         break;
                     case CFR_HIDDEN_PBS:
@@ -210,7 +211,7 @@ public abstract class BotClient extends Client {
      * Does nothing in this implementation.
      */
     protected void calculateTargetingOffBoardTurn() {
-        sendAttackData(game.getFirstEntityNum(getMyTurn()),
+        sendAttackData(getGame().getFirstEntityNum(getMyTurn()),
                 new Vector<>(0));
         sendDone(true);
     }
@@ -220,7 +221,7 @@ public abstract class BotClient extends Client {
      * currently does nothing other than end turn
      */
     protected void calculatePrephaseTurn() {
-        sendPrephaseData(game.getFirstEntityNum(getMyTurn()));
+        sendPrephaseData(getGame().getFirstEntityNum(getMyTurn()));
         sendDone(true);
     }
 
@@ -269,7 +270,7 @@ public abstract class BotClient extends Client {
             Entity transport = currentEntity.getTransportId() != Entity.NONE ? getGame().getEntity(currentEntity.getTransportId()) : null;
             
             if (transport != null && transport.isPermanentlyImmobilized(true)) {
-                boolean stackingViolation = null != Compute.stackingViolation(game, currentEntity.getId(), transport.getPosition());
+                boolean stackingViolation = null != Compute.stackingViolation(getGame(), currentEntity.getId(), transport.getPosition());
                 boolean unloadFatal = currentEntity.isBoardProhibited(getGame().getBoard().getType()) ||
                         currentEntity.isLocationProhibited(transport.getPosition());
                         
@@ -289,7 +290,7 @@ public abstract class BotClient extends Client {
     
     public List<Entity> getEntitiesOwned() {
         ArrayList<Entity> result = new ArrayList<>();
-        for (Entity entity : game.getEntitiesVector()) {
+        for (Entity entity : getGame().getEntitiesVector()) {
             if (entity.getOwner().equals(getLocalPlayer())
                 && (entity.getPosition() != null) && !entity.isOffBoard()) {
                 result.add(entity);
@@ -299,7 +300,7 @@ public abstract class BotClient extends Client {
     }
     
     protected Entity getArbitraryEntity() {
-        for (Entity entity : game.getEntitiesVector()) {
+        for (Entity entity : getGame().getEntitiesVector()) {
             if (entity.getOwner().equals(getLocalPlayer())) {
                 return entity;
             }
@@ -315,7 +316,7 @@ public abstract class BotClient extends Client {
     public List<Entity> getEnemyEntities() {
         if (currentTurnEnemyEntities == null) {
             currentTurnEnemyEntities = new ArrayList<>();
-            for (Entity entity : game.getEntitiesVector()) {
+            for (Entity entity : getGame().getEntitiesVector()) {
                 if (entity.getOwner().isEnemyOf(getLocalPlayer())
                     && (entity.getPosition() != null) && !entity.isOffBoard()
                     && (entity.getCrew() != null) && !entity.getCrew().isDead()) {
@@ -335,7 +336,7 @@ public abstract class BotClient extends Client {
     public List<Entity> getFriendEntities() {
         if (currentTurnFriendlyEntities == null) {
             currentTurnFriendlyEntities = new ArrayList<>();
-            for (Entity entity : game.getEntitiesVector()) {
+            for (Entity entity : getGame().getEntitiesVector()) {
                 if (!entity.getOwner().isEnemyOf(getLocalPlayer()) && (entity.getPosition() != null)
                     && !entity.isOffBoard()) {
                     currentTurnFriendlyEntities.add(entity);
@@ -372,9 +373,9 @@ public abstract class BotClient extends Client {
                      */
                     // if the game is not double blind and I can't see anyone
                     // else on the board I should kill myself.
-                    if (!(game.getOptions().booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND))
-                        && ((game.getEntitiesOwnedBy(getLocalPlayer())
-                             - game.getNoOfEntities()) == 0)) {
+                    if (!(getGame().getOptions().booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND))
+                        && ((getGame().getEntitiesOwnedBy(getLocalPlayer())
+                             - getGame().getNoOfEntities()) == 0)) {
                         die();
                     }
 
@@ -426,10 +427,10 @@ public abstract class BotClient extends Client {
 
     private void runEndGame() {
         // Make a list of the player's living units.
-        ArrayList<Entity> living = game.getPlayerEntities(getLocalPlayer(), false);
+        ArrayList<Entity> living = getGame().getPlayerEntities(getLocalPlayer(), false);
 
         // Be sure to include all units that have retreated.
-        for (Enumeration<Entity> iter = game.getRetreatedEntities(); iter.hasMoreElements(); ) {
+        for (Enumeration<Entity> iter = getGame().getRetreatedEntities(); iter.hasMoreElements(); ) {
             Entity ent = iter.nextElement();
             if (ent.getOwnerId() == getLocalPlayer().getId()) {
                 living.add(ent);
@@ -506,55 +507,66 @@ public abstract class BotClient extends Client {
         currentTurnFriendlyEntities = null;
 
         try {
-            if (game.getPhase() == GamePhase.MOVEMENT) {
-                MovePath mp;
-                if (game.getTurn() instanceof GameTurn.SpecificEntityTurn) {
-                    GameTurn.SpecificEntityTurn turn = (GameTurn.SpecificEntityTurn) game.getTurn();
-                    Entity mustMove = game.getEntity(turn.getEntityNum());
-                    mp = continueMovementFor(mustMove);
-                } else {
-                    if (config.isForcedIndividual()) {
-                        Entity mustMove = getRandomUnmovedEntity();
+            switch (getGame().getPhase()) {
+                case MOVEMENT: {
+                    final MovePath mp;
+                    if (getGame().getTurn() instanceof SpecificEntityTurn) {
+                        final SpecificEntityTurn turn = (SpecificEntityTurn) getGame().getTurn();
+                        final Entity mustMove = getGame().getEntity(turn.getEntityNum());
+                        mp = continueMovementFor(mustMove);
+                    } else if (config.isForcedIndividual()) {
+                        final Entity mustMove = getRandomUnmovedEntity();
                         mp = continueMovementFor(mustMove);
                     } else {
                         mp = calculateMoveTurn();
                     }
+                    moveEntity(mp.getEntity().getId(), mp);
+                    break;
                 }
-                moveEntity(mp.getEntity().getId(), mp);
-            } else if (game.getPhase() == GamePhase.FIRING) {
-                calculateFiringTurn();
-            } else if (game.getPhase() == GamePhase.PHYSICAL) {
-                PhysicalOption po = calculatePhysicalTurn();
-                // Bug #1072137: don't crash if the bot can't find a physical.
-                if (null != po) {
-                    sendAttackData(po.attacker.getId(), po.getVector());
-                } else {
-                    // Send a "no attack" to clear the game turn, if any.
-                    sendAttackData(game.getFirstEntityNum(getMyTurn()),
-                                   new Vector<>(0));
+                case FIRING:
+                    calculateFiringTurn();
+                    break;
+                case PHYSICAL: {
+                    final PhysicalOption po = calculatePhysicalTurn();
+                    // Bug #1072137: don't crash if the bot can't find a physical.
+                    if (po == null) {
+                        // Send a "no attack" to clear the game turn, if any.
+                        sendAttackData(getGame().getFirstEntityNum(getMyTurn()), new Vector<>(0));
+                    } else {
+                        sendAttackData(po.attacker.getId(), po.getVector());
+                    }
+                    break;
                 }
-            } else if (game.getPhase() == GamePhase.DEPLOYMENT) {
-                calculateDeployment();
-            } else if (game.getPhase() == GamePhase.DEPLOY_MINEFIELDS) {
-                Vector<Minefield> mines = calculateMinefieldDeployment();
-                for (Minefield mine : mines) {
-                    game.addMinefield(mine);
+                case DEPLOYMENT:
+                    calculateDeployment();
+                    break;
+                case DEPLOY_MINEFIELDS: {
+                    final Collection<Minefield> minefields = calculateMinefieldDeployment();
+                    for (final Minefield minefield : minefields) {
+                        getGame().addMinefield(minefield);
+                    }
+                    sendDeployMinefields(minefields);
+                    sendPlayerInfo();
+                    break;
                 }
-                sendDeployMinefields(mines);
-                sendPlayerInfo();
-            } else if (game.getPhase() == GamePhase.SET_ARTILLERY_AUTOHIT_HEXES) {
-                // For now, declare no autohit hexes.
-                Vector<Coords> autoHitHexes = calculateArtyAutoHitHexes();
-                sendArtyAutoHitHexes(autoHitHexes);
-            } else if ((game.getPhase() == GamePhase.TARGETING)
-                       || (game.getPhase() == GamePhase.OFFBOARD)) {
-                // Princess implements arty targeting
-                calculateTargetingOffBoardTurn();
-            } else if ((game.getPhase() == GamePhase.PREMOVEMENT)
-                    || (game.getPhase() == GamePhase.PREFIRING)) {
-                calculatePrephaseTurn();
+                case SET_ARTILLERY_AUTOHIT_HEXES:
+                    // For now, declare no autohit hexes.
+                    final Vector<Coords> autoHitHexes = calculateArtyAutoHitHexes();
+                    sendArtyAutoHitHexes(autoHitHexes);
+                    break;
+                case TARGETING:
+                case OFFBOARD:
+                    // Princess implements arty targeting
+                    calculateTargetingOffBoardTurn();
+                    break;
+                case PREMOVEMENT:
+                case PREFIRING:
+                    calculatePrephaseTurn();
+                    break;
+                default:
+                    break;
             }
-            
+
             return true;
         } catch (Exception ex) {
             LogManager.getLogger().error("", ex);

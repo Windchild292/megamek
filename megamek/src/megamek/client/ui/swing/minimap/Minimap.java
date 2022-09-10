@@ -56,6 +56,7 @@ import java.io.Reader;
 import java.io.StreamTokenizer;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static megamek.client.ui.swing.minimap.MinimapUnitSymbols.STRAT_BASERECT;
 import static megamek.client.ui.swing.minimap.MinimapUnitSymbols.STRAT_CX;
@@ -509,7 +510,7 @@ public final class Minimap extends JPanel implements IPreferenceChangeListener {
                     }
                     addRoadElements(h, j, k);
                     // Color invalid hexes red when in the Map Editor
-                    if ((game != null) && (game.getPhase() == GamePhase.UNKNOWN) && !h.isValid(null)) {
+                    if ((game != null) && game.getPhase().isUnknown() && !h.isValid(null)) {
                         gg.setColor(GUIPreferences.getInstance().getWarningColor());
                         paintCoord(gg, j, k, true);
                     }
@@ -570,8 +571,7 @@ public final class Minimap extends JPanel implements IPreferenceChangeListener {
     
     /** Indicates the deployment hexes. */
     private void drawDeploymentZone(Graphics g) {
-        if ((null != client) && (null != game) 
-                && (GamePhase.DEPLOYMENT == game.getPhase()) && (dialog != null)) {
+        if ((client != null) && (game != null) && (dialog != null) && game.getPhase().isDeployment()) {
             GameTurn turn = game.getTurn();
             if ((turn != null) && (turn.getPlayerNum() == client.getLocalPlayer().getId())) {
                 Entity deployingUnit = bv.getDeployingEntity();
@@ -1351,22 +1351,21 @@ public final class Minimap extends JPanel implements IPreferenceChangeListener {
     private final GameListener gameListener = new GameListenerAdapter() {
         @Override
         public void gamePhaseChange(GamePhaseChangeEvent e) {
-            if (GUIPreferences.getInstance().getGameSummaryMinimap() && ((e.getOldPhase() == GamePhase.DEPLOYMENT)
-                    || (e.getOldPhase() == GamePhase.MOVEMENT) || (e.getOldPhase() == GamePhase.TARGETING)
-                    || (e.getOldPhase() == GamePhase.PREMOVEMENT) || (e.getOldPhase() == GamePhase.PREFIRING)
-                    || (e.getOldPhase() == GamePhase.FIRING) || (e.getOldPhase() == GamePhase.PHYSICAL))) {
+            if (GUIPreferences.getInstance().getGameSummaryMinimap()
+                    && Stream.of(GamePhase.DEPLOYMENT, GamePhase.MOVEMENT, GamePhase.TARGETING,
+                            GamePhase.PREMOVEMENT, GamePhase.PREFIRING, GamePhase.FIRING, GamePhase.PHYSICAL)
+                            .anyMatch(gamePhase -> (e.getOldPhase() == gamePhase))) {
                 File dir = new File(Configuration.gameSummaryImagesMMDir(), game.getUUIDString());
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
-                File imgFile = new File(dir, "round_" + game.getRoundCount() + "_" + e.getOldPhase().ordinal() + "_"
+                File imgFile = new File(dir, "round_" + game.getRoundCount() + '_' + e.getOldPhase().ordinal() + '_'
                         + e.getOldPhase() + ".png");
                 try {
                     ImageIO.write(getMinimapImage(game, bv, GAME_SUMMARY_ZOOM), "png", imgFile);
                 } catch (Exception ex) {
                     LogManager.getLogger().error("", ex);
                 }
-
             }
             refreshMap();
         }

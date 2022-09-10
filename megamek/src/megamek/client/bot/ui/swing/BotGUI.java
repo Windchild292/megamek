@@ -1,16 +1,16 @@
 /*
  * MegaMek -
  * Copyright (C) 2007 Ben Mazur (bmazur@sev.org)
- * 
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the License, or (at your option)
- *  any later version.
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- *  for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.client.bot.ui.swing;
 
@@ -19,30 +19,28 @@ import megamek.client.bot.Messages;
 import megamek.client.ui.dialogs.helpDialogs.BotHelpDialog;
 import megamek.client.ui.swing.ConfirmDialog;
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.common.enums.GamePhase;
 import megamek.common.event.*;
 
 import javax.swing.*;
 
 public class BotGUI implements GameListener {
     private BotClient bot;
-    private static boolean WarningShown;
+    private static boolean warningShown;
 
     public BotGUI(BotClient bot) {
         this.bot = bot;
     }
 
     @Override
-    public void gamePhaseChange(GamePhaseChangeEvent e) {
-        if (bot.getGame().getPhase() == GamePhase.LOUNGE
-                || bot.getGame().getPhase() == GamePhase.STARTING_SCENARIO) {
+    public void gamePhaseChange(final GamePhaseChangeEvent evt) {
+        if (bot.getGame().getPhase().isLounge() || bot.getGame().getPhase().isStartingScenario()) {
             notifyOfBot();
         }
     }
 
     public void notifyOfBot() {
-        if (GUIPreferences.getInstance().getNagForBotReadme() && !WarningShown) {
-            WarningShown = true;
+        if (GUIPreferences.getInstance().getNagForBotReadme() && !warningShown) {
+            warningShown = true;
             
             JFrame frame = new JFrame();
             String title = Messages.getString("BotGUI.notifyOfBot.title");

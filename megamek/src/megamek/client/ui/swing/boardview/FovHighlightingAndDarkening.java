@@ -3,7 +3,6 @@ package megamek.client.ui.swing.boardview;
 import megamek.client.ui.swing.GUIPreferences;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
-import megamek.common.enums.GamePhase;
 import megamek.common.enums.IlluminationLevel;
 import megamek.common.event.GameListener;
 import megamek.common.event.GameListenerAdapter;
@@ -97,19 +96,14 @@ class FovHighlightingAndDarkening {
         boolean highlight = gs.getBoolean(GUIPreferences.FOV_HIGHLIGHT);
         boolean darken = gs.getBoolean(GUIPreferences.FOV_DARKEN);
 
-        if ((darken || highlight)
-                && (this.boardView1.game.getPhase() == GamePhase.MOVEMENT)) {
-
+        if ((darken || highlight) && boardView1.game.getPhase().isMovement()) {
             final int pad = 0;
             final int lw = 7;
 
-            boolean sensorsOn = (boardView1.game.getOptions().booleanOption(
-                    OptionsConstants.ADVANCED_TACOPS_SENSORS)
+            boolean sensorsOn = (boardView1.game.getOptions().booleanOption(OptionsConstants.ADVANCED_TACOPS_SENSORS)
                     || boardView1.game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_STRATOPS_ADVANCED_SENSORS));
-            boolean doubleBlindOn = boardView1.game.getOptions().booleanOption(
-                    OptionsConstants.ADVANCED_DOUBLE_BLIND);
-            boolean inclusiveSensorsOn = boardView1.game.getOptions().booleanOption(
-                    OptionsConstants.ADVANCED_INCLUSIVE_SENSOR_RANGE);
+            boolean doubleBlindOn = boardView1.game.getOptions().booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND);
+            boolean inclusiveSensorsOn = boardView1.game.getOptions().booleanOption(OptionsConstants.ADVANCED_INCLUSIVE_SENSOR_RANGE);
 
             // Determine if any of the entities at the coordinates are illuminated, or if the
             // coordinates are illuminated themselves

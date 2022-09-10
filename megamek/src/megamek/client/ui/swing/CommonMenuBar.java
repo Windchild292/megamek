@@ -370,36 +370,34 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
      * the action event will inform the listener as to which menu item that has
      * been selected. Not all listeners will be interested in all menu items.
      *
-     * @param listener - the <code>ActionListener</code> that wants to
-     *            register itself.
+     * @param listener the <code>ActionListener</code> that wants to register itself.
      */
     public synchronized void addActionListener(ActionListener listener) {
         actionListeners.add(listener);
     }
 
     /**
-     * Remove an object that was being alerted when an item on this menu bar was
-     * selected.
+     * Remove an object that was being alerted when an item on this menu bar was selected.
      *
-     * @param listener - the <code>ActionListener</code> that wants to be
-     *            removed.
+     * @param listener the <code>ActionListener</code> that wants to be removed.
      */
     public synchronized void removeActionListener(ActionListener listener) {
         actionListeners.remove(listener);
     }
 
-    /** Manages the enabled states of the menu items depending on where the menu is empoyed. */
+    /**
+     * Manages the enabled states of the menu items depending on where the menu is employed.
+     */
     private synchronized void updateEnabledStates() {
-        boolean isLobby = isGame && (phase == GamePhase.LOUNGE);
+        boolean isLobby = isGame && phase.isLounge();
         boolean isInGame = isGame && phase.isDuringOrAfter(GamePhase.DEPLOYMENT);
         boolean isInGameBoardView = isInGame && phase.isOnMap();
         boolean isBoardView = isInGameBoardView || isBoardEditor;
-        boolean canSave = (phase != GamePhase.UNKNOWN) && (phase != GamePhase.SELECTION)
-                && (phase != GamePhase.EXCHANGE) && (phase != GamePhase.VICTORY)
-                && (phase != GamePhase.STARTING_SCENARIO);
-        
+        boolean canSave = !phase.isUnknown() && !phase.isSelection() && !phase.isExchange()
+                && !phase.isVictory() && !phase.isStartingScenario();
+
         viewAccessibilityWindow.setEnabled(false);
-        
+
         boardChangeTheme.setEnabled(isBoardEditor);
         boardUndo.setEnabled(isBoardEditor);
         boardRedo.setEnabled(isBoardEditor);
@@ -471,7 +469,7 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
         phase = current;
         updateEnabledStates();
     }
-    
+
     public synchronized void setEnabled(String command, boolean enabled) {
         if (itemMap.containsKey(command)) {
             itemMap.get(command).setEnabled(enabled);
@@ -481,27 +479,39 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
     @Override
     public void preferenceChange(PreferenceChangeEvent e) {
         // Adapt the menu checkboxes to a new state where necessary
-        if (e.getName().equals(GUIPreferences.USE_ISOMETRIC)) {
-            toggleIsometric.setSelected((Boolean) e.getNewValue());
-        } else if (e.getName().equals(GUIPreferences.SHOW_FIELD_OF_FIRE)) {
-            toggleFieldOfFire.setSelected((Boolean) e.getNewValue());
-        } else if (e.getName().equals(GUIPreferences.SHOW_KEYBINDS_OVERLAY)) {
-            viewKeybindsOverlay.setSelected((Boolean) e.getNewValue());
-        } else if (e.getName().equals(GUIPreferences.SHOW_UNIT_OVERVIEW)) {
-            viewUnitOverview.setSelected((Boolean) e.getNewValue());
-        } else if (e.getName().equals(GUIPreferences.GUI_SCALE)) {
-            adaptToGUIScale();
-        } else if (e.getName().equals(GUIPreferences.MINIMAP_ENABLED)) {
-            viewMinimap.setSelected(GUIP.getMinimapEnabled());
-        } else if (e.getName().equals(GUIPreferences.SHOW_COORDS)) {
-            toggleHexCoords.setSelected(GUIP.getBoolean(GUIPreferences.SHOW_COORDS));
-        } else if (e.getName().equals(KeyBindParser.KEYBINDS_CHANGED)) {
-            setKeyBinds();
-        } else if (e.getName().equals(GUIPreferences.SHOW_UNIT_DISPLAY)) {
-            viewMekDisplay.setSelected(GUIP.getBoolean(GUIPreferences.SHOW_UNIT_DISPLAY));
+        switch (e.getName()) {
+            case GUIPreferences.USE_ISOMETRIC:
+                toggleIsometric.setSelected((Boolean) e.getNewValue());
+                break;
+            case GUIPreferences.SHOW_FIELD_OF_FIRE:
+                toggleFieldOfFire.setSelected((Boolean) e.getNewValue());
+                break;
+            case GUIPreferences.SHOW_KEYBINDS_OVERLAY:
+                viewKeybindsOverlay.setSelected((Boolean) e.getNewValue());
+                break;
+            case GUIPreferences.SHOW_UNIT_OVERVIEW:
+                viewUnitOverview.setSelected((Boolean) e.getNewValue());
+                break;
+            case GUIPreferences.GUI_SCALE:
+                adaptToGUIScale();
+                break;
+            case GUIPreferences.MINIMAP_ENABLED:
+                viewMinimap.setSelected(GUIP.getMinimapEnabled());
+                break;
+            case GUIPreferences.SHOW_COORDS:
+                toggleHexCoords.setSelected(GUIP.getBoolean(GUIPreferences.SHOW_COORDS));
+                break;
+            case KeyBindParser.KEYBINDS_CHANGED:
+                setKeyBinds();
+                break;
+            case GUIPreferences.SHOW_UNIT_DISPLAY:
+                viewMekDisplay.setSelected(GUIP.getBoolean(GUIPreferences.SHOW_UNIT_DISPLAY));
+                break;
+            default:
+                break;
         }
     }
-    
+
     /** Adapts the menu (the font size) to the current GUI scale. */
     private void adaptToGUIScale() {
         UIUtil.scaleMenu(this);
@@ -524,6 +534,4 @@ public class CommonMenuBar extends JMenuBar implements ActionListener, IPreferen
         initMenuItem(item, menu, command);
         item.setMnemonic(mnemonic);
     }
-    
-    
 }

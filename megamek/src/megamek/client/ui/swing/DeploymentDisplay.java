@@ -26,7 +26,6 @@ import megamek.client.ui.SharedUtility;
 import megamek.client.ui.swing.widget.MegamekButton;
 import megamek.client.ui.swing.widget.SkinSpecification;
 import megamek.common.*;
-import megamek.common.enums.GamePhase;
 import megamek.common.event.GamePhaseChangeEvent;
 import megamek.common.event.GameTurnChangeEvent;
 import megamek.common.options.OptionsConstants;
@@ -225,9 +224,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
     private void endMyTurn() {
         final Game game = clientgui.getClient().getGame();
         Entity next = game.getNextEntity(game.getTurnIndex());
-        if ((GamePhase.DEPLOYMENT == game.getPhase())
-                && (null != next)
-                && (null != ce())
+        if (game.getPhase().isDeployment() && (next != null) && (ce() != null)
                 && (next.getOwnerId() != ce().getOwnerId())) {
             clientgui.setUnitDisplayVisible(false);
         }
@@ -369,8 +366,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
                 && (e.getPreviousPlayerId() != clientgui.getClient().getLocalPlayerNumber())
                 && (game.getTurnIndex() != 0)) {
             return;
-        }
-        if (game.getPhase() != GamePhase.DEPLOYMENT) {
+        } else if (!game.getPhase().isDeployment()) {
             // ignore
             return;
         }
@@ -390,7 +386,6 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
             }
             setStatusBarText(Messages.getString("DeploymentDisplay.its_others_turn", playerName));
         }
-        
     }
 
     @Override
@@ -398,14 +393,16 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
         clientgui.getBoardView().markDeploymentHexesFor(null);
         
        // In case of a /reset command, ensure the state gets reset
-        if (clientgui.getClient().getGame().getPhase() == GamePhase.LOUNGE) {
+        if (clientgui.getClient().getGame().getPhase().isLounge()) {
             endMyTurn();
         }
+
         // Are we ignoring events?
         if (isIgnoringEvents()) {
             return;
         }
-        if (clientgui.getClient().getGame().getPhase() == GamePhase.DEPLOYMENT) {
+
+        if (clientgui.getClient().getGame().getPhase().isDeployment()) {
             setStatusBarText(Messages.getString("DeploymentDisplay.waitingForDeploymentPhase")); 
         }
     }

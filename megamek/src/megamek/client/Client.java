@@ -791,7 +791,7 @@ public class Client implements IClientCommandHandler {
     /**
      * Sends an "deploy minefields" packet
      */
-    public void sendDeployMinefields(Vector<Minefield> minefields) {
+    public void sendDeployMinefields(final Collection<Minefield> minefields) {
         send(new Packet(PacketCommand.DEPLOY_MINEFIELDS, minefields));
     }
 

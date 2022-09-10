@@ -1174,7 +1174,7 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
                 && (ce() != null) && !b.getCoords().equals(ce().getPosition())) {
             if (shiftheld) {
                 updateFlipArms(false);
-            } else if (phase == GamePhase.TARGETING) {
+            } else if (phase.isTargeting()) {
                 target(new HexTarget(b.getCoords(), Targetable.TYPE_HEX_ARTILLERY));
             } else {
                 target(chooseTarget(b.getCoords()));
@@ -1185,10 +1185,9 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
     /**
      * Have the player select a target from the entities at the given coords.
      *
-     * @param pos - the <code>Coords</code> containing targets.
+     * @param pos the <code>Coords</code> containing targets.
      */
     private Targetable chooseTarget(Coords pos) {
-
         boolean friendlyFire = clientgui.getClient().getGame().getOptions()
                 .booleanOption(OptionsConstants.BASE_FRIENDLY_FIRE);
         // Assume that we have *no* choice.
@@ -1220,11 +1219,10 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
         }
 
         // Is there a building in the hex?
-        Building bldg = clientgui.getClient().getGame().getBoard()
-                .getBuildingAt(pos);
+        Building bldg = clientgui.getClient().getGame().getBoard().getBuildingAt(pos);
         if (bldg != null) {
-            targets.add(new BuildingTarget(pos, clientgui.getClient().getGame()
-                    .getBoard(), Targetable.TYPE_BLDG_TAG));
+            targets.add(new BuildingTarget(pos, clientgui.getClient().getGame().getBoard(),
+                    Targetable.TYPE_BLDG_TAG));
         }
 
         targets.add(new HexTarget(pos, Targetable.TYPE_HEX_TAG));
@@ -1233,19 +1231,13 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
         if (targets.size() == 1) {
             // Return that choice.
             choice = targets.get(0);
-        }
-
-        // If we have multiple choices, display a selection dialog.
-        else if (targets.size() > 1) {
-            String input = (String) JOptionPane
-                    .showInputDialog(
-                            clientgui,
-                            Messages.getString(
-                                    "FiringDisplay.ChooseTargetDialog.message",
-                                    new Object[] { pos.getBoardNum() }),
-                            Messages.getString("FiringDisplay.ChooseTargetDialog.title"),
-                            JOptionPane.QUESTION_MESSAGE, null, SharedUtility
-                                    .getDisplayArray(targets), null);
+        } else {
+            // If we have multiple choices, display a selection dialog.
+            String input = (String) JOptionPane.showInputDialog(clientgui,
+                    Messages.getString("FiringDisplay.ChooseTargetDialog.message", pos.getBoardNum()),
+                    Messages.getString("FiringDisplay.ChooseTargetDialog.title"),
+                    JOptionPane.QUESTION_MESSAGE, null, SharedUtility.getDisplayArray(targets),
+                    null);
             choice = SharedUtility.getTargetPicked(targets, input);
         }
 
@@ -1259,7 +1251,7 @@ public class TargetingPhaseDisplay extends StatusBarPhaseDisplay implements
     @Override
     public void gameTurnChange(GameTurnChangeEvent e) {
         // In case of a /reset command, ensure the state gets reset
-        if (clientgui.getClient().getGame().getPhase() == GamePhase.LOUNGE) {
+        if (clientgui.getClient().getGame().getPhase().isLounge()) {
             endMyTurn();
         }
         // On simultaneous phases, each player ending their turn will generate a turn change
