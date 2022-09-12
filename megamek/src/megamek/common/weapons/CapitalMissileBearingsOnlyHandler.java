@@ -101,7 +101,7 @@ public class CapitalMissileBearingsOnlyHandler extends AmmoBayWeaponHandler {
             return true;
         }
         ArtilleryAttackAction aaa = (ArtilleryAttackAction) waa;
-        if (phase == GamePhase.TARGETING) {
+        if (phase.isTargeting()) {
             if (!handledAmmoAndReport) {
                 addHeat();
                 // Report the firing itself
@@ -127,12 +127,12 @@ public class CapitalMissileBearingsOnlyHandler extends AmmoBayWeaponHandler {
             aaa.decrementTurnsTilHit();
             return true;
         }
-        Entity entityTarget = (aaa.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) aaa
-                .getTarget(game) : null;
-        if (game.getPhase() == GamePhase.FIRING && entityTarget == null) {
+        Entity entityTarget = (aaa.getTargetType() == Targetable.TYPE_ENTITY)
+                ? (Entity) aaa.getTarget(game) : null;
+        if (game.getPhase().isFiring() && (entityTarget == null)) {
             convertHexTargetToEntityTarget(vPhaseReport);
-            entityTarget = (aaa.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) aaa
-                    .getTarget(game) : null;
+            entityTarget = (aaa.getTargetType() == Targetable.TYPE_ENTITY)
+                    ? (Entity) aaa.getTarget(game) : null;
         }
 
         // Report weapon attack and its to-hit value.

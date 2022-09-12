@@ -13008,7 +13008,7 @@ public class GameManager implements IGameManager {
      */
     public void assignTeleMissileAMS(final TeleMissileAttackAction taa) {
         final Entity target = (taa.getTargetType() == Targetable.TYPE_ENTITY)
-                ? (Entity) taa.getTarget(game) : null;
+                ? (Entity) taa.getTarget(getGame()) : null;
 
         // If a telemissile is still on the board and its original target is not, just return.
         if (target == null) {
@@ -13074,7 +13074,7 @@ public class GameManager implements IGameManager {
             // For Bearings-only Capital Missiles, don't assign during the offboard phase
             if (wh instanceof CapitalMissileBearingsOnlyHandler) {
                 ArtilleryAttackAction aaa = (ArtilleryAttackAction) waa;
-                if (aaa.getTurnsTilHit() > 0 || game.getPhase() != GamePhase.FIRING) {
+                if ((aaa.getTurnsTilHit() > 0) || !getGame().getPhase().isFiring()) {
                     continue;
                 }
             }
@@ -13082,9 +13082,8 @@ public class GameManager implements IGameManager {
             // For Arrow IV homing artillery
             Entity target;
             if (waa instanceof ArtilleryAttackAction) {
-                target = (waa.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) waa
-                        .getTarget(game) : null;
-
+                target = (waa.getTargetType() == Targetable.TYPE_ENTITY)
+                        ? (Entity) waa.getTarget(getGame()) : null;
                 // In case our target really is null.
                 if (target == null) {
                     continue;
@@ -29058,7 +29057,7 @@ public class GameManager implements IGameManager {
                     || entity.hasQuirk(OptionsConstants.QUIRK_POS_SEARCHLIGHT));
             entityIds.add(entity.getId());
 
-            if (game.getPhase() != GamePhase.LOUNGE) {
+            if (!getGame().getPhase().isLounge()) {
                 entity.getOwner().changeInitialEntityCount(1);
                 entity.getOwner().changeInitialBV(entity.calculateBattleValue());
             }
@@ -29072,10 +29071,10 @@ public class GameManager implements IGameManager {
                 for (Force force: forceList) {
                     if (!forceMapping.containsKey(force.getId())) {
                         if (topLevel) {
-                            realId = game.getForces().addTopLevelForce(force, entity.getOwner());
+                            realId = getGame().getForces().addTopLevelForce(force, entity.getOwner());
                         } else {
-                            Force parent = game.getForces().getForce(realId);
-                            realId = game.getForces().addSubForce(force, parent);
+                            Force parent = getGame().getForces().getForce(realId);
+                            realId = getGame().getForces().addSubForce(force, parent);
                         }
                         forceMapping.put(force.getId(), realId);
                     } else {
@@ -29216,13 +29215,13 @@ public class GameManager implements IGameManager {
      */
     private void receiveEntityUpdate(Packet c, int connIndex) {
         Entity entity = (Entity) c.getObject(0);
-        Entity oldEntity = game.getEntity(entity.getId());
-        if ((oldEntity != null) && (!oldEntity.getOwner().isEnemyOf(game.getPlayer(connIndex)))) {
-            game.setEntity(entity.getId(), entity);
+        Entity oldEntity = getGame().getEntity(entity.getId());
+        if ((oldEntity != null) && (!oldEntity.getOwner().isEnemyOf(getGame().getPlayer(connIndex)))) {
+            getGame().setEntity(entity.getId(), entity);
             entityUpdate(entity.getId());
             // In the chat lounge, notify players of customizing of unit
-            if (game.getPhase() == GamePhase.LOUNGE) {
-                sendServerChat(ServerLobbyHelper.entityUpdateMessage(entity, game));
+            if (getGame().getPhase().isLounge()) {
+                sendServerChat(ServerLobbyHelper.entityUpdateMessage(entity, getGame()));
             }
         }
     }
@@ -29234,19 +29233,19 @@ public class GameManager implements IGameManager {
      * remain unchanged but still be sent back to overwrite incorrect client changes.
      */
     private void receiveEntitiesUpdate(Packet c, int connIndex) {
-        if (game.getPhase() != GamePhase.LOUNGE) {
+        if (!getGame().getPhase().isLounge()) {
             LogManager.getLogger().error("Multi entity updates should not be used outside the lobby phase!");
         }
         Set<Entity> newEntities = new HashSet<>();
         @SuppressWarnings("unchecked")
         Collection<Entity> entities = (Collection<Entity>) c.getObject(0);
         for (Entity entity: entities) {
-            Entity oldEntity = game.getEntity(entity.getId());
+            Entity oldEntity = getGame().getEntity(entity.getId());
             // Only update entities that existed and are owned by a teammate of the sender
-            if ((oldEntity != null) && (!oldEntity.getOwner().isEnemyOf(game.getPlayer(connIndex)))) {
-                game.setEntity(entity.getId(), entity);
-                sendServerChat(ServerLobbyHelper.entityUpdateMessage(entity, game));
-                newEntities.add(game.getEntity(entity.getId()));
+            if ((oldEntity != null) && (!oldEntity.getOwner().isEnemyOf(getGame().getPlayer(connIndex)))) {
+                getGame().setEntity(entity.getId(), entity);
+                sendServerChat(ServerLobbyHelper.entityUpdateMessage(entity, getGame()));
+                newEntities.add(getGame().getEntity(entity.getId()));
             }
         }
         send(new Packet(PacketCommand.ENTITY_MULTIUPDATE, newEntities));
@@ -29320,7 +29319,7 @@ public class GameManager implements IGameManager {
      */
     private void receiveCustomInit(Packet c, int connIndex) {
         // In the chat lounge, notify players of customizing of unit
-        if (game.getPhase() == GamePhase.LOUNGE) {
+        if (getGame().getPhase().isLounge()) {
             Player p = (Player) c.getObject(0);
             sendServerChat("" + p.getName() + " has customized initiative.");
         }
@@ -29336,8 +29335,8 @@ public class GameManager implements IGameManager {
         int entityId = c.getIntValue(0);
         int equipId = c.getIntValue(1);
         int mode = c.getIntValue(2);
-        Entity e = game.getEntity(entityId);
-        if (e.getOwner() != game.getPlayer(connIndex)) {
+        Entity e = getGame().getEntity(entityId);
+        if (e.getOwner() != getGame().getPlayer(connIndex)) {
             return;
         }
         Mounted m = e.getEquipment(equipId);
@@ -29647,18 +29646,18 @@ public class GameManager implements IGameManager {
                         Entity lastUnitMember = lastUnit.next();
                         lastUnitMember.setUnitNumber(deletedUnitNum);
                         entityUpdate(lastUnitMember.getId());
-                    } // End update-unit-number
-                } // End added-ProtoMech
-
-                if (game.getPhase() != GamePhase.DEPLOYMENT) {
-                    // if a unit is removed during deployment just keep going
-                    // without adjusting the turn vector.
-                    game.removeTurnFor(entity);
-                    game.removeEntity(entityId, IEntityRemovalConditions.REMOVE_NEVER_JOINED);
+                    }
                 }
 
-                if (!game.getPhase().isLounge()) {
-                    ServerHelper.clearBloodStalkers(game, entityId, this);
+                if (!getGame().getPhase().isDeployment()) {
+                    // if a unit is removed during deployment just keep going
+                    // without adjusting the turn vector.
+                    getGame().removeTurnFor(entity);
+                    getGame().removeEntity(entityId, IEntityRemovalConditions.REMOVE_NEVER_JOINED);
+                }
+
+                if (!getGame().getPhase().isLounge()) {
+                    ServerHelper.clearBloodStalkers(getGame(), entityId, this);
                 }
             }
         }

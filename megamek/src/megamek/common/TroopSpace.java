@@ -13,6 +13,8 @@
  */
 package megamek.common;
 
+import megamek.common.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -217,7 +219,7 @@ public final class TroopSpace implements Transporter {
      *         transported on the outside at that location.
      */
     @Override
-    public Entity getExteriorUnitAt(int loc, boolean isRear) {
+    public @Nullable Entity getExteriorUnitAt(int loc, boolean isRear) {
         return null;
     }
 

@@ -18,7 +18,6 @@ import megamek.client.Client;
 import megamek.client.ui.Messages;
 import megamek.common.*;
 import megamek.common.enums.AimingMode;
-import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
 import megamek.common.weapons.InfantryAttack;
 import megamek.common.weapons.Weapon;
@@ -49,7 +48,7 @@ import java.util.Vector;
  */
 public class WeaponAttackAction extends AbstractAttackAction implements Serializable {
     private static final long serialVersionUID = -9096603813317359351L;
-    
+
     public static final int STRATOPS_SENSOR_SHADOW_WEIGHT_DIFF = 100000;
     
     private int weaponId;
@@ -1281,22 +1280,19 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         }
 
         // Phase Reasons
-
-        // Only bearings-only capital missiles and indirect fire artillery can be fired in the targeting phase
-        if ((game.getPhase() == GamePhase.TARGETING) && (!(isArtilleryIndirect || isBearingsOnlyMissile))) {
+        if (game.getPhase().isTargeting() && (!(isArtilleryIndirect || isBearingsOnlyMissile))) {
+            // Only bearings-only capital missiles and indirect fire artillery can be fired in the targeting phase
             return Messages.getString("WeaponAttackAction.NotValidForTargPhase");
-        }
-        // Only TAG can be fired in the offboard phase
-        if ((game.getPhase() == GamePhase.OFFBOARD) && !isTAG) {
+        } else if (game.getPhase().isOffboard() && !isTAG) {
+            // Only TAG can be fired in the offboard phase
             return Messages.getString("WeaponAttackAction.OnlyTagInOffboard");
-        }
-        // TAG can't be fired in any phase but offboard
-        if ((game.getPhase() != GamePhase.OFFBOARD) && isTAG) {
+        } else if (!game.getPhase().isOffboard() && isTAG) {
+            // TAG can't be fired in any phase but offboard
             return Messages.getString("WeaponAttackAction.TagOnlyInOffboard");
         }
         
         // Unit-specific Reasons
-        
+
         // Airborne units cannot tag and attack
         // http://bg.battletech.com/forums/index.php?topic=17613.new;topicseen#new
         if (ae.isAirborne() && ae.usedTag()) {
@@ -2076,13 +2072,13 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
             
             // Capital missiles in bearings-only mode
             if (isBearingsOnlyMissile) {
-                //Can't target anything beyond max range of 5,000 hexes
-                //This is an arbitrary number. If your map size is really this large, you'll probably crash the game
+                // Can't target anything beyond max range of 5,000 hexes
+                // This is an arbitrary number. If your map size is really this large, you'll probably crash the game
                 if (distance > RangeType.RANGE_BEARINGS_ONLY_OUT) {
                     return Messages.getString("WeaponAttackAction.OutOfRange");
                 }
                 // Can't fire in bearings-only mode within direct-fire range (50 hexes)
-                if (game.getPhase() == GamePhase.TARGETING && distance < RangeType.RANGE_BEARINGS_ONLY_MINIMUM) {
+                if (game.getPhase().isTargeting() && (distance < RangeType.RANGE_BEARINGS_ONLY_MINIMUM)) {
                     return Messages.getString("WeaponAttackAction.BoMissileMinRange");
                 } 
                 // Can't target anything but hexes
@@ -2572,19 +2568,20 @@ public class WeaponAttackAction extends AbstractAttackAction implements Serializ
         
         // Capital Missiles in bearings-only mode target hexes and always hit them
         if (isBearingsOnlyMissile) {
-            if (game.getPhase() == GamePhase.TARGETING && distance >= RangeType.RANGE_BEARINGS_ONLY_MINIMUM) {
+            if (game.getPhase().isTargeting() && (distance >= RangeType.RANGE_BEARINGS_ONLY_MINIMUM)) {
                 return Messages.getString("WeaponAttackAction.BoMissileHex");
             }
         }
         
         // Screen launchers target hexes and hit automatically (if in range)
-        if (wtype != null && ((wtype.getAmmoType() == AmmoType.T_SCREEN_LAUNCHER)
-                || (wtype instanceof ScreenLauncherBayWeapon)) && distance <= wtype.getExtremeRange()) {
+        if ((wtype != null) && (distance <= wtype.getExtremeRange())
+                && ((wtype.getAmmoType() == AmmoType.T_SCREEN_LAUNCHER)
+                        || (wtype instanceof ScreenLauncherBayWeapon))) {
             return Messages.getString("WeaponAttackAction.ScreenAutoHit");
         }
         
         // Vehicular grenade launchers
-        if (weapon != null && weapon.getType().hasFlag(WeaponType.F_VGL)) {
+        if ((weapon != null) && weapon.getType().hasFlag(WeaponType.F_VGL)) {
             int facing = weapon.getFacing();
             if (ae.isSecondaryArcWeapon(ae.getEquipmentNum(weapon))) {
                 facing = (facing + ae.getSecondaryFacing()) % 6;

@@ -14,6 +14,8 @@
  */
 package megamek.common;
 
+import megamek.common.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -234,7 +236,7 @@ public class TankTrailerHitch implements Transporter {
      *         transported on the outside at that location.
      */
     @Override
-    public final Entity getExteriorUnitAt(int loc, boolean isRear) {
+    public final @Nullable Entity getExteriorUnitAt(int loc, boolean isRear) {
         return game.getEntity(towed);
     }
 

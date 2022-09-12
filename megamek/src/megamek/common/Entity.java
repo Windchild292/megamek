@@ -7019,7 +7019,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         }
 
         if (game.getOptions().booleanOption(OptionsConstants.ADVANCED_TACOPS_FATIGUE)
-            && crew.isPilotingFatigued()) {
+                && crew.isPilotingFatigued()) {
             roll.addModifier(1, "fatigue");
         }
 
@@ -7027,7 +7027,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
             roll.addModifier(taserInterference, "taser interference");
         }
 
-        if ((game.getPhase() == GamePhase.MOVEMENT) && isPowerReverse()) {
+        if (getGame().getPhase().isMovement() && isPowerReverse()) {
             roll.addModifier(1, "power reverse");
         }
 
@@ -7043,8 +7043,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * Add in any modifiers due to global conditions like light/weather/etc.
      */
     public PilotingRollData addConditionBonuses(PilotingRollData roll,
-            EntityMovementType moveType) {
-
+                                                EntityMovementType moveType) {
         if (moveType == EntityMovementType.MOVE_SPRINT
                 || moveType == EntityMovementType.MOVE_VTOL_SPRINT) {
             roll.addModifier(2, "Sprinting");
@@ -7106,8 +7105,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         }
 
         if (isHullDown() && (this instanceof QuadMech)) {
-            roll.addModifier(TargetRoll.AUTOMATIC_SUCCESS,
-                    "getting up from hull down");
+            roll.addModifier(TargetRoll.AUTOMATIC_SUCCESS, "getting up from hull down");
             return roll;
         }
 
@@ -8866,7 +8864,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * transported on the outside at that location.
      */
     @Override
-    public Entity getExteriorUnitAt(int loc, boolean isRear) {
+    public @Nullable Entity getExteriorUnitAt(int loc, boolean isRear) {
         // Walk through this entity's transport components;
         // check each for an exterior unit in turn.
         // Stop after the first match.
@@ -9758,13 +9756,12 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         }
 
         // Hidden units are always eligible for PRE phases
-        if ((phase == GamePhase.PREMOVEMENT) || (phase == GamePhase.PREFIRING)) {
+        if (phase.isPremovement() || phase.isPrefiring()) {
             return isHidden();
         }
 
         // Hidden units shouldn't be counted for turn order, unless deploying or firing (spotting)
-        if (isHidden() && (phase != GamePhase.DEPLOYMENT)
-                && (phase != GamePhase.FIRING)) {
+        if (isHidden() && !phase.isDeployment() && !phase.isFiring()) {
             return false;
         }
 
@@ -9792,9 +9789,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      * future
      */
     public boolean canAssist(GamePhase phase) {
-        if ((phase != GamePhase.PHYSICAL)
-            && (phase != GamePhase.FIRING)
-            && (phase != GamePhase.OFFBOARD)) {
+        if (!phase.isPhysical() && !phase.isFiring() && !phase.isOffboard()) {
             return false;
         }
         // if you're charging or finding a club, it's already declared
@@ -9851,8 +9846,7 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
      */
     public boolean isEligibleForMovement() {
         // check if entity is offboard
-        if (isOffBoard() || (isAssaultDropInProgress()
-                && !(movementMode == EntityMovementMode.WIGE))) {
+        if (isOffBoard() || (isAssaultDropInProgress() && !movementMode.isWiGE())) {
             return false;
         }
         // Prevent ejected crews from moving when advanced movement rule is off
@@ -9889,12 +9883,12 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         }
         for (Mounted mounted : getWeaponList()) {
             WeaponType wtype = (WeaponType) mounted.getType();
-            if ((wtype != null)
-                && (wtype.hasFlag(WeaponType.F_TAG) && mounted.isReady())) {
+            if ((wtype != null) && (wtype.hasFlag(WeaponType.F_TAG) && mounted.isReady())) {
                 return true;
             }
         }
-        return false;// only things w/ tag are
+
+        return false; // only things w/ tag are
     }
 
     public boolean isAttackingThisTurn() {

@@ -400,17 +400,12 @@ public class WeaponHandler implements AttackHandler, Serializable {
      */
     @Override
     public boolean cares(GamePhase phase) {
-        if (phase == GamePhase.FIRING) {
-            return true;
-        }
-        return false;
+        return phase.isFiring();
     }
 
     /**
-     * @param vPhaseReport
-     *            - A <code>Vector</code> containing the phasereport.
-     * @return a <code>boolean</code> value indicating wether or not the attack
-     *         misses because of a failed check.
+     * @param vPhaseReport A <code>Vector</code> containing the phase report.
+     * @return a <code>boolean</code> value indicating whether the attack misses because of a failed check.
      */
     protected boolean doChecks(Vector<Report> vPhaseReport) {
         return false;
@@ -428,15 +423,13 @@ public class WeaponHandler implements AttackHandler, Serializable {
         out.defaultWriteObject();
     }
 
-    private void readObject(ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-
         gameManager = (GameManager) Server.getServerInstance().getGameManager();
     }
 
     /**
-     * @return a <code>boolean</code> value indicating wether or not this attack
+     * @return a <code>boolean</code> value indicating whether or not this attack
      *         needs further calculating, like a missed shot hitting a building,
      *         or an AMS only shooting down some missiles.
      */
@@ -483,9 +476,8 @@ public class WeaponHandler implements AttackHandler, Serializable {
                 && !(weapon.isSquadSupportWeapon())
                 && !(ae.getSwarmTargetId() == target.getTargetId())) {
             bSalvo = true;
-            int toReturn = allShotsHit() ? ((BattleArmor) ae)
-                    .getShootingStrength() : Compute
-                    .missilesHit(((BattleArmor) ae).getShootingStrength());
+            int toReturn = allShotsHit() ? ((BattleArmor) ae).getShootingStrength()
+                    : Compute.missilesHit(((BattleArmor) ae).getShootingStrength());
             Report r = new Report(3325);
             r.newlines = 0;
             r.subject = subjectId;
@@ -501,8 +493,7 @@ public class WeaponHandler implements AttackHandler, Serializable {
     /**
      * Calculate the clustering of the hits
      *
-     * @return a <code>int</code> value saying how much hits are in each cluster
-     *         of damage.
+     * @return a <code>int</code> value saying how many hits are in each cluster of damage.
      */
     protected int calcnCluster() {
         return 1;
@@ -517,16 +508,14 @@ public class WeaponHandler implements AttackHandler, Serializable {
         }
     }
 
-    protected int[] calcAeroDamage(Entity entityTarget,
-            Vector<Report> vPhaseReport) {
+    protected int[] calcAeroDamage(Entity entityTarget, Vector<Report> vPhaseReport) {
         // Now I need to adjust this for attacks on aeros because they use
         // attack values and different rules
         // this will work differently for cluster and non-cluster
         // weapons, and differently for capital fighter/fighter
         // squadrons
         if (game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_AERO_SANITY)) {
-            // everything will use the normal hits and clusters for hits weapon
-            // unless
+            // everything will use the normal hits and clusters for hits weapon unless
             // we have a squadron or capital scale entity
             int reportSize = vPhaseReport.size();
             int hits = calcHits(vPhaseReport);
@@ -542,9 +531,9 @@ public class WeaponHandler implements AttackHandler, Serializable {
                     if (allShotsHit()) {
                         nweaponsHit = nweapons;
                     } else {
-                        nweaponsHit = Compute.missilesHit(nweapons,
-                                ((Aero) ae).getClusterMods());
+                        nweaponsHit = Compute.missilesHit(nweapons, ((Aero) ae).getClusterMods());
                     }
+
                     if (usesClusterTable()) {
                         // remove the last reports because they showed the
                         // number of shots that hit
@@ -679,17 +668,15 @@ public class WeaponHandler implements AttackHandler, Serializable {
             if (ae.isCapitalFighter()) {
                 bSalvo = false;
                 if (nweapons > 1) {
-                    nweaponsHit = Compute.missilesHit(nweapons,
-                            ((IAero) ae).getClusterMods());
+                    nweaponsHit = Compute.missilesHit(nweapons, ((IAero) ae).getClusterMods());
                     if (pdBayEngaged || amsBayEngaged) {
-                        //Point Defenses engage standard (cluster) missiles
-                        int counterAV = 0;
-                        counterAV = getCounterAV();
+                        // Point Defenses engage standard (cluster) missiles
+                        int counterAV = getCounterAV();
                         nDamPerHit = originalAV * nweaponsHit - counterAV;
                         hits = 1;
                         nCluster = 1;
                     } else {
-                        //If multiple large missile or non-missile weapons hit
+                        // If multiple large missile or non-missile weapons hit
                         Report r = new Report(3325);
                         r.subject = subjectId;
                         r.add(nweaponsHit);
@@ -707,8 +694,8 @@ public class WeaponHandler implements AttackHandler, Serializable {
                 nDamPerHit = 1;
                 hits = attackValue;
             } else {
-                //If we're not a capital fighter / squadron
-                //Point Defenses engage any Large, single missiles
+                // If we're not a capital fighter / squadron
+                // Point Defenses engage any Large, single missiles
                 getCounterAV();
                 if (pdBayEngagedMissile || amsBayEngagedMissile) {
                     bSalvo = false;

@@ -12,6 +12,7 @@
 package megamek.common;
 
 import megamek.client.ui.swing.calculationReport.CalculationReport;
+import megamek.common.annotations.Nullable;
 import megamek.common.cost.CostCalculator;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
@@ -678,7 +679,8 @@ public class FighterSquadron extends Aero {
             // Add the unit to our squadron.
             fighters.addElement(unit.getId());
         }
-        if (game.getPhase() != GamePhase.LOUNGE) {
+
+        if (!getGame().getPhase().isLounge()) {
             computeSquadronBombLoadout();
             // updateWeaponGroups() and loadAllWeapons() are called in
             // computeSquadronBombLoadout()
@@ -702,8 +704,7 @@ public class FighterSquadron extends Aero {
     /**
      * Unload the given unit. TODO: need to strip out ammo
      *
-     * @param unit
-     *            - the <code>Entity</code> to be unloaded.
+     * @param unit the <code>Entity</code> to be unloaded.
      * @return <code>true</code> if the unit was contained in this space,
      *         <code>false</code> otherwise.
      */
@@ -711,7 +712,7 @@ public class FighterSquadron extends Aero {
     public boolean unload(Entity unit) {
         // Remove the unit if we are carrying it.
         boolean success = fighters.removeElement(unit.getId());
-        if (game.getPhase() != GamePhase.LOUNGE) {
+        if (!getGame().getPhase().isLounge()) {
             computeSquadronBombLoadout();
             // updateWeaponGroups() and loadAllWeapons() are called in
             // computeSquadronBombLoadout()
@@ -766,11 +767,7 @@ public class FighterSquadron extends Aero {
      */
     @Override
     public double getUnused(Entity e) {
-        if (e.isFighter()) {
-            return getUnused();
-        } else {
-            return 0;
-        }
+        return e.isFighter() ? getUnused() : 0;
     }
 
     /**
@@ -808,7 +805,7 @@ public class FighterSquadron extends Aero {
      *         transported on the outside at that location.
      */
     @Override
-    public Entity getExteriorUnitAt(int loc, boolean isRear) {
+    public @Nullable Entity getExteriorUnitAt(int loc, boolean isRear) {
         return null;
     }
 

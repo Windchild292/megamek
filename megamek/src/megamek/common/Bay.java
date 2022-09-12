@@ -14,6 +14,8 @@
 */
 package megamek.common;
 
+import megamek.common.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -410,7 +412,7 @@ public class Bay implements Transporter, ITechnology {
      *         transported on the outside at that location.
      */
     @Override
-    public Entity getExteriorUnitAt(int loc, boolean isRear) {
+    public @Nullable Entity getExteriorUnitAt(int loc, boolean isRear) {
         return null;
     }
 
