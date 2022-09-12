@@ -16,7 +16,7 @@ package megamek.client.ui.swing.util;
 import megamek.client.Client;
 import megamek.client.ui.swing.AbstractPhaseDisplay;
 import megamek.client.ui.swing.GUIPreferences;
-import megamek.common.enums.GamePhase;
+import megamek.common.annotations.Nullable;
 import megamek.common.options.Option;
 import megamek.common.options.OptionsConstants;
 
@@ -97,32 +97,33 @@ public class TurnTimer {
         timer.stop();
     }
 
-    public static TurnTimer init(AbstractPhaseDisplay phaseDisplay, Client client) {
+    public static @Nullable TurnTimer init(AbstractPhaseDisplay phaseDisplay, Client client) {
         // check if there should be a turn timer running
         if (timerShouldStart(client)) {
             Option timer = (Option) client.getGame().getOptions().getOption("turn_timer");
             TurnTimer tt = new TurnTimer(timer.intValue(), phaseDisplay);
             tt.startTimer();
             return tt;
+        } else {
+            return null;
         }
-        return null;
     }
 
     /**
+     * TODO : add timer to physical and targeting phase, currently it is only in movement and fire
      * Checks if a turn time limit is set in options
      * limit is only imposed on movement, firing
      */
-    //TODO: add timer to physical and targeting phase currently it is only in movement and fire
     private static boolean timerShouldStart(Client client) {
         // check if there is a timer set
         Option timer = (Option) client.getGame().getOptions().getOption(OptionsConstants.BASE_TURN_TIMER);
-        // if timer is set to 0 in options, it is disabled so we only create one if a limit is set in options
+        // if timer is set to 0 in options, it is disabled. We only create one if a limit is set in options
         if (timer.intValue() > 0) {
-            GamePhase phase = client.getGame().getPhase();
-
             // turn timer should only kick in on firing, targeting, movement and physical attack phase
-            return phase == GamePhase.MOVEMENT || phase == GamePhase.FIRING || phase == GamePhase.PHYSICAL || phase == GamePhase.TARGETING;
+            return client.getGame().getPhase().isMovement() || client.getGame().getPhase().isFiring()
+                    || client.getGame().getPhase().isPhysical() || client.getGame().getPhase().isTargeting();
+        } else {
+            return false;
         }
-        return false;
     }
 }

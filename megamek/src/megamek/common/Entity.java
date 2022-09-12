@@ -3926,12 +3926,10 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         // we can't use during this phase... do we?
         for (Mounted mounted : getWeaponList()) {
             // TAG only in the correct phase...
-            if ((mounted.getType().hasFlag(WeaponType.F_TAG) && (game
-                                                                         .getPhase() != GamePhase.OFFBOARD))
-                || (!mounted.getType().hasFlag(WeaponType.F_TAG) && (game
-                                                                             .getPhase() == GamePhase.OFFBOARD))
-                //No AMS, unless it's in 'weapon' mode
-                || (mounted.getType().hasFlag(WeaponType.F_AMS) && !mounted.curMode().equals(Weapon.MODE_AMS_MANUAL))) {
+            if ((mounted.getType().hasFlag(WeaponType.F_TAG) && !getGame().getPhase().isOffboard())
+                    || (!mounted.getType().hasFlag(WeaponType.F_TAG) && getGame().getPhase().isOffboard())
+                    // No AMS, unless it's in 'weapon' mode
+                    || (mounted.getType().hasFlag(WeaponType.F_AMS) && !mounted.curMode().equals(Weapon.MODE_AMS_MANUAL))) {
                 continue;
             }
 
@@ -3989,24 +3987,19 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
                 || (mounted.getLinked().getUsableShotsLeft() > 0))) {
 
             // TAG only in the correct phase...
-            if ((mounted.getType().hasFlag(WeaponType.F_TAG)
-                    && (game.getPhase() != GamePhase.OFFBOARD))
-                    || (!mounted.getType().hasFlag(WeaponType.F_TAG)
-                            && (game.getPhase()
-                                    == GamePhase.OFFBOARD))) {
+            if ((mounted.getType().hasFlag(WeaponType.F_TAG) && !getGame().getPhase().isOffboard())
+                    || (!mounted.getType().hasFlag(WeaponType.F_TAG) && getGame().getPhase().isOffboard())) {
                 return false;
             }
 
             // Artillery or Bearings-only missiles only in the targeting phase...
-            if (!(mounted.getType().hasFlag(WeaponType.F_ARTILLERY)
-                    || mounted.isInBearingsOnlyMode()
-                    || (this.getAltitude() == 0
-                            && mounted.getType() instanceof CapitalMissileWeapon))
-                && (game.getPhase() == GamePhase.TARGETING)) {
+            if (!(mounted.getType().hasFlag(WeaponType.F_ARTILLERY) || mounted.isInBearingsOnlyMode()
+                    || ((getAltitude()) == 0 && (mounted.getType() instanceof CapitalMissileWeapon)))
+                    && getGame().getPhase().isTargeting()) {
                 return false;
             }
             // No Bearings-only missiles in the firing phase
-            if (mounted.isInBearingsOnlyMode() && game.getPhase() == GamePhase.FIRING) {
+            if (mounted.isInBearingsOnlyMode() && getGame().getPhase().isFiring()) {
                 return false;
             }
 
@@ -4097,8 +4090,8 @@ public abstract class Entity extends TurnOrdered implements Transporter, Targeta
         AmmoType atype = (AmmoType) mountedAmmo.getType();
 
         if (mountedAmmo.isAmmoUsable() && !wtype.hasFlag(WeaponType.F_ONESHOT)
-            && (atype.getAmmoType() == wtype.getAmmoType())
-            && (atype.getRackSize() == wtype.getRackSize())) {
+                && (atype.getAmmoType() == wtype.getAmmoType())
+                && (atype.getRackSize() == wtype.getRackSize())) {
             mounted.setLinked(mountedAmmo);
             success = true;
         } else if ((wtype.hasFlag(WeaponType.F_DOUBLE_ONESHOT)

@@ -24,7 +24,6 @@ import megamek.common.*;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.GameOptions;
 import megamek.common.options.OptionsConstants;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

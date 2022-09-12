@@ -23,7 +23,6 @@ import megamek.client.ui.swing.GUIPreferences;
 import megamek.client.ui.swing.util.EntityWreckHelper;
 import megamek.common.*;
 import megamek.common.annotations.Nullable;
-import megamek.common.enums.GamePhase;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -708,8 +707,8 @@ class EntitySprite extends Sprite {
                     graph.draw(bv.facingPolys[entity.getFacing()]);
                     graph.setTransform(tr);
                 }
-                
-                if (!entity.isDone() && (bv.game.getPhase() == GamePhase.MOVEMENT)) {
+
+                if (!entity.isDone() && bv.getGame().getPhase().isMovement()) {
                     graph.setColor(GUIPreferences.getInstance().getWarningColor());
                     graph.fill(bv.facingPolys[entity.getFacing()]);
                     graph.setColor(Color.WHITE);

@@ -1155,7 +1155,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
             drawDeployment(g);
         }
 
-        if ((game.getPhase() == GamePhase.SET_ARTILLERY_AUTOHIT_HEXES) && showAllDeployment) {
+        if (getGame().getPhase().isSetArtilleryAutohitHexes() && showAllDeployment) {
             drawAllDeployment(g);
         }
 
@@ -5052,9 +5052,9 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
 
         @Override
         public void gamePhaseChange(GamePhaseChangeEvent e) {
-            if (GUIPreferences.getInstance().getGameSummaryBoardView() && ((e.getOldPhase() == GamePhase.DEPLOYMENT)
-                    || (e.getOldPhase() == GamePhase.MOVEMENT) || (e.getOldPhase() == GamePhase.TARGETING)
-                    || (e.getOldPhase() == GamePhase.FIRING) || (e.getOldPhase() == GamePhase.PHYSICAL))) {
+            if (GUIPreferences.getInstance().getGameSummaryBoardView()
+                    && (Stream.of(GamePhase.DEPLOYMENT, GamePhase.MOVEMENT, GamePhase.TARGETING, GamePhase.FIRING, GamePhase.PHYSICAL)
+                            .anyMatch(gamePhase -> e.getOldPhase() == gamePhase))) {
                 File dir = new File(Configuration.gameSummaryImagesBVDir(), getGame().getUUIDString());
                 if (!dir.exists()) {
                     dir.mkdirs();
@@ -5518,7 +5518,7 @@ public class BoardView extends JPanel implements Scrollable, BoardListener, Mous
 
         // Show the player(s) that may deploy here
         // in the artillery autohit designation phase
-        if ((getGame().getPhase() == GamePhase.SET_ARTILLERY_AUTOHIT_HEXES) && (mhex != null)) {
+        if (getGame().getPhase().isSetArtilleryAutohitHexes() && (mhex != null)) {
             txt.append("<TABLE BORDER=0 width=100%><TR><TD>");
             Enumeration<Player> allP = getGame().getPlayers();
             boolean foundPlayer = false;
