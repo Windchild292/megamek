@@ -318,29 +318,20 @@ public class SharedUtility {
 
             // check for magma
             int level = curHex.terrainLevel(Terrains.MAGMA);
-            if ((level == 1) && (step.getElevation() == 0)
-                    && (entity.getMovementMode() != EntityMovementMode.HOVER)
-                    && (moveType != EntityMovementType.MOVE_JUMP)
-                    && !(curPos.equals(lastPos))) {
-                nagReport.append(Messages
-                        .getString("MovementDisplay.MagmaCrustMoving"));
+            if ((level == 1) && (step.getElevation() == 0) && !entity.getMovementMode().isHover()
+                    && (moveType != EntityMovementType.MOVE_JUMP) && !(curPos.equals(lastPos))) {
+                nagReport.append(Messages.getString("MovementDisplay.MagmaCrustMoving"));
             } else if ((level == 2) && (step.getElevation() == 0)
                     && (moveType != EntityMovementType.MOVE_JUMP)
-                    && (entity.getMovementMode() != EntityMovementMode.HOVER)
-                    && (entity.getMovementMode() != EntityMovementMode.WIGE)
-                    && !(curPos.equals(lastPos))) {
-                nagReport.append(Messages
-                        .getString("MovementDisplay.MagmaLiquidMoving"));
+                    && !entity.getMovementMode().isHoverOrWiGE() && !(curPos.equals(lastPos))) {
+                nagReport.append(Messages.getString("MovementDisplay.MagmaLiquidMoving"));
             }
 
             // check for sideslip
-            if ((entity instanceof VTOL)
-                    || (entity.getMovementMode() == EntityMovementMode.HOVER)
-                    || (entity.getMovementMode() == EntityMovementMode.WIGE
-                            && step.getClearance() > 0)) {
-                rollTarget = entity.checkSideSlip(moveType, prevHex,
-                        overallMoveType, prevStep, prevFacing, curFacing,
-                        lastPos, curPos, distance);
+            if ((entity instanceof VTOL) || entity.getMovementMode().isHover()
+                    || (entity.getMovementMode().isWiGE() && (step.getClearance() > 0))) {
+                rollTarget = entity.checkSideSlip(moveType, prevHex, overallMoveType, prevStep,
+                        prevFacing, curFacing, lastPos, curPos, distance);
                 checkNag(rollTarget, nagReport, psrList);
             }
 

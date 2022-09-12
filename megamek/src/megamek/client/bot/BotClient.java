@@ -868,7 +868,7 @@ public abstract class BotClient extends Client {
                     !deployed_ent.hasETypeFlag(Entity.ETYPE_VTOL)) {
                 // Tracked vehicle
                 // -> Trees increase fitness
-                if (deployed_ent.getMovementMode() == EntityMovementMode.TRACKED) {
+                if (deployed_ent.getMovementMode().isTracked()) {
                     if (board.getHex(coord.getX(), coord.getY()).containsTerrain(Terrains.WOODS)) {
                         coord.fitness += 2;
                     }
@@ -880,23 +880,20 @@ public abstract class BotClient extends Client {
                 // Hover vehicle
                 // -> Water in hex increases fitness, hover vehicles have an
                 // advantage in water areas
-                if (deployed_ent.getMovementMode() == EntityMovementMode.HOVER) {
-                    if (board.getHex(coord.getX(), coord.getY()).containsTerrain(
-                            Terrains.WATER)) {
+                if (deployed_ent.getMovementMode().isHover()) {
+                    if (board.getHex(coord.getX(), coord.getY()).containsTerrain(Terrains.WATER)) {
                         coord.fitness += 2;
                     }
                 }
                 // If building, make sure not too heavy to safely move out of.
-                coord.fitness -= potentialBuildingDamage(coord.getX(), coord.getY(),
-                                                         deployed_ent);
+                coord.fitness -= potentialBuildingDamage(coord.getX(), coord.getY(), deployed_ent);
             }
             
             // ProtoMech
             // ->
             // -> Trees increase fitness by +2 (minor)
             if (deployed_ent instanceof Protomech) {
-                if (board.getHex(coord.getX(), coord.getY()).containsTerrain(
-                        Terrains.WOODS)) {
+                if (board.getHex(coord.getX(), coord.getY()).containsTerrain(Terrains.WOODS)) {
                     coord.fitness += 2;
                 }
             }
@@ -938,7 +935,7 @@ public abstract class BotClient extends Client {
      */
     private int calculateEdgeAccessFitness(Entity entity, Board board) {
         // Flying units can always get anywhere
-        if (entity.isAirborne() || entity instanceof VTOL) {
+        if (entity.isAirborne() || (entity instanceof VTOL)) {
             return 0;
         }
         

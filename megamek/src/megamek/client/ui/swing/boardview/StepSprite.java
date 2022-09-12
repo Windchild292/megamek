@@ -13,15 +13,14 @@
 */
 package megamek.client.ui.swing.boardview;
 
+import megamek.client.ui.Messages;
+import megamek.client.ui.swing.GUIPreferences;
+import megamek.common.*;
+import megamek.common.MovePath.MoveStepType;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-
-import megamek.client.ui.Messages;
-import megamek.client.ui.swing.GUIPreferences;
-import megamek.codeUtilities.StringUtility;
-import megamek.common.*;
-import megamek.common.MovePath.MoveStepType;
 
 /**
  * Sprite for a step in a movement path. Only one sprite should exist for
@@ -165,7 +164,7 @@ class StepSprite extends Sprite {
                 break;
             case CLIMB_MODE_ON:
                 String climb;
-                if (step.getEntity().getMovementMode() == EntityMovementMode.WIGE) {
+                if (step.getEntity().getMovementMode().isWiGE()) {
                     climb = Messages.getString("BoardView1.WIGEClimb");
                 } else {
                     climb = Messages.getString("BoardView1.Climb");
@@ -174,7 +173,7 @@ class StepSprite extends Sprite {
                 break;
             case CLIMB_MODE_OFF:
                 String climbOff;
-                if (step.getEntity().getMovementMode() == EntityMovementMode.WIGE) {
+                if (step.getEntity().getMovementMode().isWiGE()) {
                     climbOff = Messages.getString("BoardView1.WIGEClimbOff");
                 } else {
                     climbOff = Messages.getString("BoardView1.ClimbOff");

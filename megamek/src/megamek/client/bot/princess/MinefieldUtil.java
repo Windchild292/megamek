@@ -15,13 +15,7 @@
 
 package megamek.client.bot.princess;
 
-import megamek.common.Compute;
-import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
-import megamek.common.Mech;
-import megamek.common.Minefield;
-import megamek.common.MovePath;
-import megamek.common.MoveStep;
+import megamek.common.*;
 import megamek.common.annotations.Nullable;
 
 /**
@@ -63,8 +57,8 @@ public class MinefieldUtil {
         
         double hazardAccumulator = 0;
         // hovercraft and WIGEs grinding along the ground detonate minefields on a 12
-        boolean hoverMovement = (movingUnit.getMovementMode() == EntityMovementMode.HOVER) ||
-                ((movingUnit.getMovementMode() == EntityMovementMode.WIGE) && (movingUnit.getElevation() == 0));
+        boolean hoverMovement = movingUnit.getMovementMode().isHover()
+                || (movingUnit.getMovementMode().isWiGE() && (movingUnit.getElevation() == 0));
         double hoverMovementMultiplier = hoverMovement ?
                 Compute.oddsAbove(Minefield.HOVER_WIGE_DETONATION_TARGET) : 1;
         

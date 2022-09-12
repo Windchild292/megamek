@@ -424,11 +424,12 @@ public class ServerHelper {
             }
         }
     }
-    
+
     public static void checkAndApplyMagmaCrust(Hex hex, int elevation, Entity entity, Coords curPos,
-            boolean jumpLanding, Vector<Report> vPhaseReport, GameManager gameManager) {
-        
-        if ((hex.terrainLevel(Terrains.MAGMA) == 1) && (elevation == 0) && (entity.getMovementMode() != EntityMovementMode.HOVER)) {
+                                               boolean jumpLanding, Vector<Report> vPhaseReport,
+                                               GameManager gameManager) {
+        if ((hex.terrainLevel(Terrains.MAGMA) == 1) && (elevation == 0)
+                && !entity.getMovementMode().isHover()) {
             int reportID = jumpLanding ? 2396 : 2395;
             
             int roll = Compute.d6();

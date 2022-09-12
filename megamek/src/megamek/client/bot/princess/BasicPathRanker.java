@@ -890,14 +890,12 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
         logMsg.append("\n\tCalculating ice hazard:  ");
 
         // Hover units are above the surface.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE()) {
             logMsg.append("Hovering above ice (0).");
             return 0;
         }
 
-        // If there is no water under the ice, don't worry about breaking 
-        // through.
+        // If there is no water under the ice, don't worry about breaking through.
         if (hex.depth() < 1) {
             logMsg.append("No water under ice (0).");
             return 0;
@@ -926,9 +924,7 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
         }
 
         // Hover units are above the surface.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode() ||
-            EntityMovementMode.NAVAL == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE() || movingUnit.getMovementMode().isNaval()) {
             logMsg.append("Hovering or swimming above water (0).");
             return 0;
         }
@@ -950,16 +946,16 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
                 return 0;
             }
         }
-        
+
         // Most other units are automatically destroyed.
-        if (!(movingUnit instanceof Mech || movingUnit instanceof Protomech ||
-              movingUnit instanceof BattleArmor)) {
+        if (!((movingUnit instanceof Mech) || (movingUnit instanceof Protomech) ||
+                (movingUnit instanceof BattleArmor))) {
             logMsg.append("Ill drown (1000).");
             return UNIT_DESTRUCTION_FACTOR;
         }
 
         // Unsealed unit will drown.
-        if (movingUnit instanceof Mech && ((Mech) movingUnit).isIndustrial()) {
+        if ((movingUnit instanceof Mech) && ((Mech) movingUnit).isIndustrial()) {
             logMsg.append("Industrial mechs drown too (1000).");
             return UNIT_DESTRUCTION_FACTOR;
         }
@@ -1068,8 +1064,7 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
         logMsg.append("\n\tCalculating magma hazard:  ");
 
         // Hovers are unaffected.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE()) {
             logMsg.append("Hovering above magma (0).");
             return 0;
         }
@@ -1086,8 +1081,7 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
                   .append(LOG_PERCENT.format(breakThroughMod));
 
             // Factor in the chance to break through.
-            double lavalHazard = calcLavaHazard(endHex, movingUnit, step,
-                                                logMsg) * breakThroughMod;
+            double lavalHazard = calcLavaHazard(endHex, movingUnit, step, logMsg) * breakThroughMod;
             logMsg.append("\n\t\t\tLava hazard (")
                   .append(LOG_DECIMAL.format(lavalHazard)).append(").");
             hazardValue += lavalHazard;
@@ -1108,10 +1102,8 @@ public class BasicPathRanker extends PathRanker implements IPathRanker {
                                   MoveStep step, StringBuilder logMsg) {
         logMsg.append("\n\tCalculating laval hazard:  ");
 
-
         // Hovers are unaffected.
-        if (EntityMovementMode.HOVER == movingUnit.getMovementMode() ||
-            EntityMovementMode.WIGE == movingUnit.getMovementMode()) {
+        if (movingUnit.getMovementMode().isHoverOrWiGE()) {
             logMsg.append("Hovering above lava (0).");
             return 0;
         }

@@ -1072,9 +1072,9 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         ce.setClimbMode(GUIPreferences.getInstance().getBoolean(GUIPreferences.ADVANCED_MOVE_DEFAULT_CLIMB_MODE));
 
         // switch back from swimming to normal mode.
-        if (ce.getMovementMode() == EntityMovementMode.BIPED_SWIM) {
+        if (ce.getMovementMode().isBipedSwim()) {
             ce.setMovementMode(EntityMovementMode.BIPED);
-        } else if (ce.getMovementMode() == EntityMovementMode.QUAD_SWIM) {
+        } else if (ce.getMovementMode().isQuadSwim()) {
             ce.setMovementMode(EntityMovementMode.QUAD);
         }
         
@@ -1085,8 +1085,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         // set to "walk," or the equivalent
         if (gear != MovementDisplay.GEAR_JUMP) {
             gear = MovementDisplay.GEAR_LAND;
-            Color walkColor = GUIPreferences.getInstance().getColor(
-                    GUIPreferences.ADVANCED_MOVE_DEFAULT_COLOR);
+            Color walkColor = GUIPreferences.getInstance().getColor(GUIPreferences.ADVANCED_MOVE_DEFAULT_COLOR);
             clientgui.getBoardView().setHighlightColor(walkColor);
         } else if (!cmd.isJumping()) {
             cmd.addStep(MoveStepType.START_JUMP);
@@ -1094,8 +1093,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         // update some GUI elements
         clientgui.getBoardView().clearMovementData();
-        butDone.setText("<html><b>"
-                        + Messages.getString("MovementDisplay.Done") + "</b></html>");
+        butDone.setText("<html><b>" + Messages.getString("MovementDisplay.Done") + "</b></html>");
         updateProneButtons();
         updateRACButton();
         updateSearchlightButton();
@@ -1431,7 +1429,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         // check to see if spheroids will drop an elevation
         if (ce() instanceof LandAirMech && ce().isAssaultDropInProgress()
-                && cmd.getFinalConversionMode() == EntityMovementMode.AERODYNE) {
+                && cmd.getFinalConversionMode().isAerodyne()) {
             ConfirmDialog nag = new ConfirmDialog(clientgui.frame,
                     Messages.getString("MovementDisplay.areYouSure"),
                     Messages.getString("MovementDisplay.insufficientAltitudeForConversion") + check,
@@ -2346,23 +2344,15 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
     private void updateBootleggerButton() {
         final Entity ce = ce();
-
-        if (null == ce) {
+        if (ce == null) {
             return;
-        }
-
-        if (!clientgui.getClient().getGame().getOptions()
-                      .booleanOption(OptionsConstants.ADVGRNDMOV_VEHICLE_ADVANCED_MANEUVERS)) {
+        } else if (!clientgui.getClient().getGame().getOptions()
+                .booleanOption(OptionsConstants.ADVGRNDMOV_VEHICLE_ADVANCED_MANEUVERS)) {
             return;
-        }
-        
-        if (!(ce instanceof Tank || ce instanceof QuadVee)) {
+        } else if (!(ce instanceof Tank || ce instanceof QuadVee)) {
             return;
-        }
-                
-        if (ce.getMovementMode() != EntityMovementMode.WHEELED
-                && ce.getMovementMode() != EntityMovementMode.HOVER
-                && ce.getMovementMode() != EntityMovementMode.VTOL) {
+        } else if (!ce.getMovementMode().isWheeled() && !ce.getMovementMode().isHover()
+                && !ce.getMovementMode().isVTOL()) {
             return;
         }
 
@@ -4161,8 +4151,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
      */
     public void computeMovementEnvelope(Entity suggestion) {
         // do nothing if deactivated in the settings
-        if (!GUIPreferences.getInstance()
-                .getBoolean(GUIPreferences.MOVE_ENVELOPE)) {
+        if (!GUIPreferences.getInstance().getBoolean(GUIPreferences.MOVE_ENVELOPE)) {
             clientgui.getBoardView().clearMovementEnvelope();
             return;
         }
@@ -4180,8 +4169,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         if (en.isDone()) {
             return;
         }
-        
-        Map<Coords, MovePath> mvEnvData = new HashMap<>();
+
         MovePath mp = new MovePath(clientgui.getClient().getGame(), en);
 
         int maxMP;
@@ -4190,7 +4178,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         } else if (mvMode == GEAR_BACKUP) {
             maxMP = en.getWalkMP();
         } else if ((ce() instanceof Mech) && !(ce() instanceof QuadVee)
-                && (ce().getMovementMode() == EntityMovementMode.TRACKED)) {
+                && ce().getMovementMode().isTracked()) {
             // A non-QuadVee 'Mech that is using tracked movement is limited to walking
             maxMP = en.getWalkMP();
         } else {
@@ -4209,7 +4197,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
 
         ShortestPathFinder pf = ShortestPathFinder.newInstanceOfOneToAll(maxMP, stepType, en.getGame());
         pf.run(mp);
-        mvEnvData = pf.getAllComputedPaths();
+        Map<Coords, MovePath> mvEnvData = pf.getAllComputedPaths();
         Map<Coords, Integer> mvEnvMP = new HashMap<>((int) ((mvEnvData.size() * 1.25) + 1));
         for (Coords c : mvEnvData.keySet()) {
             mvEnvMP.put(c, mvEnvData.get(c).countMp(mvMode == GEAR_JUMP));
@@ -4228,7 +4216,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         } else if (gear == GEAR_BACKUP) {
             maxMP = ce().getWalkMP();
         } else if (ce() instanceof Mech && !(ce() instanceof QuadVee)
-                && ce().getMovementMode() == EntityMovementMode.TRACKED) {
+                && ce().getMovementMode().isTracked()) {
             // A non-QuadVee 'Mech that is using tracked movement (or converting to it) is limited to walking
             maxMP = ce().getWalkMP();
         } else {
@@ -4795,17 +4783,13 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             clientgui.getBoardView().drawMovementData(ce, cmd);
         } else if (actionCmd.equals(MoveCommand.MOVE_HOVER.getCmd())) {
             cmd.addStep(MoveStepType.HOVER);
-            if (ce instanceof LandAirMech
-                    && ce.getMovementMode() == EntityMovementMode.WIGE
-                    && ce.isAirborne()) {
+            if ((ce instanceof LandAirMech) && ce.getMovementMode().isWiGE() && ce.isAirborne()) {
                 gear = GEAR_LAND;
             }
             clientgui.getBoardView().drawMovementData(ce, cmd);
         } else if (actionCmd.equals(MoveCommand.MOVE_MANEUVER.getCmd())) {
-            ManeuverChoiceDialog choiceDialog = new ManeuverChoiceDialog(
-                    clientgui.frame,
-                    Messages.getString("MovementDisplay.ManeuverDialog.title"),
-                    "huh?");
+            ManeuverChoiceDialog choiceDialog = new ManeuverChoiceDialog(clientgui.getFrame(),
+                    Messages.getString("MovementDisplay.ManeuverDialog.title"), "huh?");
             IAero a = (IAero) ce;
             MoveStep last = cmd.getLastStep();
             int vel = a.getCurrentVelocity();
@@ -4893,10 +4877,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
             if (ce().isAero()
                     && (null != ((IAero) ce()).hasRoomForHorizontalTakeOff())) {
                 String title = Messages.getString("MovementDisplay.NoTakeOffDialog.title");
-                String body = Messages.getString(
-                        "MovementDisplay.NoTakeOffDialog.message",
-                        new Object[] { ((IAero) ce())
-                                .hasRoomForHorizontalTakeOff() });
+                String body = Messages.getString("MovementDisplay.NoTakeOffDialog.message",
+                        ((IAero) ce()).hasRoomForHorizontalTakeOff());
                 clientgui.doAlertDialog(title, body);
             } else {
                 if (clientgui.doYesNoDialog(
@@ -5048,13 +5030,12 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
      */
     private void adjustConvertSteps(EntityMovementMode endMode) {
         // Since conversion is not allowed in water, we shouldn't have to deal with the possibility of swim modes.
-        if (ce().getMovementMode() == endMode
+        if ((ce().getMovementMode() == endMode)
                 // Account for grounded LAMs in fighter mode with movement type wheeled 
-                || (ce().isAero() && endMode == EntityMovementMode.AERODYNE)) {
+                || (ce().isAero() && endMode.isAerodyne())) {
             cmd.clear();
             return;
-        }
-        if (cmd.getFinalConversionMode() == endMode) {
+        } else if (cmd.getFinalConversionMode() == endMode) {
             return;
         }
         clear();
@@ -5063,7 +5044,8 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         if (cmd.getFinalConversionMode() != endMode) {
             cmd.addStep(MoveStepType.CONVERT_MODE);
         }
-        if (ce() instanceof Mech && ((Mech) ce()).hasTracks()) {
+
+        if ((ce() instanceof Mech) && ((Mech) ce()).hasTracks()) {
             ce().setMovementMode(endMode);
         }
     }
@@ -5078,7 +5060,6 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
      */
     private void unloadStranded() {
         Vector<Entity> stranded = new Vector<>();
-        String[] names = null;
         Entity entity = null;
         Entity transport = null;
 
@@ -5102,7 +5083,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         }
 
         // Construct an array of stranded entity names
-        names = new String[stranded.size()];
+        String[] names = new String[stranded.size()];
         for (int index = 0; index < names.length; index++) {
             entity = stranded.elementAt(index);
             transport = clientgui.getClient().getEntity(entity.getTransportId());
@@ -5143,6 +5124,7 @@ public class MovementDisplay extends StatusBarPhaseDisplay {
         if (isIgnoringEvents()) {
             return;
         }
+
         if (clientgui.getClient().isMyTurn() && (ce != null)) {
             clientgui.maybeShowUnitDisplay();
             clientgui.getBoardView().centerOnHex(ce.getPosition());

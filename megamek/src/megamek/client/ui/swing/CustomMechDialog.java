@@ -975,14 +975,14 @@ public class CustomMechDialog extends ClientDialog implements ActionListener,
                             || ((LandAirMech) e).getLAMType() == LandAirMech.LAM_BIMODAL
                                 && choStartingMode.getSelectedIndex() == 1));
             isShip &= (e instanceof SmallCraft) || (e instanceof Jumpship);
-            isVTOL &= (e.getMovementMode() == EntityMovementMode.VTOL);
-            isWiGE &= (e instanceof Tank) && (e.getMovementMode() == EntityMovementMode.WIGE);
+            isVTOL &= e.getMovementMode().isVTOL();
+            isWiGE &= (e instanceof Tank) && e.getMovementMode().isWiGE();
             isQuadVee &= (e instanceof QuadVee);
             isLAM &= (e instanceof LandAirMech);
             isAirMech &= (e instanceof LandAirMech)
                     && (((LandAirMech) e).getLAMType() == LandAirMech.LAM_STANDARD)
                     && (choStartingMode.getSelectedIndex() == 1);
-            isGlider &= (e instanceof Protomech) && (e.getMovementMode() == EntityMovementMode.WIGE);
+            isGlider &= (e instanceof Protomech) && e.getMovementMode().isWiGE();
         }
 
         // get values

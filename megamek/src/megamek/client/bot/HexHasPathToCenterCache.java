@@ -116,8 +116,7 @@ public final class HexHasPathToCenterCache {
         Key(String hexCoords, EntityMovementMode movementMode) {
             if (StringUtility.isNullOrBlank(hexCoords)) {
                 throw new IllegalArgumentException("Starting Coords is NULL or Empty.");
-            }
-            if (movementMode == null) {
+            } else if (movementMode == null) {
                 throw new IllegalArgumentException("Movement Type is NULL.");
             }
             this.hexCoords = hexCoords;
@@ -146,8 +145,7 @@ public final class HexHasPathToCenterCache {
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
-            }
-            if (!(o instanceof Key)) {
+            } else if (!(o instanceof Key)) {
                 return false;
             }
 

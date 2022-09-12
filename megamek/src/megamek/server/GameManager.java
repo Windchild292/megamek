@@ -33342,8 +33342,7 @@ public class GameManager implements IGameManager {
         // which for these particular purposes may or may not be the intent of
         // the rules in all cases.
         // Immobile hovercraft on water sink...
-        if (((te.getMovementMode() == EntityMovementMode.HOVER)
-                || ((te.getMovementMode() == EntityMovementMode.WIGE) && (te.getElevation() == 0)))
+        if ((te.getMovementMode().isHover() || (te.getMovementMode().isWiGE() && (te.getElevation() == 0)))
                 && (te.isMovementHitPending() || (te.getWalkMP() <= 0))
                 // HACK: Have to check for *pending* hit here and below.
                 && (game.getBoard().getHex(te.getPosition()).terrainLevel(Terrains.WATER) > 0)
@@ -33351,7 +33350,7 @@ public class GameManager implements IGameManager {
             vDesc.addAll(destroyEntity(te, "a watery grave", false));
         }
         // ...while immobile WiGEs crash.
-        if (((te.getMovementMode() == EntityMovementMode.WIGE) && (te.isAirborneVTOLorWIGE()))
+        if ((te.getMovementMode().isWiGE() && te.isAirborneVTOLorWIGE())
                 && (te.isMovementHitPending() || (te.getWalkMP() <= 0))) {
             // report problem: add tab
             vDesc.addAll(crashVTOLorWiGE(te));

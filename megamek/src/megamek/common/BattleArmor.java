@@ -517,7 +517,7 @@ public class BattleArmor extends Infantry {
             }
         }
         int mp = 0;
-        if (getMovementMode() != EntityMovementMode.INF_UMU) {
+        if (!getMovementMode().isUMUInfantry()) {
             mp = getOriginalJumpMP();
         }
         // if we have no normal jump jets, we get 1 jump MP from mechanical jump
@@ -982,7 +982,7 @@ public class BattleArmor extends Infantry {
     public boolean canMakeAntiMekAttacks() {
         return !isBurdened() && canDoMechanizedBA()
                 && (getWeightClass() < EntityWeightClass.WEIGHT_HEAVY)
-                && (getMovementMode() != EntityMovementMode.INF_UMU);
+                && !getMovementMode().isUMUInfantry();
     }
 
     /**
@@ -1737,9 +1737,9 @@ public class BattleArmor extends Infantry {
 
     @Override
     public void setAlphaStrikeMovement(Map<String,Integer> moves) {
-        if (getMovementMode().equals(EntityMovementMode.INF_JUMP)) {
+        if (getMovementMode().isJumpInfantry()) {
             moves.put("j", getJumpMP(true, true, true) * 2);
-        } else if (getMovementMode().equals(EntityMovementMode.INF_UMU)) {
+        } else if (getMovementMode().isUMUInfantry()) {
             moves.put("s", getActiveUMUCount() * 2);
         } else {
             moves.put(getMovementModeAsBattleForceString(), getOriginalWalkMP() * 2);
@@ -1907,7 +1907,7 @@ public class BattleArmor extends Infantry {
             return 0;
         }
         int max = 2;
-        if (getMovementMode() == EntityMovementMode.INF_UMU) {
+        if (getMovementMode().isUMUInfantry()) {
             if (getWeightClass() <= EntityWeightClass.WEIGHT_LIGHT) {
                 max = 5;
             } else if (getWeightClass() == EntityWeightClass.WEIGHT_MEDIUM) {
@@ -1918,7 +1918,7 @@ public class BattleArmor extends Infantry {
                 max = 2;
             }
         }
-        else if (getMovementMode() == EntityMovementMode.VTOL) {
+        else if (getMovementMode().isVTOL()) {
             if (getWeightClass() == EntityWeightClass.WEIGHT_ULTRA_LIGHT) {
                 max = 7;
             } else if (getWeightClass() == EntityWeightClass.WEIGHT_LIGHT) {

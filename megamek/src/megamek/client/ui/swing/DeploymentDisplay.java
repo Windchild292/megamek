@@ -41,7 +41,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
 
     /**
      * This enumeration lists all the possible ActionCommands that can be
-     * carried out during the deployment phase.  Each command has a string for the
+     * carried out during the deployment phase. Each command has a string for the
      * command plus a flag that determines what unit type it is appropriate for.
      * @author arlith
      */
@@ -287,7 +287,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
         String reason = game.getPlanetaryConditions().whyDoomed(en, game);
         if ((reason != null) && GUIPreferences.getInstance().getNagForDoomed()) {
             String title = Messages.getString("DeploymentDisplay.ConfirmDoomed.title"); 
-            String body = Messages.getString("DeploymentDisplay.ConfirmDoomed.message", new Object[] {reason}); 
+            String body = Messages.getString("DeploymentDisplay.ConfirmDoomed.message", reason);
             ConfirmDialog response = clientgui.doYesNoBotherDialog(title, body);
             if (!response.getShowAgain()) {
                 GUIPreferences.getInstance().setNagForDoomed(false);
@@ -307,7 +307,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
             elevation = Math.max(0, elevation - (hex.ceiling() - hex.getLevel() + 1));
         }
         // Deploy grounded WiGEs on the roof of a building, and airborne at least one elevation above the roof.
-        if ((en.getMovementMode() == EntityMovementMode.WIGE) && hex.containsTerrain(Terrains.BLDG_ELEV)) {
+        if (en.getMovementMode().isWiGE() && hex.containsTerrain(Terrains.BLDG_ELEV)) {
             int minElev = hex.terrainLevel(Terrains.BLDG_ELEV);
             if (elevation > 0) {
                 minElev++;
@@ -443,7 +443,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
         final Building bldg = board.getBuildingAt(moveto);
         boolean isAero = ce().isAero();
         boolean isVTOL = ce() instanceof VTOL;
-        boolean isWiGE = ce().getMovementMode().equals(EntityMovementMode.WIGE);
+        boolean isWiGE = ce().getMovementMode().isWiGE();
         boolean isTankOnPavement = ce().hasETypeFlag(Entity.ETYPE_TANK) 
                 && !ce().hasETypeFlag(Entity.ETYPE_GUN_EMPLACEMENT)
                 && !ce().isNaval()
@@ -491,10 +491,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
                 }
             } else if (!isAero && !isWiGE) {
                 // hovers and naval units go on the surface
-                if ((ce().getMovementMode() == EntityMovementMode.NAVAL)
-                        || (ce().getMovementMode() == EntityMovementMode.SUBMARINE)
-                        || (ce().getMovementMode() == EntityMovementMode.HYDROFOIL)
-                        || (ce().getMovementMode() == EntityMovementMode.HOVER)) {
+                if (ce().getMovementMode().isMarine() || ce().getMovementMode().isHover()) {
                     ce().setElevation(0);
                 } else if (isVTOL) {
                     // VTOLs go to elevation 1... unless set in the Lounge.
@@ -528,9 +525,6 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
         final Game game = clientgui.getClient().getGame();
 
         int height = board.getHex(moveto).terrainLevel(Terrains.BLDG_ELEV);
-        if (ce().getMovementMode() == EntityMovementMode.WIGE) {
-            //TODO: Something seems to be missing here
-        }
         ArrayList<String> floorNames = new ArrayList<>(height + 1);
         ArrayList<Integer> floorValues = new ArrayList<>(height + 1);
 
@@ -597,7 +591,7 @@ public class DeploymentDisplay extends StatusBarPhaseDisplay {
             if (input.equals(Messages.getString("DeploymentDisplay.topbridge"))) {
                 ce().setElevation(height);
             } else {
-                if (ce().isNaval() && (ce().getMovementMode() != EntityMovementMode.SUBMARINE)) {
+                if (ce().isNaval() && !ce().getMovementMode().isSubmarine()) {
                     ce().setElevation(0);
                 } else {
                     ce().setElevation(deployhex.floor() - deployhex.getLevel());

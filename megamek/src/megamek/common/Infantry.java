@@ -471,11 +471,6 @@ public class Infantry extends Entity {
         return getRunMP(gravity, ignoreheat, ignoremodulararmor);
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see megamek.common.Entity#getJumpMP(boolean)
-     */
     @Override
     public int getJumpMP(boolean gravity) {
         int mp = 0;
@@ -511,8 +506,7 @@ public class Infantry extends Entity {
 
     @Override
     public boolean hasUMU() {
-        return getMovementMode().equals(EntityMovementMode.INF_UMU)
-                || getMovementMode().equals(EntityMovementMode.SUBMARINE);
+        return getMovementMode().isUMUInfantry() || getMovementMode().isSubmarine();
     }
 
     @Override
@@ -522,11 +516,7 @@ public class Infantry extends Entity {
 
     @Override
     public int getAllUMUCount() {
-        if (hasUMU()) {
-            return jumpMP;
-        } else {
-            return 0;
-        }
+        return hasUMU() ? jumpMP : 0;
     }
 
     @Override
@@ -1956,13 +1946,13 @@ public class Infantry extends Entity {
     @Override
     public int getBattleForceArmorPoints() {
         // Infantry armor points is # of men / 15
-        return (int) Math.ceil(getInternal(0)/15.0);
+        return (int) Math.ceil(getInternal(0) / 15.0);
     }
 
-    @Override
     /**
      * Each squad has 1 structure point
      */
+    @Override
     public int getBattleForceStructurePoints() {
         return 1;
     }
