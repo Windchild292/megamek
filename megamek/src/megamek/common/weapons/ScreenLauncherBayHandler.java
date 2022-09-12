@@ -1,15 +1,15 @@
-/**
- * MegaMek - Copyright (C) 2005 Ben Mazur (bmazur@sev.org)
- * 
- *  This program is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU General Public License as published by the Free 
- *  Software Foundation; either version 2 of the License, or (at your option) 
- *  any later version.
- * 
- *  This program is distributed in the hope that it will be useful, but 
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
- *  for more details.
+/*
+ * MegaMek - Copyright (c) 2005 Ben Mazur (bmazur@sev.org)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package megamek.common.weapons;
 
@@ -31,29 +31,16 @@ import megamek.server.GameManager;
  * @author Jay Lawson
  */
 public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
-
-    /**
-     * 
-     */
-
     private static final long serialVersionUID = -1618484541772117621L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
-    public ScreenLauncherBayHandler(ToHitData t, WeaponAttackAction w, Game g,
-            GameManager m) {
+    public ScreenLauncherBayHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
     /**
      * handle this weapons firing
      * 
-     * @return a <code>boolean</code> value indicating wether this should be
-     *         kept or not
+     * @return a <code>boolean</code> value indicating whether this should be kept or not
      */
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
@@ -61,8 +48,7 @@ public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
             return true;
         }
 
-        // same as ScreenLauncher handler, except run multiple times depending
-        // on
+        // same as ScreenLauncher handler, except run multiple times depending on
         // how many screen launchers in bay
 
         // Report weapon attack and its to-hit value.
@@ -126,5 +112,4 @@ public class ScreenLauncherBayHandler extends AmmoBayWeaponHandler {
         }
         return false;
     }
-
 }

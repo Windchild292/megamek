@@ -19,8 +19,6 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
 import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.enums.GamePhase;
@@ -28,29 +26,18 @@ import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
 import megamek.server.SmokeCloud;
 
+import java.util.Vector;
+
 /**
  * @author Jason Tighe
  */
 public class HVACWeaponHandler extends ACWeaponHandler {
     private static final long serialVersionUID = 7326881584091651519L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
     public HVACWeaponHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * megamek.common.weapons.WeaponHandler#handle(megamek.common.Game.Phase,
-     * java.util.Vector)
-     */
     @Override
     public boolean handle(GamePhase phase, Vector<Report> vPhaseReport) {
         if (game.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_START_FIRE)
@@ -77,11 +64,6 @@ public class HVACWeaponHandler extends ACWeaponHandler {
         return super.handle(phase, vPhaseReport);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#doChecks(java.util.Vector)
-     */
     @Override
     protected boolean doChecks(Vector<Report> vPhaseReport) {
         if (doAmmoFeedProblemCheck(vPhaseReport)) {
@@ -96,8 +78,7 @@ public class HVACWeaponHandler extends ACWeaponHandler {
             int wloc = weapon.getLocation();
             for (int i = 0; i < ae.getNumberOfCriticals(wloc); i++) {
                 CriticalSlot slot1 = ae.getCritical(wloc, i);
-                if ((slot1 == null) || 
-                        (slot1.getType() == CriticalSlot.TYPE_SYSTEM)) {
+                if ((slot1 == null) || (slot1.getType() == CriticalSlot.TYPE_SYSTEM)) {
                     continue;
                 }
                 Mounted mounted = slot1.getMount();
@@ -114,5 +95,4 @@ public class HVACWeaponHandler extends ACWeaponHandler {
             return super.doChecks(vPhaseReport);
         }
     }
-
 }

@@ -33,14 +33,7 @@ public class MissileWeaponHandler extends AmmoWeaponHandler {
     boolean advancedPD = false;
     boolean multiAMS = false;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
-    public MissileWeaponHandler(ToHitData t, WeaponAttackAction w, Game g,
-            GameManager m) {
+    public MissileWeaponHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         generalDamageType = HitData.DAMAGE_MISSILE;
         advancedAMS = g.getOptions().booleanOption(OptionsConstants.ADVCOMBAT_TACOPS_AMS);
