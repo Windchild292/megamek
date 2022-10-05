@@ -13,18 +13,11 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Building;
-import megamek.common.Compute;
-import megamek.common.Entity;
-import megamek.common.Game;
-import megamek.common.Report;
-import megamek.common.Targetable;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author arlith
@@ -34,22 +27,10 @@ public class MekMortarAntiPersonnelHandler extends AmmoWeaponHandler {
     
     String sSalvoType = " shell(s) ";
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
-    public MekMortarAntiPersonnelHandler(ToHitData t, WeaponAttackAction w,
-            Game g, GameManager m) {
+    public MekMortarAntiPersonnelHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcHits(java.util.Vector)
-     */
     @Override
     protected int calcHits(Vector<Report> vPhaseReport) {
         boolean targetHex = (target.getTargetType() == Targetable.TYPE_HEX_CLEAR)
@@ -60,8 +41,7 @@ public class MekMortarAntiPersonnelHandler extends AmmoWeaponHandler {
         if (targetHex) {
             missilesHit = wtype.getRackSize();
         } else {
-            missilesHit = Compute.missilesHit(wtype.getRackSize(),
-                    nMissilesModifier);
+            missilesHit = Compute.missilesHit(wtype.getRackSize(), nMissilesModifier);
         }
 
         if (missilesHit > 0) {
@@ -98,19 +78,13 @@ public class MekMortarAntiPersonnelHandler extends AmmoWeaponHandler {
     /**
      * Calculate the clustering of the hits
      * 
-     * @return a <code>int</code> value saying how much hits are in each cluster
-     *         of damage.
+     * @return a <code>int</code> value saying how much hits are in each cluster of damage.
      */
     @Override
     protected int calcnCluster() {
         return 1;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
         if (target.isConventionalInfantry()) {
@@ -126,17 +100,15 @@ public class MekMortarAntiPersonnelHandler extends AmmoWeaponHandler {
         }
         return 1;
     }
-    
+
     @Override
     protected void handleEntityDamage(Entity entityTarget, Vector<Report> vPhaseReport,
                                       Building bldg, int hits, int nCluster, int bldgAbsorbs) {
-        super.handleEntityDamage(entityTarget, vPhaseReport, bldg, hits,
-                nCluster, bldgAbsorbs);
-        
+        super.handleEntityDamage(entityTarget, vPhaseReport, bldg, hits, nCluster, bldgAbsorbs);
+
         // We need to roll damage for each hit against infantry
         if (target.isConventionalInfantry()) {
             nDamPerHit = calcDamagePerHit();
         }
     }
-
 }

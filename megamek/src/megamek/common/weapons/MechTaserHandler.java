@@ -13,48 +13,24 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.Aero;
-import megamek.common.BattleArmor;
-import megamek.common.Compute;
-import megamek.common.Entity;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Mech;
-import megamek.common.Protomech;
-import megamek.common.Report;
-import megamek.common.Tank;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 public class MechTaserHandler extends AmmoWeaponHandler {
-
     private static final long serialVersionUID = 1308895663099714573L;
 
     protected MechTaserHandler() {
         // deserialization only
     }
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     */
     public MechTaserHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         generalDamageType = HitData.DAMAGE_ENERGY;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * megamek.common.weapons.WeaponHandler#specialResolution(java.util.Vector,
-     * megamek.common.Entity, boolean)
-     */
     @Override
     protected boolean specialResolution(Vector<Report> vPhaseReport, Entity entityTarget) {
         boolean done = false;
@@ -69,11 +45,12 @@ public class MechTaserHandler extends AmmoWeaponHandler {
         if (entityTarget.getWeight() > 100) {
             return done;
         }
+
         if (entityTarget instanceof BattleArmor) {
             r = new Report(3706);
             r.addDesc(entityTarget);
             // shut down for rest of scenario, so we actually kill it
-            // TODO: fix for salvage purposes
+            // TODO : fix for salvage purposes
             r.add(entityTarget.getLocationAbbr(hit));
             vPhaseReport.add(r);
             entityTarget.destroyLocation(hit.getLocation());
@@ -132,6 +109,7 @@ public class MechTaserHandler extends AmmoWeaponHandler {
                 entityTarget.setTaserInterference(2, 4, false);
             }
         }
+
         return done;
     }
 }

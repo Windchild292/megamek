@@ -13,20 +13,12 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.AmmoType;
-import megamek.common.Compute;
-import megamek.common.Game;
-import megamek.common.Infantry;
-import megamek.common.RangeType;
-import megamek.common.Report;
-import megamek.common.ToHitData;
-import megamek.common.WeaponType;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Andrew Hunter
@@ -35,22 +27,11 @@ import megamek.server.Server;
 public class LBXHandler extends AmmoWeaponHandler {
     private static final long serialVersionUID = 6803847280685526644L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
     public LBXHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         sSalvoType = " pellet(s) ";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
         if (target.isConventionalInfantry()) {
@@ -80,12 +61,6 @@ public class LBXHandler extends AmmoWeaponHandler {
         return av;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcHits(Vector<Report>
-     * vPhaseReport)
-     */
     @Override
     protected int calcHits(Vector<Report> vPhaseReport) {
         // conventional infantry gets hit in one lump
@@ -109,8 +84,7 @@ public class LBXHandler extends AmmoWeaponHandler {
             }
         } else {
 
-            shotsHit = Compute.missilesHit(wtype.getRackSize(), nHitsModifier,
-                                           game.getPlanetaryConditions().hasEMI());
+            shotsHit = Compute.missilesHit(wtype.getRackSize(), nHitsModifier, game.getPlanetaryConditions().hasEMI());
         }
 
         Report r = new Report(3325);
@@ -142,5 +116,4 @@ public class LBXHandler extends AmmoWeaponHandler {
     protected boolean usesClusterTable() {
         return ((AmmoType) ammo.getType()).getMunitionType() == AmmoType.M_CLUSTER;
     }
-
 }

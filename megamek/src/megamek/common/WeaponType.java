@@ -71,12 +71,12 @@ public class WeaponType extends EquipmentType {
     public static final BigInteger F_AUTO_TARGET = BigInteger.valueOf(1).shiftLeft(4);
     // can not start fires
     public static final BigInteger F_NO_FIRES = BigInteger.valueOf(1).shiftLeft(5);
-    //must be only weapon attacking
+    // must be only weapon attacking
     public static final BigInteger F_SOLO_ATTACK = BigInteger.valueOf(1).shiftLeft(7);
     public static final BigInteger F_VGL = BigInteger.valueOf(1).shiftLeft(8);
     // MGL for rapid fire setup
     public static final BigInteger F_MG = BigInteger.valueOf(1).shiftLeft(9);
-    //Inferno weapon
+    // Inferno weapon
     public static final BigInteger F_INFERNO = BigInteger.valueOf(1).shiftLeft(10);
     // Infantry caliber weapon, damage based on # of men shooting
     public static final BigInteger F_INFANTRY = BigInteger.valueOf(1).shiftLeft(11);
@@ -85,39 +85,39 @@ public class WeaponType extends EquipmentType {
     public static final BigInteger F_ONESHOT = BigInteger.valueOf(1).shiftLeft(14);
     public static final BigInteger F_ARTILLERY = BigInteger.valueOf(1).shiftLeft(15);
 
-    //for Gunnery/Ballistic
+    // for Gunnery/Ballistic
     public static final BigInteger F_BALLISTIC = BigInteger.valueOf(1).shiftLeft(16);
-    //for Gunnery/Energy
+    // for Gunnery/Energy
     public static final BigInteger F_ENERGY = BigInteger.valueOf(1).shiftLeft(17);
-    //for Gunnery/Missile
+    // for Gunnery/Missile
     public static final BigInteger F_MISSILE = BigInteger.valueOf(1).shiftLeft(18);
 
-    //fires
+    // fires
     public static final BigInteger F_PLASMA = BigInteger.valueOf(1).shiftLeft(19);
     public static final BigInteger F_INCENDIARY_NEEDLES = BigInteger.valueOf(1).shiftLeft(20);
 
-    //War of 3039 prototypes
+    // War of 3039 prototypes
     public static final BigInteger F_PROTOTYPE = BigInteger.valueOf(1).shiftLeft(21);
-    //Variable heat, heat is listed in dice, not points
+    // Variable heat, heat is listed in dice, not points
     public static final BigInteger F_HEATASDICE = BigInteger.valueOf(1).shiftLeft(22);
-    //AMS
+    // AMS
     public static final BigInteger F_AMS = BigInteger.valueOf(1).shiftLeft(23);
 
-    //may only target Infantry
+    // may only target Infantry
     public static final BigInteger F_INFANTRY_ONLY = BigInteger.valueOf(1).shiftLeft(25);
 
     public static final BigInteger F_TAG = BigInteger.valueOf(1).shiftLeft(26);
-    //C3 Master with Target Acquisition gear
+    // C3 Master with Target Acquisition gear
     public static final BigInteger F_C3M = BigInteger.valueOf(1).shiftLeft(27);
 
-    //Plasma Rifle
+    // Plasma Rifle
     public static final BigInteger F_PLASMA_MFUK = BigInteger.valueOf(1).shiftLeft(28);
-    //fire Extinguisher
+    // fire Extinguisher
     public static final BigInteger F_EXTINGUISHER = BigInteger.valueOf(1).shiftLeft(29);
     public static final BigInteger F_PULSE = BigInteger.valueOf(1).shiftLeft(30);
     // Full Damage vs. Infantry
     public static final BigInteger F_BURST_FIRE = BigInteger.valueOf(1).shiftLeft(31);
-    //Machine Gun Array
+    // Machine Gun Array
     public static final BigInteger F_MGA = BigInteger.valueOf(1).shiftLeft(32);
     public static final BigInteger F_NO_AIM = BigInteger.valueOf(1).shiftLeft(33);
     public static final BigInteger F_BOMBAST_LASER = BigInteger.valueOf(1).shiftLeft(34);
@@ -125,7 +125,7 @@ public class WeaponType extends EquipmentType {
     public static final BigInteger F_B_POD = BigInteger.valueOf(1).shiftLeft(36);
     public static final BigInteger F_TASER = BigInteger.valueOf(1).shiftLeft(37);
 
-    //Anti-ship missiles
+    // Anti-ship missiles
     public static final BigInteger F_ANTI_SHIP = BigInteger.valueOf(1).shiftLeft(38);
     public static final BigInteger F_SPACE_BOMB = BigInteger.valueOf(1).shiftLeft(39);
     public static final BigInteger F_M_POD = BigInteger.valueOf(1).shiftLeft(40);
@@ -148,16 +148,18 @@ public class WeaponType extends EquipmentType {
     public static final BigInteger F_INF_SUPPORT = BigInteger.valueOf(1).shiftLeft(53);
     public static final BigInteger F_INF_ENCUMBER = BigInteger.valueOf(1).shiftLeft(54);
     public static final BigInteger F_INF_ARCHAIC = BigInteger.valueOf(1).shiftLeft(55);
-    public static final BigInteger F_INF_CLIMBINGCLAWS = BigInteger.valueOf(1).shiftLeft(63);   //TODO Add game rules IO pg 84
+
+    // TODO : Add game rules IO pg 84
+    public static final BigInteger F_INF_CLIMBINGCLAWS = BigInteger.valueOf(1).shiftLeft(63);
 
     // C3 Master Booster System
     public static final BigInteger F_C3MBS = BigInteger.valueOf(1).shiftLeft(56);
 
-    //Used for TSEMP Weapons.
+    // Used for TSEMP Weapons.
     public static final BigInteger F_TSEMP = BigInteger.valueOf(1).shiftLeft(57);
     public static final BigInteger F_REPEATING = BigInteger.valueOf(1).shiftLeft(61);
 
-    //Naval Mass Drivers
+    // Naval Mass Drivers
     public static final BigInteger F_MASS_DRIVER = BigInteger.valueOf(1).shiftLeft(58);
 
     public static final BigInteger F_CWS = BigInteger.valueOf(1).shiftLeft(59);
@@ -168,16 +170,16 @@ public class WeaponType extends EquipmentType {
     public static final BigInteger F_BOMB_WEAPON = BigInteger.valueOf(1).shiftLeft(61);
 
     public static final BigInteger F_BA_INDIVIDUAL = BigInteger.valueOf(1).shiftLeft(62);
-    //Next one's out of order. See F_INF_CLIMBINGCLAWS
+    // Next one's out of order. See F_INF_CLIMBINGCLAWS
 
-    //AMS and Point Defense Bays - Have to work differently from code using the F_AMS flag
+    // AMS and Point Defense Bays - Have to work differently from code using the F_AMS flag
     public static final BigInteger F_PDBAY = BigInteger.valueOf(1).shiftLeft(64);
     public static final BigInteger F_AMSBAY = BigInteger.valueOf(1).shiftLeft(65);
 
-    //Thunderbolt and similar large missiles, for use with AMS resolution
+    // Thunderbolt and similar large missiles, for use with AMS resolution
     public static final BigInteger F_LARGEMISSILE = BigInteger.valueOf(1).shiftLeft(66);
 
-    //Hyper-Laser
+    // Hyper-Laser
     public static final BigInteger F_HYPER = BigInteger.valueOf(1).shiftLeft(67);
 
     // Fusillade works like a one-shot weapon but has a second round.
@@ -290,12 +292,11 @@ public class WeaponType extends EquipmentType {
     public int waterLongRange;
     public int waterExtremeRange;
 
-    //the class of weapon for infantry damage
+    // the class of weapon for infantry damage
     public int infDamageClass = WEAPON_DIRECT_FIRE;
     /**
-     *  Used for the BA vs BA damage rules on TO pg 109.  Determines how much
-     *  damage a weapon will inflict on BA, where the default WEAPON_DIRECT_FIRE
-     *  indicates normal weapon damage.
+     * Used for the BA vs BA damage rules on TO pg 109. Determines how much damage a weapon will
+     * inflict on BA, where the default WEAPON_DIRECT_FIRE indicates normal weapon damage.
      */
     protected int baDamageClass = WEAPON_DIRECT_FIRE;
 
@@ -489,13 +490,11 @@ public class WeaponType extends EquipmentType {
                 sRange = 6;
             }
         }
-        //Allow extremely long-range shots for bearings-only capital missiles
+        // Allow extremely long-range shots for bearings-only capital missiles
         if (weapon.isInBearingsOnlyMode()) {
             eRange = RangeType.RANGE_BEARINGS_ONLY_OUT;
         }
-        int[] weaponRanges =
-                { minRange, sRange, mRange, lRange, eRange };
-        return weaponRanges;
+        return new int[] { minRange, sRange, mRange, lRange, eRange };
     }
 
     public int getMinimumRange() {
@@ -1322,7 +1321,7 @@ public class WeaponType extends EquipmentType {
         EquipmentType.addType(new InfantryArchaicWhipWeapon());
         EquipmentType.addType(new InfantryArchaicShockStaffWeapon());
 
-        //Clan Archaic - Commented out can be considered Obsolete
+        // Clan Archaic - Commented out can be considered Obsolete
         EquipmentType.addType(new InfantryArchaicClanVibroSwordWeapon());
 
         // Infantry Pistols
@@ -1369,7 +1368,7 @@ public class WeaponType extends EquipmentType {
         EquipmentType.addType(new InfantryPistolSMGGHTSpec7aWeapon());
         EquipmentType.addType(new InfantryPistolVintageWeapon());
 
-        //Shrapnel Pistols
+        // Shrapnel Pistols
         EquipmentType.addType(new InfantryPistolAAGemini());
         EquipmentType.addType(new InfantryPistolAlamo17());
         EquipmentType.addType(new InfantryPistolCamdenHR7());
@@ -1393,7 +1392,7 @@ public class WeaponType extends EquipmentType {
         EquipmentType.addType(new InfantryPistolWolfM30());
         EquipmentType.addType(new InfantryPistolYanjingshe());
 
-        //Clan Pistols - Commented out can be considered Obsolete
+        // Clan Pistols - Commented out can be considered Obsolete
         EquipmentType.addType(new InfantryPistolClanERLaserPistolWeapon());
         EquipmentType.addType(new InfantryPistolClanGaussPistolWeapon());
         EquipmentType.addType(new InfantryPistolClanPulseLaserPistolWeapon());
@@ -1453,7 +1452,7 @@ public class WeaponType extends EquipmentType {
         EquipmentType.addType(new InfantryShotgunSawnoffPumpActionWeapon());
         EquipmentType.addType(new InfantryShotgunWakazashiWeapon());
 
-        //Shrapnel Shotguns
+        // Shrapnel Shotguns
         EquipmentType.addType(new InfantryShotgunAMIKeymaster15());
         EquipmentType.addType(new InfantryShotgunAWAAS105());
         EquipmentType.addType(new InfantryShotgunAWASS112());
@@ -1518,13 +1517,13 @@ public class WeaponType extends EquipmentType {
         EquipmentType.addType(new InfantrySMGWC6());
         EquipmentType.addType(new InfantrySMGWolfBarronA7());
 
-        //Sniper Rifles
+        // Sniper Rifles
         EquipmentType.addType(new InfantrySniperRifleSniperWeapon());
         EquipmentType.addType(new InfantrySniperRifleRadiumLaserWeapon());
         EquipmentType.addType(new InfantrySniperStalkerWeapon());
         EquipmentType.addType(new InfantrySniperRifleMinolta9000Weapon());
 
-        //Shrapnel Sniper Files
+        // Shrapnel Sniper Files
         EquipmentType.addType(new InfantrySniperRifleBartonAMRAntiArmor());
         EquipmentType.addType(new InfantrySniperRifleBartonAMRStandard());
         EquipmentType.addType(new InfantrySniperRifleFNFJ12DarkCaste());
@@ -1618,7 +1617,7 @@ public class WeaponType extends EquipmentType {
         EquipmentType.addType(new InfantryGrenadeRAGWeapon());
         EquipmentType.addType(new InfantryGrenadeStandardWeapon());
 
-        //Infantry TAG
+        // Infantry TAG
         EquipmentType.addType(new InfantrySupportTAGWeapon());
 
         // Prosthetic Weapon from ATOW Companion
@@ -1738,7 +1737,7 @@ public class WeaponType extends EquipmentType {
         EquipmentType.addType(new ISBAGaussRifleKingDavidLight());
 //        EquipmentType.addType(new ISBAMortarLight());
         EquipmentType.addType(new ISBAGrenadeLauncherMicro());
-//        EquipmentType.addType(new ISBAGrenadeLauncher()); //See note in ISBAGrenadeLauncher File.
+//        EquipmentType.addType(new ISBAGrenadeLauncher()); // See note in ISBAGrenadeLauncher File.
         EquipmentType.addType(new ISBAPopUpMineLauncher());
         EquipmentType.addType(new ISBAGaussRifleTsunami());
         EquipmentType.addType(new ISBASRM1());

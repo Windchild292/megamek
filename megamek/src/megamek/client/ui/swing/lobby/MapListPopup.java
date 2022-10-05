@@ -1,5 +1,5 @@
 /*  
- * MegaMek - Copyright (C) 2021 - The MegaMek Team  
+ * MegaMek - Copyright (C) 2021 - The MegaMek Team
  *  
  * listener program is free software; you can redistribute it and/or modify it under  
  * the terms of the GNU General Public License as published by the Free Software  
@@ -13,16 +13,12 @@
  */ 
 package megamek.client.ui.swing.lobby;
 
+import megamek.client.ui.swing.util.ScalingPopup;
+
+import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
-import java.util.Set;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-
-import megamek.client.ui.swing.util.ScalingPopup;
-import org.apache.logging.log4j.core.util.FileUtils;
 
 class MapListPopup {
     

@@ -18,7 +18,6 @@ import megamek.common.Game;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * @author Andrew Hunter
@@ -27,23 +26,11 @@ import megamek.server.Server;
 public class NailRivetGunHandler extends AmmoWeaponHandler {
     private static final long serialVersionUID = 5635871269404561702L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
-    public NailRivetGunHandler(ToHitData t, WeaponAttackAction w, Game g,
-            GameManager m) {
+    public NailRivetGunHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         damageType = DamageType.NAIL_RIVET;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcDamagePerHit()
-     */
     @Override
     protected int calcDamagePerHit() {
         return Compute.d6();

@@ -19,22 +19,12 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
-import megamek.common.BattleArmor;
-import megamek.common.Building;
-import megamek.common.Crew;
-import megamek.common.Entity;
-import megamek.common.EquipmentType;
-import megamek.common.HitData;
-import megamek.common.Game;
-import megamek.common.Mech;
-import megamek.common.Report;
-import megamek.common.ToHitData;
+import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Sebastian Brocks
@@ -47,26 +37,18 @@ public class LegAttackHandler extends WeaponHandler {
         super(toHit, waa, g, m);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcHits(java.util.Vector)
-     */
     @Override
     protected int calcHits(Vector<Report> vPhaseReport) {
         return 1;
     }
 
     @Override
-    protected void handleEntityDamage(Entity entityTarget,
-            Vector<Report> vPhaseReport, Building bldg, int hits, int nCluster,
-            int bldgAbsorbs) {
-        HitData hit = entityTarget.rollHitLocation(toHit.getHitTable(),
-                toHit.getSideTable(), waa.getAimedLocation(),
-                waa.getAimingMode(), toHit.getCover());
+    protected void handleEntityDamage(Entity entityTarget, Vector<Report> vPhaseReport,
+                                      Building bldg, int hits, int nCluster, int bldgAbsorbs) {
+        HitData hit = entityTarget.rollHitLocation(toHit.getHitTable(), toHit.getSideTable(),
+                waa.getAimedLocation(), waa.getAimingMode(), toHit.getCover());
         hit.setAttackerId(getAttackerId());
-        // If a leg attacks hit a leg that isn't
-        // there, then hit the other leg.
+        // If a leg attacks hit a leg that isn't there, then hit the other leg.
         if (entityTarget.getInternal(hit) <= 0) {
             if (hit.getLocation() == Mech.LOC_RLEG) {
                 hit = new HitData(Mech.LOC_LLEG);
@@ -84,7 +66,7 @@ public class LegAttackHandler extends WeaponHandler {
 
         int damage = 4;
         if (ae instanceof BattleArmor) {
-            damage += ((BattleArmor) ae).getVibroClaws();
+            damage += ae.getVibroClaws();
             if (((BattleArmor) ae).hasMyomerBooster()) {
                 damage += ((BattleArmor) ae).getTroopers() * 2;
             }
@@ -99,9 +81,11 @@ public class LegAttackHandler extends WeaponHandler {
         if (entityTarget.getArmorType(hit.getLocation()) == EquipmentType.T_ARMOR_HARDENED) {
             critMod -= 2;
         }
+
         if (ae.hasAbility(OptionsConstants.MISC_HUMAN_TRO,Crew.HUMANTRO_MECH)) {
             critMod += 1;
         }
+
         vPhaseReport.addAll(gameManager.criticalEntity(entityTarget, hit.getLocation(), hit.isRear(), critMod, damage));
     }
 }

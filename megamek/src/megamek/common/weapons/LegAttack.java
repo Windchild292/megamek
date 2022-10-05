@@ -19,7 +19,6 @@ import megamek.common.SimpleTechLevel;
 import megamek.common.ToHitData;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.server.GameManager;
-import megamek.server.Server;
 
 /**
  * @author Sebastian Brocks
@@ -32,20 +31,16 @@ public class LegAttack extends InfantryAttack {
         super();
         this.name = "Leg Attack";
         this.setInternalName(Infantry.LEG_ATTACK);
-        techAdvancement.setTechBase(TECH_BASE_ALL).setAdvancement(2456, 2460, 2500)
-            .setStaticTechLevel(SimpleTechLevel.STANDARD)
-            .setApproximate(true, false, false).setTechBase(RATING_D)
-            .setPrototypeFactions(F_LC).setProductionFactions(F_LC)
-            .setAvailability(RATING_D, RATING_D, RATING_D, RATING_D);
+        techAdvancement.setTechBase(TECH_BASE_ALL)
+                .setAdvancement(2456, 2460, 2500)
+                .setStaticTechLevel(SimpleTechLevel.STANDARD)
+                .setApproximate(true, false, false)
+                .setTechBase(RATING_D)
+                .setPrototypeFactions(F_LC)
+                .setProductionFactions(F_LC)
+                .setAvailability(RATING_D, RATING_D, RATING_D, RATING_D);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * megamek.common.weapons.Weapon#getCorrectHandler(megamek.common.ToHitData,
-     * megamek.common.actions.WeaponAttackAction, megamek.common.Game)
-     */
     @Override
     protected AttackHandler getCorrectHandler(ToHitData toHit, WeaponAttackAction waa, Game game,
                                               GameManager manager) {

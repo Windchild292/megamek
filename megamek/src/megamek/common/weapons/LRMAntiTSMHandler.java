@@ -13,13 +13,12 @@
  */
 package megamek.common.weapons;
 
-import java.util.Vector;
-
 import megamek.common.*;
 import megamek.common.actions.WeaponAttackAction;
 import megamek.common.options.OptionsConstants;
 import megamek.server.GameManager;
-import megamek.server.Server;
+
+import java.util.Vector;
 
 /**
  * @author Sebastian Brocks
@@ -27,24 +26,12 @@ import megamek.server.Server;
 public class LRMAntiTSMHandler extends LRMSmokeWarheadHandler {
     private static final long serialVersionUID = 5702089152489814687L;
 
-    /**
-     * @param t
-     * @param w
-     * @param g
-     * @param m
-     */
-    public LRMAntiTSMHandler(ToHitData t, WeaponAttackAction w, Game g,
-            GameManager m) {
+    public LRMAntiTSMHandler(ToHitData t, WeaponAttackAction w, Game g, GameManager m) {
         super(t, w, g, m);
         sSalvoType = " anti-TSM missile(s) ";
         damageType = DamageType.ANTI_TSM;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see megamek.common.weapons.WeaponHandler#calcHits(java.util.Vector)
-     */
     @Override
     protected int calcHits(Vector<Report> vPhaseReport) {
         // conventional infantry gets hit in one lump
@@ -68,23 +55,22 @@ public class LRMAntiTSMHandler extends LRMSmokeWarheadHandler {
         nMissilesModifier += getAMSHitsMod(vPhaseReport);
         
         if (game.getOptions().booleanOption(OptionsConstants.ADVAERORULES_AERO_SANITY)) {
-            Entity entityTarget = (target.getTargetType() == Targetable.TYPE_ENTITY) ? (Entity) target
-                    : null;
+            Entity entityTarget = (target.getTargetType() == Targetable.TYPE_ENTITY)
+                    ? (Entity) target : null;
             if (entityTarget != null && entityTarget.isLargeCraft()) {
                 nMissilesModifier -= getAeroSanityAMSHitsMod();
             }
         }
-        
+
         if (allShotsHit()) {
             // We want buildings and large craft to be able to affect this number with AMS
             // treat as a Streak launcher (cluster roll 11) to make this happen
-            missilesHit = Compute.missilesHit(wtype.getRackSize(),
-                    nMissilesModifier, weapon.isHotLoaded(), true,
-                    isAdvancedAMS());
+            missilesHit = Compute.missilesHit(wtype.getRackSize(), nMissilesModifier,
+                    weapon.isHotLoaded(), true, isAdvancedAMS());
         } else {
             // anti tsm hit with half the normal number, round up
-            missilesHit = Compute.missilesHit(wtype.getRackSize(),
-                    nMissilesModifier, weapon.isHotLoaded(), false, isAdvancedAMS());
+            missilesHit = Compute.missilesHit(wtype.getRackSize(), nMissilesModifier,
+                    weapon.isHotLoaded(), false, isAdvancedAMS());
             missilesHit = (int) Math.ceil((double) missilesHit / 2);
         }
         Report r = new Report(3325);
@@ -101,17 +87,15 @@ public class LRMAntiTSMHandler extends LRMSmokeWarheadHandler {
             r.newlines = 0;
             vPhaseReport.addElement(r);
         }
+
         if (nMissilesModifier != 0) {
-            if (nMissilesModifier > 0) {
-                r = new Report(3340);
-            } else {
-                r = new Report(3341);
-            }
+            r = new Report((nMissilesModifier > 0) ? 3340 : 3341);
             r.subject = subjectId;
             r.add(nMissilesModifier);
             r.newlines = 0;
             vPhaseReport.addElement(r);
         }
+
         r = new Report(3345);
         r.subject = subjectId;
         vPhaseReport.addElement(r);

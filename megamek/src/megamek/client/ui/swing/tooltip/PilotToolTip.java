@@ -28,7 +28,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import static megamek.client.ui.swing.tooltip.TipUtil.TABLE_BEGIN;
 import static megamek.client.ui.swing.tooltip.TipUtil.TABLE_END;
 import static megamek.client.ui.swing.tooltip.TipUtil.getOptionList;
 import static megamek.client.ui.swing.tooltip.TipUtil.scaledHTMLSpacer;
