@@ -1251,7 +1251,7 @@ public class ClientGUI extends JPanel implements BoardViewListener,
             case END_REPORT:
             case VICTORY:
                 // Try to reuse the ReportDisplay for other phases...
-                component = phaseComponents.get(String.valueOf(GamePhase.INITIATIVE_REPORT));
+                component = phaseComponents.get(GamePhase.INITIATIVE_REPORT.toString());
                 if (component == null) {
                     // no ReportDisplay to reuse - get a new one
                     component = initializePanel(GamePhase.INITIATIVE_REPORT);
