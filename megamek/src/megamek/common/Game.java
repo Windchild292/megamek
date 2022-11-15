@@ -376,7 +376,7 @@ public class Game implements IGame, Serializable {
         for (Team team : teams) {
             for (Enumeration<Player> j = team.getPlayers(); j.hasMoreElements(); ) {
                 final Player player = j.nextElement();
-                if (p == player) {
+                if (p.equals(player)) {
                     return team;
                 }
             }
@@ -451,11 +451,25 @@ public class Game implements IGame, Serializable {
     }
 
     /**
-     * Return the players vector
+     * @return the {@link #players} vector
      */
     @Override
     public Vector<Player> getPlayersVector() {
         return players;
+    }
+
+    /**
+     * @return a clone of the {@link #players} vector sorted by id
+     */
+    public Vector<Player> getPlayersVectorSorted() {
+        Vector<Player> clone = (Vector<Player>) players.clone();
+        Collections.sort(clone, new Comparator<Player>() {
+            @Override
+            public int compare(Player result1, Player result2) {
+                return ((Integer)result1.getId()).compareTo(result2.getId());
+            }
+        });
+        return clone;
     }
 
     /**

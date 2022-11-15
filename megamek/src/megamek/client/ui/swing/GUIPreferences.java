@@ -103,7 +103,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String ADVANCED_HEAT_COLOR_30 = "AdvancedHeatColor30";
     public static final String ADVANCED_HEAT_COLOR_OVERHEAT = "AdvancedHeatColorOverheat";
     public static final String ADVANCED_REPORT_COLOR_LINK = "AdvancedReportColorLink";
-
+    public static final String ADVANCED_UNITTOOLTIP_SEENBYRESOLUTION = "AdvancedUnitToolTipSeenByResolution";
 
     /* --End advanced settings-- */
 
@@ -122,8 +122,18 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String CUSTOM_UNIT_WIDTH = "CustomUnitDialogSizeWidth";
     public static final String DISPLAY_POS_X = "DisplayPosX";
     public static final String DISPLAY_POS_Y = "DisplayPosY";
+    public static final String DISPLAY_NONTABBED_POS_X = "DisplayNontabbedPosX";
+    public static final String DISPLAY_NONTABBED_POS_Y = "DisplayNontabbedPosY";
+    public static final String DISPLAY_START_TABBED = "DisplayStartTabbed";
+    public static final String DISPLAY_SPLIT_ABC_LOC = "DisplaySplitABCLoc";
+    public static final String DISPLAY_SPLIT_BC_LOC = "DisplaySplitBCLoc";
+    public static final String DISPLAY_SPLIT_A1_LOC = "DisplaySplitA1Loc";
+    public static final String DISPLAY_SPLIT_B1_LOC = "DisplaySplitB1Loc";
+    public static final String DISPLAY_SPLIT_C1_LOC = "DisplaySplitC2Loc";
     public static final String DISPLAY_SIZE_HEIGHT = "DisplaySizeHeight";
     public static final String DISPLAY_SIZE_WIDTH = "DisplaySizeWidth";
+    public static final String DISPLAY_NONTABBED_SIZE_HEIGHT = "DisplayNonTabbedSizeHeight";
+    public static final String DISPLAY_NONTABBED_SIZE_WIDTH = "DisplayNontabbedSizeWidth";
     public static final String GAME_SUMMARY_BOARD_VIEW = "GameSummaryBoardView";
     public static final String GAME_SUMMARY_MINIMAP = "GameSummaryMinimap";
     public static final String ENTITY_OWNER_LABEL_COLOR = "EntityOwnerLabelColor";
@@ -245,6 +255,8 @@ public class GUIPreferences extends PreferenceStoreProxy {
     public static final String ENEMY_UNIT_COLOR = "EnemyUnitColor";
     public static final String SHOW_KEYBINDS_OVERLAY = "ShowKeybindsOverlay";
     public static final String UNIT_LABEL_STYLE = "UnitLabelStyle";
+    public static final String AS_CARD_FONT = "AsCardFont";
+    public static final String AS_CARD_SIZE = "AsCardSize";
 
     // RAT dialog preferences
     public static String RAT_TECH_LEVEL = "RATTechLevel";
@@ -372,6 +384,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         setDefault(ADVANCED_HEAT_COLOR_OVERHEAT, DEFAULT_HEAT_OVERHEAT_COLOR);
 
         setDefault(ADVANCED_REPORT_COLOR_LINK, DEFAULT_REPORT_LINK_COLOR);
+        setDefault(ADVANCED_UNITTOOLTIP_SEENBYRESOLUTION, 3);
 
         store.setDefault(FOV_HIGHLIGHT_RINGS_RADII, "5 10 15 20 25");
         store.setDefault(FOV_HIGHLIGHT_RINGS_COLORS_HSB, "0.3 1.0 1.0 ; 0.45 1.0 1.0 ; 0.6 1.0 1.0 ; 0.75 1.0 1.0 ; 0.9 1.0 1.0 ; 1.05 1.0 1.0 ");
@@ -395,6 +408,14 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(CUSTOM_UNIT_WIDTH, 600);
         store.setDefault(DISPLAY_SIZE_HEIGHT, 500);
         store.setDefault(DISPLAY_SIZE_WIDTH, 300);
+        store.setDefault(DISPLAY_NONTABBED_SIZE_HEIGHT, 900);
+        store.setDefault(DISPLAY_NONTABBED_SIZE_WIDTH, 900);
+        store.setDefault(DISPLAY_START_TABBED, true);
+        store.setDefault(DISPLAY_SPLIT_ABC_LOC, 300);
+        store.setDefault(DISPLAY_SPLIT_BC_LOC, 300);
+        store.setDefault(DISPLAY_SPLIT_A1_LOC, 900);
+        store.setDefault(DISPLAY_SPLIT_B1_LOC, 500);
+        store.setDefault(DISPLAY_SPLIT_C1_LOC, 500);
         store.setDefault(GAME_SUMMARY_BOARD_VIEW, false);
         store.setDefault(ENTITY_OWNER_LABEL_COLOR, true);
         store.setDefault(UNIT_LABEL_BORDER, true);
@@ -513,7 +534,7 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setDefault(RAT_NUM_BA, "0");
         store.setDefault(RAT_NUM_INF, "0");
         store.setDefault(RAT_YEAR_MIN, "2300");
-        store.setDefault(RAT_YEAR_MAX, "3150");
+        store.setDefault(RAT_YEAR_MAX, "3175");
         store.setDefault(RAT_PAD_BV, false);
         store.setDefault(RAT_SELECTED_RAT, "");
 
@@ -523,6 +544,9 @@ public class GUIPreferences extends PreferenceStoreProxy {
         setDefault(TEAM_COLORING, true);
 
         setDefault(SHOW_KEYBINDS_OVERLAY, true);
+
+        setDefault(AS_CARD_FONT, "");
+        setDefault(AS_CARD_SIZE, 0.75f);
     }
 
     public void setDefault(String name, Color color) {
@@ -590,12 +614,52 @@ public class GUIPreferences extends PreferenceStoreProxy {
         return store.getInt(DISPLAY_POS_Y);
     }
 
+    public int getDisplayNontabbedPosX() {
+        return store.getInt(DISPLAY_NONTABBED_POS_X);
+    }
+
+    public int getDisplayNontabbedPosY() {
+        return store.getInt(DISPLAY_NONTABBED_POS_Y);
+    }
+
+    public boolean getDisplayStartTabbed() {
+        return store.getBoolean(DISPLAY_START_TABBED);
+    }
+
+    public int getDisplaySplitABCLoc() {
+        return store.getInt(DISPLAY_SPLIT_ABC_LOC);
+    }
+
+    public int getDisplaySplitBCLoc() {
+        return store.getInt(DISPLAY_SPLIT_BC_LOC);
+    }
+
+    public int getDisplaySplitA1Loc() {
+        return store.getInt(DISPLAY_SPLIT_A1_LOC);
+    }
+
+    public int getDisplaySplitB1Loc() {
+        return store.getInt(DISPLAY_SPLIT_B1_LOC);
+    }
+
+    public int getDisplaySplitC1Loc() {
+        return store.getInt(DISPLAY_SPLIT_C1_LOC);
+    }
+
     public int getDisplaySizeHeight() {
         return store.getInt(DISPLAY_SIZE_HEIGHT);
     }
 
     public int getDisplaySizeWidth() {
         return store.getInt(DISPLAY_SIZE_WIDTH);
+    }
+
+    public int getDisplayNonTabbedSizeHeight() {
+        return store.getInt(DISPLAY_NONTABBED_SIZE_HEIGHT);
+    }
+
+    public int getDisplayNonTabbedSizeWidth() {
+        return store.getInt(DISPLAY_NONTABBED_SIZE_WIDTH);
     }
 
     public boolean getGameSummaryBoardView() {
@@ -1007,6 +1071,14 @@ public class GUIPreferences extends PreferenceStoreProxy {
         return WeaponSortOrder.valueOf(store.getString(DEFAULT_WEAPON_SORT_ORDER));
     }
 
+    public String getAsCardFont() {
+        return store.getString(AS_CARD_FONT);
+    }
+
+    public float getAsCardSize() {
+        return store.getFloat(AS_CARD_SIZE);
+    }
+
     public void setDefaultWeaponSortOrder(final WeaponSortOrder weaponSortOrder) {
         store.setValue(DEFAULT_WEAPON_SORT_ORDER, weaponSortOrder.name());
     }
@@ -1075,12 +1147,51 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setValue(DISPLAY_POS_Y, i);
     }
 
+    public void setDisplayNontabbedPosX(int i) {
+        store.setValue(DISPLAY_NONTABBED_POS_X, i);
+    }
+
+    public void setDisplayNontabbedPosY(int i) {
+        store.setValue(DISPLAY_NONTABBED_POS_Y, i);
+    }
+    public void setDisplayStartTabbed(boolean state) {
+        store.setValue(DISPLAY_START_TABBED, state);
+    }
+
+    public void setDisplaySplitABCLoc(int i) {
+        store.setValue(DISPLAY_SPLIT_ABC_LOC, i);
+    }
+
+    public void setDisplaySplitBCLoc(int i) {
+        store.setValue(DISPLAY_SPLIT_BC_LOC, i);
+    }
+
+    public void setDisplaySplitA1Loc(int i) {
+        store.setValue(DISPLAY_SPLIT_A1_LOC, i);
+    }
+
+    public void setDisplaySplitB1Loc(int i) {
+        store.setValue(DISPLAY_SPLIT_B1_LOC, i);
+    }
+
+    public void setDisplaySplitC2Loc(int i) {
+        store.setValue(DISPLAY_SPLIT_C1_LOC, i);
+    }
+
     public void setDisplaySizeHeight(int i) {
         store.setValue(DISPLAY_SIZE_HEIGHT, i);
     }
 
     public void setDisplaySizeWidth(int i) {
         store.setValue(DISPLAY_SIZE_WIDTH, i);
+    }
+
+    public void setDisplayNonTabbedSizeHeight(int i) {
+        store.setValue(DISPLAY_NONTABBED_SIZE_HEIGHT, i);
+    }
+
+    public void setDisplayNonTabbedSizeWidth(int i) {
+        store.setValue(DISPLAY_NONTABBED_SIZE_WIDTH, i);
     }
 
     public void setGameSummaryBoardView(boolean state) {
@@ -1467,6 +1578,14 @@ public class GUIPreferences extends PreferenceStoreProxy {
         store.setValue(UI_THEME, s);
     }
 
+    public void setAsCardFont(String asCardFont) {
+        store.setValue(AS_CARD_FONT, asCardFont);
+    }
+
+    public void setAsCardSize(float size) {
+        store.setValue(AS_CARD_SIZE, size);
+    }
+
     public int getRATTechLevel() {
         return store.getInt(RAT_TECH_LEVEL);
     }
@@ -1596,9 +1715,19 @@ public class GUIPreferences extends PreferenceStoreProxy {
         return getColor(ADVANCED_REPORT_COLOR_LINK);
     }
 
+    public int getAdvancedUnitToolTipSeenByResolution() {
+        return getInt(ADVANCED_UNITTOOLTIP_SEENBYRESOLUTION);
+    }
+
+
     public void setReportLinkColor(Color color) {
         store.setValue(ADVANCED_REPORT_COLOR_LINK, getColorString(color));
     }
+
+    public void setAdvancedUnitToolTipSeenByResolution(int i) {
+        store.setValue(ADVANCED_UNITTOOLTIP_SEENBYRESOLUTION, i);
+    }
+
     /**
      * Sets the user preference for the Unit Display window to active.
      */

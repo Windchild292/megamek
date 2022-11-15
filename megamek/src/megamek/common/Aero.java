@@ -19,7 +19,6 @@ import megamek.common.cost.AeroCostCalculator;
 import megamek.common.enums.AimingMode;
 import megamek.common.enums.GamePhase;
 import megamek.common.options.OptionsConstants;
-import megamek.common.weapons.bayweapons.BayWeapon;
 import org.apache.logging.log4j.LogManager;
 
 import java.text.NumberFormat;
@@ -233,8 +232,9 @@ public class Aero extends Entity implements IAero, IBomber {
             .setTechRating(RATING_D).setAvailability(RATING_C, RATING_E, RATING_D, RATING_C)
             .setStaticTechLevel(SimpleTechLevel.STANDARD);
     protected static final TechAdvancement TA_ASF_PRIMITIVE = new TechAdvancement(TECH_BASE_IS)
-            .setISAdvancement(DATE_ES, 2200, DATE_NONE, 2520)
-            .setISApproximate(false, true, false).setProductionFactions(F_TA)
+    		//Per MUL team and per availability codes should exist to around 2781
+            .setISAdvancement(DATE_ES, 2200, DATE_NONE, 2781, DATE_NONE)
+            .setISApproximate(false, true, false, true, false).setProductionFactions(F_TA)
             .setTechRating(RATING_D).setAvailability(RATING_D, RATING_X, RATING_F, RATING_F)
             .setStaticTechLevel(SimpleTechLevel.ADVANCED);
 
@@ -326,6 +326,14 @@ public class Aero extends Entity implements IAero, IBomber {
      */
     @Override
     public int getWalkMP(boolean gravity, boolean ignoreheat, boolean ignoremodulararmor) {
+        return getWalkMP(gravity, ignoreheat, ignoremodulararmor, false);
+    }
+    
+    /**
+     * Returns this entity's safe thrust, factored for heat, extreme
+     * temperatures, gravity, partial repairs, bomb load and whether it's grounded or not.
+     */
+    public int getWalkMP(boolean gravity, boolean ignoreheat, boolean ignoremodulararmor, boolean ignoreGroundedStatus) {
         int j = getOriginalWalkMP();
         // adjust for engine hits
         if (engineHits >= getMaxEngineHits()) {
@@ -355,7 +363,8 @@ public class Aero extends Entity implements IAero, IBomber {
         }
 
         // if they are not airborne, then they get MP halved (aerodyne) or no MP
-        if (!isAirborne()) {
+        // and also if we're not ignoring the "grounded" status
+        if (!ignoreGroundedStatus && !isAirborne()) {
             j = j / 2;
             if (isSpheroid()) {
                 j = 0;
@@ -2440,112 +2449,6 @@ public class Aero extends Entity implements IAero, IBomber {
     }
 
     @Override
-    public void setAlphaStrikeMovement(Map<String, Integer> moves) {
-        moves.put(getMovementModeAsBattleForceString(), getWalkMP());
-    }
-
-    @Override
-    public int getBattleForceArmorPoints() {
-        if (isCapitalFighter()) {
-            return (int) Math.round(getCapArmor() / 3.0);
-        }
-        return super.getBattleForceArmorPoints();
-    }
-
-    @Override
-    public String getBattleForceDamageThresholdString() {
-        return "-" + (int) Math.ceil(getBattleForceArmorPoints() / 10.0);
-    }
-
-    @Override
-    public int getBattleForceStructurePoints() {
-        return (int) Math.ceil(getSI() * 0.50);
-    }
-
-    @Override
-    public int getNumBattleForceWeaponsLocations() {
-        return 2;
-    }
-
-    @Override
-    public double getBattleForceLocationMultiplier(int index, int location, boolean rearMounted) {
-        if ((index == 0 && location != LOC_AFT && !rearMounted)
-                || (index == 1 && (location == LOC_AFT || rearMounted))) {
-            return 1.0;
-        }
-        return 0;
-    }
-
-    @Override
-    public String getBattleForceLocationName(int index) {
-        if (index == 1) {
-            return "REAR";
-        }
-        return "";
-    }
-
-    /**
-     * We need to check whether the weapon is mounted in LOC_AFT in addition to
-     * isRearMounted()
-     */
-    @Override
-    public int getBattleForceTotalHeatGeneration(boolean allowRear) {
-        int totalHeat = 0;
-
-        for (Mounted mount : getWeaponList()) {
-            WeaponType weapon = (WeaponType) mount.getType();
-            if (weapon instanceof BayWeapon) {
-                for (int index : mount.getBayWeapons()) {
-                    totalHeat += ((WeaponType) (getEquipment(index).getType())).getHeat();
-                }
-            }
-            if (weapon.hasFlag(WeaponType.F_ONESHOT)
-                    || (allowRear && !mount.isRearMounted() && mount.getLocation() != LOC_AFT)
-                    || (!allowRear && (mount.isRearMounted() || mount.getLocation() == LOC_AFT))) {
-                continue;
-            }
-            totalHeat += weapon.getHeat();
-        }
-
-        return totalHeat;
-    }
-
-    @Override
-    public int getBattleForceTotalHeatGeneration(int location) {
-        int totalHeat = 0;
-
-        for (Mounted mount : getWeaponList()) {
-            WeaponType weapon = (WeaponType) mount.getType();
-            if (weapon.hasFlag(WeaponType.F_ONESHOT)
-                    || getBattleForceLocationMultiplier(location, mount.getLocation(), mount.isRearMounted()) == 0) {
-                continue;
-            }
-            totalHeat += weapon.getHeat();
-        }
-
-        return totalHeat;
-    }
-
-    @Override
-    public void addBattleForceSpecialAbilities(Map<BattleForceSPA, Integer> specialAbilities) {
-        super.addBattleForceSpecialAbilities(specialAbilities);
-        for (Mounted m : getEquipment()) {
-            if (m.getType().hasFlag(MiscType.F_SPACE_MINE_DISPENSER)) {
-                specialAbilities.merge(BattleForceSPA.MDS, 1, Integer::sum);
-            }
-        }
-        if ((getEntityType() & (ETYPE_SMALL_CRAFT | ETYPE_JUMPSHIP | ETYPE_FIXED_WING_SUPPORT)) == 0) {
-            specialAbilities.put(BattleForceSPA.BOMB, getWeightClass() + 1);
-        }
-        if ((getEntityType() & (ETYPE_JUMPSHIP | ETYPE_CONV_FIGHTER)) == 0) {
-            specialAbilities.put(BattleForceSPA.SPC, null);
-        }
-        if (isVSTOL()) {
-            specialAbilities.put(BattleForceSPA.VSTOL, null);
-        }
-    }
-
-    @Override
     public boolean isPrimitive() {
         return (getCockpitType() == Aero.COCKPIT_PRIMITIVE);
     }
@@ -3351,5 +3254,26 @@ public class Aero extends Entity implements IAero, IBomber {
      */
     public void setEjecting(boolean ejecting) {
         this.ejecting = ejecting;
+    }
+    
+    /**
+     * Aerospace units are considered permanently immobilized
+     *
+     * @return true if unit is permanently immobile
+     */
+    public boolean isPermanentlyImmobilized(boolean checkCrew) {
+        if (checkCrew && ((getCrew() == null) || getCrew().isDead())) {
+            return true;
+        } else if (((getOriginalWalkMP() > 0) || (getOriginalRunMP() > 0) || (getOriginalJumpMP() > 0))
+                /*
+                 * Need to make sure here that we're ignoring heat because
+                 * that's not actually "permanent":
+                 */
+                && ((getWalkMP(true, true, false, true) == 0)
+                    && (getRunMP(true, true, false) == 0) && (getJumpMP() == 0))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

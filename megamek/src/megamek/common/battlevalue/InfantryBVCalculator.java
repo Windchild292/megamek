@@ -94,18 +94,17 @@ public class InfantryBVCalculator {
         InfantryWeapon primaryW = infantry.getPrimaryWeapon();
         InfantryWeapon secondW = infantry.getSecondaryWeapon();
         int squadsize = infantry.getSquadSize();
-        int secondn = infantry.getSecondaryN();
-        int squadn = infantry.getSquadN();
+        int secondn = infantry.getSecondaryWeaponsPerSquad();
+        int squadn = infantry.getSquadCount();
 
         if (null != primaryW) {
             wbv += primaryW.getBV(infantry) * (squadsize - secondn);
         }
         if (null != secondW) {
-            wbv += secondW.getBV(infantry) * (secondn);
+            wbv += secondW.getBV(infantry) * secondn;
         }
         wbv = wbv * (men / squadsize);
-        // if anti-mek then double this
-        // TODO : need to factor archaic weapons out of this
+
         double ambv = 0;
         if (infantry.canMakeAntiMekAttacks()) {
             if (primaryW != null && !primaryW.hasFlag(InfantryWeapon.F_INF_ARCHAIC)) {
@@ -213,10 +212,7 @@ public class InfantryBVCalculator {
                 "" + (int) Math.round(bv * utm));
         bv *= utm;
 
-        double pilotFactor = 1;
-        if (!ignoreSkill) {
-            pilotFactor = infantry.getCrew().getBVSkillMultiplier(infantry.isAntiMekTrained(), infantry.getGame());
-        }
+        double pilotFactor = ignoreSkill ? 1 : BvMultiplier.bvMultiplier(infantry);
         return (int) Math.round(bv * pilotFactor);
     }
 }

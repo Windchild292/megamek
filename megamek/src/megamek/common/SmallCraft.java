@@ -53,8 +53,9 @@ public class SmallCraft extends Aero {
             .setAvailability(RATING_D, RATING_E, RATING_D, RATING_D)
             .setStaticTechLevel(SimpleTechLevel.STANDARD);
     private static final TechAdvancement TA_SM_CRAFT_PRIMITIVE = new TechAdvancement(TECH_BASE_IS)
-            .setISAdvancement(DATE_ES, 2200, DATE_NONE, 2400)
-            .setISApproximate(false, true, false, false)
+    		//Per MUL team and per availability codes should exist to around 2781
+            .setISAdvancement(DATE_ES, 2200, DATE_NONE, 2781, DATE_NONE)
+            .setISApproximate(false, true, false, true, false)
             .setProductionFactions(F_TA).setTechRating(RATING_D)
             .setAvailability(RATING_D, RATING_X, RATING_F, RATING_F)
             .setStaticTechLevel(SimpleTechLevel.STANDARD);
@@ -879,69 +880,6 @@ public class SmallCraft extends Aero {
             return 0;
         }
         return 1;
-    }
-
-    @Override
-    public int getBattleForceSize() {
-        //The tables are on page 356 of StartOps
-        if (getWeight() < 2500) {
-            return 1;
-        }
-        if (getWeight() < 10000) {
-            return 2;
-        }
-        return 3;
-    }
-    
-    @Override
-    public int getNumBattleForceWeaponsLocations() {
-        return 4;
-    }
-    
-    @Override
-    public String getBattleForceLocationName(int index) {
-        return getLocationAbbrs()[index];
-    }
-    
-    @Override
-    public double getBattleForceLocationMultiplier(int index, int location, boolean rearMounted) {
-        switch (index) {
-            case LOC_NOSE:
-                if (location == LOC_NOSE) {
-                    return 1.0;
-                }
-                if (isSpheroid() && (location == LOC_LWING || location == LOC_RWING)
-                        && !rearMounted) {
-                    return 0.5;
-                }
-                break;
-            case LOC_LWING:
-            case LOC_RWING:
-                if (index == location) {
-                    if (isSpheroid()) {
-                        return 0.5;
-                    }
-                    if (!rearMounted) {
-                        return 1.0;
-                    }
-                }
-                break;
-            case LOC_AFT:
-                if (location == LOC_AFT) {
-                    return 1.0;
-                }
-                if (rearMounted && (location == LOC_LWING || location == LOC_RWING)) {
-                    return isSpheroid() ? 0.5 : 1.0;
-                }
-                break;
-        }
-        return 0;
-    }
-
-    @Override
-    public void addBattleForceSpecialAbilities(Map<BattleForceSPA,Integer> specialAbilities) {
-        super.addBattleForceSpecialAbilities(specialAbilities);
-        specialAbilities.put(BattleForceSPA.LG, null);
     }
 
     @Override

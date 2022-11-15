@@ -15,10 +15,7 @@ package megamek.client.ui.swing.tooltip;
 
 import java.awt.Color;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import megamek.client.ui.Messages;
@@ -173,6 +170,16 @@ public final class UnitToolTip {
         return result;
     }
 
+    private static boolean hideArmorLocation(Entity entity, int location) {
+        return ((entity.getOArmor(location) <= 0) && (entity.getOInternal(location) <= 0) && !entity.hasRearArmor(location))
+                || (entity.isConventionalInfantry() && (location != Infantry.LOC_INFANTRY));
+    }
+
+    private static String locationHeader(Entity entity, int location) {
+        return entity.isConventionalInfantry() ?
+                ((Infantry) entity).getShootingStrength() + " Active Troopers" : entity.getLocationAbbr(location);
+    }
+
     /** Returns the graphical Armor representation. */
     private static StringBuilder addArmorMiniVisToTT(Entity entity) {
         GUIPreferences guip = GUIPreferences.getInstance();
@@ -186,7 +193,7 @@ public final class UnitToolTip {
         result.append("<TABLE CELLSPACING=0 CELLPADDING=0><TBODY>");
         for (int loc = 0 ; loc < entity.locations(); loc++) {
             // do not show locations that do not support/have armor/internals like HULL on Aero
-            if (entity.getOArmor(loc) <= 0 && entity.getOInternal(loc) <= 0 && !entity.hasRearArmor(loc)) {
+            if (hideArmorLocation(entity, loc)) {
                 continue;
             }
             result.append("<TR><TD>");
@@ -195,7 +202,7 @@ public final class UnitToolTip {
                 // Destroyed location
                 result.append("</TD><TD></TD><TD>");
                 result.append(guiScaledFontHTML(TT_SMALLFONT_DELTA));
-                result.append("&nbsp;&nbsp;" + entity.getLocationAbbr(loc)+ ":&nbsp;");
+                result.append("&nbsp;&nbsp;" + locationHeader(entity, loc) + ":&nbsp;");
                 result.append("</FONT></TD><TD>");
                 result.append(guiScaledFontHTML(colorDamaged, TT_SMALLFONT_DELTA));
                 result.append(destroyedLocBar(entity.getOArmor(loc, true)));
@@ -204,7 +211,7 @@ public final class UnitToolTip {
                 // Rear armor
                 if (entity.hasRearArmor(loc)) {
                     result.append(guiScaledFontHTML(TT_SMALLFONT_DELTA));
-                    result.append("&nbsp;&nbsp;" + entity.getLocationAbbr(loc)+ "R:&nbsp;");
+                    result.append("&nbsp;&nbsp;" + locationHeader(entity, loc) + "R:&nbsp;");
                     result.append("</FONT></TD><TD>");
                     result.append(intactLocBar(entity.getOArmor(loc, true), entity.getArmor(loc, true), armorChar));
                     result.append("</TD><TD>");
@@ -217,7 +224,7 @@ public final class UnitToolTip {
                 }
                 // Front armor
                 result.append(guiScaledFontHTML(TT_SMALLFONT_DELTA));
-                result.append("&nbsp;&nbsp;" + entity.getLocationAbbr(loc)+ ":&nbsp;");
+                result.append("&nbsp;&nbsp;" + locationHeader(entity, loc) + ":&nbsp;");
                 result.append("</FONT></TD><TD>");
                 result.append(intactLocBar(entity.getOInternal(loc), entity.getInternal(loc), internalChar));
                 result.append(intactLocBar(entity.getOArmor(loc), entity.getArmor(loc), armorChar));
@@ -719,18 +726,43 @@ public final class UnitToolTip {
 
         // If Double Blind, add information about who sees this Entity
         if (game.getOptions().booleanOption(OptionsConstants.ADVANCED_DOUBLE_BLIND)) {
-            StringBuffer playerList = new StringBuffer();
+            StringBuffer tempList = new StringBuffer();
             boolean teamVision = game.getOptions().booleanOption(
                     OptionsConstants.ADVANCED_TEAM_VISION);
-            for (Player player : entity.getWhoCanSee()) {
+            int seenByResolution = GUIPreferences.getInstance().getAdvancedUnitToolTipSeenByResolution();
+            String tmpStr = "";
+
+            dance: for (Player player :  entity.getWhoCanSee()) {
                 if (player.isEnemyOf(entity.getOwner()) || !teamVision) {
-                    playerList.append(player.getName());
-                    playerList.append(", ");
+                    switch (seenByResolution) {
+                        case 1:
+                            tmpStr = "Someone";
+                            tempList.append(tmpStr);
+                            tempList.append(", ");
+                            break dance;
+                        case 2:
+                            tmpStr = game.getTeamForPlayer(player).toString();
+                            break;
+                        case 3:
+                            tmpStr = player.getName();
+                            break;
+                        case 4:
+                            tmpStr = player.toString();
+                            break;
+                        default:
+                            tmpStr ="";
+                            break dance;
+                    }
+
+                    if (tempList.indexOf(tmpStr) == -1) {
+                        tempList.append(tmpStr);
+                        tempList.append(", ");
+                    }
                 }
             }
-            if (playerList.length() > 1) {
-                playerList.delete(playerList.length() - 2, playerList.length());
-                result.append(addToTT("SeenBy", BR, playerList.toString()));
+            if (tempList.length() > 1) {
+                tempList.delete(tempList.length() - 2, tempList.length());
+                result.append(addToTT("SeenBy", BR, tempList.toString()));
             }            
         }
 
@@ -765,12 +797,33 @@ public final class UnitToolTip {
         boolean isGunEmplacement = entity instanceof GunEmplacement;
         // Unit movement ability
         if (!isGunEmplacement) {
-            result.append(addToTT("Movement", NOBR, entity.getWalkMP(), entity.getRunMPasString()));
+            int walkMP = entity.getWalkMP(false, false,false);
+            int runMP = entity.getRunMP(false, false,false);
+            int jumpMP = entity.getJumpMP(false);
+            result.append(addToTT("Movement", NOBR , walkMP,  runMP));
+
             if (entity.getJumpMP() > 0) {
-                result.append("/" + entity.getJumpMP());
+                result.append("/" + jumpMP);
             }
             if (entity instanceof Tank) {
                 result.append(DOT_SPACER + entity.getMovementModeAsString());
+            }
+
+            int walkMPGravity = entity.getWalkMP(true, false,false);
+            int runMPGravity = entity.getRunMP(true, false, false);
+            int jumpMPGravity = entity.getJumpMP(true);
+
+            if ((walkMP != walkMPGravity) || (runMP != runMPGravity) || (jumpMP != jumpMPGravity)){
+                result.append(" (");
+                result.append(walkMPGravity);
+                result.append("/" + runMPGravity);
+                if (entity.getJumpMP() > 0) {
+                    result.append("/" + jumpMPGravity);
+                }
+                if (entity instanceof Tank) {
+                    result.append(DOT_SPACER + entity.getMovementModeAsString());
+                }
+                result.append(")(" + entity.getGame().getPlanetaryConditions().getGravity() + ")");
             }
         }
         
@@ -784,7 +837,9 @@ public final class UnitToolTip {
         }
 
         // Armor and Internals
-        if (!isGunEmplacement) {
+        if (entity.isConventionalInfantry()) {
+            result.append("<BR>");
+        } else if (!isGunEmplacement) {
             String armorType = TROView.formatArmorType(entity, true).replace("UNKNOWN", "");
             if (!armorType.isBlank()) {
                 armorType = (entity.isCapitalScale() ? getString("BoardView1.Tooltip.ArmorCapital") + " " : "") + armorType;
