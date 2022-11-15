@@ -27,7 +27,7 @@ import java.util.Vector;
 /**
  * MMBuMMComboBox is an extension of JComboBox that overrides the constructors for JComboBox,
  * albeit with the addition of the name of the button as the first value for all constructors and
- * a nicer override of getSelectedItem so that it returns in the proper class.
+ * a nicer override of getSelectedDate so that it returns in the proper class.
  *
  * Note: All constructors contain the name of the JComboBox in question. This MUST be provided and
  * means that they don't directly line up to the traditional JComboBox constructors.
