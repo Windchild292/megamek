@@ -81,15 +81,19 @@ public interface ITechManager {
     
     default boolean isLegal(ITechnology tech) {
         // Unofficial tech has the option to ignore year availability
-        if ((getTechLevel() == SimpleTechLevel.UNOFFICIAL)
-                && unofficialNoYear()) {
+        if ((getTechLevel() == SimpleTechLevel.UNOFFICIAL) && unofficialNoYear()) {
             return useMixedTech() || (tech.getTechBase() == ITechnology.TECH_BASE_ALL)
                     || (useClanTechBase() == tech.isClan());
         }
 
+        // Stuff that hasn't been introduced based on the tech introduction year isn't legal, and
+        // this year may not line up with IS and/or Clan introduction dates (noticed for Battle Armour)
+        if (tech.getIntroductionDate() > getTechIntroYear()) {
+            return false;
+        }
+
         int faction = getTechFaction();
         boolean clanTech = useClanTechBase();
-        
         int isIntroDate = tech.getIntroductionDate(false);
         int clanIntroDate = tech.getIntroductionDate(true);
         boolean introducedIS = (isIntroDate != ITechnology.DATE_NONE) && (isIntroDate <= getTechIntroYear());
@@ -114,10 +118,10 @@ public interface ITechManager {
             faction = ITechnology.F_TH;
             clanTech = false;
         }
+
         if (useMixedTech()) {
-            if ((!introducedIS && !introducedClan) 
-                    || (!showExtinct()
-                            && (tech.isExtinct(getTechIntroYear())))) {
+            if ((!introducedIS && !introducedClan)
+                    || (!showExtinct() && tech.isExtinct(getTechIntroYear()))) {
                 return false;
             } else if (useVariableTechLevel()) {
                 // If using tech progression with mixed tech, we pass if either IS or Clan meets the required level
@@ -125,8 +129,7 @@ public interface ITechManager {
                         || tech.getSimpleLevel(getGameYear(), false, faction).compareTo(getTechLevel()) <= 0;
             }
         } else {
-            if (tech.getTechBase() != ITechnology.TECH_BASE_ALL
-                    && clanTech != tech.isClan()) {
+            if ((tech.getTechBase() != ITechnology.TECH_BASE_ALL) && (clanTech != tech.isClan())) {
                 return false;
             } else if (clanTech && (!introducedClan || (!showExtinct() && extinctClan))) {
                 return false;
