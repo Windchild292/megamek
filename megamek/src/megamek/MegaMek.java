@@ -332,13 +332,14 @@ public class MegaMek {
     public static String getUnderlyingInformation(final String originProject,
                                                   final String currentProject) {
         final LocalDateTime buildDate = getBuildDate();
-        return String.format("Starting %s v%s\n\tBuild Date: %s\n\tToday: %s\n\tOrigin Project: %s\n\tJava Vendor: %s\n\tJava Version: %s\n\tPlatform: %s %s (%s)\n\tSystem Locale: %s\n\tTotal memory available to %s: %,.0f GB",
+        final String addOpens = getAddOpens();
+        return String.format("Starting %s v%s\n\tBuild Date: %s\n\tToday: %s\n\tOrigin Project: %s\n\tJava Vendor: %s\n\tJava Version: %s\n\tPlatform: %s %s (%s)\n\tSystem Locale: %s\n\tTotal memory available to %s: %,.0f GB\n\tAdd-Opens: %s",
                 currentProject, MMConstants.VERSION, ((buildDate == null) ? "N/A" : buildDate),
                 LocalDate.now(), originProject,
                 System.getProperty("java.vendor"), System.getProperty("java.version"),
                 System.getProperty("os.name"), System.getProperty("os.version"),
                 System.getProperty("os.arch"), Locale.getDefault(), currentProject,
-                Runtime.getRuntime().maxMemory() / Math.pow(2, 30));
+                Runtime.getRuntime().maxMemory() / Math.pow(2, 30), addOpens == null ? "N/A" : addOpens);
     }
 
     public static @Nullable LocalDateTime getBuildDate() {
@@ -349,6 +350,19 @@ public class MegaMek {
             }
             final Attributes attributes = new Manifest(url.openStream()).getMainAttributes();
             return LocalDateTime.parse(attributes.getValue("Build-Date"));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public static @Nullable String getAddOpens() {
+        try {
+            final URL url = Thread.currentThread().getContextClassLoader().getResource(JarFile.MANIFEST_NAME);
+            if (url == null) {
+                return null;
+            }
+            final Attributes attributes = new Manifest(url.openStream()).getMainAttributes();
+            return attributes.getValue("Add-Opens");
         } catch (Exception ignored) {
             return null;
         }
