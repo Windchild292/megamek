@@ -38,12 +38,12 @@ VERSION HISTORY:
 + Issue #3985: ER Small Pulse Laser Incorrect Aerospace Range
 + Issue #3906: Turn timer in seconds
 + Issue #3054: TO Infantry Movement on Pavement optional rule
-+ Issue #4003: Add search functionality to the mini report dialog
++ Issue #4003, #4039: Add search functionality to the mini report dialog; configure keywords in the Client Settings
 + Issue #3818: Airborne Aerospace Units Unaffected By Extreme Temperatures
 + Issue #3727: Magma crust breakthrough and liquid magma damage not working as expected
 + Issues #543, #2959, #3982: Scale the Client GUI using the GUI scale
 + Issue #2684: Fix target being cleared when selecting a new weapon
-+ PR #4015: Further Alpha Strike conversion errata and corrections
++ PR #4015, #4036, #4037: Further Alpha Strike conversion errata and corrections
 + Issue #3375: Fix Player's Turn text not being updated in some circumstances
 + Issue #4013: Turn timer continues to run when you close the main window
 + PR #4017: Fix border move indication for vehicles
@@ -52,6 +52,7 @@ VERSION HISTORY:
 + Issue #3709: Removed  searchlight customization checkboxes for units that receive external searchlights automatically
 + Issue #3811: Fix formatting issue with the Infantry victory report
 + Issue #4021: Preventing Save Game Loading Player Name NPE
++ PR #3969: Add an overlay for Planetary Conditions
 + Updating to Apache Commons Text 1.10.0 from 1.9
 + Updating to FlatLAF 2.6 from 2.4
 + Updating to Jackson XML 2.14.1 from 2.13.3
