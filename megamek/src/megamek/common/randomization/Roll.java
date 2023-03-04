@@ -11,7 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package megamek.common;
+package megamek.common.randomization;
 
 /**
  * Encapsulate all information known about a requested roll. This information
@@ -39,7 +39,7 @@ public abstract class Roll {
 
     /**
      * No one should call the default constructor.
-     
+
     private Roll() {
         throw new UnsupportedOperationException(
                 "Default Roll constructor called.");

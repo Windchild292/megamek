@@ -11,7 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package megamek.common;
+package megamek.common.randomization;
 
 import org.apache.logging.log4j.LogManager;
 
@@ -36,7 +36,7 @@ public abstract class MMRandom {
      * Gives you the type asked for, defaulting to SunRandom if there are any
      * errors.
      */
-    static MMRandom generate(int type) {
+    public static MMRandom generate(int type) {
         LogManager.getLogger().info("Generating RNG type #" + type);
         try {
             switch (type) {

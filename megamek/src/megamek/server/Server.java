@@ -33,6 +33,7 @@ import megamek.common.net.factories.ConnectionFactory;
 import megamek.common.net.listeners.ConnectionListener;
 import megamek.common.net.packets.Packet;
 import megamek.common.preference.PreferenceManager;
+import megamek.common.randomization.Roll;
 import megamek.common.util.EmailService;
 import megamek.common.util.SerializationHelper;
 import megamek.server.commands.ServerCommand;
